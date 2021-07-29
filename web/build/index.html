@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>gactar!</title>
+    <link rel="stylesheet" href="main.css" type="text/css" />
+    <script src="main.js"></script>
+  </head>
+
+  <body>
+    <h1>Andy's Fancy ACT-R Thingamabob (a.k.a. gactar)</h1>
+    <row class="wrapper">
+      <column class="amod">
+        <textarea id="amod" placeholder="(amod file contents here)"></textarea>
+      </column>
+      <column>
+        <row class="run">
+          <column class="runText">
+            <textarea
+              id="run"
+              rows="1"
+              placeholder="(initial goal here)"
+            ></textarea>
+          </column>
+          <column class="runButton">
+            <button type="button" onclick="runModel();">Run</button>
+          </column>
+        </row>
+        <row class="results">
+          <textarea id="results"></textarea>
+        </row>
+      </column>
+    </row>
+  </body>
+</html>

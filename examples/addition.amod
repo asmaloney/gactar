@@ -1,0 +1,87 @@
+==model==
+
+// The name of the model (used when generating code and for error messages)
+name: addition
+
+// Description of the model (currently output as a comment in the python code)
+description: 'This is a model which adds numbers. From the u1_addition.py tutorial.'
+
+// Examples of starting goals to use when running the model
+examples {
+    "add 3 1 count:None sum:None"
+    "add 5 2 count:None sum:None"
+}
+
+==config==
+
+// List of buffers to create by name
+buffers { goal, retrieve }
+
+// Memories to create
+memories {
+    memory {
+        // Attach this buffer by name
+        buffer: retrieve
+    }
+}
+
+==init==
+
+// Initialize the memory named "memory"
+memory {
+    { "count 0 1" }
+    { "count 1 2" }
+    { "count 2 3" }
+    { "count 3 4" }
+    { "count 4 5" }
+    { "count 5 6" }
+    { "count 6 7" }
+    { "count 7 8" }
+}
+
+==productions==
+
+// Name of the production
+initializeAddition {
+    match {
+        goal: 'add ?num1 ?num2 count:None?count sum:None?sum'
+    }
+    do #<
+        goal.modify(count=0, sum=num1)
+        memory.request('count ?num1 ?next')
+    >#
+}
+
+incrementSum {
+    // Buffers to match
+    match {
+        goal: 'add ?num1 ?num2 count:?count!?num2 sum:?sum'
+        retrieve: 'count ?sum ?next'
+    }
+    // Steps to execute (currently python code)
+    do #<
+        goal.modify(sum=next)
+        memory.request('count ?count ?n2')
+    >#
+}
+
+incrementCount {
+    match {
+        goal: 'add ?num1 ?num2 count:?count sum:?sum'
+        retrieve: 'count ?count ?next'
+    }
+    do #<
+        goal.modify(count=next)
+        memory.request('count ?sum ?n2')
+    >#
+}
+
+terminateAddition {
+    match {
+        goal: 'add ?num1 ?num2 count:?num2 sum:?sum'
+    }
+    do #<
+        goal.set('result ?sum')
+        print(sum)
+    >#
+}

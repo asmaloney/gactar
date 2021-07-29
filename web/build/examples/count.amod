@@ -1,0 +1,78 @@
+==model==
+
+// The name of the model (used when generating code and for error messages)
+name: count
+
+// Description of the model (currently output as a comment in the python code)
+description: "This is a model which adds numbers. Based on the u1_count.py tutorial."
+
+// Examples of starting goals to use when running the model
+examples {
+    "countFrom 2 5 starting"
+    "countFrom 1 7 starting"
+}
+
+==config==
+
+// List of buffers to create by name
+buffers { goal, retrieve }
+
+// Memories to create
+memories {
+    memory {
+        // Attach this buffer by name
+        buffer: retrieve
+    }
+}
+
+==init==
+
+// Initialize the memory named "memory"
+memory {
+    { "count 0 1" }
+    { "count 1 2" }
+    { "count 2 3" }
+    { "count 3 4" }
+    { "count 4 5" }
+    { "count 6 7" }
+    { "count 7 8" }
+    { "count 8 9" }
+    { "count 9 10" }
+}
+
+==productions==
+
+// Name of the production
+start {
+    // Buffers to match
+    match {
+        goal: 'countFrom ?start ?end starting'
+    }
+    // Steps to execute (currently python code)
+    do #<
+        memory.request('count ?start ?next')
+        goal.set('countFrom ?start ?end counting')
+    >#
+}
+
+increment {
+    match {
+        goal: 'countFrom ?x !?x counting'
+        retrieve: 'count ?x ?next'
+    }
+    do #<
+        print(x)
+        memory.request('count ?next ?nextNext')
+        goal.modify(_1=next)
+    >#
+}
+
+stop {
+    match {
+        goal: 'countFrom ?x ?x counting'
+    }
+    do #<
+        print(x)
+        goal.set('countFrom ?x ?x stop')
+    >#
+}

@@ -1,0 +1,13 @@
+# github.com/alecthomas/participle/v2 v2.0.0-alpha6.0.20210726061620-d0f908f9532e
+## explicit
+github.com/alecthomas/participle/v2
+github.com/alecthomas/participle/v2/lexer
+# github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d
+github.com/cpuguy83/go-md2man/v2/md2man
+# github.com/russross/blackfriday/v2 v2.0.1
+github.com/russross/blackfriday/v2
+# github.com/shurcooL/sanitized_anchor_name v1.0.0
+github.com/shurcooL/sanitized_anchor_name
+# github.com/urfave/cli/v2 v2.3.0
+## explicit
+github.com/urfave/cli/v2
