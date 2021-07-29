@@ -1,0 +1,28 @@
+name: Build gactar
+on: [push, pull_request]
+jobs:
+  build:
+    name: run
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        goarch: ['386', amd64, arm64]
+        exclude:
+          - os: windows-latest
+            goarch: arm64
+          - os: macos-latest
+            goarch: '386'
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@master
+      - name: Setup
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.16'
+      - name: Build
+        run: env GOARCH=${{ matrix.goarch }} go build .
+      - name: Test
+        if: ${{ matrix.goarch == '386' }}
+        run: go test
