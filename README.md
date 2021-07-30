@@ -1,3 +1,5 @@
+![Build](https://github.com/asmaloney/gactar/actions/workflows/build.yaml/badge.svg?branch=ci)
+
 # gactar
 
 `gactar` is a tool for creating [ACT-R](https://en.wikipedia.org/wiki/ACT-R) models using a new declarative file format (called _amod_).
