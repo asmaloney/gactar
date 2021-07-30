@@ -1,4 +1,4 @@
-![Build](https://github.com/asmaloney/gactar/actions/workflows/build.yaml/badge.svg?branch=ci)
+![Build](https://github.com/asmaloney/gactar/actions/workflows/build.yaml/badge.svg)
 
 # gactar
 
