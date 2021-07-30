@@ -2,7 +2,7 @@ name: Build gactar
 on: [push, pull_request]
 jobs:
   build:
-    name: run
+    name: Build
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -14,6 +14,7 @@ jobs:
             goarch: arm64
           - os: macos-latest
             goarch: '386'
+            
     steps:
       - name: Check out source code
         uses: actions/checkout@master
