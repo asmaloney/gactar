@@ -58,3 +58,15 @@ func (model *Model) LookupMemory(memoryName string) (memory *Memory) {
 
 	return
 }
+
+// BufferOrMemoryExists looks up the named item in the model
+func (model *Model) BufferOrMemoryExists(name string) bool {
+	buffer := model.LookupBuffer(name)
+	if buffer != nil {
+		return true
+	}
+
+	memory := model.LookupMemory(name)
+
+	return memory != nil
+}

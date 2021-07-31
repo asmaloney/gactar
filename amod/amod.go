@@ -111,16 +111,16 @@ func addProductions(model *actr.Model, productions *productionSection) {
 		prod.Name = production.Name
 
 		for _, item := range production.Match.Items {
-			bufferName := item.Name
+			name := item.Name
 
-			buffer := model.LookupBuffer(bufferName)
-			if buffer == nil {
-				fmt.Printf("buffer not found for production '%s': %s\n", prod.Name, bufferName)
+			exists := model.BufferOrMemoryExists(name)
+			if !exists {
+				fmt.Printf("buffer or memory not found for production '%s': %s\n", prod.Name, name)
 				continue
 			}
 
 			prod.Matches = append(prod.Matches, &actr.Match{
-				Name: bufferName,
+				Name: name,
 				Text: item.Text,
 			})
 		}
