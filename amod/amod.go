@@ -48,7 +48,12 @@ func generateModel(amod *amodFile) (model *actr.Model, err error) {
 	if err != nil {
 		return
 	}
-	initialize(model, amod.Init)
+
+	err = initialize(model, amod.Init)
+	if err != nil {
+		return
+	}
+
 	addProductions(model, amod.Productions)
 
 	return
@@ -194,25 +199,37 @@ func addTextOutputs(model *actr.Model, list *identList, errs *[]string) {
 	}
 }
 
-func initialize(model *actr.Model, init *initSection) {
+func initialize(model *actr.Model, init *initSection) (err error) {
+	errs := []string{}
+
 	for _, initializer := range init.Initializers {
 		name := initializer.Name
-
 		memory := model.LookupMemory(name)
 		if memory == nil {
-			fmt.Printf("memory not found for initialization '%s'\n", name)
+			errs = append(errs, fmt.Sprintf("memory not found for initialization '%s'", name))
 			continue
 		}
 
-		for _, item := range initializer.Items {
+		if initializer.Items == nil {
+			errs = append(errs, fmt.Sprintf("no memory initializers for memory '%s'", name))
+			continue
+		}
+
+		for _, item := range initializer.Items.Strings {
 			init := actr.Initializer{
 				MemoryName: memory.Name,
-				Text:       item.Item,
+				Text:       item,
 			}
 
 			model.Initializers = append(model.Initializers, &init)
 		}
 	}
+
+	if len(errs) == 0 {
+		return
+	}
+
+	return fmt.Errorf(strings.Join(errs, "\n"))
 }
 
 func addProductions(model *actr.Model, productions *productionSection) {

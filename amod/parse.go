@@ -27,6 +27,10 @@ type identList struct {
 	Identifiers []string `parser:"( @Ident ','? )+"`
 }
 
+type stringList struct {
+	Strings []string `parser:"( @String ','? )+"`
+}
+
 type value struct {
 	String *string  `parser:"  (@String|@Ident)"`
 	Number *float64 `parser:"| @Number"`
@@ -57,14 +61,9 @@ type configSection struct {
 	TextOutputs *identList  `parser:"('text_outputs' '{' @@ '}')?"`
 }
 
-type initItem struct {
-	Item string `parser:"'{' @String '}'"`
-}
-
 type initializer struct {
-	Name  string      `parser:"@Ident '{'"`
-	Items []*initItem `parser:"@@+"`
-	End   string      `parser:"'}'"`
+	Name  string      `parser:"@Ident"`
+	Items *stringList `parser:"'{' @@+ '}'"`
 }
 
 type initSection struct {

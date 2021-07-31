@@ -30,10 +30,10 @@ memories {
 
 // Initialize the memory named "memory"
 memory {
-    { 'addfact 3 4 7' }
-    { 'addfact 6 7 13' }
-    { 'addfact 10 3 13' }
-    { 'addfact 1 7 8' }
+    'addfact 3 4 7'
+    'addfact 6 7 13'
+    'addfact 10 3 13'
+    'addfact 1 7 8'
 }
 
 ==productions==
