@@ -98,6 +98,9 @@ examples {
 
 ==config==
 
+// Turn on logging by setting 'log' to 'true' or 1
+actr { log: false }
+
 // List of buffers to create by name
 buffers { goal, retrieve }
 
@@ -113,11 +116,11 @@ memories {
 
 // Initialize the memory named "memory"
 memory {
-    { "count 0 1" }
-    { "count 1 2" }
-    { "count 2 3" }
-    { "count 3 4" }
-    { "count 4 5" }
+    'count 0 1'
+    'count 1 2'
+    'count 2 3'
+    'count 3 4'
+    'count 4 5'
 }
 
 ==productions==
