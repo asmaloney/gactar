@@ -10,16 +10,29 @@
 
 Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate the python code to run it with the [CCM Suite](https://github.com/CarletonCognitiveModelingLab/CCMSuite3).
 
-gactar will work with the small tutorial models included in the _examples_ directory. It doesn't handle a lot beyond what's in there.
+gactar will work with the small tutorial models included in the _examples_ directory. It doesn't handle a lot beyond what's in there, so _it's very limited at the moment_.
 
 The format still feels a little heavy, so if I continue with this project I would expect to iterate on it. One goal would be to remove python from the "do blocks" by defining a parsable language to manipulate the model. This would have the advantage of allow other "backends" besides CCMSuite and would also formalize the writing of ACT-R models by defining a proper language to do so.
 
+## Why?
+
+1. Provides a human-readable, easy-to-understand, standard format to define ACT-R models.
+2. Allows the easy exchange of models with other researchers.
+3. Abstracts away the "programming" to focus on writing and understanding models.
+4. (Eventually) Restricts the model to a small language to prevent programming "outside the model".
+5. Provides a very simple setup for teaching environments.
+
 ## Requirements
 
-gactar requires two things:
-
 1.  **python3** needs to be somewhere in your environment's `PATH`
-2.  The [CCM Suite](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) (for python3) needs to be available in `PYTHONPATH`.
+
+2.  You will need to clone the [CCM Suite](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) (for python3):
+
+    ```sh
+    git clone https://github.com/CarletonCognitiveModelingLab/CCMSuite3
+    ```
+
+3.  The ccm package from that suite needs to be available in your `PYTHONPATH`.
 
     On Linux/macOS, you can do this in the terminal before running `gactar`:
 
@@ -28,6 +41,17 @@ gactar requires two things:
     ```
 
 ## Build
+
+If you want to build gactar, you will need the [go compiler](https://golang.org/) installed.
+
+Then you just need to clone this repo:
+
+```sh
+git clone https://github.com/asmaloney/gactar
+cd gactar
+```
+
+...and run the build command:
 
 ```
 go build
