@@ -57,92 +57,113 @@ func generateModel(amod *amodFile) (model *actr.Model, err error) {
 func addConfig(model *actr.Model, config *configSection) (err error) {
 	errs := []string{}
 
-	for _, name := range config.Buffers.Identifiers {
-		buffer := actr.Buffer{
-			Name: name,
-		}
-
-		model.Buffers = append(model.Buffers, &buffer)
-	}
-
-	for _, mem := range config.Memories {
-		memory := actr.Memory{
-			Name: mem.Name,
-		}
-
-		for _, field := range mem.Fields.Fields {
+	if config.hasACTR() {
+		for _, field := range config.ACTR.Fields {
 			switch field.Key {
-			case "buffer":
+			case "log":
 				if field.Value.Number != nil {
-					errs = append(errs, fmt.Sprintf("buffer should not be a number in memory '%s': %v\n", mem.Name, *field.Value.Number))
-					continue
-				}
-
-				bufferName := field.Value.String
-
-				buffer := model.LookupBuffer(*bufferName)
-				if buffer == nil {
-					errs = append(errs, fmt.Sprintf("buffer not found for memory '%s': %s\n", mem.Name, *bufferName))
-					continue
+					model.Logging = (*field.Value.Number != 0)
 				} else {
-					memory.Buffer = buffer
+					model.Logging = (strings.ToLower(*field.Value.String) == "true")
 				}
-
-			case "latency":
-				if field.Value.String != nil {
-					errs = append(errs, fmt.Sprintf("latency should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
-					continue
-				}
-
-				memory.Latency = field.Value.Number
-
-			case "threshold":
-				if field.Value.String != nil {
-					errs = append(errs, fmt.Sprintf("threshold should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
-					continue
-				}
-
-				memory.Threshold = field.Value.Number
-
-			case "max_time":
-				if field.Value.String != nil {
-					errs = append(errs, fmt.Sprintf("max_time should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
-					continue
-				}
-
-				memory.MaxTime = field.Value.Number
-
-			case "finst_size":
-				if field.Value.String != nil {
-					errs = append(errs, fmt.Sprintf("finst_size should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
-					continue
-				}
-
-				size := int(*field.Value.Number)
-				memory.FinstSize = &size
-
-			case "finst_time":
-				if field.Value.String != nil {
-					errs = append(errs, fmt.Sprintf("finst_time should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
-					continue
-				}
-
-				memory.FinstTime = field.Value.Number
-
 			default:
-				errs = append(errs, fmt.Sprintf("Unrecognized field in memory '%s': '%s'", memory.Name, field.Key))
+				errs = append(errs, fmt.Sprintf("Unrecognized field in actr section: '%s'", field.Key))
 			}
 		}
-
-		model.Memories = append(model.Memories, &memory)
 	}
 
-	for _, name := range config.TextOutputs.Identifiers {
-		textOutput := actr.TextOutput{
-			Name: name,
-		}
+	if config.hasBuffers() {
+		for _, name := range config.Buffers.Identifiers {
+			buffer := actr.Buffer{
+				Name: name,
+			}
 
-		model.TextOutputs = append(model.TextOutputs, &textOutput)
+			model.Buffers = append(model.Buffers, &buffer)
+		}
+	}
+
+	if config.hasMemories() {
+		for _, mem := range config.Memories.Memories {
+			memory := actr.Memory{
+				Name: mem.Name,
+			}
+
+			for _, field := range mem.Fields.Fields {
+				switch field.Key {
+				case "buffer":
+					if field.Value.Number != nil {
+						errs = append(errs, fmt.Sprintf("buffer should not be a number in memory '%s': %v\n", mem.Name, *field.Value.Number))
+						continue
+					}
+
+					bufferName := field.Value.String
+
+					buffer := model.LookupBuffer(*bufferName)
+					if buffer == nil {
+						errs = append(errs, fmt.Sprintf("buffer not found for memory '%s': %s\n", mem.Name, *bufferName))
+						continue
+					} else {
+						memory.Buffer = buffer
+					}
+
+				case "latency":
+					if field.Value.String != nil {
+						errs = append(errs, fmt.Sprintf("latency should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
+						continue
+					}
+
+					memory.Latency = field.Value.Number
+
+				case "threshold":
+					if field.Value.String != nil {
+						errs = append(errs, fmt.Sprintf("threshold should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
+						continue
+					}
+
+					memory.Threshold = field.Value.Number
+
+				case "max_time":
+					if field.Value.String != nil {
+						errs = append(errs, fmt.Sprintf("max_time should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
+						continue
+					}
+
+					memory.MaxTime = field.Value.Number
+
+				case "finst_size":
+					if field.Value.String != nil {
+						errs = append(errs, fmt.Sprintf("finst_size should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
+						continue
+					}
+
+					size := int(*field.Value.Number)
+					memory.FinstSize = &size
+
+				case "finst_time":
+					if field.Value.String != nil {
+						errs = append(errs, fmt.Sprintf("finst_time should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
+						continue
+					}
+
+					memory.FinstTime = field.Value.Number
+
+				default:
+					errs = append(errs, fmt.Sprintf("Unrecognized field in memory '%s': '%s'", memory.Name, field.Key))
+				}
+			}
+
+			model.Memories = append(model.Memories, &memory)
+		}
+	}
+
+	if config.hasTextOutputs() {
+		for _, name := range config.TextOutputs.Identifiers {
+			textOutput := actr.TextOutput{
+				Name: name,
+			}
+
+			model.TextOutputs = append(model.TextOutputs, &textOutput)
+		}
 	}
 
 	if len(errs) == 0 {

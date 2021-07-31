@@ -144,6 +144,12 @@ func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
 
 	f.WriteString("\n")
 
+	if p.model.Logging {
+		f.WriteString("\tdef __init__(self):\n")
+		f.WriteString("\t\tsuper().__init__(log=True)\n")
+		f.WriteString("\n")
+	}
+
 	if len(p.model.Initializers) > 0 {
 		f.WriteString("\tdef init():\n")
 

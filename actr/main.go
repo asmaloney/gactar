@@ -11,6 +11,7 @@ type Model struct {
 	TextOutputs  []*TextOutput
 	Initializers []*Initializer
 	Productions  []*Production
+	Logging      bool
 }
 
 type Buffer struct {

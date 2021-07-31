@@ -34,22 +34,27 @@ type value struct {
 
 type field struct {
 	Key   string `parser:"@Ident ':'"`
-	Value value  `parser:"@@"`
+	Value value  `parser:"@@ (',')?"`
 }
 
 type fieldList struct {
-	Fields []*field `parser:"'{' ( @@ ',' )+  '}'"`
+	Fields []*field `parser:"'{' @@+ '}'"`
 }
 
 type memory struct {
 	Name   string    `parser:"@Ident"`
-	Fields fieldList `parser:"( @@ )+"`
+	Fields fieldList `parser:"@@+"`
+}
+
+type memoryList struct {
+	Memories []*memory `parser:"'{' @@+ '}'"`
 }
 
 type configSection struct {
-	Buffers     identList `parser:"('buffers' '{' @@ '}')?"`
-	Memories    []*memory `parser:"('memories' '{' ( @@ )+ '}')?"`
-	TextOutputs identList `parser:"('text_outputs' '{' @@ '}')?"`
+	ACTR        *fieldList  `parser:"('actr' @@)?"`
+	Buffers     *identList  `parser:"('buffers' '{' @@ '}')?"`
+	Memories    *memoryList `parser:"('memories' @@)?"`
+	TextOutputs *identList  `parser:"('text_outputs' '{' @@ '}')?"`
 }
 
 type initItem struct {
@@ -58,12 +63,12 @@ type initItem struct {
 
 type initializer struct {
 	Name  string      `parser:"@Ident '{'"`
-	Items []*initItem `parser:"( @@ )+"`
+	Items []*initItem `parser:"@@+"`
 	End   string      `parser:"'}'"`
 }
 
 type initSection struct {
-	Initializers []*initializer `parser:"( @@ )+"`
+	Initializers []*initializer `parser:"@@+"`
 }
 
 type matchItem struct {
@@ -88,6 +93,22 @@ type production struct {
 
 type productionSection struct {
 	Productions []*production `parser:"( @@ )+"`
+}
+
+func (c *configSection) hasACTR() bool {
+	return c.ACTR != nil
+}
+
+func (c *configSection) hasBuffers() bool {
+	return c.Buffers != nil
+}
+
+func (c *configSection) hasMemories() bool {
+	return c.Memories != nil
+}
+
+func (c *configSection) hasTextOutputs() bool {
+	return c.TextOutputs != nil
 }
 
 var parser = participle.MustBuild(&amodFile{},
