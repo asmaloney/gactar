@@ -95,22 +95,6 @@ type productionSection struct {
 	Productions []*production `parser:"( @@ )+"`
 }
 
-func (c *configSection) hasACTR() bool {
-	return c.ACTR != nil
-}
-
-func (c *configSection) hasBuffers() bool {
-	return c.Buffers != nil
-}
-
-func (c *configSection) hasMemories() bool {
-	return c.Memories != nil
-}
-
-func (c *configSection) hasTextOutputs() bool {
-	return c.TextOutputs != nil
-}
-
 var parser = participle.MustBuild(&amodFile{},
 	participle.Lexer(LexerDefinition),
 	participle.Unquote(),
