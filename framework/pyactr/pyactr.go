@@ -86,7 +86,21 @@ func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
 	f.WriteString(fmt.Sprintf("# %s\n", p.model.Description))
 	f.WriteString("\n")
 
-	f.WriteString("from ccm.lib.actr import ACTR, Buffer, Memory\n\n\n")
+	imports := []string{"ACTR"}
+
+	if len(p.model.Buffers) > 0 {
+		imports = append(imports, "Buffer")
+	}
+
+	if len(p.model.Memories) > 0 {
+		imports = append(imports, "Memory")
+	}
+
+	if len(p.model.TextOutputs) > 0 {
+		imports = append(imports, "TextOutput")
+	}
+
+	f.WriteString(fmt.Sprintf("from ccm.lib.actr import %s\n\n\n", strings.Join(imports, ",")))
 
 	f.WriteString(fmt.Sprintf("class %s(ACTR):\n", p.className))
 
@@ -96,6 +110,10 @@ func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
 
 	for _, memory := range p.model.Memories {
 		f.WriteString(fmt.Sprintf("\t%s = Memory(%s)\n", memory.Name, memory.Buffer.Name))
+	}
+
+	for _, textOutput := range p.model.TextOutputs {
+		f.WriteString(fmt.Sprintf("\t%s = TextOutput()\n", textOutput.Name))
 	}
 
 	f.WriteString("\n")
@@ -127,6 +145,8 @@ func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
 		for _, doItem := range production.Do {
 			f.WriteString(fmt.Sprintf("\t\t%s", doItem))
 		}
+
+		f.WriteString("\n")
 	}
 
 	return

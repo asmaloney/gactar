@@ -8,8 +8,13 @@ type Model struct {
 	Examples     []string
 	Buffers      []*Buffer
 	Memories     []*Memory
+	TextOutputs  []*TextOutput
 	Initializers []*Initializer
 	Productions  []*Production
+}
+
+type Buffer struct {
+	Name string
 }
 
 type Memory struct {
@@ -17,7 +22,7 @@ type Memory struct {
 	Buffer *Buffer
 }
 
-type Buffer struct {
+type TextOutput struct {
 	Name string
 }
 

@@ -53,17 +53,17 @@ func generateModel(amod *amodFile) (model *actr.Model, err error) {
 
 func addConfig(model *actr.Model, config *configSection) {
 	for _, name := range config.Buffers.Identifiers {
-		var buffer actr.Buffer
-
-		buffer.Name = name
+		buffer := actr.Buffer{
+			Name: name,
+		}
 
 		model.Buffers = append(model.Buffers, &buffer)
 	}
 
 	for _, mem := range config.Memories {
-		var memory actr.Memory
-
-		memory.Name = mem.Name
+		memory := actr.Memory{
+			Name: mem.Name,
+		}
 
 		for _, field := range mem.Fields.Fields {
 			if field.Key == "buffer" {
@@ -80,6 +80,14 @@ func addConfig(model *actr.Model, config *configSection) {
 		}
 
 		model.Memories = append(model.Memories, &memory)
+	}
+
+	for _, name := range config.TextOutputs.Identifiers {
+		textOutput := actr.TextOutput{
+			Name: name,
+		}
+
+		model.TextOutputs = append(model.TextOutputs, &textOutput)
 	}
 }
 
@@ -106,9 +114,9 @@ func initialize(model *actr.Model, init *initSection) {
 
 func addProductions(model *actr.Model, productions *productionSection) {
 	for _, production := range productions.Productions {
-		var prod actr.Production
-
-		prod.Name = production.Name
+		prod := actr.Production{
+			Name: production.Name,
+		}
 
 		for _, item := range production.Match.Items {
 			name := item.Name

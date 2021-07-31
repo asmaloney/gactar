@@ -42,8 +42,9 @@ type memory struct {
 }
 
 type configSection struct {
-	Buffers  identList `parser:"'buffers' '{' @@ '}'"`
-	Memories []*memory `parser:"'memories' '{' ( @@ )+ '}'"`
+	Buffers     identList `parser:"('buffers' '{' @@ '}')?"`
+	Memories    []*memory `parser:"('memories' '{' ( @@ )+ '}')?"`
+	TextOutputs identList `parser:"('text_outputs' '{' @@ '}')?"`
 }
 
 type initItem struct {
