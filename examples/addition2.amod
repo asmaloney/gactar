@@ -1,0 +1,105 @@
+==model==
+
+// The name of the model (used when generating code and for error messages)
+name: addition2
+
+// Description of the model (currently output as a comment in the python code)
+description: "This model is based on the u1_addition2.py tutorial."
+
+// Examples of starting goals to use when running the model
+examples {
+    'add 3 6 4 7 None None None'
+}
+
+==config==
+
+// List of buffers to create by name
+buffers { goal, retrieve }
+
+// Memories to create
+memories {
+    memory {
+        // Attach this buffer by name
+        buffer: retrieve
+    }
+}
+
+==init==
+
+// Initialize the memory named "memory"
+memory {
+    { 'addfact 3 4 7' }
+    { 'addfact 6 7 13' }
+    { 'addfact 10 3 13' }
+    { 'addfact 1 7 8' }
+}
+
+==productions==
+
+// Name of the production
+startPair {
+    // Buffers to match
+    match {
+        goal: 'add ? ?one1 ? ?one2 ? None?ans ?'
+    }
+    // Steps to execute (currently python code)
+    do #<
+        goal.modify(_6='busy')
+        memory.request('addfact ?one1 ?one2 ?')
+    >#
+}
+
+addOnes {
+    match {
+        goal: 'add ? ? ? ? ? busy?ans ?carry'
+        retrieve: 'addfact ? ? ?sum'
+    }
+    do #<
+        goal.modify(_6=sum, _7='busy')
+        memory.request('addfact 10 ? ?sum')
+    >#
+}
+
+processCarry {
+    match {
+        goal: 'add ?ten1 ? ?ten2 ? None?tenAns ?oneAns busy?carry'
+        retrieve: 'addfact 10 ?rem ?sum'
+    }
+    do #<
+        goal.modify(_6=rem, _7=1, _5='busy')
+        memory.request('addfact ?ten1 ?ten2 ?')
+    >#
+}
+
+noCarry {
+    match {
+        goal: 'add ?ten1 ? ?ten2 None?tenAns ?oneAns busy?carry'
+        memory: 'error:True'
+    }
+    do #<
+        goal.modify(_6=0, _4='busy')
+        memory.request('addfact ?ten1 ?ten2 ?')
+    >#
+}
+
+addTensDone {
+    match {
+        goal: 'add ? ? ? ? busy?tenAns ?oneAns 0'
+        retrieve: 'addfact ? ? ?sum'
+    }
+    do #<
+        print(sum, oneAns)
+        goal.modify(_5=sum)
+    >#
+}
+
+addTensCarry {
+    match {
+        goal: 'add ? ? ? ? busy?tenAns ? 1?carry'
+        retrieve: 'addfact ? ? ?sum'
+    }
+    do #<
+        goal.modify(_7=0)
+        memory.request('addfact 1 ?sum ?')
+    >#
+}

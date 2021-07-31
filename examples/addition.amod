@@ -43,9 +43,11 @@ memory {
 
 // Name of the production
 initializeAddition {
+    // Buffers to match
     match {
         goal: 'add ?num1 ?num2 count:None?count sum:None?sum'
     }
+    // Steps to execute (currently python code)
     do #<
         goal.modify(count=0, sum=num1)
         memory.request('count ?num1 ?next')
@@ -53,12 +55,10 @@ initializeAddition {
 }
 
 incrementSum {
-    // Buffers to match
     match {
         goal: 'add ?num1 ?num2 count:?count!?num2 sum:?sum'
         retrieve: 'count ?sum ?next'
     }
-    // Steps to execute (currently python code)
     do #<
         goal.modify(sum=next)
         memory.request('count ?count ?n2')

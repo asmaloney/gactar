@@ -1,0 +1,90 @@
+==model==
+
+// The name of the model (used when generating code and for error messages)
+name: semantic
+
+// Description of the model (currently output as a comment in the python code)
+description: "This model is based on the u1_semantic.py tutorial."
+
+// Examples of starting goals to use when running the model
+examples {
+    'isMember shark fish result:None'
+    'isMember shark animal result:None'
+    'isMember canary fish result:None'
+}
+
+==config==
+
+// List of buffers to create by name
+buffers { goal, retrieve }
+
+// Memories to create
+memories {
+    memory {
+        // Attach this buffer by name
+        buffer: retrieve
+    }
+}
+
+// List of text outputs to create by name
+text_outputs { text }
+
+==init==
+
+// Initialize the memory named "memory"
+memory {
+    { 'property shark dangerous true' }
+    { 'property shark locomotion swimming' }
+    { 'property shark category fish' }
+    { 'property fish category animal' }
+    { 'property bird category animal' }
+    { 'property canary category bird' }
+}
+
+==productions==
+
+// Name of the production
+initialRetrieve {
+    // Buffers to match
+    match {
+        goal: 'isMember ?obj ?cat result:None'
+    }
+    // Steps to execute (currently python code)
+    do #<
+        goal.modify(result='pending')
+        memory.request('property ?obj category ?')
+    >#
+}
+
+directVerify {
+    match {
+        goal: 'isMember ?obj ?cat result:pending'
+        retrieve: 'property ?obj category ?cat'
+    }
+    do #<
+        goal.modify(result='yes')
+        text.write('Yes')
+    >#
+}
+
+chainCategory {
+    match {
+        goal: 'isMember ?obj1 ?cat result:pending'
+        retrieve: 'property ?obj1 category ?obj2!?cat'
+    }
+    do #<
+        goal.modify(_1=obj2)
+        memory.request('property ?obj2 category ?')
+    >#
+}
+
+fail {
+    match {
+        goal: 'isMember ?obj1 ?cat result:pending'
+        memory: 'error:True'
+    }
+    do #<
+        goal.modify(result='no')
+        text.write('No')
+    >#
+}
