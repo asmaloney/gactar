@@ -15,6 +15,9 @@ examples {
 
 ==config==
 
+// Turn on logging by setting 'log' to 'true' or 1
+actr { log: false }
+
 // List of buffers to create by name
 buffers { goal, retrieve }
 
