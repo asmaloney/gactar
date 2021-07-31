@@ -19,8 +19,8 @@ type amodFile struct {
 
 type modelSection struct {
 	Name        string   `parser:"'name' ':' (@String|@Ident)"`
-	Description string   `parser:"'description' ':' (@String|@Ident)"`
-	Examples    []string `parser:"'examples' '{' (@String)+ '}'"`
+	Description string   `parser:"('description' ':' (@String|@Ident))?"`
+	Examples    []string `parser:"('examples' '{' (@String)+ '}')?"`
 }
 
 type identList struct {
