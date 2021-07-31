@@ -27,13 +27,18 @@ type identList struct {
 	Identifiers []string `parser:"( @Ident ','? )+"`
 }
 
+type value struct {
+	String *string  `parser:"  (@String|@Ident)"`
+	Number *float64 `parser:"| @Number"`
+}
+
 type field struct {
 	Key   string `parser:"@Ident ':'"`
-	Value string `parser:"(@String|@Ident)"`
+	Value value  `parser:"@@"`
 }
 
 type fieldList struct {
-	Fields []*field `parser:"'{' ( @@ )+  '}'"`
+	Fields []*field `parser:"'{' ( @@ ',' )+  '}'"`
 }
 
 type memory struct {

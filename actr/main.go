@@ -18,8 +18,13 @@ type Buffer struct {
 }
 
 type Memory struct {
-	Name   string
-	Buffer *Buffer
+	Name      string
+	Buffer    *Buffer // required
+	Latency   *float64
+	Threshold *float64
+	MaxTime   *float64
+	FinstSize *int     // not sure what the 'f' is in finst?
+	FinstTime *float64 // not sure what the 'f' is in finst?
 }
 
 type TextOutput struct {

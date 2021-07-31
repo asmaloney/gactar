@@ -100,7 +100,7 @@ func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
 		imports = append(imports, "TextOutput")
 	}
 
-	f.WriteString(fmt.Sprintf("from ccm.lib.actr import %s\n\n\n", strings.Join(imports, ",")))
+	f.WriteString(fmt.Sprintf("from ccm.lib.actr import %s\n\n\n", strings.Join(imports, ", ")))
 
 	f.WriteString(fmt.Sprintf("class %s(ACTR):\n", p.className))
 
@@ -109,7 +109,33 @@ func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
 	}
 
 	for _, memory := range p.model.Memories {
-		f.WriteString(fmt.Sprintf("\t%s = Memory(%s)\n", memory.Name, memory.Buffer.Name))
+		additionalInit := []string{}
+
+		if memory.Latency != nil {
+			additionalInit = append(additionalInit, fmt.Sprintf("latency=%v", *memory.Latency))
+		}
+
+		if memory.Threshold != nil {
+			additionalInit = append(additionalInit, fmt.Sprintf("threshold=%v", *memory.Threshold))
+		}
+
+		if memory.MaxTime != nil {
+			additionalInit = append(additionalInit, fmt.Sprintf("maximum_time=%v", *memory.MaxTime))
+		}
+
+		if memory.FinstSize != nil {
+			additionalInit = append(additionalInit, fmt.Sprintf("finst_size=%v", *memory.FinstSize))
+		}
+
+		if memory.FinstTime != nil {
+			additionalInit = append(additionalInit, fmt.Sprintf("finst_time=%v", *memory.FinstTime))
+		}
+
+		if len(additionalInit) > 0 {
+			f.WriteString(fmt.Sprintf("\t%s = Memory(%s, %s)\n", memory.Name, memory.Buffer.Name, strings.Join(additionalInit, ", ")))
+		} else {
+			f.WriteString(fmt.Sprintf("\t%s = Memory(%s)\n", memory.Name, memory.Buffer.Name))
+		}
 	}
 
 	for _, textOutput := range p.model.TextOutputs {
