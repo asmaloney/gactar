@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"gitlab.com/asmaloney/gactar/actr"
+	"gitlab.com/asmaloney/gactar/errorlist"
 )
 
 var debugging bool = false
@@ -60,7 +61,11 @@ func generateModel(amod *amodFile) (model *actr.Model, err error) {
 }
 
 func addConfig(model *actr.Model, config *configSection) (err error) {
-	errs := []string{}
+	if config == nil {
+		return
+	}
+
+	errs := errorlist.Errors{}
 
 	addACTR(model, config.ACTR, &errs)
 	addBuffers(model, config.Buffers, &errs)
@@ -71,10 +76,10 @@ func addConfig(model *actr.Model, config *configSection) (err error) {
 		return
 	}
 
-	return fmt.Errorf(strings.Join(errs, "\n"))
+	return errs
 }
 
-func addACTR(model *actr.Model, list *fieldList, errs *[]string) {
+func addACTR(model *actr.Model, list *fieldList, errs *errorlist.Errors) {
 	if list == nil {
 		return
 	}
@@ -88,12 +93,12 @@ func addACTR(model *actr.Model, list *fieldList, errs *[]string) {
 				model.Logging = (strings.ToLower(*field.Value.String) == "true")
 			}
 		default:
-			*errs = append(*errs, fmt.Sprintf("Unrecognized field in actr section: '%s'", field.Key))
+			errs.Addf("Unrecognized field in actr section: '%s'", field.Key)
 		}
 	}
 }
 
-func addBuffers(model *actr.Model, list *identList, errs *[]string) {
+func addBuffers(model *actr.Model, list *identList, errs *errorlist.Errors) {
 	if list == nil {
 		return
 	}
@@ -107,7 +112,7 @@ func addBuffers(model *actr.Model, list *identList, errs *[]string) {
 	}
 }
 
-func addMemories(model *actr.Model, list *memoryList, errs *[]string) {
+func addMemories(model *actr.Model, list *memoryList, errs *errorlist.Errors) {
 	if list == nil {
 		return
 	}
@@ -121,7 +126,7 @@ func addMemories(model *actr.Model, list *memoryList, errs *[]string) {
 			switch field.Key {
 			case "buffer":
 				if field.Value.Number != nil {
-					*errs = append(*errs, fmt.Sprintf("buffer should not be a number in memory '%s': %v\n", mem.Name, *field.Value.Number))
+					errs.Addf("buffer should not be a number in memory '%s': %v\n", mem.Name, *field.Value.Number)
 					continue
 				}
 
@@ -129,7 +134,7 @@ func addMemories(model *actr.Model, list *memoryList, errs *[]string) {
 
 				buffer := model.LookupBuffer(*bufferName)
 				if buffer == nil {
-					*errs = append(*errs, fmt.Sprintf("buffer not found for memory '%s': %s\n", mem.Name, *bufferName))
+					errs.Addf("buffer not found for memory '%s': %s\n", mem.Name, *bufferName)
 					continue
 				} else {
 					memory.Buffer = buffer
@@ -137,7 +142,7 @@ func addMemories(model *actr.Model, list *memoryList, errs *[]string) {
 
 			case "latency":
 				if field.Value.String != nil {
-					*errs = append(*errs, fmt.Sprintf("latency should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
+					errs.Addf("latency should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String)
 					continue
 				}
 
@@ -145,7 +150,7 @@ func addMemories(model *actr.Model, list *memoryList, errs *[]string) {
 
 			case "threshold":
 				if field.Value.String != nil {
-					*errs = append(*errs, fmt.Sprintf("threshold should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
+					errs.Addf("threshold should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String)
 					continue
 				}
 
@@ -153,7 +158,7 @@ func addMemories(model *actr.Model, list *memoryList, errs *[]string) {
 
 			case "max_time":
 				if field.Value.String != nil {
-					*errs = append(*errs, fmt.Sprintf("max_time should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
+					errs.Addf("max_time should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String)
 					continue
 				}
 
@@ -161,7 +166,7 @@ func addMemories(model *actr.Model, list *memoryList, errs *[]string) {
 
 			case "finst_size":
 				if field.Value.String != nil {
-					*errs = append(*errs, fmt.Sprintf("finst_size should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
+					errs.Addf("finst_size should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String)
 					continue
 				}
 
@@ -170,14 +175,14 @@ func addMemories(model *actr.Model, list *memoryList, errs *[]string) {
 
 			case "finst_time":
 				if field.Value.String != nil {
-					*errs = append(*errs, fmt.Sprintf("finst_time should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String))
+					errs.Addf("finst_time should not be a string in memory '%s': %v\n", mem.Name, *field.Value.String)
 					continue
 				}
 
 				memory.FinstTime = field.Value.Number
 
 			default:
-				*errs = append(*errs, fmt.Sprintf("Unrecognized field in memory '%s': '%s'", memory.Name, field.Key))
+				errs.Addf("Unrecognized field in memory '%s': '%s'", memory.Name, field.Key)
 			}
 		}
 
@@ -185,7 +190,7 @@ func addMemories(model *actr.Model, list *memoryList, errs *[]string) {
 	}
 }
 
-func addTextOutputs(model *actr.Model, list *identList, errs *[]string) {
+func addTextOutputs(model *actr.Model, list *identList, errs *errorlist.Errors) {
 	if list == nil {
 		return
 	}
@@ -200,18 +205,22 @@ func addTextOutputs(model *actr.Model, list *identList, errs *[]string) {
 }
 
 func initialize(model *actr.Model, init *initSection) (err error) {
-	errs := []string{}
+	if init == nil {
+		return
+	}
+
+	errs := errorlist.Errors{}
 
 	for _, initializer := range init.Initializers {
 		name := initializer.Name
 		memory := model.LookupMemory(name)
 		if memory == nil {
-			errs = append(errs, fmt.Sprintf("memory not found for initialization '%s'", name))
+			errs.Addf("memory not found for initialization '%s'", name)
 			continue
 		}
 
 		if initializer.Items == nil {
-			errs = append(errs, fmt.Sprintf("no memory initializers for memory '%s'", name))
+			errs.Addf("no memory initializers for memory '%s'", name)
 			continue
 		}
 
@@ -229,10 +238,16 @@ func initialize(model *actr.Model, init *initSection) (err error) {
 		return
 	}
 
-	return fmt.Errorf(strings.Join(errs, "\n"))
+	return errs
 }
 
-func addProductions(model *actr.Model, productions *productionSection) {
+func addProductions(model *actr.Model, productions *productionSection) (err error) {
+	if productions == nil {
+		return
+	}
+
+	errs := errorlist.Errors{}
+
 	for _, production := range productions.Productions {
 		prod := actr.Production{
 			Name: production.Name,
@@ -243,7 +258,7 @@ func addProductions(model *actr.Model, productions *productionSection) {
 
 			exists := model.BufferOrMemoryExists(name)
 			if !exists {
-				fmt.Printf("buffer or memory not found for production '%s': %s\n", prod.Name, name)
+				errs.Addf("buffer or memory not found for production '%s': %s\n", prod.Name, name)
 				continue
 			}
 
@@ -257,4 +272,10 @@ func addProductions(model *actr.Model, productions *productionSection) {
 
 		model.Productions = append(model.Productions, &prod)
 	}
+
+	if len(errs) == 0 {
+		return
+	}
+
+	return errs
 }
