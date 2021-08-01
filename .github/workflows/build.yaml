@@ -14,7 +14,7 @@ jobs:
             goarch: arm64
           - os: macos-latest
             goarch: '386'
-            
+
     steps:
       - name: Check out source code
         uses: actions/checkout@master
@@ -25,5 +25,5 @@ jobs:
       - name: Build
         run: env GOARCH=${{ matrix.goarch }} go build .
       - name: Test
-        if: ${{ matrix.goarch == '386' }}
-        run: go test
+        if: ${{ matrix.goarch == 'amd64' }}
+        run: go test ./...
