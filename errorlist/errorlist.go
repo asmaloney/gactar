@@ -7,6 +7,10 @@ import (
 
 type Errors []string
 
+func (el Errors) IsEmpty() bool {
+	return len(el) == 0
+}
+
 func (el *Errors) Add(e string) {
 	*el = append(*el, e)
 }
