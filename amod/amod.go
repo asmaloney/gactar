@@ -86,11 +86,7 @@ func addConfig(model *actr.Model, config *configSection) (err error) {
 	addMemories(model, config.Memories, &errs)
 	addTextOutputs(model, config.TextOutputs, &errs)
 
-	if errs.IsEmpty() {
-		return
-	}
-
-	return errs
+	return errs.ErrorOrNil()
 }
 
 func addACTR(model *actr.Model, list *fieldList, errs *errorListWithContext) {
@@ -248,11 +244,7 @@ func initialize(model *actr.Model, init *initSection) (err error) {
 		}
 	}
 
-	if errs.IsEmpty() {
-		return
-	}
-
-	return errs
+	return errs.ErrorOrNil()
 }
 
 func addProductions(model *actr.Model, productions *productionSection) (err error) {
@@ -287,9 +279,5 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 		model.Productions = append(model.Productions, &prod)
 	}
 
-	if errs.IsEmpty() {
-		return
-	}
-
-	return errs
+	return errs.ErrorOrNil()
 }
