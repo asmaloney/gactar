@@ -1,3 +1,4 @@
+name: Release gactar
 on:
   release:
     types: [created]
@@ -11,7 +12,7 @@ jobs:
         goos: [linux, windows, darwin]
         goarch: ['386', amd64, arm64]
         exclude:
-          - os: windows
+          - goos: windows
             goarch: arm64
           - goos: darwin
             goarch: '386'
@@ -23,4 +24,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
-          extra_files: examples LICENSE README.md 
+          extra_files: examples LICENSE README.md
