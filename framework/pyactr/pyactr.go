@@ -64,6 +64,7 @@ func (p *PyACTR) Run(initialGoal string) (output []byte, err error) {
 	output, err = cmd.CombinedOutput()
 
 	if err != nil {
+		err = fmt.Errorf("%s", string(output))
 		return
 	}
 
