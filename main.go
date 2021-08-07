@@ -20,7 +20,7 @@ func main() {
 		Name:        "gactar",
 		Usage:       "A command-line tool for working with ACT-R models",
 		Description: "A proof-of-concept tool for creating ACT-R models using a declarative file format.",
-		Version:     "v0.0.1",
+		Version:     "v0.0.2",
 		Compiled:    time.Now(),
 		Authors: []*cli.Author{
 			{
