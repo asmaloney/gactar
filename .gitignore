@@ -14,3 +14,5 @@ gactar
 
 __pycache__
 tmp
+pyenv
+.vscode
