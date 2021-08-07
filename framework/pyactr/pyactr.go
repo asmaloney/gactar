@@ -21,6 +21,8 @@ func Initialize() (p *PyACTR, err error) {
 		return
 	}
 
+	identifyPython()
+
 	err = checkForPackage("ccm")
 	if err != nil {
 		return
@@ -183,6 +185,18 @@ func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
 	}
 
 	return
+}
+
+func identifyPython() {
+	cmd := exec.Command("python3", "--version")
+	output, _ := cmd.CombinedOutput()
+
+	version := strings.TrimSpace(string(output))
+
+	cmd = exec.Command("which", "python3")
+	output, _ = cmd.CombinedOutput()
+
+	fmt.Printf("Using %s from %s", version, string(output))
 }
 
 func checkForExecutable(exe string) (path string, err error) {
