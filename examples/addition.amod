@@ -50,11 +50,12 @@ initializeAddition {
     match {
         goal: 'add ?num1 ?num2 count:None?count sum:None?sum'
     }
-    // Steps to execute (currently python code)
-    do #<
-        goal.modify(count=0, sum=num1)
-        memory.request('count ?num1 ?next')
-    >#
+    // Steps to execute
+    do {
+        set field count of goal to 0
+        set field sum of goal to num1
+        recall 'count ?num1 ?next' from memory
+    }
 }
 
 incrementSum {
@@ -62,10 +63,10 @@ incrementSum {
         goal: 'add ?num1 ?num2 count:?count!?num2 sum:?sum'
         retrieve: 'count ?sum ?next'
     }
-    do #<
-        goal.modify(sum=next)
-        memory.request('count ?count ?n2')
-    >#
+    do {
+        set field sum of goal to next
+        recall 'count ?count ?n2' from memory
+    }
 }
 
 incrementCount {
@@ -73,18 +74,18 @@ incrementCount {
         goal: 'add ?num1 ?num2 count:?count sum:?sum'
         retrieve: 'count ?count ?next'
     }
-    do #<
-        goal.modify(count=next)
-        memory.request('count ?sum ?n2')
-    >#
+    do {
+        set field count of goal to next
+        recall 'count ?sum ?n2' from memory
+   }
 }
 
 terminateAddition {
     match {
         goal: 'add ?num1 ?num2 count:?num2 sum:?sum'
     }
-    do #<
-        goal.set('result ?sum')
-        print(sum)
-    >#
+    do {
+        set goal to 'result ?sum'
+        print sum
+    }
 }

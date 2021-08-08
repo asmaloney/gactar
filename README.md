@@ -10,16 +10,16 @@
 
 Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate the python code to run it with the [CCM Suite](https://github.com/CarletonCognitiveModelingLab/CCMSuite3).
 
-gactar will work with the small tutorial models included in the _examples_ directory. It doesn't handle a lot beyond what's in there - it only works with memory modules, not perceptual-motor ones - so _it's very limited at the moment_.
+gactar will work with the small tutorial models included in the _examples_ directory. It doesn't handle a lot beyond what's in there - it only works with memory modules, not perceptual-motor ones - so _it's limited at the moment_.
 
-The format still feels a little heavy, so if I continue with this project I would expect to iterate on it. One goal would be to remove python from the "do blocks" by defining a parsable language to manipulate the model. This would have the advantage of allow other "backends" besides CCMSuite and would also formalize the writing of ACT-R models by defining a proper language to do so. I might look at making it read more like English to make it less "program-y"...
+The format still feels a little heavy, so if I continue with this project I would expect to iterate on it.
 
 ## Why?
 
-1. Provides a human-readable, easy-to-understand, standard format to define (basic?) ACT-R models.
+1. Provides a human-readable, easy-to-understand, standard format to define basic ACT-R models.
 2. Allows the easy exchange of models with other researchers.
 3. Abstracts away the "programming" to focus on writing and understanding models.
-4. (Eventually) Restricts the model to a small language to prevent programming "outside the model".
+4. Restricts the model to a small language to prevent programming "outside the model".
 5. Provides a very simple setup for teaching environments.
 
 ## Setup
@@ -114,8 +114,8 @@ description: "This is a model which adds numbers. Based on the u1_count.py tutor
 
 // Examples of starting goals to use when running the model
 examples {
-    "countFrom 1 3 starting"
     "countFrom 2 5 starting"
+    "countFrom 1 7 starting"
 }
 
 ==config==
@@ -153,11 +153,11 @@ start {
     match {
         goal: 'countFrom ?start ?end starting'
     }
-    // Steps to execute (currently python code)
-    do #<
-        memory.request('count ?start ?next')
-        goal.set('countFrom ?start ?end counting')
-    >#
+    // Steps to execute
+    do {
+        recall 'count ?start ?next' from memory
+        set goal to 'countFrom ?start ?end counting'
+    }
 }
 
 increment {
@@ -165,25 +165,39 @@ increment {
         goal: 'countFrom ?x !?x counting'
         retrieve: 'count ?x ?next'
     }
-    do #<
-        print(x)
-        memory.request('count ?next ?nextNext')
-        goal.modify(_1=next)
-    >#
+    do {
+        print x
+        recall 'count ?next ?nextNext' from memory
+        set field 1 of goal to next
+    }
 }
 
 stop {
     match {
         goal: 'countFrom ?x ?x counting'
     }
-    do #<
-        print(x)
-        goal.set('countFrom ?x ?x stop')
-    >#
+    do {
+        print x
+        set goal to 'countFrom ?x ?x stop'
+    }
 }
 ```
 
-## Examples
+You can find other examples of amod files in the [examples folder](examples).
+
+### Syntax
+
+The _do_ section in the productions uses a small language which currently understands the following commands:
+
+| command                                                                          | example                          |
+| -------------------------------------------------------------------------------- | -------------------------------- |
+| print _(!keyword)+_                                                              | print foo, 'text', 42            |
+| recall _(string)_ from _(memory name)_                                           | recall 'car ?colour' from memory |
+| set field _(number or name)_ of _(buffer name)_ to _(string or ident or number)_ | set field 1 of goal to 6         |
+| set _(buffer name)_ to _(string or ident or number)_                             | set goal to 'start 6 None'       |
+| write _(!keyword)+_ to _(text output name)_                                      | write 'foo' to text              |
+
+## Example Usage
 
 These examples assume you have set up your environment properly - either using python's virtual environment or by setting up your PYTHONPATH. See [setup](#setup) above.
 

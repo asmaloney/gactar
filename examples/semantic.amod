@@ -52,11 +52,11 @@ initialRetrieve {
     match {
         goal: 'isMember ?obj ?cat result:None'
     }
-    // Steps to execute (currently python code)
-    do #<
-        goal.modify(result='pending')
-        memory.request('property ?obj category ?')
-    >#
+    // Steps to execute
+    do {
+        set field result of goal to 'pending'
+        recall 'property ?obj category ?' from memory
+    }
 }
 
 directVerify {
@@ -64,10 +64,10 @@ directVerify {
         goal: 'isMember ?obj ?cat result:pending'
         retrieve: 'property ?obj category ?cat'
     }
-    do #<
-        goal.modify(result='yes')
-        text.write('Yes')
-    >#
+    do {
+        set field result of goal to 'yes'
+        write 'Yes' to text
+    }
 }
 
 chainCategory {
@@ -75,10 +75,10 @@ chainCategory {
         goal: 'isMember ?obj1 ?cat result:pending'
         retrieve: 'property ?obj1 category ?obj2!?cat'
     }
-    do #<
-        goal.modify(_1=obj2)
-        memory.request('property ?obj2 category ?')
-    >#
+    do {
+        set field 1 of goal to obj2
+        recall 'property ?obj2 category ?' from memory
+    }
 }
 
 fail {
@@ -86,8 +86,8 @@ fail {
         goal: 'isMember ?obj1 ?cat result:pending'
         memory: 'error:True'
     }
-    do #<
-        goal.modify(result='no')
-        text.write('No')
-    >#
+    do {
+        set field result of goal to 'no'
+        write 'No' to text
+    }
 }

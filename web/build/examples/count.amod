@@ -52,11 +52,11 @@ start {
     match {
         goal: 'countFrom ?start ?end starting'
     }
-    // Steps to execute (currently python code)
-    do #<
-        memory.request('count ?start ?next')
-        goal.set('countFrom ?start ?end counting')
-    >#
+    // Steps to execute
+    do {
+        recall 'count ?start ?next' from memory
+        set goal to 'countFrom ?start ?end counting'
+    }
 }
 
 increment {
@@ -64,19 +64,19 @@ increment {
         goal: 'countFrom ?x !?x counting'
         retrieve: 'count ?x ?next'
     }
-    do #<
-        print(x)
-        memory.request('count ?next ?nextNext')
-        goal.modify(_1=next)
-    >#
+    do {
+        print x
+        recall 'count ?next ?nextNext' from memory
+        set field 1 of goal to next
+    }
 }
 
 stop {
     match {
         goal: 'countFrom ?x ?x counting'
     }
-    do #<
-        print(x)
-        goal.set('countFrom ?x ?x stop')
-    >#
+    do {
+        print x
+        set goal to 'countFrom ?x ?x stop'
+    }
 }

@@ -13,7 +13,7 @@ examples {
 
 ==config==
 
-actr { log: true }
+actr { log: false }
 
 // List of buffers to create by name
 buffers { goal, retrieve }
@@ -44,11 +44,11 @@ startPair {
     match {
         goal: 'add ? ?one1 ? ?one2 ? None?ans ?'
     }
-    // Steps to execute (currently python code)
-    do #<
-        goal.modify(_6='busy')
-        memory.request('addfact ?one1 ?one2 ?')
-    >#
+    // Steps to execute
+    do {
+        set field 6 of goal to 'busy'
+        recall 'addfact ?one1 ?one2 ?' from memory
+    }
 }
 
 addOnes {
@@ -56,10 +56,11 @@ addOnes {
         goal: 'add ? ? ? ? ? busy?ans ?carry'
         retrieve: 'addfact ? ? ?sum'
     }
-    do #<
-        goal.modify(_6=sum, _7='busy')
-        memory.request('addfact 10 ? ?sum')
-    >#
+    do {
+        set field 6 of goal to sum
+        set field 7 of goal to 'busy'
+        recall 'addfact 10 ? ?sum' from memory
+    }
 }
 
 processCarry {
@@ -67,10 +68,12 @@ processCarry {
         goal: 'add ?ten1 ? ?ten2 ? None?tenAns ?oneAns busy?carry'
         retrieve: 'addfact 10 ?rem ?sum'
     }
-    do #<
-        goal.modify(_6=rem, _7=1, _5='busy')
-        memory.request('addfact ?ten1 ?ten2 ?')
-    >#
+    do {
+        set field 5 of goal to 'busy'
+        set field 6 of goal to rem
+        set field 7 of goal to 1
+        recall 'addfact ?ten1 ?ten2 ?' from memory
+    }
 }
 
 noCarry {
@@ -78,10 +81,11 @@ noCarry {
         goal: 'add ?ten1 ? ?ten2 None?tenAns ?oneAns busy?carry'
         memory: 'error:True'
     }
-    do #<
-        goal.modify(_6=0, _4='busy')
-        memory.request('addfact ?ten1 ?ten2 ?')
-    >#
+    do {
+        set field 4 of goal to 'busy'
+        set field 6 of goal to 0
+        recall 'addfact ?ten1 ?ten2 ?' from memory
+    }
 }
 
 addTensDone {
@@ -89,10 +93,10 @@ addTensDone {
         goal: 'add ? ? ? ? busy?tenAns ?oneAns 0'
         retrieve: 'addfact ? ? ?sum'
     }
-    do #<
-        print(sum, oneAns)
-        goal.modify(_5=sum)
-    >#
+    do {
+        print sum, oneAns
+        set field 5 of goal to sum
+    }
 }
 
 addTensCarry {
@@ -100,8 +104,8 @@ addTensCarry {
         goal: 'add ? ? ? ? busy?tenAns ? 1?carry'
         retrieve: 'addfact ? ? ?sum'
     }
-    do #<
-        goal.modify(_7=0)
-        memory.request('addfact 1 ?sum ?')
-    >#
+    do {
+        set field 7 of goal to 0
+        recall 'addfact 1 ?sum ?' from memory
+    }
 }
