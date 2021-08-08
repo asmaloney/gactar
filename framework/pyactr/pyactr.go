@@ -206,6 +206,10 @@ func outputStatement(f *os.File, s *actr.Statement) {
 		}
 	} else if s.Recall != nil {
 		f.WriteString(fmt.Sprintf("\t\t%s.request(%s)\n", s.Recall.MemoryName, s.Recall.Contents))
+	} else if s.Clear != nil {
+		for _, name := range s.Clear.BufferNames {
+			f.WriteString(fmt.Sprintf("\t\t%s.clear()\n", name))
+		}
 	} else if s.Print != nil {
 		f.WriteString(fmt.Sprintf("\t\tprint(%s)\n", strings.Join(s.Print.Args, ",")))
 	} else if s.Write != nil {

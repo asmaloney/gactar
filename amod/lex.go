@@ -87,6 +87,7 @@ var keywords []string = []string{
 	"actr",
 	"arg",
 	"buffers",
+	"clear",
 	"description",
 	"do",
 	"examples",

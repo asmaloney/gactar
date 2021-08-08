@@ -331,6 +331,23 @@ func addStatement(model *actr.Model, statement *statement, production *actr.Prod
 			Contents:   statement.Recall.Contents,
 			MemoryName: name,
 		}
+	} else if statement.Clear != nil {
+		bufferNames := statement.Clear.BufferNames
+
+		for _, name := range bufferNames {
+			buffer := model.LookupBuffer(name)
+			if buffer == nil {
+				errs.Addc(&statement.Pos, "buffer not found in production '%s': '%s'", production.Name, name)
+				continue
+			}
+		}
+		if errs.ErrorOrNil() != nil {
+			return errs
+		}
+
+		s.Clear = &actr.ClearStatement{
+			BufferNames: bufferNames,
+		}
 	} else if statement.Print != nil {
 		s.Print = &actr.PrintStatement{
 			Args: statement.Print.Args,

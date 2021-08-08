@@ -108,6 +108,12 @@ type match struct {
 	Pos lexer.Position
 }
 
+type clear struct {
+	BufferNames []string `parser:"'clear' ( @Ident ','? )+"`
+
+	Pos lexer.Position
+}
+
 type print struct {
 	Args []string `parser:"'print' ( @~Keyword ','? )+"`
 
@@ -143,7 +149,8 @@ type set struct {
 }
 
 type statement struct {
-	Print  *print  `parser:"  @@"`
+	Clear  *clear  `parser:"  @@"`
+	Print  *print  `parser:"| @@"`
 	Recall *recall `parser:"| @@"`
 	Set    *set    `parser:"| @@"`
 	Write  *write  `parser:"| @@"`

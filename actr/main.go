@@ -50,10 +50,15 @@ type Match struct {
 }
 
 type Statement struct {
+	Clear  *ClearStatement
 	Print  *PrintStatement
 	Recall *RecallStatement
 	Set    *SetStatement
 	Write  *WriteStatement
+}
+
+type ClearStatement struct {
+	BufferNames []string
 }
 
 type PrintStatement struct {

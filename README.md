@@ -256,8 +256,9 @@ The _do_ section in the productions uses a small language which currently unders
 
 | command                                                                          | example                          |
 | -------------------------------------------------------------------------------- | -------------------------------- |
-| print _(!keyword)+_                                                              | print foo, 'text', 42            |
+| clear _(buffer name)+_                                                           | clear buff1, buff2               |
+| print _(string or ident or number)+_                                             | print foo, 'text', 42            |
 | recall _(string)_ from _(memory name)_                                           | recall 'car ?colour' from memory |
 | set field _(number or name)_ of _(buffer name)_ to _(string or ident or number)_ | set field 1 of goal to 6         |
 | set _(buffer name)_ to _(string or ident or number)_                             | set goal to 'start 6 None'       |
-| write _(!keyword)+_ to _(text output name)_                                      | write 'foo' to text              |
+| write _(string or ident or number)+_ to _(text output name)_                     | write 'foo' to text              |
