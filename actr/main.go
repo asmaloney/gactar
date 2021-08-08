@@ -38,14 +38,47 @@ type Initializer struct {
 }
 
 type Production struct {
-	Name    string
-	Matches []*Match
-	Do      []string
+	Name         string
+	Matches      []*Match
+	DoPython     []string
+	DoStatements []*Statement
 }
 
 type Match struct {
 	Name string
 	Text string
+}
+
+type Statement struct {
+	Print  *PrintStatement
+	Recall *RecallStatement
+	Set    *SetStatement
+	Write  *WriteStatement
+}
+
+type PrintStatement struct {
+	Args []string // the strings, identifiers, or numbers to print
+}
+
+type RecallStatement struct {
+	Contents   string
+	MemoryName string
+}
+
+type WriteStatement struct {
+	Args           []string // the strings, identifiers, or numbers to write
+	TextOutputName string
+}
+
+type ArgOrField struct {
+	ArgNum    *int
+	FieldName *string
+}
+
+type SetStatement struct {
+	ArgOrField *ArgOrField
+	BufferName string
+	Contents   string
 }
 
 // LookupBuffer looks up the named buffer in the model and returns it (or nil if it does not exist)

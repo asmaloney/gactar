@@ -274,10 +274,85 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 			})
 		}
 
-		prod.Do = append(prod.Do, production.Do.Texts...)
+		if production.Do.PyCode != nil {
+			prod.DoPython = append(prod.DoPython, *production.Do.PyCode...)
+		} else if production.Do.Statements != nil {
+			for _, statement := range *production.Do.Statements {
+				err := addStatement(model, statement, &prod)
+				errs.AddErrorIfNotNil(err)
+			}
+		}
 
 		model.Productions = append(model.Productions, &prod)
 	}
+
+	return errs.ErrorOrNil()
+}
+
+func addStatement(model *actr.Model, statement *statement, production *actr.Production) error {
+	errs := errorListWithContext{}
+
+	s := actr.Statement{}
+
+	if statement.Set != nil {
+		name := statement.Set.BufferName
+		buffer := model.LookupBuffer(name)
+		if buffer == nil {
+			errs.Addc(&statement.Pos, "buffer not found in production '%s': '%s'", production.Name, name)
+			return errs
+		}
+
+		s.Set = &actr.SetStatement{
+			BufferName: name,
+			Contents:   statement.Set.Contents,
+		}
+
+		if statement.Set.ArgOrField != nil {
+			if statement.Set.ArgOrField.ArgNum != nil {
+				argNum := int(*statement.Set.ArgOrField.ArgNum)
+				s.Set.ArgOrField = &actr.ArgOrField{
+					ArgNum: &argNum,
+				}
+			} else if statement.Set.ArgOrField.FieldName != nil {
+				s.Set.ArgOrField = &actr.ArgOrField{
+					FieldName: statement.Set.ArgOrField.FieldName,
+				}
+			}
+		}
+	} else if statement.Recall != nil {
+		name := statement.Recall.MemoryName
+		memory := model.LookupMemory(name)
+		if memory == nil {
+			errs.Addc(&statement.Pos, "memory not found in production '%s': '%s'", production.Name, name)
+			return errs
+		}
+
+		s.Recall = &actr.RecallStatement{
+			Contents:   statement.Recall.Contents,
+			MemoryName: name,
+		}
+	} else if statement.Print != nil {
+		s.Print = &actr.PrintStatement{
+			Args: statement.Print.Args,
+		}
+	} else if statement.Write != nil {
+		name := statement.Write.TextOutputName
+		textOutput := model.LookupTextOutput(name)
+		if textOutput == nil {
+			errs.Addc(&statement.Pos, "text output not found in production '%s': '%s'", production.Name, name)
+			return errs
+		}
+
+		s.Write = &actr.WriteStatement{
+			Args:           statement.Write.Args,
+			TextOutputName: name,
+		}
+	} else {
+		errs.Addf("Statement type not handled: %T", statement)
+		return errs
+	}
+
+	production.DoStatements = append(production.DoStatements, &s)
 
 	return errs.ErrorOrNil()
 }

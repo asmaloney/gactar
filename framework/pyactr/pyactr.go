@@ -157,7 +157,7 @@ func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
 		f.WriteString("\tdef init():\n")
 
 		for _, init := range p.model.Initializers {
-			f.WriteString(fmt.Sprintf("\t\t%s.add('%s')\n", init.MemoryName, init.Text))
+			f.WriteString(fmt.Sprintf("\t\t%s.add(%s)\n", init.MemoryName, init.Text))
 		}
 
 		f.WriteString("\n")
@@ -168,7 +168,7 @@ func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
 
 		numMatches := len(production.Matches)
 		for i, match := range production.Matches {
-			f.WriteString(fmt.Sprintf("%s='%s'", match.Name, match.Text))
+			f.WriteString(fmt.Sprintf("%s=%s", match.Name, match.Text))
 
 			if i != numMatches-1 {
 				f.WriteString(", ")
@@ -177,14 +177,40 @@ func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
 
 		f.WriteString("):\n")
 
-		for _, doItem := range production.Do {
-			f.WriteString(fmt.Sprintf("\t\t%s", doItem))
+		if production.DoPython != nil {
+			for _, doItem := range production.DoPython {
+				f.WriteString(fmt.Sprintf("\t\t%s", doItem))
+			}
+		} else if production.DoStatements != nil {
+			for _, statement := range production.DoStatements {
+				outputStatement(f, statement)
+			}
 		}
 
 		f.WriteString("\n")
 	}
 
 	return
+}
+
+func outputStatement(f *os.File, s *actr.Statement) {
+	if s.Set != nil {
+		if s.Set.ArgOrField != nil {
+			if s.Set.ArgOrField.ArgNum != nil {
+				f.WriteString(fmt.Sprintf("\t\t%s.modify(_%d=%s)\n", s.Set.BufferName, *s.Set.ArgOrField.ArgNum, s.Set.Contents))
+			} else if s.Set.ArgOrField.FieldName != nil {
+				f.WriteString(fmt.Sprintf("\t\t%s.modify(%s=%s)\n", s.Set.BufferName, *s.Set.ArgOrField.FieldName, s.Set.Contents))
+			}
+		} else {
+			f.WriteString(fmt.Sprintf("\t\t%s.set(%s)\n", s.Set.BufferName, s.Set.Contents))
+		}
+	} else if s.Recall != nil {
+		f.WriteString(fmt.Sprintf("\t\t%s.request(%s)\n", s.Recall.MemoryName, s.Recall.Contents))
+	} else if s.Print != nil {
+		f.WriteString(fmt.Sprintf("\t\tprint(%s)\n", strings.Join(s.Print.Args, ",")))
+	} else if s.Write != nil {
+		f.WriteString(fmt.Sprintf("\t\t%s.write(%s)\n", s.Write.TextOutputName, strings.Join(s.Write.Args, ",")))
+	}
 }
 
 func identifyPython() {

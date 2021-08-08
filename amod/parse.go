@@ -103,13 +103,58 @@ type matchItem struct {
 }
 
 type match struct {
-	Items []*matchItem `parser:"'match' '{' ( @@ )+ '}'"`
+	Items []*matchItem `parser:"'match' '{' @@+ '}'"`
+
+	Pos lexer.Position
+}
+
+type print struct {
+	Args []string `parser:"'print' ( @~Keyword ','? )+"`
+
+	Pos lexer.Position
+}
+
+type recall struct {
+	Contents   string `parser:"'recall' @String"`
+	MemoryName string `parser:"'from' @Ident"`
+
+	Pos lexer.Position
+}
+
+type write struct {
+	Args           []string `parser:"'write' ( @~Keyword ','? )+"`
+	TextOutputName string   `parser:"'to' @Ident"`
+
+	Pos lexer.Position
+}
+
+type argOrField struct {
+	ArgNum    *float64 `parser:"'field' (@Number"`
+	FieldName *string  `parser:"| @Ident)"`
+}
+
+type set struct {
+	Set        string      `parser:"'set'"` // not used, but must be visible for parse to work
+	ArgOrField *argOrField `parser:"(@@ 'of')?"`
+	BufferName string      `parser:"@Ident"`
+	Contents   string      `parser:"'to' (@String|@Ident|@Number)"`
+
+	Pos lexer.Position
+}
+
+type statement struct {
+	Print  *print  `parser:"  @@"`
+	Recall *recall `parser:"| @@"`
+	Set    *set    `parser:"| @@"`
+	Write  *write  `parser:"| @@"`
 
 	Pos lexer.Position
 }
 
 type do struct {
-	Texts []string `parser:"'do' '#<' (@DoCode)+ '>#'"`
+	Do         string        `parser:"'do'"` // not used, but must be visible for parse to work
+	PyCode     *[]string     `parser:"('#<' (@DoCode)+ '>#'"`
+	Statements *[]*statement `parser:"| '{' (@@)+ '}')"`
 
 	Pos lexer.Position
 }
@@ -131,7 +176,6 @@ type productionSection struct {
 
 var parser = participle.MustBuild(&amodFile{},
 	participle.Lexer(LexerDefinition),
-	participle.Unquote(),
 	participle.Elide("Comment", "Whitespace"),
 )
 
