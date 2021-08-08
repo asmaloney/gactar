@@ -30,17 +30,18 @@ type lexeme struct {
 	pos   int // position within the line
 }
 
-// lexer_amod tracks our lexing and proveds a channel to emit lexemes
+// lexer_amod tracks our lexing and provides a channel to emit lexemes
 type lexer_amod struct {
 	name           string // used only for error reports
 	input          string // the string being scanned.
 	line           int    // the line number
 	lastNewlinePos int
-	start          int         // start position of this lexeme
-	pos            int         // current position in the input
-	width          int         // width of last rune read from input
-	lexemes        chan lexeme // channel of scanned lexemes
-	inDoBlock      bool        // state: a "do" block is lexed as a series of strings
+	start          int             // start position of this lexeme
+	pos            int             // current position in the input
+	width          int             // width of last rune read from input
+	lexemes        chan lexeme     // channel of scanned lexemes
+	keywords       map[string]bool // used to lookup identifier to see if they are keywords
+	inDoBlock      bool            // state: a "do" block is lexed as a series of strings
 }
 
 // stateFn is used to move through the lexing states
@@ -54,6 +55,7 @@ const (
 
 	lexemeComment
 	lexemeIdentifier
+	lexemeKeyword
 	lexemeNumber
 	lexemeString
 	lexemeChar
@@ -81,11 +83,33 @@ const (
 	sectionProductions = "==productions=="
 )
 
+var keywords []string = []string{
+	"actr",
+	"arg",
+	"buffers",
+	"description",
+	"do",
+	"examples",
+	"field",
+	"from",
+	"match",
+	"memories",
+	"name",
+	"of",
+	"print",
+	"recall",
+	"set",
+	"text_outputs",
+	"to",
+	"write",
+}
+
 // Symbols provides a mapping from participle strings to our lexemes
 func (lexer_def) Symbols() map[string]lexer.TokenType {
 	return map[string]lexer.TokenType{
 		"Comment":    lexer.TokenType(lexemeComment),
 		"Whitespace": lexer.TokenType(lexemeSpace),
+		"Keyword":    lexer.TokenType(lexemeKeyword),
 		"Ident":      lexer.TokenType(lexemeIdentifier),
 		"Number":     lexer.TokenType(lexemeNumber),
 		"String":     lexer.TokenType(lexemeString),
@@ -110,7 +134,12 @@ func (lexer_def) Lex(filename string, r io.Reader) (lexer.Lexer, error) {
 		line:           1,
 		lastNewlinePos: 0,
 		lexemes:        make(chan lexeme),
+		keywords:       make(map[string]bool),
 		inDoBlock:      false,
+	}
+
+	for _, v := range keywords {
+		l.keywords[v] = true
 	}
 
 	go l.run()
@@ -161,6 +190,11 @@ func (l *lexer_amod) next() rune {
 	l.pos += l.width
 
 	return r
+}
+
+func (l *lexer_amod) lookupKeyword(id string) bool {
+	v, ok := l.keywords[id]
+	return v && ok
 }
 
 // skip over the pending input before this point
@@ -399,7 +433,14 @@ func lexIdentifier(l *lexer_amod) stateFn {
 		l.next()
 	}
 
-	l.emit(lexemeIdentifier)
+	// Perhaps not the best way to do this.
+	// I'm sure there's a char-by-char way we could implement which would be faster.
+	isKeyword := l.lookupKeyword(l.input[l.start:l.pos])
+	if isKeyword {
+		l.emit(lexemeKeyword)
+	} else {
+		l.emit(lexemeIdentifier)
+	}
 
 	return lexStart
 }
