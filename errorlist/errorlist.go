@@ -27,12 +27,19 @@ func (el *Errors) Addf(e string, a ...interface{}) {
 	el.Add(fmt.Sprintf(e, a...))
 }
 
-// String satifies the string interface to print errors joined by newlines.
+// AddErrorIfNotNil adds an error message if not nil.
+func (el *Errors) AddErrorIfNotNil(e error) {
+	if e != nil {
+		el.Add(e.Error())
+	}
+}
+
+// String satisfies the string interface to print errors joined by newlines.
 func (el Errors) String() string {
 	return strings.Join(el, "\n")
 }
 
-// Error satifies the error interface.
+// Error satisfies the error interface.
 func (el Errors) Error() string {
 	return el.String()
 }
