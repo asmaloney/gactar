@@ -304,18 +304,18 @@ func addStatement(model *actr.Model, statement *statement, production *actr.Prod
 
 		s.Set = &actr.SetStatement{
 			BufferName: name,
-			Contents:   statement.Set.Contents,
+			Contents:   statement.Set.Arg.Arg,
 		}
 
-		if statement.Set.ArgOrField != nil {
-			if statement.Set.ArgOrField.ArgNum != nil {
-				argNum := int(*statement.Set.ArgOrField.ArgNum)
+		if statement.Set.Field != nil {
+			if statement.Set.Field.ArgNum != nil {
+				argNum := int(*statement.Set.Field.ArgNum)
 				s.Set.ArgOrField = &actr.ArgOrField{
 					ArgNum: &argNum,
 				}
-			} else if statement.Set.ArgOrField.FieldName != nil {
+			} else if statement.Set.Field.Name != nil {
 				s.Set.ArgOrField = &actr.ArgOrField{
-					FieldName: statement.Set.ArgOrField.FieldName,
+					FieldName: statement.Set.Field.Name,
 				}
 			}
 		}
@@ -350,7 +350,7 @@ func addStatement(model *actr.Model, statement *statement, production *actr.Prod
 		}
 	} else if statement.Print != nil {
 		s.Print = &actr.PrintStatement{
-			Args: statement.Print.Args,
+			Args: statement.Print.Args.Strings(),
 		}
 	} else if statement.Write != nil {
 		name := statement.Write.TextOutputName
@@ -361,7 +361,7 @@ func addStatement(model *actr.Model, statement *statement, production *actr.Prod
 		}
 
 		s.Write = &actr.WriteStatement{
-			Args:           statement.Write.Args,
+			Args:           statement.Write.Args.Strings(),
 			TextOutputName: name,
 		}
 	} else {

@@ -40,6 +40,33 @@ type stringList struct {
 	Pos lexer.Position
 }
 
+type arg struct {
+	Arg string `parser:"@String|@Ident|@Number"`
+
+	Pos lexer.Position
+}
+
+// String returns just the string portion of an arg struct
+func (a *arg) String() string {
+	return a.Arg
+}
+
+type argList struct {
+	Args []*arg `parser:"( @@ ','? )+"`
+
+	Pos lexer.Position
+}
+
+// Strings converts an arg list into a string slice
+func (a *argList) Strings() []string {
+	strs := make([]string, len(a.Args))
+	for i, arg := range a.Args {
+		strs[i] = arg.Arg
+	}
+
+	return strs
+}
+
 type value struct {
 	String *string  `parser:"  (@String|@Ident)"`
 	Number *float64 `parser:"| @Number"`
@@ -115,7 +142,7 @@ type clear struct {
 }
 
 type print struct {
-	Args []string `parser:"'print' ( @~Keyword ','? )+"`
+	Args *argList `parser:"'print' @@"`
 
 	Pos lexer.Position
 }
@@ -128,22 +155,24 @@ type recall struct {
 }
 
 type write struct {
-	Args           []string `parser:"'write' ( @~Keyword ','? )+"`
+	Args           *argList `parser:"'write' @@"`
 	TextOutputName string   `parser:"'to' @Ident"`
 
 	Pos lexer.Position
 }
 
-type argOrField struct {
-	ArgNum    *float64 `parser:"'field' (@Number"`
-	FieldName *string  `parser:"| @Ident)"`
+type setField struct {
+	ArgNum *float64 `parser:"'field' (@Number"`
+	Name   *string  `parser:"| @Ident)"`
+
+	Pos lexer.Position
 }
 
 type set struct {
-	Set        string      `parser:"'set'"` // not used, but must be visible for parse to work
-	ArgOrField *argOrField `parser:"(@@ 'of')?"`
-	BufferName string      `parser:"@Ident"`
-	Contents   string      `parser:"'to' (@String|@Ident|@Number)"`
+	Set        string    `parser:"'set'"` // not used, but must be visible for parse to work
+	Field      *setField `parser:"(@@ 'of')?"`
+	BufferName string    `parser:"@Ident"`
+	Arg        *arg      `parser:"'to' @@"`
 
 	Pos lexer.Position
 }
