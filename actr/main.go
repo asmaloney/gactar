@@ -70,6 +70,17 @@ func (model *Model) LookupMemory(memoryName string) (memory *Memory) {
 	return
 }
 
+// LookupTextOutput looks up the named text output in the model and returns it (or nil if it does not exist)
+func (model *Model) LookupTextOutput(textOutputName string) (textOutput *TextOutput) {
+	for _, textOutput := range model.TextOutputs {
+		if textOutput.Name == textOutputName {
+			return textOutput
+		}
+	}
+
+	return
+}
+
 // BufferOrMemoryExists looks up the named item in the model
 func (model *Model) BufferOrMemoryExists(name string) bool {
 	buffer := model.LookupBuffer(name)
