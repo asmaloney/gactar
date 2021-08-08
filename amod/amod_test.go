@@ -10,7 +10,6 @@ func TestACTRUnrecognizedField(t *testing.T) {
 	name: Test
 	==config==
 	actr { foo: bar }
-	==init==
 	==productions==`
 
 	_, err := GenerateModel(src)
@@ -33,7 +32,6 @@ func TestMemoryBufferField(t *testing.T) {
 	memories {
     	a_memory { buffer: foo }
 	}
-	==init==
 	==productions==`
 
 	_, err := GenerateModel(src)
@@ -54,7 +52,6 @@ func TestMemoryBufferField(t *testing.T) {
 	memories {
     	a_memory { buffer: 42 }
 	}
-	==init==
 	==productions==`
 
 	_, err = GenerateModel(src)
@@ -77,7 +74,6 @@ func TestMemoryUnrecognizedField(t *testing.T) {
 	memories {
     	a_memory { foo: bar }
 	}
-	==init==
 	==productions==`
 
 	_, err := GenerateModel(src)
@@ -119,7 +115,7 @@ func TestInitializers(t *testing.T) {
 	}
 }
 
-func TestProductions(t *testing.T) {
+func TestProductionInvalidMemory(t *testing.T) {
 	src := `
 	==model==
 	name: Test
@@ -137,9 +133,9 @@ func TestProductions(t *testing.T) {
 		match {
 			another_goal: 'add ? ?one1 ? ?one2 ? None?ans ?'
 		}
-		do #<
-			print('foo')
-		>#
+		do {
+			print 'foo'
+		}
 	}`
 
 	_, err := GenerateModel(src)
@@ -151,5 +147,53 @@ func TestProductions(t *testing.T) {
 		if err.Error() != expected {
 			t.Errorf("Expected '%s' but got '%s'", expected, err.Error())
 		}
+	}
+}
+
+func TestProductionClearBuffer(t *testing.T) {
+	src := `
+	==model==
+	name: Test
+	==config==
+	buffers { bar }
+	==productions==
+	start {
+		match {
+			bar: 'foo'
+		}
+		do {
+			clear some_buffer
+		}
+	}`
+
+	_, err := GenerateModel(src)
+
+	expected := "buffer not found in production 'start': 'some_buffer' (line 12)"
+	if err == nil {
+		t.Errorf("Expected error: %s", expected)
+	} else {
+		if err.Error() != expected {
+			t.Errorf("Expected '%s' but got '%s'", expected, err.Error())
+		}
+	}
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	buffers { bar, blat }
+	==productions==
+	start {
+		match {
+			bar: 'foo'
+		}
+		do {
+			clear bar, blat
+		}
+	}`
+
+	_, err = GenerateModel(src)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
 	}
 }

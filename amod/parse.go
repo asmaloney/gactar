@@ -14,7 +14,7 @@ import (
 type amodFile struct {
 	Model       *modelSection      `parser:"'==model==' @@"`
 	Config      *configSection     `parser:"'==config==' (@@)?"`
-	Init        *initSection       `parser:"'==init==' (@@)?"`
+	Init        *initSection       `parser:"('==init==' (@@)?)?"`
 	Productions *productionSection `parser:"'==productions==' (@@)?"`
 
 	Pos lexer.Position
