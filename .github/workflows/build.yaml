@@ -8,12 +8,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        goarch: ['386', amd64, arm64]
+        goarch: [amd64, arm64]
         exclude:
           - os: windows-latest
             goarch: arm64
-          - os: macos-latest
-            goarch: '386'
 
     steps:
       - name: Check out source code
