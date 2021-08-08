@@ -135,26 +135,26 @@ type match struct {
 	Pos lexer.Position
 }
 
-type clear struct {
+type clearStatement struct {
 	BufferNames []string `parser:"'clear' ( @Ident ','? )+"`
 
 	Pos lexer.Position
 }
 
-type print struct {
+type printStatement struct {
 	Args *argList `parser:"'print' @@"`
 
 	Pos lexer.Position
 }
 
-type recall struct {
+type recallStatement struct {
 	Contents   string `parser:"'recall' @String"`
 	MemoryName string `parser:"'from' @Ident"`
 
 	Pos lexer.Position
 }
 
-type write struct {
+type writeStatement struct {
 	Args           *argList `parser:"'write' @@"`
 	TextOutputName string   `parser:"'to' @Ident"`
 
@@ -168,7 +168,7 @@ type setField struct {
 	Pos lexer.Position
 }
 
-type set struct {
+type setStatement struct {
 	Set        string    `parser:"'set'"` // not used, but must be visible for parse to work
 	Field      *setField `parser:"(@@ 'of')?"`
 	BufferName string    `parser:"@Ident"`
@@ -178,11 +178,11 @@ type set struct {
 }
 
 type statement struct {
-	Clear  *clear  `parser:"  @@"`
-	Print  *print  `parser:"| @@"`
-	Recall *recall `parser:"| @@"`
-	Set    *set    `parser:"| @@"`
-	Write  *write  `parser:"| @@"`
+	Clear  *clearStatement  `parser:"  @@"`
+	Print  *printStatement  `parser:"| @@"`
+	Recall *recallStatement `parser:"| @@"`
+	Set    *setStatement    `parser:"| @@"`
+	Write  *writeStatement  `parser:"| @@"`
 
 	Pos lexer.Position
 }
