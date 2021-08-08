@@ -99,6 +99,71 @@ gactar [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
 
 **--web, -w**: start a webserver to run in a browser
 
+## Example Usage
+
+These examples assume you have set up your environment properly - either using python's virtual environment or by setting up your PYTHONPATH. See [setup](#setup) above.
+
+### Generate a python file
+
+```
+(pyenv)$ ./gactar examples/count.amod
+gactar version v0.0.2
+Using Python 3.9.6 from /path/to/gactar/pyenv/bin/python3
+-- Generating code for examples/count.amod
+   Written to gactar_Count.py
+```
+
+This will generate a python file called `gactar_Count.py` in the directory you are running from. It doesn't contain the run command, so in order to use it you would need to create another python file like this:
+
+```py
+from gactar_Count import gactar_Count
+
+
+model = gactar_Count()
+model.goal.set('countFrom 2 5 starting')
+model.run()
+```
+
+### Run interactively
+
+```
+(pyenv)$ ./gactar -i
+gactar version v0.0.2
+Type 'help' for a list of commands.
+To exit, type 'exit' or 'quit'.
+Using Python 3.9.6 from /path/to/gactar/pyenv/bin/python3
+> help
+  exit:     exits the program
+  history:  outputs your command history
+  load:     loads a model: load [FILENAME]
+  quit:     exits the program
+  reset:    resets the current model
+  run:      runs the current model: run [INITIAL STATE]
+  version:  outputs version info
+> load examples/count.amod
+ model loaded
+ examples:
+           run countFrom 2 5 starting
+           run countFrom 1 7 starting
+> run countFrom 2 5 starting
+2
+3
+4
+5
+end...
+> quit
+```
+
+### Run as a web server
+
+```
+(pyenv)$ ./gactar -w
+Using Python 3.9.6 from /path/to/gactar/pyenv/bin/python3
+Serving gactar on http://localhost:8181
+```
+
+Open `http://localhost:8181` in your browser, modify the amod description &amp; the goal, and click **Run**.
+
 ## amod File Format
 
 Here is an example of the file format:
@@ -196,68 +261,3 @@ The _do_ section in the productions uses a small language which currently unders
 | set field _(number or name)_ of _(buffer name)_ to _(string or ident or number)_ | set field 1 of goal to 6         |
 | set _(buffer name)_ to _(string or ident or number)_                             | set goal to 'start 6 None'       |
 | write _(!keyword)+_ to _(text output name)_                                      | write 'foo' to text              |
-
-## Example Usage
-
-These examples assume you have set up your environment properly - either using python's virtual environment or by setting up your PYTHONPATH. See [setup](#setup) above.
-
-### Generate a python file
-
-```
-(pyenv)$ ./gactar examples/count.amod
-gactar version v0.0.2
-Using Python 3.9.6 from /path/to/gactar/pyenv/bin/python3
--- Generating code for examples/count.amod
-   Written to gactar_Count.py
-```
-
-This will generate a python file called `gactar_Count.py` in the directory you are running from. It doesn't contain the run command, so in order to use it you would need to create another python file like this:
-
-```py
-from gactar_Count import gactar_Count
-
-
-model = gactar_Count()
-model.goal.set('countFrom 2 5 starting')
-model.run()
-```
-
-### Run interactively
-
-```
-(pyenv)$ ./gactar -i
-gactar version v0.0.2
-Type 'help' for a list of commands.
-To exit, type 'exit' or 'quit'.
-Using Python 3.9.6 from /path/to/gactar/pyenv/bin/python3
-> help
-  exit:     exits the program
-  history:  outputs your command history
-  load:     loads a model: load [FILENAME]
-  quit:     exits the program
-  reset:    resets the current model
-  run:      runs the current model: run [INITIAL STATE]
-  version:  outputs version info
-> load examples/count.amod
- model loaded
- examples:
-           run countFrom 2 5 starting
-           run countFrom 1 7 starting
-> run countFrom 2 5 starting
-2
-3
-4
-5
-end...
-> quit
-```
-
-### Run as a web server
-
-```
-(pyenv)$ ./gactar -w
-Using Python 3.9.6 from /path/to/gactar/pyenv/bin/python3
-Serving gactar on http://localhost:8181
-```
-
-Open `http://localhost:8181` in your browser, modify the amod description &amp; the goal, and click **Run**.
