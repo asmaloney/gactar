@@ -175,7 +175,7 @@ func (l *lexer_amod) Next() (tok lexer.Token, err error) {
 	}
 
 	if debugging {
-		fmt.Printf("TOK: %+v (%d)\n", tok, tok.Type)
+		fmt.Printf("TOK (%d, %d): %+v (%d)\n", pos.Line, pos.Column, tok, tok.Type)
 	}
 	return
 }
