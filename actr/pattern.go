@@ -24,8 +24,8 @@ type PatternFieldItem struct {
 	Var *string
 	Num *string // we don't need to treat this as a number anywhere, so keep as a string
 
-	Negated  bool
-	Optional bool
+	Negated  bool // !
+	Optional bool // ?
 }
 
 func (c PatternField) String() (str string) {

@@ -41,7 +41,7 @@ type lexer_amod struct {
 	width          int             // width of last rune read from input
 	lexemes        chan lexeme     // channel of scanned lexemes
 	keywords       map[string]bool // used to lookup identifier to see if they are keywords
-	inChunk        bool            // state: a chunk - delimited by `` is lexed specially
+	inPattern      bool            // state: a pattern - delimited by `` is lexed specially
 	inDoBlock      bool            // state: a "do" block is lexed as a series of strings
 }
 
@@ -61,9 +61,9 @@ const (
 	lexemeString
 	lexemeChar
 
-	lexemeChunkDelim
-	lexemeChunkSpace
-	lexemeChunkVar
+	lexemePatternDelim
+	lexemePatternSpace
+	lexemePatternVar
 
 	lexemeSectionModel
 	lexemeSectionConfig
@@ -113,16 +113,16 @@ var keywords []string = []string{
 // Symbols provides a mapping from participle strings to our lexemes
 func (lexer_def) Symbols() map[string]lexer.TokenType {
 	return map[string]lexer.TokenType{
-		"Comment":    lexer.TokenType(lexemeComment),
-		"Whitespace": lexer.TokenType(lexemeSpace),
-		"Keyword":    lexer.TokenType(lexemeKeyword),
-		"Ident":      lexer.TokenType(lexemeIdentifier),
-		"Number":     lexer.TokenType(lexemeNumber),
-		"String":     lexer.TokenType(lexemeString),
-		"ChunkDelim": lexer.TokenType(lexemeChunkDelim),
-		"ChunkSpace": lexer.TokenType(lexemeChunkSpace),
-		"ChunkVar":   lexer.TokenType(lexemeChunkVar),
-		"DoCode":     lexer.TokenType(lexemeDoCode),
+		"Comment":      lexer.TokenType(lexemeComment),
+		"Whitespace":   lexer.TokenType(lexemeSpace),
+		"Keyword":      lexer.TokenType(lexemeKeyword),
+		"Ident":        lexer.TokenType(lexemeIdentifier),
+		"Number":       lexer.TokenType(lexemeNumber),
+		"String":       lexer.TokenType(lexemeString),
+		"PatternDelim": lexer.TokenType(lexemePatternDelim),
+		"PatternSpace": lexer.TokenType(lexemePatternSpace),
+		"PatternVar":   lexer.TokenType(lexemePatternVar),
+		"DoCode":       lexer.TokenType(lexemeDoCode),
 	}
 }
 
@@ -144,7 +144,7 @@ func (lexer_def) Lex(filename string, r io.Reader) (lexer.Lexer, error) {
 		lastNewlinePos: 0,
 		lexemes:        make(chan lexeme),
 		keywords:       make(map[string]bool),
-		inChunk:        false,
+		inPattern:      false,
 		inDoBlock:      false,
 	}
 
@@ -303,8 +303,8 @@ func isDigit(r rune) bool {
 func lexStart(l *lexer_amod) stateFn {
 	switch r := l.next(); {
 	case isSpace(r):
-		if l.inChunk {
-			l.emit(lexemeChunkSpace)
+		if l.inPattern {
+			l.emit(lexemePatternSpace)
 			return lexStart
 		}
 		if isNewline(r) {
@@ -346,11 +346,11 @@ func lexStart(l *lexer_amod) stateFn {
 		return lexQuotedString
 
 	case r == '`':
-		l.inChunk = !l.inChunk
-		l.emit(lexemeChunkDelim)
+		l.inPattern = !l.inPattern
+		l.emit(lexemePatternDelim)
 
 	case r == '?':
-		if l.inChunk {
+		if l.inPattern {
 			return lexIdentifier
 		} else {
 			l.emit(lexemeChar)
@@ -458,7 +458,7 @@ func lexIdentifier(l *lexer_amod) stateFn {
 		l.next()
 	}
 
-	if !l.inChunk {
+	if !l.inPattern {
 		// Perhaps not the best way to do this.
 		// I'm sure there's a char-by-char way we could implement which would be faster.
 		isKeyword := l.lookupKeyword(l.input[l.start:l.pos])
@@ -469,7 +469,7 @@ func lexIdentifier(l *lexer_amod) stateFn {
 		}
 	} else {
 		if l.input[l.start] == '?' {
-			l.emit(lexemeChunkVar)
+			l.emit(lexemePatternVar)
 		} else {
 			l.emit(lexemeIdentifier)
 		}

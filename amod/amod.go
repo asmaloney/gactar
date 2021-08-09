@@ -16,19 +16,23 @@ type errorListWithContext struct {
 	errorlist.Errors
 }
 
-func (elwc *errorListWithContext) Addc(pos *lexer.Position, e string, a ...interface{}) {
+func (err *errorListWithContext) Addc(pos *lexer.Position, e string, a ...interface{}) {
 	str := fmt.Sprintf(e, a...)
-	elwc.Addf("%s (line %d)", str, pos.Line)
+	err.Addf("%s (line %d)", str, pos.Line)
 }
 
+// SetDebug turns debugging on and off. This will output the tokens as they are generated.
 func SetDebug(debug bool) {
 	debugging = debug
 }
 
+// OutputEBNF outputs the extended Backus–Naur form (EBNF) of the amod grammar to stdout.
+// See: https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 func OutputEBNF() {
 	fmt.Println(parser.String())
 }
 
+// GenerateModel generates a model from the text in the buffer.
 func GenerateModel(buffer string) (model *actr.Model, err error) {
 	r := strings.NewReader(buffer)
 
@@ -40,6 +44,7 @@ func GenerateModel(buffer string) (model *actr.Model, err error) {
 	return generateModel(amod)
 }
 
+// GenerateModelFromFile generates a model from the file 'fileName'.
 func GenerateModelFromFile(fileName string) (model *actr.Model, err error) {
 	amod, err := parseFile(fileName)
 	if err != nil {
@@ -49,6 +54,7 @@ func GenerateModelFromFile(fileName string) (model *actr.Model, err error) {
 	return generateModel(amod)
 }
 
+// generateModel runs through the parsed structures and creates an actr.Model from them
 func generateModel(amod *amodFile) (model *actr.Model, err error) {
 	model = &actr.Model{
 		Name:        amod.Model.Name,
@@ -348,7 +354,7 @@ func addStatement(model *actr.Model, statement *statement, production *actr.Prod
 	} else if statement.Write != nil {
 		s, err = addWriteStatement(model, statement.Write, production)
 	} else {
-		err = fmt.Errorf("Statement type not handled: %T", statement)
+		err = fmt.Errorf("statement type not handled: %T", statement)
 		return err
 	}
 

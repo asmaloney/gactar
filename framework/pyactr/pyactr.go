@@ -15,6 +15,9 @@ type PyACTR struct {
 	tmpPath   string
 }
 
+// Initialize will check for python3 and the ccm package, and create a tmp dir to save files for running.
+// Note that this directory is not currently created in the proper place - it should end up in the OS's
+// tmp directory. It is created locally so we can look at and debug the generated python files.
 func Initialize() (p *PyACTR, err error) {
 	_, err = checkForExecutable("python3")
 	if err != nil {
@@ -38,6 +41,7 @@ func Initialize() (p *PyACTR, err error) {
 	return
 }
 
+// SetModel sets our model and saves the python class name we are going to use.
 func (p *PyACTR) SetModel(model *actr.Model) (err error) {
 	if model.Name == "" {
 		err = fmt.Errorf("model is missing name")
@@ -50,6 +54,8 @@ func (p *PyACTR) SetModel(model *actr.Model) (err error) {
 	return
 }
 
+// Run generates the python code from the amod file, writes it to disk, creates a "run" file
+// to actually run the model, and returns the output (stdout and stderr combined).
 func (p *PyACTR) Run(initialGoal string) (output []byte, err error) {
 	_, err = p.WriteModel(p.tmpPath)
 	if err != nil {
@@ -73,6 +79,7 @@ func (p *PyACTR) Run(initialGoal string) (output []byte, err error) {
 	return
 }
 
+// WriteModel converts the internal actr.Model to python and writes it to a file.
 func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
 	outputFileName = fmt.Sprintf("%s.py", p.className)
 	if path != "" {

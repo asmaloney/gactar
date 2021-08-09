@@ -123,11 +123,11 @@ type initSection struct {
 }
 
 type patternFieldItem struct {
-	ID            *string `parser:"( (@Ident|@ChunkVar)"`
+	ID            *string `parser:"( (@Ident|@PatternVar)"`
 	Num           *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
-	NotID         *string `parser:"| '!' (@Ident|@ChunkVar)"`
-	OptionalID    *string `parser:"| '?' (@Ident|@ChunkVar)"`
-	NotOptionalID *string `parser:"| '!' '?' (@Ident|@ChunkVar))"`
+	NotID         *string `parser:"| '!' (@Ident|@PatternVar)"`
+	OptionalID    *string `parser:"| '?' (@Ident|@PatternVar)"`
+	NotOptionalID *string `parser:"| '!' '?' (@Ident|@PatternVar))"`
 }
 
 type patternField struct {
@@ -140,9 +140,9 @@ type patternField struct {
 type patternItem struct {
 	Field *patternField `parser:"( @@"`
 	ID    *string       `parser:"| @Ident "`
-	Var   *string       `parser:"| @ChunkVar"`
+	Var   *string       `parser:"| @PatternVar"`
 	Num   *string       `parser:"| @Number )"` // we don't need to treat this as a number anywhere, so keep as a string
-	Space string        `parser:" @ChunkSpace? "`
+	Space string        `parser:" @PatternSpace? "`
 
 	Pos lexer.Position
 }
