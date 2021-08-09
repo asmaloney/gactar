@@ -48,44 +48,44 @@ memory {
 initializeAddition {
     // Buffers to match
     match {
-        goal: 'add ?num1 ?num2 count:None?count sum:None?sum'
+        goal: `add ?num1 ?num2 count:None?count sum:None?sum`
     }
     // Steps to execute
     do {
         set field count of goal to 0
         set field sum of goal to num1
-        recall 'count ?num1 ?next' from memory
+        recall `count ?num1 ?` from memory
     }
 }
 
 incrementSum {
     match {
-        goal: 'add ?num1 ?num2 count:?count!?num2 sum:?sum'
-        retrieve: 'count ?sum ?next'
+        goal: `add ?num1 ?num2 count:?count!?num2 sum:?sum`
+        retrieve: `count ?sum ?next`
     }
     do {
         set field sum of goal to next
-        recall 'count ?count ?n2' from memory
+        recall `count ?count ?` from memory
     }
 }
 
 incrementCount {
     match {
-        goal: 'add ?num1 ?num2 count:?count sum:?sum'
-        retrieve: 'count ?count ?next'
+        goal: `add ?num1 ?num2 count:?count sum:?sum`
+        retrieve: `count ?count ?next`
     }
     do {
         set field count of goal to next
-        recall 'count ?sum ?n2' from memory
+        recall `count ?sum ?foo` from memory
    }
 }
 
 terminateAddition {
     match {
-        goal: 'add ?num1 ?num2 count:?num2 sum:?sum'
+        goal: `add ?num1 ?num2 count:?num2 sum:?sum`
     }
     do {
-        set goal to 'result ?sum'
         print sum
+        clear goal
     }
 }

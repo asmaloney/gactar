@@ -168,7 +168,7 @@ func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
 
 		numMatches := len(production.Matches)
 		for i, match := range production.Matches {
-			f.WriteString(fmt.Sprintf("%s=%s", match.Name, match.Text))
+			outputMatch(f, match)
 
 			if i != numMatches-1 {
 				f.WriteString(", ")
@@ -193,19 +193,35 @@ func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
 	return
 }
 
+func outputMatch(f *os.File, match *actr.Match) {
+	if match.Text != nil {
+		f.WriteString(fmt.Sprintf("%s=%s", match.Name, *match.Text))
+		return
+	}
+
+	f.WriteString(fmt.Sprintf("%s='%s'", match.Name, *match.Pattern))
+}
+
 func outputStatement(f *os.File, s *actr.Statement) {
 	if s.Set != nil {
-		if s.Set.ArgOrField != nil {
-			if s.Set.ArgOrField.ArgNum != nil {
-				f.WriteString(fmt.Sprintf("\t\t%s.modify(_%d=%s)\n", s.Set.BufferName, *s.Set.ArgOrField.ArgNum, s.Set.Contents))
-			} else if s.Set.ArgOrField.FieldName != nil {
-				f.WriteString(fmt.Sprintf("\t\t%s.modify(%s=%s)\n", s.Set.BufferName, *s.Set.ArgOrField.FieldName, s.Set.Contents))
+		var text string
+		if s.Set.Text != nil {
+			text = *s.Set.Text
+		} else if s.Set.Pattern != nil {
+			text = "'" + s.Set.Pattern.String() + "'"
+		}
+
+		if s.Set.Field != nil {
+			if s.Set.Field.ArgNum != nil {
+				f.WriteString(fmt.Sprintf("\t\t%s.modify(_%d=%s)\n", s.Set.BufferName, *s.Set.Field.ArgNum, text))
+			} else if s.Set.Field.FieldName != nil {
+				f.WriteString(fmt.Sprintf("\t\t%s.modify(%s=%s)\n", s.Set.BufferName, *s.Set.Field.FieldName, text))
 			}
 		} else {
-			f.WriteString(fmt.Sprintf("\t\t%s.set(%s)\n", s.Set.BufferName, s.Set.Contents))
+			f.WriteString(fmt.Sprintf("\t\t%s.set(%s)\n", s.Set.BufferName, text))
 		}
 	} else if s.Recall != nil {
-		f.WriteString(fmt.Sprintf("\t\t%s.request(%s)\n", s.Recall.MemoryName, s.Recall.Contents))
+		f.WriteString(fmt.Sprintf("\t\t%s.request('%s')\n", s.Recall.MemoryName, s.Recall.Pattern))
 	} else if s.Clear != nil {
 		for _, name := range s.Clear.BufferNames {
 			f.WriteString(fmt.Sprintf("\t\t%s.clear()\n", name))

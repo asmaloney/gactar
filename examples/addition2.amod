@@ -42,56 +42,56 @@ memory {
 startPair {
     // Buffers to match
     match {
-        goal: 'add ? ?one1 ? ?one2 ? None?ans ?'
+        goal: `add ? ?one1 ? ?one2 ? None?ans ?`
     }
     // Steps to execute
     do {
         set field 6 of goal to 'busy'
-        recall 'addfact ?one1 ?one2 ?' from memory
+        recall `addfact ?one1 ?one2 ?` from memory
     }
 }
 
 addOnes {
     match {
-        goal: 'add ? ? ? ? ? busy?ans ?carry'
-        retrieve: 'addfact ? ? ?sum'
+        goal: `add ? ? ? ? ? busy?ans ?carry`
+        retrieve: `addfact ? ? ?sum`
     }
     do {
         set field 6 of goal to sum
         set field 7 of goal to 'busy'
-        recall 'addfact 10 ? ?sum' from memory
+        recall `addfact 10 ? ?sum` from memory
     }
 }
 
 processCarry {
     match {
-        goal: 'add ?ten1 ? ?ten2 ? None?tenAns ?oneAns busy?carry'
-        retrieve: 'addfact 10 ?rem ?sum'
+        goal: `add ?ten1 ? ?ten2 ? None?tenAns ?oneAns busy?carry`
+        retrieve: `addfact 10 ?rem ?sum`
     }
     do {
         set field 5 of goal to 'busy'
         set field 6 of goal to rem
         set field 7 of goal to 1
-        recall 'addfact ?ten1 ?ten2 ?' from memory
+        recall `addfact ?ten1 ?ten2 ?` from memory
     }
 }
 
 noCarry {
     match {
-        goal: 'add ?ten1 ? ?ten2 None?tenAns ?oneAns busy?carry'
-        memory: 'error:True'
+        goal: `add ?ten1 ? ?ten2 None?tenAns ?oneAns busy?carry`
+        memory: `error:True`
     }
     do {
         set field 4 of goal to 'busy'
         set field 6 of goal to 0
-        recall 'addfact ?ten1 ?ten2 ?' from memory
+        recall `addfact ?ten1 ?ten2 ?` from memory
     }
 }
 
 addTensDone {
     match {
-        goal: 'add ? ? ? ? busy?tenAns ?oneAns 0'
-        retrieve: 'addfact ? ? ?sum'
+        goal: `add ? ? ? ? busy?tenAns ?oneAns 0`
+        retrieve: `addfact ? ? ?sum`
     }
     do {
         print sum, oneAns
@@ -101,11 +101,11 @@ addTensDone {
 
 addTensCarry {
     match {
-        goal: 'add ? ? ? ? busy?tenAns ? 1?carry'
-        retrieve: 'addfact ? ? ?sum'
+        goal: `add ? ? ? ? busy?tenAns ? 1?carry`
+        retrieve: `addfact ? ? ?sum`
     }
     do {
         set field 7 of goal to 0
-        recall 'addfact 1 ?sum ?' from memory
+        recall `addfact 1 ?sum ?` from memory
     }
 }

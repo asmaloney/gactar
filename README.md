@@ -20,7 +20,8 @@ The format still feels a little heavy, so if I continue with this project I woul
 2. Allows the easy exchange of models with other researchers.
 3. Abstracts away the "programming" to focus on writing and understanding models.
 4. Restricts the model to a small language to prevent programming "outside the model".
-5. Provides a very simple setup for teaching environments.
+5. Parses buffer patterns to catch and report errors.
+6. Provides a very simple setup for teaching environments.
 
 ## Setup
 
@@ -216,34 +217,34 @@ memory {
 start {
     // Buffers to match
     match {
-        goal: 'countFrom ?start ?end starting'
+        goal: `countFrom ?start ?end starting`
     }
     // Steps to execute
     do {
-        recall 'count ?start ?next' from memory
-        set goal to 'countFrom ?start ?end counting'
+        recall `count ?start ?next` from memory
+        set goal to `countFrom ?start ?end counting`
     }
 }
 
 increment {
     match {
-        goal: 'countFrom ?x !?x counting'
-        retrieve: 'count ?x ?next'
+        goal: `countFrom ?x !?x counting`
+        retrieve: `count ?x ?next`
     }
     do {
         print x
-        recall 'count ?next ?nextNext' from memory
+        recall `count ?next ?nextNext` from memory
         set field 1 of goal to next
     }
 }
 
 stop {
     match {
-        goal: 'countFrom ?x ?x counting'
+        goal: `countFrom ?x ?x counting`
     }
     do {
         print x
-        set goal to 'countFrom ?x ?x stop'
+        clear goal
     }
 }
 ```
@@ -252,13 +253,15 @@ You can find other examples of amod files in the [examples folder](examples).
 
 ### Syntax
 
+The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property ?obj category ?cat` ``. These are parsed to ensure their format is correct.
+
 The _do_ section in the productions uses a small language which currently understands the following commands:
 
-| command                                                                          | example                          |
-| -------------------------------------------------------------------------------- | -------------------------------- |
-| clear _(buffer name)+_                                                           | clear buff1, buff2               |
-| print _(string or ident or number)+_                                             | print foo, 'text', 42            |
-| recall _(string)_ from _(memory name)_                                           | recall 'car ?colour' from memory |
-| set field _(number or name)_ of _(buffer name)_ to _(string or ident or number)_ | set field 1 of goal to 6         |
-| set _(buffer name)_ to _(string or ident or number)_                             | set goal to 'start 6 None'       |
-| write _(string or ident or number)+_ to _(text output name)_                     | write 'foo' to text              |
+| command                                                                          | example                            |
+| -------------------------------------------------------------------------------- | ---------------------------------- |
+| clear _(buffer name)+_                                                           | clear buff1, buff2                 |
+| print _(string or ident or number)+_                                             | print foo, 'text', 42              |
+| recall _(pattern)_ from _(memory name)_                                          | recall \`car ?colour\` from memory |
+| set field _(number or name)_ of _(buffer name)_ to _(string or ident or number)_ | set field 1 of goal to 6           |
+| set _(buffer name)_ to _(string or ident or number or pattern)_                  | set goal to \`start 6 None\`       |
+| write _(string or ident or number)+_ to _(text output name)_                     | write 'foo' to text                |

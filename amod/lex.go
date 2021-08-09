@@ -41,6 +41,7 @@ type lexer_amod struct {
 	width          int             // width of last rune read from input
 	lexemes        chan lexeme     // channel of scanned lexemes
 	keywords       map[string]bool // used to lookup identifier to see if they are keywords
+	inChunk        bool            // state: a chunk - delimited by `` is lexed specially
 	inDoBlock      bool            // state: a "do" block is lexed as a series of strings
 }
 
@@ -59,6 +60,10 @@ const (
 	lexemeNumber
 	lexemeString
 	lexemeChar
+
+	lexemeChunkDelim
+	lexemeChunkSpace
+	lexemeChunkVar
 
 	lexemeSectionModel
 	lexemeSectionConfig
@@ -114,6 +119,9 @@ func (lexer_def) Symbols() map[string]lexer.TokenType {
 		"Ident":      lexer.TokenType(lexemeIdentifier),
 		"Number":     lexer.TokenType(lexemeNumber),
 		"String":     lexer.TokenType(lexemeString),
+		"ChunkDelim": lexer.TokenType(lexemeChunkDelim),
+		"ChunkSpace": lexer.TokenType(lexemeChunkSpace),
+		"ChunkVar":   lexer.TokenType(lexemeChunkVar),
 		"DoCode":     lexer.TokenType(lexemeDoCode),
 	}
 }
@@ -136,6 +144,7 @@ func (lexer_def) Lex(filename string, r io.Reader) (lexer.Lexer, error) {
 		lastNewlinePos: 0,
 		lexemes:        make(chan lexeme),
 		keywords:       make(map[string]bool),
+		inChunk:        false,
 		inDoBlock:      false,
 	}
 
@@ -294,6 +303,10 @@ func isDigit(r rune) bool {
 func lexStart(l *lexer_amod) stateFn {
 	switch r := l.next(); {
 	case isSpace(r):
+		if l.inChunk {
+			l.emit(lexemeChunkSpace)
+			return lexStart
+		}
 		if isNewline(r) {
 			l.lastNewlinePos = l.pos + 1
 			l.line++
@@ -331,6 +344,17 @@ func lexStart(l *lexer_amod) stateFn {
 	case r == '"' || r == '\'':
 		l.backup()
 		return lexQuotedString
+
+	case r == '`':
+		l.inChunk = !l.inChunk
+		l.emit(lexemeChunkDelim)
+
+	case r == '?':
+		if l.inChunk {
+			return lexIdentifier
+		} else {
+			l.emit(lexemeChar)
+		}
 
 	case r == '#':
 		if l.nextIs('<') {
@@ -434,13 +458,21 @@ func lexIdentifier(l *lexer_amod) stateFn {
 		l.next()
 	}
 
-	// Perhaps not the best way to do this.
-	// I'm sure there's a char-by-char way we could implement which would be faster.
-	isKeyword := l.lookupKeyword(l.input[l.start:l.pos])
-	if isKeyword {
-		l.emit(lexemeKeyword)
+	if !l.inChunk {
+		// Perhaps not the best way to do this.
+		// I'm sure there's a char-by-char way we could implement which would be faster.
+		isKeyword := l.lookupKeyword(l.input[l.start:l.pos])
+		if isKeyword {
+			l.emit(lexemeKeyword)
+		} else {
+			l.emit(lexemeIdentifier)
+		}
 	} else {
-		l.emit(lexemeIdentifier)
+		if l.input[l.start] == '?' {
+			l.emit(lexemeChunkVar)
+		} else {
+			l.emit(lexemeIdentifier)
+		}
 	}
 
 	return lexStart

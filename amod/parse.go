@@ -122,9 +122,41 @@ type initSection struct {
 	Pos lexer.Position
 }
 
+type patternFieldItem struct {
+	ID            *string `parser:"( (@Ident|@ChunkVar)"`
+	Num           *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
+	NotID         *string `parser:"| '!' (@Ident|@ChunkVar)"`
+	OptionalID    *string `parser:"| '?' (@Ident|@ChunkVar)"`
+	NotOptionalID *string `parser:"| '!' '?' (@Ident|@ChunkVar))"`
+}
+
+type patternField struct {
+	Field *string             `parser:"(@Ident ':')?"`
+	Items []*patternFieldItem `parser:"@@+"`
+
+	Pos lexer.Position
+}
+
+type patternItem struct {
+	Field *patternField `parser:"( @@"`
+	ID    *string       `parser:"| @Ident "`
+	Var   *string       `parser:"| @ChunkVar"`
+	Num   *string       `parser:"| @Number )"` // we don't need to treat this as a number anywhere, so keep as a string
+	Space string        `parser:" @ChunkSpace? "`
+
+	Pos lexer.Position
+}
+
+type pattern struct {
+	Items []*patternItem "parser:\"'`' @@+ '`'\""
+
+	Pos lexer.Position
+}
+
 type matchItem struct {
-	Name string `parser:"@Ident ':'"`
-	Text string `parser:"@String"`
+	Name    string   `parser:"@Ident ':'"`
+	Text    *string  `parser:"(@String"`
+	Pattern *pattern `parser:"| @@)"`
 
 	Pos lexer.Position
 }
@@ -148,8 +180,8 @@ type printStatement struct {
 }
 
 type recallStatement struct {
-	Contents   string `parser:"'recall' @String"`
-	MemoryName string `parser:"'from' @Ident"`
+	Pattern    *pattern `parser:"'recall' @@"`
+	MemoryName string   `parser:"'from' @Ident"`
 
 	Pos lexer.Position
 }
@@ -172,7 +204,8 @@ type setStatement struct {
 	Set        string    `parser:"'set'"` // not used, but must be visible for parse to work
 	Field      *setField `parser:"(@@ 'of')?"`
 	BufferName string    `parser:"@Ident"`
-	Arg        *arg      `parser:"'to' @@"`
+	Arg        *arg      `parser:"'to' (@@"`
+	Pattern    *pattern  `parser:"| @@)"`
 
 	Pos lexer.Position
 }

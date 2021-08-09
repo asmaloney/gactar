@@ -45,8 +45,9 @@ type Production struct {
 }
 
 type Match struct {
-	Name string
-	Text string
+	Name    string
+	Text    *string
+	Pattern *Pattern
 }
 
 type Statement struct {
@@ -66,7 +67,7 @@ type PrintStatement struct {
 }
 
 type RecallStatement struct {
-	Contents   string
+	Pattern    *Pattern
 	MemoryName string
 }
 
@@ -75,15 +76,17 @@ type WriteStatement struct {
 	TextOutputName string
 }
 
-type ArgOrField struct {
+type SetField struct {
 	ArgNum    *int
 	FieldName *string
 }
 
 type SetStatement struct {
-	ArgOrField *ArgOrField
-	BufferName string
-	Contents   string
+	Field      *SetField // set this field
+	BufferName string    // of this buffer
+
+	Text    *string  // to this string OR
+	Pattern *Pattern // this pattern
 }
 
 // LookupBuffer looks up the named buffer in the model and returns it (or nil if it does not exist)

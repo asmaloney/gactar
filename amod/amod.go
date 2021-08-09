@@ -268,10 +268,19 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 				continue
 			}
 
-			prod.Matches = append(prod.Matches, &actr.Match{
-				Name: name,
-				Text: item.Text,
-			})
+			if item.Pattern != nil {
+				pattern := createChunkPattern(item.Pattern)
+
+				prod.Matches = append(prod.Matches, &actr.Match{
+					Name:    name,
+					Pattern: pattern,
+				})
+			} else if item.Text != nil {
+				prod.Matches = append(prod.Matches, &actr.Match{
+					Name: name,
+					Text: item.Text,
+				})
+			}
 		}
 
 		if production.Do.PyCode != nil {
@@ -289,87 +298,179 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 	return errs.ErrorOrNil()
 }
 
-func addStatement(model *actr.Model, statement *statement, production *actr.Production) error {
-	errs := errorListWithContext{}
+func createChunkPattern(cp *pattern) *actr.Pattern {
+	pattern := actr.Pattern{}
+	for _, item := range cp.Items {
+		if item.ID != nil {
+			pattern.AddID(item.ID)
+		} else if item.Var != nil {
+			pattern.AddVar(item.Var)
+		} else if item.Num != nil {
+			pattern.AddNum(item.Num)
+		} else if item.Field != nil {
+			field := actr.PatternField{}
 
-	s := actr.Statement{}
+			if item.Field.Field != nil {
+				field.Name = item.Field.Field
+			}
 
-	if statement.Set != nil {
-		name := statement.Set.BufferName
-		buffer := model.LookupBuffer(name)
-		if buffer == nil {
-			errs.Addc(&statement.Pos, "buffer not found in production '%s': '%s'", production.Name, name)
-			return errs
-		}
-
-		s.Set = &actr.SetStatement{
-			BufferName: name,
-			Contents:   statement.Set.Arg.Arg,
-		}
-
-		if statement.Set.Field != nil {
-			if statement.Set.Field.ArgNum != nil {
-				argNum := int(*statement.Set.Field.ArgNum)
-				s.Set.ArgOrField = &actr.ArgOrField{
-					ArgNum: &argNum,
-				}
-			} else if statement.Set.Field.Name != nil {
-				s.Set.ArgOrField = &actr.ArgOrField{
-					FieldName: statement.Set.Field.Name,
+			for _, f := range item.Field.Items {
+				if f.ID != nil {
+					field.Items = append(field.Items, actr.PatternFieldItem{ID: f.ID})
+				} else if f.Num != nil {
+					field.Items = append(field.Items, actr.PatternFieldItem{Num: f.Num})
+				} else if f.NotID != nil {
+					field.Items = append(field.Items, actr.PatternFieldItem{ID: f.NotID, Negated: true})
+				} else if f.OptionalID != nil {
+					field.Items = append(field.Items, actr.PatternFieldItem{ID: f.OptionalID, Optional: true})
+				} else if f.NotOptionalID != nil {
+					field.Items = append(field.Items, actr.PatternFieldItem{ID: f.NotOptionalID, Negated: true, Optional: true})
 				}
 			}
+			pattern.AddField(&field)
 		}
-	} else if statement.Recall != nil {
-		name := statement.Recall.MemoryName
-		memory := model.LookupMemory(name)
-		if memory == nil {
-			errs.Addc(&statement.Pos, "memory not found in production '%s': '%s'", production.Name, name)
-			return errs
-		}
-
-		s.Recall = &actr.RecallStatement{
-			Contents:   statement.Recall.Contents,
-			MemoryName: name,
-		}
-	} else if statement.Clear != nil {
-		bufferNames := statement.Clear.BufferNames
-
-		for _, name := range bufferNames {
-			buffer := model.LookupBuffer(name)
-			if buffer == nil {
-				errs.Addc(&statement.Pos, "buffer not found in production '%s': '%s'", production.Name, name)
-				continue
-			}
-		}
-		if errs.ErrorOrNil() != nil {
-			return errs
-		}
-
-		s.Clear = &actr.ClearStatement{
-			BufferNames: bufferNames,
-		}
-	} else if statement.Print != nil {
-		s.Print = &actr.PrintStatement{
-			Args: statement.Print.Args.Strings(),
-		}
-	} else if statement.Write != nil {
-		name := statement.Write.TextOutputName
-		textOutput := model.LookupTextOutput(name)
-		if textOutput == nil {
-			errs.Addc(&statement.Pos, "text output not found in production '%s': '%s'", production.Name, name)
-			return errs
-		}
-
-		s.Write = &actr.WriteStatement{
-			Args:           statement.Write.Args.Strings(),
-			TextOutputName: name,
-		}
-	} else {
-		errs.Addf("Statement type not handled: %T", statement)
-		return errs
 	}
 
-	production.DoStatements = append(production.DoStatements, &s)
+	return &pattern
+}
 
-	return errs.ErrorOrNil()
+func addStatement(model *actr.Model, statement *statement, production *actr.Production) (err error) {
+	var s *actr.Statement
+
+	if statement.Set != nil {
+		s, err = addSetStatement(model, statement.Set, production)
+	} else if statement.Recall != nil {
+		s, err = addRecallStatement(model, statement.Recall, production)
+	} else if statement.Clear != nil {
+		s, err = addClearStatement(model, statement.Clear, production)
+	} else if statement.Print != nil {
+		s, err = addPrintStatement(model, statement.Print, production)
+	} else if statement.Write != nil {
+		s, err = addWriteStatement(model, statement.Write, production)
+	} else {
+		err = fmt.Errorf("Statement type not handled: %T", statement)
+		return err
+	}
+
+	if err != nil {
+		return err
+	}
+
+	production.DoStatements = append(production.DoStatements, s)
+
+	return nil
+}
+
+func addSetStatement(model *actr.Model, set *setStatement, production *actr.Production) (*actr.Statement, error) {
+	errs := errorListWithContext{}
+
+	name := set.BufferName
+	buffer := model.LookupBuffer(name)
+	if buffer == nil {
+		errs.Addc(&set.Pos, "buffer not found in production '%s': '%s'", production.Name, name)
+		return nil, errs
+	}
+
+	s := actr.Statement{
+		Set: &actr.SetStatement{
+			BufferName: name,
+		},
+	}
+
+	if set.Pattern != nil {
+		pattern := createChunkPattern(set.Pattern)
+		s.Set.Pattern = pattern
+	} else if set.Arg != nil {
+		arg := set.Arg
+		s.Set.Text = &arg.Arg
+	}
+
+	if set.Field != nil {
+		if set.Field.ArgNum != nil {
+			argNum := int(*set.Field.ArgNum)
+			s.Set.Field = &actr.SetField{
+				ArgNum: &argNum,
+			}
+		} else if set.Field.Name != nil {
+			s.Set.Field = &actr.SetField{
+				FieldName: set.Field.Name,
+			}
+		}
+	}
+	return &s, nil
+}
+
+func addRecallStatement(model *actr.Model, recall *recallStatement, production *actr.Production) (*actr.Statement, error) {
+	errs := errorListWithContext{}
+
+	name := recall.MemoryName
+	memory := model.LookupMemory(name)
+	if memory == nil {
+		errs.Addc(&recall.Pos, "memory not found in production '%s': '%s'", production.Name, name)
+		return nil, errs
+	}
+
+	pattern := createChunkPattern(recall.Pattern)
+
+	s := actr.Statement{
+		Recall: &actr.RecallStatement{
+			Pattern:    pattern,
+			MemoryName: name,
+		},
+	}
+
+	return &s, nil
+}
+
+func addClearStatement(model *actr.Model, clear *clearStatement, production *actr.Production) (*actr.Statement, error) {
+	errs := errorListWithContext{}
+	bufferNames := clear.BufferNames
+
+	for _, name := range bufferNames {
+		buffer := model.LookupBuffer(name)
+		if buffer == nil {
+			errs.Addc(&clear.Pos, "buffer not found in production '%s': '%s'", production.Name, name)
+			continue
+		}
+	}
+	if errs.ErrorOrNil() != nil {
+		return nil, errs
+	}
+
+	s := actr.Statement{
+		Clear: &actr.ClearStatement{
+			BufferNames: bufferNames,
+		},
+	}
+
+	return &s, nil
+}
+
+func addPrintStatement(model *actr.Model, print *printStatement, production *actr.Production) (*actr.Statement, error) {
+	s := actr.Statement{
+		Print: &actr.PrintStatement{
+			Args: print.Args.Strings(),
+		},
+	}
+
+	return &s, nil
+}
+
+func addWriteStatement(model *actr.Model, write *writeStatement, production *actr.Production) (*actr.Statement, error) {
+	errs := errorListWithContext{}
+
+	name := write.TextOutputName
+	textOutput := model.LookupTextOutput(name)
+	if textOutput == nil {
+		errs.Addc(&write.Pos, "text output not found in production '%s': '%s'", production.Name, name)
+		return nil, errs
+	}
+
+	s := actr.Statement{
+		Write: &actr.WriteStatement{
+			Args:           write.Args.Strings(),
+			TextOutputName: name},
+	}
+
+	return &s, nil
 }
