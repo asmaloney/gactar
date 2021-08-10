@@ -58,3 +58,13 @@ type SetStatement struct {
 	Text    *string  // to this string OR
 	Pattern *Pattern // this pattern
 }
+
+func (p Production) LookupMatch(bufferName string) *Match {
+	for _, m := range p.Matches {
+		if m.Name == bufferName {
+			return m
+		}
+	}
+
+	return nil
+}

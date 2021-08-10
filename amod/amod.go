@@ -368,19 +368,27 @@ func addStatement(model *actr.Model, statement *statement, production *actr.Prod
 }
 
 func addSetStatement(model *actr.Model, set *setStatement, production *actr.Production) (*actr.Statement, error) {
-	errs := errorListWithContext{}
-
-	name := set.BufferName
-	buffer := model.LookupBuffer(name)
-	if buffer == nil {
-		errs.Addc(&set.Pos, "buffer not found in production '%s': '%s'", production.Name, name)
-		return nil, errs
+	err := validateSetStatement(set, model, production)
+	if err != nil {
+		return nil, err
 	}
 
 	s := actr.Statement{
 		Set: &actr.SetStatement{
-			BufferName: name,
+			BufferName: set.BufferName,
 		},
+	}
+
+	if set.Field != nil {
+		field := actr.SetField{}
+		if set.Field.ArgNum != nil {
+			argNum := int(*set.Field.ArgNum)
+			field.ArgNum = &argNum
+		} else if set.Field.Name != nil {
+			field.FieldName = set.Field.Name
+		}
+
+		s.Set.Field = &field
 	}
 
 	if set.Pattern != nil {
@@ -391,29 +399,13 @@ func addSetStatement(model *actr.Model, set *setStatement, production *actr.Prod
 		s.Set.Text = &arg.Arg
 	}
 
-	if set.Field != nil {
-		if set.Field.ArgNum != nil {
-			argNum := int(*set.Field.ArgNum)
-			s.Set.Field = &actr.SetField{
-				ArgNum: &argNum,
-			}
-		} else if set.Field.Name != nil {
-			s.Set.Field = &actr.SetField{
-				FieldName: set.Field.Name,
-			}
-		}
-	}
 	return &s, nil
 }
 
 func addRecallStatement(model *actr.Model, recall *recallStatement, production *actr.Production) (*actr.Statement, error) {
-	errs := errorListWithContext{}
-
-	name := recall.MemoryName
-	memory := model.LookupMemory(name)
-	if memory == nil {
-		errs.Addc(&recall.Pos, "memory not found in production '%s': '%s'", production.Name, name)
-		return nil, errs
+	err := validateRecallStatement(recall, model, production)
+	if err != nil {
+		return nil, err
 	}
 
 	pattern := createChunkPattern(recall.Pattern)
@@ -421,7 +413,7 @@ func addRecallStatement(model *actr.Model, recall *recallStatement, production *
 	s := actr.Statement{
 		Recall: &actr.RecallStatement{
 			Pattern:    pattern,
-			MemoryName: name,
+			MemoryName: recall.MemoryName,
 		},
 	}
 
@@ -429,23 +421,14 @@ func addRecallStatement(model *actr.Model, recall *recallStatement, production *
 }
 
 func addClearStatement(model *actr.Model, clear *clearStatement, production *actr.Production) (*actr.Statement, error) {
-	errs := errorListWithContext{}
-	bufferNames := clear.BufferNames
-
-	for _, name := range bufferNames {
-		buffer := model.LookupBuffer(name)
-		if buffer == nil {
-			errs.Addc(&clear.Pos, "buffer not found in production '%s': '%s'", production.Name, name)
-			continue
-		}
-	}
-	if errs.ErrorOrNil() != nil {
-		return nil, errs
+	err := validateClearStatement(clear, model, production)
+	if err != nil {
+		return nil, err
 	}
 
 	s := actr.Statement{
 		Clear: &actr.ClearStatement{
-			BufferNames: bufferNames,
+			BufferNames: clear.BufferNames,
 		},
 	}
 
@@ -453,6 +436,11 @@ func addClearStatement(model *actr.Model, clear *clearStatement, production *act
 }
 
 func addPrintStatement(model *actr.Model, print *printStatement, production *actr.Production) (*actr.Statement, error) {
+	err := validatePrintStatement(print, model, production)
+	if err != nil {
+		return nil, err
+	}
+
 	s := actr.Statement{
 		Print: &actr.PrintStatement{
 			Args: print.Args.Strings(),
@@ -463,19 +451,15 @@ func addPrintStatement(model *actr.Model, print *printStatement, production *act
 }
 
 func addWriteStatement(model *actr.Model, write *writeStatement, production *actr.Production) (*actr.Statement, error) {
-	errs := errorListWithContext{}
-
-	name := write.TextOutputName
-	textOutput := model.LookupTextOutput(name)
-	if textOutput == nil {
-		errs.Addc(&write.Pos, "text output not found in production '%s': '%s'", production.Name, name)
-		return nil, errs
+	err := validateWriteStatement(write, model, production)
+	if err != nil {
+		return nil, err
 	}
 
 	s := actr.Statement{
 		Write: &actr.WriteStatement{
 			Args:           write.Args.Strings(),
-			TextOutputName: name},
+			TextOutputName: write.TextOutputName},
 	}
 
 	return &s, nil

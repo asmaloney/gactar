@@ -28,12 +28,12 @@ type PatternFieldItem struct {
 	Optional bool // ?
 }
 
-func (c PatternField) String() (str string) {
-	if c.Name != nil {
-		str = *c.Name + ":"
+func (p PatternField) String() (str string) {
+	if p.Name != nil {
+		str = *p.Name + ":"
 	}
 
-	for _, item := range c.Items {
+	for _, item := range p.Items {
 		if item.Negated {
 			str += "!"
 		}
@@ -54,8 +54,8 @@ func (c PatternField) String() (str string) {
 	return
 }
 
-func (c Pattern) String() (str string) {
-	for i, item := range c.Items {
+func (p Pattern) String() (str string) {
+	for i, item := range p.Items {
 		if item.ID != nil {
 			str += *item.ID
 		} else if item.Var != nil {
@@ -66,7 +66,7 @@ func (c Pattern) String() (str string) {
 			str += item.Field.String()
 		}
 
-		if i != len(c.Items)-1 {
+		if i != len(p.Items)-1 {
 			str += " "
 		}
 	}
@@ -74,32 +74,32 @@ func (c Pattern) String() (str string) {
 	return
 }
 
-func (c *Pattern) AddID(id *string) {
-	c.Items = append(c.Items, &PatternItem{ID: id})
+func (p *Pattern) AddID(id *string) {
+	p.Items = append(p.Items, &PatternItem{ID: id})
 }
 
-func (c *Pattern) AddVar(id *string) {
-	c.Items = append(c.Items, &PatternItem{Var: id})
+func (p *Pattern) AddVar(id *string) {
+	p.Items = append(p.Items, &PatternItem{Var: id})
 }
 
-func (c *Pattern) AddNum(num *string) {
-	c.Items = append(c.Items, &PatternItem{Num: num})
+func (p *Pattern) AddNum(num *string) {
+	p.Items = append(p.Items, &PatternItem{Num: num})
 }
 
-func (c *Pattern) AddField(field *PatternField) {
-	c.Items = append(c.Items, &PatternItem{Field: field})
+func (p *Pattern) AddField(field *PatternField) {
+	p.Items = append(p.Items, &PatternItem{Field: field})
 }
 
-func (c Pattern) HasVar(id string) bool {
-	for _, item := range c.Items {
-		if item.Var == nil {
+func (p Pattern) LookupFieldName(fieldName string) *PatternField {
+	for _, item := range p.Items {
+		if (item.Field == nil) || (item.Field.Name == nil) {
 			continue
 		}
 
-		if *item.Var == id {
-			return true
+		if *item.Field.Name == fieldName {
+			return item.Field
 		}
 	}
 
-	return false
+	return nil
 }
