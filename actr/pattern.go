@@ -4,19 +4,13 @@ package actr
 // so we can verify variable use.
 
 type Pattern struct {
-	Items []*PatternItem
+	Fields []*PatternField
 }
 
-type PatternItem struct {
-	ID    *string
-	Var   *string
-	Num   *string // we don't need to treat this as a number anywhere, so keep as a string
-	Field *PatternField
-}
-
+// PatternField allows for named fields - e.g. `foo:?bar!?blat`
 type PatternField struct {
 	Name  *string
-	Items []PatternFieldItem
+	Items []*PatternFieldItem
 }
 
 type PatternFieldItem struct {
@@ -54,19 +48,15 @@ func (p PatternField) String() (str string) {
 	return
 }
 
-func (p Pattern) String() (str string) {
-	for i, item := range p.Items {
-		if item.ID != nil {
-			str += *item.ID
-		} else if item.Var != nil {
-			str += *item.Var
-		} else if item.Num != nil {
-			str += *item.Num
-		} else if item.Field != nil {
-			str += item.Field.String()
-		}
+func (p *PatternField) AddItem(item *PatternFieldItem) {
+	p.Items = append(p.Items, item)
+}
 
-		if i != len(p.Items)-1 {
+func (p Pattern) String() (str string) {
+	for i, item := range p.Fields {
+		str += item.String()
+
+		if i != len(p.Fields)-1 {
 			str += " "
 		}
 	}
@@ -75,29 +65,57 @@ func (p Pattern) String() (str string) {
 }
 
 func (p *Pattern) AddID(id *string) {
-	p.Items = append(p.Items, &PatternItem{ID: id})
+	field := PatternField{}
+	field.Items = append(field.Items, &PatternFieldItem{ID: id})
+
+	p.Fields = append(p.Fields, &field)
 }
 
-func (p *Pattern) AddVar(id *string) {
-	p.Items = append(p.Items, &PatternItem{Var: id})
+func (p *Pattern) AddVar(id *string, negated, optional bool) {
+	field := PatternField{}
+	field.Items = append(field.Items, &PatternFieldItem{Var: id,
+		Negated:  negated,
+		Optional: optional,
+	})
+
+	p.Fields = append(p.Fields, &field)
 }
 
 func (p *Pattern) AddNum(num *string) {
-	p.Items = append(p.Items, &PatternItem{Num: num})
+	field := PatternField{}
+	field.Items = append(field.Items, &PatternFieldItem{Num: num})
+
+	p.Fields = append(p.Fields, &field)
 }
 
 func (p *Pattern) AddField(field *PatternField) {
-	p.Items = append(p.Items, &PatternItem{Field: field})
+	p.Fields = append(p.Fields, field)
+}
+
+func (p Pattern) LookupVariable(varName string) *PatternFieldItem {
+	for _, field := range p.Fields {
+		for _, item := range field.Items {
+			if item.Var == nil {
+				continue
+			}
+
+			if *item.Var == varName {
+				return item
+			}
+		}
+	}
+
+	return nil
 }
 
 func (p Pattern) LookupFieldName(fieldName string) *PatternField {
-	for _, item := range p.Items {
-		if (item.Field == nil) || (item.Field.Name == nil) {
+	for _, field := range p.Fields {
+		if field.Name == nil {
 			continue
 		}
 
-		if *item.Field.Name == fieldName {
-			return item.Field
+		if *field.Name == fieldName {
+			return field
 		}
 	}
 

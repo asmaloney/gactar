@@ -123,32 +123,24 @@ type initSection struct {
 }
 
 type patternFieldItem struct {
-	ID            *string `parser:"( (@Ident|@PatternVar)"`
-	Num           *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
-	NotID         *string `parser:"| '!' (@Ident|@PatternVar)"`
-	OptionalID    *string `parser:"| '?' (@Ident|@PatternVar)"`
-	NotOptionalID *string `parser:"| '!' '?' (@Ident|@PatternVar))"`
+	ID             *string `parser:"( @Ident"`
+	Num            *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
+	Var            *string `parser:"| @PatternVar"`
+	NotVar         *string `parser:"| '!' @PatternVar"`
+	OptionalVar    *string `parser:"| '?' @PatternVar"`
+	NotOptionalVar *string `parser:"| '!' '?' @PatternVar)"`
 }
 
 type patternField struct {
-	Field *string             `parser:"(@Ident ':')?"`
+	Name  *string             `parser:"(@Ident ':')?"`
 	Items []*patternFieldItem `parser:"@@+"`
-
-	Pos lexer.Position
-}
-
-type patternItem struct {
-	Field *patternField `parser:"( @@"`
-	ID    *string       `parser:"| @Ident "`
-	Var   *string       `parser:"| @PatternVar"`
-	Num   *string       `parser:"| @Number )"` // we don't need to treat this as a number anywhere, so keep as a string
-	Space string        `parser:" @PatternSpace? "`
+	Space string              `parser:" @PatternSpace? "`
 
 	Pos lexer.Position
 }
 
 type pattern struct {
-	Items []*patternItem "parser:\"'`' @@+ '`'\""
+	Fields []*patternField "parser:\"'`' @@+ '`'\""
 
 	Pos lexer.Position
 }
@@ -268,4 +260,18 @@ func parseFile(filename string) (*amodFile, error) {
 	defer file.Close()
 
 	return parse(file)
+}
+
+func (p patternFieldItem) getVar() *string {
+	if p.Var != nil {
+		return p.Var
+	} else if p.NotVar != nil {
+		return p.NotVar
+	} else if p.OptionalVar != nil {
+		return p.OptionalVar
+	} else if p.NotOptionalVar != nil {
+		return p.NotOptionalVar
+	}
+
+	return nil
 }

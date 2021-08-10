@@ -306,35 +306,30 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 
 func createChunkPattern(cp *pattern) *actr.Pattern {
 	pattern := actr.Pattern{}
-	for _, item := range cp.Items {
-		if item.ID != nil {
-			pattern.AddID(item.ID)
-		} else if item.Var != nil {
-			pattern.AddVar(item.Var)
-		} else if item.Num != nil {
-			pattern.AddNum(item.Num)
-		} else if item.Field != nil {
-			field := actr.PatternField{}
+	for _, f := range cp.Fields {
 
-			if item.Field.Field != nil {
-				field.Name = item.Field.Field
-			}
+		field := actr.PatternField{}
 
-			for _, f := range item.Field.Items {
-				if f.ID != nil {
-					field.Items = append(field.Items, actr.PatternFieldItem{ID: f.ID})
-				} else if f.Num != nil {
-					field.Items = append(field.Items, actr.PatternFieldItem{Num: f.Num})
-				} else if f.NotID != nil {
-					field.Items = append(field.Items, actr.PatternFieldItem{ID: f.NotID, Negated: true})
-				} else if f.OptionalID != nil {
-					field.Items = append(field.Items, actr.PatternFieldItem{ID: f.OptionalID, Optional: true})
-				} else if f.NotOptionalID != nil {
-					field.Items = append(field.Items, actr.PatternFieldItem{ID: f.NotOptionalID, Negated: true, Optional: true})
-				}
-			}
-			pattern.AddField(&field)
+		if f.Name != nil {
+			field.Name = f.Name
 		}
+
+		for _, f := range f.Items {
+			if f.ID != nil {
+				field.AddItem(&actr.PatternFieldItem{ID: f.ID})
+			} else if f.Num != nil {
+				field.AddItem(&actr.PatternFieldItem{Num: f.Num})
+			} else if f.Var != nil {
+				field.AddItem(&actr.PatternFieldItem{Var: f.Var})
+			} else if f.NotVar != nil {
+				field.AddItem(&actr.PatternFieldItem{ID: f.NotVar, Negated: true})
+			} else if f.OptionalVar != nil {
+				field.AddItem(&actr.PatternFieldItem{ID: f.OptionalVar, Optional: true})
+			} else if f.NotOptionalVar != nil {
+				field.AddItem(&actr.PatternFieldItem{ID: f.NotOptionalVar, Negated: true, Optional: true})
+			}
+		}
+		pattern.AddField(&field)
 	}
 
 	return &pattern

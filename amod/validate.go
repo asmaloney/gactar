@@ -14,14 +14,14 @@ func validateSetStatement(set *setStatement, model *actr.Model, production *actr
 	}
 
 	if set.Field != nil {
-		match := production.LookupMatch(name)
+		match := production.LookupMatchByBuffer(name)
 
 		if match == nil {
 			errs.Addc(&set.Pos, "match buffer '%s' not found in production '%s'", name, production.Name)
 		} else {
 			if set.Field.ArgNum != nil {
 				argNum := int(*set.Field.ArgNum)
-				if (argNum == 0) || (argNum > len(match.Pattern.Items)) {
+				if (argNum == 0) || (argNum > len(match.Pattern.Fields)) {
 					errs.Addc(&set.Pos, "field %d does not exist in match buffer '%s' in production '%s'", argNum, name, production.Name)
 				}
 			} else if set.Field.Name != nil {
@@ -29,7 +29,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, production *actr
 
 				field := match.Pattern.LookupFieldName(fieldName)
 				if field == nil {
-					errs.Addc(&set.Pos, "field %s does not exist in match buffer '%s' in production '%s'", fieldName, name, production.Name)
+					errs.Addc(&set.Pos, "field '%s' does not exist in match buffer '%s' in production '%s'", fieldName, name, production.Name)
 				}
 			} else {
 				// should not be possible to get here since the parser will pick this up

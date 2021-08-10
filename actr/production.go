@@ -59,9 +59,29 @@ type SetStatement struct {
 	Pattern *Pattern // this pattern
 }
 
-func (p Production) LookupMatch(bufferName string) *Match {
+func (p Production) LookupMatchByBuffer(bufferName string) *Match {
 	for _, m := range p.Matches {
 		if m.Name == bufferName {
+			return m
+		}
+	}
+
+	return nil
+}
+
+// LookupMatchByVariable checks all matches for a variable by name.
+// This is pretty inefficient, but given the small number of matches
+// in a production, it's probably not worth doing anything more complicated.
+// We could store all the vars used in all the matches on the Match itself
+// and look it up there.
+func (p Production) LookupMatchByVariable(varName string) *Match {
+	for _, m := range p.Matches {
+		if m.Pattern == nil {
+			return nil
+		}
+
+		patternItem := m.Pattern.LookupVariable(varName)
+		if patternItem != nil {
 			return m
 		}
 	}
