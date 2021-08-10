@@ -39,36 +39,36 @@ type Initializer struct {
 }
 
 // LookupBuffer looks up the named buffer in the model and returns it (or nil if it does not exist).
-func (model *Model) LookupBuffer(bufferName string) (buffer *Buffer) {
+func (model *Model) LookupBuffer(bufferName string) *Buffer {
 	for _, buf := range model.Buffers {
 		if buf.Name == bufferName {
 			return buf
 		}
 	}
 
-	return
+	return nil
 }
 
 // LookupMemory looks up the named memory in the model and returns it (or nil if it does not exist).
-func (model *Model) LookupMemory(memoryName string) (memory *Memory) {
+func (model *Model) LookupMemory(memoryName string) *Memory {
 	for _, mem := range model.Memories {
 		if mem.Name == memoryName {
 			return mem
 		}
 	}
 
-	return
+	return nil
 }
 
 // LookupTextOutput looks up the named text output in the model and returns it (or nil if it does not exist).
-func (model *Model) LookupTextOutput(textOutputName string) (textOutput *TextOutput) {
+func (model *Model) LookupTextOutput(textOutputName string) *TextOutput {
 	for _, textOutput := range model.TextOutputs {
 		if textOutput.Name == textOutputName {
 			return textOutput
 		}
 	}
 
-	return
+	return nil
 }
 
 // BufferOrMemoryExists looks up the named buffer or memory in the model and returns it (or nil if it does not exist).
