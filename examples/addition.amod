@@ -76,7 +76,7 @@ incrementCount {
     }
     do {
         set field count of goal to next
-        recall `count ?sum ?foo` from memory
+        recall `count ?sum ?` from memory
    }
 }
 

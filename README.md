@@ -20,8 +20,67 @@ The format still feels a little heavy, so if I continue with this project I woul
 2. Allows the easy exchange of models with other researchers.
 3. Abstracts away the "programming" to focus on writing and understanding models.
 4. Restricts the model to a small language to prevent programming "outside the model".
-5. Parses buffer patterns to catch and report errors.
-6. Provides a very simple setup for teaching environments.
+5. Provides a very simple setup for teaching environments.
+6. Parses buffer patterns to catch and report errors.
+
+   **Example #1 (invalid variable name)**
+
+   ```
+    match {
+        goal: `isMember ?obj ?cat result:None`
+    }
+    do {
+        recall `property ?ojb category ?` from memory
+    }
+   ```
+
+   The CCM Suite implementation _fails silently_ when given invalid variable names which makes it difficult to catch errors & can result in incorrect output. Instead of ignoring the incorrect variable, output a nice error message so it's obvious what the problem is:
+
+   ```
+   recall statement variable '?ojb' not found in matches for production 'initialRetrieve' (line 58)
+   ```
+
+   **Example #2 (invalid field name)**
+
+   ```
+    match {
+        goal: `isMember ?obj ?cat result:None`
+    }
+    do {
+        set field resutl of goal to 'pending'
+    }
+   ```
+
+   The CCM Suite implementation produces the following error:
+
+   ```
+   Traceback (most recent call last):
+   File "/path/gactar_Semantic_Run.py", line 8, in <module>
+    model.run()
+   File "/path/CCMSuite3/ccm/model.py", line 254, in run
+    self.sch.run()
+   File "/path/CCMSuite3/ccm/scheduler.py", line 116, in run
+    self.do_event(heapq.heappop(self.queue))
+   File "/path/CCMSuite3/ccm/scheduler.py", line 161, in do_event
+    result=event.func(*event.args,**event.keys)
+   File "/path/CCMSuite3/ccm/lib/actr/core.py", line 64, in _process_productions
+    choice.fire(self._context)
+   File "/path/CCMSuite3/ccm/production.py", line 51, in fire
+    exec(self.func, context, self.bound)
+   File "<production-initialRetrieve>", line 2, in <module>
+   File "/path/CCMSuite3/ccm/model.py", line 22, in __call__
+    val = self.func(self.obj, *args, **keys)
+   File "/path/CCMSuite3/ccm/lib/actr/buffer.py", line 60, in modify
+    raise Exception('No slot "%s" to modify to "%s"' % (k, v))
+   Exception: No slot "resutl" to modify to "pending"
+   end...
+   ```
+
+   Instead, by adding validation, we can produce a much better message:
+
+   ```
+   field 'resutl' does not exist in match buffer 'goal' in production 'initialRetrieve' (line 57)
+   ```
 
 ## Setup
 
@@ -221,7 +280,7 @@ start {
     }
     // Steps to execute
     do {
-        recall `count ?start ?next` from memory
+        recall `count ?start ?` from memory
         set goal to `countFrom ?start ?end counting`
     }
 }
@@ -233,7 +292,7 @@ increment {
     }
     do {
         print x
-        recall `count ?next ?nextNext` from memory
+        recall `count ?next ?` from memory
         set field 1 of goal to next
     }
 }

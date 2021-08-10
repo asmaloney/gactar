@@ -53,7 +53,22 @@ func validateRecallStatement(recall *recallStatement, model *actr.Model, product
 	name := recall.MemoryName
 	memory := model.LookupMemory(name)
 	if memory == nil {
-		errs.Addc(&recall.Pos, "memory not found in production '%s': '%s'", production.Name, name)
+		errs.Addc(&recall.Pos, "recall statement memory '%s' not found in production '%s'", name, production.Name)
+	}
+
+	for _, field := range recall.Pattern.Fields {
+		for _, f := range field.Items {
+
+			varName := f.getVar()
+			if (varName == nil) || (*varName == "?") {
+				continue
+			}
+
+			match := production.LookupMatchByVariable(*varName)
+			if match == nil {
+				errs.Addc(&recall.Pos, "recall statement variable '%s' not found in matches for production '%s'", *varName, production.Name)
+			}
+		}
 	}
 
 	return errs.ErrorOrNil()
