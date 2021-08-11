@@ -142,7 +142,7 @@ func addMemories(model *actr.Model, list *memoryList, errs *errorListWithContext
 			switch field.Key {
 			case "buffer":
 				if field.Value.Number != nil {
-					errs.Addc(&field.Pos, "buffer should not be a number in memory '%s': %v", mem.Name, *field.Value.Number)
+					errs.Addc(&field.Pos, "buffer '%v' should not be a number in memory '%s'", *field.Value.Number, mem.Name)
 					continue
 				}
 
@@ -150,7 +150,7 @@ func addMemories(model *actr.Model, list *memoryList, errs *errorListWithContext
 
 				buffer := model.LookupBuffer(*bufferName)
 				if buffer == nil {
-					errs.Addc(&field.Pos, "buffer not found for memory '%s': %s", mem.Name, *bufferName)
+					errs.Addc(&field.Pos, "buffer '%s' not found for memory '%s'", *bufferName, mem.Name)
 					continue
 				} else {
 					memory.Buffer = buffer
@@ -158,7 +158,7 @@ func addMemories(model *actr.Model, list *memoryList, errs *errorListWithContext
 
 			case "latency":
 				if field.Value.String != nil {
-					errs.Addc(&field.Pos, "latency should not be a string in memory '%s': %v", mem.Name, *field.Value.String)
+					errs.Addc(&field.Pos, "latency '%s' should not be a string in memory '%s'", *field.Value.String, mem.Name)
 					continue
 				}
 
@@ -166,7 +166,7 @@ func addMemories(model *actr.Model, list *memoryList, errs *errorListWithContext
 
 			case "threshold":
 				if field.Value.String != nil {
-					errs.Addc(&field.Pos, "threshold should not be a string in memory '%s': %v", mem.Name, *field.Value.String)
+					errs.Addc(&field.Pos, "threshold '%s' should not be a string in memory '%s'", *field.Value.String, mem.Name)
 					continue
 				}
 
@@ -174,7 +174,7 @@ func addMemories(model *actr.Model, list *memoryList, errs *errorListWithContext
 
 			case "max_time":
 				if field.Value.String != nil {
-					errs.Addc(&field.Pos, "max_time should not be a string in memory '%s': %v", mem.Name, *field.Value.String)
+					errs.Addc(&field.Pos, "max_time '%s' should not be a string in memory '%s'", *field.Value.String, mem.Name)
 					continue
 				}
 
@@ -182,7 +182,7 @@ func addMemories(model *actr.Model, list *memoryList, errs *errorListWithContext
 
 			case "finst_size":
 				if field.Value.String != nil {
-					errs.Addc(&field.Pos, "finst_size should not be a string in memory '%s': %v", mem.Name, *field.Value.String)
+					errs.Addc(&field.Pos, "finst_size '%s' should not be a string in memory '%s'", *field.Value.String, mem.Name)
 					continue
 				}
 
@@ -191,14 +191,14 @@ func addMemories(model *actr.Model, list *memoryList, errs *errorListWithContext
 
 			case "finst_time":
 				if field.Value.String != nil {
-					errs.Addc(&field.Pos, "finst_time should not be a string in memory '%s': %v", mem.Name, *field.Value.String)
+					errs.Addc(&field.Pos, "finst_time '%s' should not be a string in memory '%s'", *field.Value.String, mem.Name)
 					continue
 				}
 
 				memory.FinstTime = field.Value.Number
 
 			default:
-				errs.Addc(&field.Pos, "Unrecognized field in memory '%s': '%s'", memory.Name, field.Key)
+				errs.Addc(&field.Pos, "Unrecognized field '%s' in memory '%s'", field.Key, memory.Name)
 			}
 		}
 
@@ -270,7 +270,7 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 
 			exists := model.BufferOrMemoryExists(name)
 			if !exists {
-				errs.Addc(&item.Pos, "buffer or memory not found for production '%s': %s", prod.Name, name)
+				errs.Addc(&item.Pos, "buffer or memory '%s' not found in production '%s'", name, prod.Name)
 				continue
 			}
 

@@ -36,7 +36,7 @@ func TestMemoryBufferField(t *testing.T) {
 
 	_, err := GenerateModel(src)
 
-	expected := "buffer not found for memory 'a_memory': foo (line 6)"
+	expected := "buffer 'foo' not found for memory 'a_memory' (line 6)"
 	if err == nil {
 		t.Errorf("Expected error: %s", expected)
 	} else {
@@ -56,7 +56,7 @@ func TestMemoryBufferField(t *testing.T) {
 
 	_, err = GenerateModel(src)
 
-	expected = "buffer should not be a number in memory 'a_memory': 42 (line 6)"
+	expected = "buffer '42' should not be a number in memory 'a_memory' (line 6)"
 	if err == nil {
 		t.Errorf("Expected error: %s", expected)
 	} else {
@@ -78,7 +78,7 @@ func TestMemoryUnrecognizedField(t *testing.T) {
 
 	_, err := GenerateModel(src)
 
-	expected := "Unrecognized field in memory 'a_memory': 'foo' (line 6)"
+	expected := "Unrecognized field 'foo' in memory 'a_memory' (line 6)"
 	if err == nil {
 		t.Errorf("Expected error: %s", expected)
 	} else {
@@ -140,7 +140,7 @@ func TestProductionInvalidMemory(t *testing.T) {
 
 	_, err := GenerateModel(src)
 
-	expected := "buffer or memory not found for production 'start': another_goal (line 16)"
+	expected := "buffer or memory 'another_goal' not found in production 'start' (line 16)"
 	if err == nil {
 		t.Errorf("Expected error: %s", expected)
 	} else {
@@ -168,7 +168,7 @@ func TestProductionClearBuffer(t *testing.T) {
 
 	_, err := GenerateModel(src)
 
-	expected := "buffer not found in production 'start': 'some_buffer' (line 12)"
+	expected := "buffer 'some_buffer' not found in production 'start' (line 12)"
 	if err == nil {
 		t.Errorf("Expected error: %s", expected)
 	} else {

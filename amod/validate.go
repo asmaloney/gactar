@@ -83,7 +83,7 @@ func validateClearStatement(clear *clearStatement, model *actr.Model, production
 	for _, name := range bufferNames {
 		buffer := model.LookupBuffer(name)
 		if buffer == nil {
-			errs.Addc(&clear.Pos, "buffer not found in production '%s': '%s'", production.Name, name)
+			errs.Addc(&clear.Pos, "buffer '%s' not found in production '%s'", name, production.Name)
 			continue
 		}
 	}
@@ -105,7 +105,7 @@ func validateWriteStatement(write *writeStatement, model *actr.Model, production
 	name := write.TextOutputName
 	textOutput := model.LookupTextOutput(name)
 	if textOutput == nil {
-		errs.Addc(&write.Pos, "text output not found in production '%s': '%s'", production.Name, name)
+		errs.Addc(&write.Pos, "text output '%s' not found in production '%s'", name, production.Name)
 	}
 
 	return errs.ErrorOrNil()
