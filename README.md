@@ -34,7 +34,7 @@ The format still feels a little heavy, so if I continue with this project I woul
     }
    ```
 
-   The CCM Suite implementation _fails silently_ when given invalid variable names which makes it difficult to catch errors & can result in incorrect output. Instead of ignoring the incorrect variable, output a nice error message so it's obvious what the problem is:
+   The CCM Suite implementation _fails silently_ when given invalid variables which makes it difficult to catch errors & can result in incorrect output. Instead of ignoring the incorrect variable, gactar outputs a nice error message so it's obvious what the problem is:
 
    ```
    recall statement variable '?ojb' not found in matches for production 'initialRetrieve' (line 58)
@@ -76,7 +76,7 @@ The format still feels a little heavy, so if I continue with this project I woul
    end...
    ```
 
-   Instead, by adding validation, we can produce a much better message:
+   Instead, by adding validation, gactar produces a much better message:
 
    ```
    field 'resutl' does not exist in match buffer 'goal' in production 'initialRetrieve' (line 57)
@@ -144,10 +144,10 @@ This will create the `gactar` executable.
 ## Usage
 
 ```
-gactar [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
+gactar [OPTIONS] [FILES...]
 ```
 
-### GLOBAL OPTIONS
+### OPTIONS
 
 **--debug, -d**: turn on debugging output (mainly output tokens from lexer)
 
@@ -312,7 +312,7 @@ You can find other examples of amod files in the [examples folder](examples).
 
 ### Syntax
 
-The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property ?obj category ?cat` ``. These are parsed to ensure their format is correct.
+The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property ?obj category ?cat` ``. These are parsed to ensure their format is correct and to validate fields and variables.
 
 The _do_ section in the productions uses a small language which currently understands the following commands:
 
