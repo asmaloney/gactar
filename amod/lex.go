@@ -320,7 +320,7 @@ func lexStart(l *lexer_amod) stateFn {
 		}
 		return lexSpace
 
-	case isDigit(r):
+	case isDigit(r) || r == '.':
 		l.backup()
 		return lexNumber
 
@@ -486,7 +486,7 @@ func lexIdentifier(l *lexer_amod) stateFn {
 }
 
 func lexNumber(l *lexer_amod) stateFn {
-	l.accept("+-")
+	l.accept("+-.")
 
 	digits := "0123456789"
 
