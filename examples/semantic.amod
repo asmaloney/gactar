@@ -54,7 +54,7 @@ initialRetrieve {
     }
     // Steps to execute
     do {
-        set field result of goal to 'pending'
+        set slot result of goal to 'pending'
         recall `property ?obj category ?` from memory
     }
 }
@@ -65,7 +65,7 @@ directVerify {
         retrieve: `property ?obj category ?cat`
     }
     do {
-        set field result of goal to 'yes'
+        set slot result of goal to 'yes'
         write 'Yes' to text
     }
 }
@@ -76,7 +76,7 @@ chainCategory {
         retrieve: `property ?obj1 category ?obj2!?cat`
     }
     do {
-        set field 1 of goal to obj2
+        set slot 1 of goal to obj2
         recall `property ?obj2 category ?` from memory
     }
 }
@@ -87,7 +87,7 @@ fail {
         memory: `error:True`
     }
     do {
-        set field result of goal to 'no'
+        set slot result of goal to 'no'
         write 'No' to text
     }
 }

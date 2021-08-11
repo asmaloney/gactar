@@ -218,11 +218,11 @@ func outputStatement(f *os.File, s *actr.Statement) {
 			text = "'" + s.Set.Pattern.String() + "'"
 		}
 
-		if s.Set.Field != nil {
-			if s.Set.Field.ArgNum != nil {
-				f.WriteString(fmt.Sprintf("\t\t%s.modify(_%d=%s)\n", s.Set.BufferName, *s.Set.Field.ArgNum, text))
-			} else if s.Set.Field.FieldName != nil {
-				f.WriteString(fmt.Sprintf("\t\t%s.modify(%s=%s)\n", s.Set.BufferName, *s.Set.Field.FieldName, text))
+		if s.Set.Slot != nil {
+			if s.Set.Slot.ArgNum != nil {
+				f.WriteString(fmt.Sprintf("\t\t%s.modify(_%d=%s)\n", s.Set.BufferName, *s.Set.Slot.ArgNum, text))
+			} else if s.Set.Slot.Name != nil {
+				f.WriteString(fmt.Sprintf("\t\t%s.modify(%s=%s)\n", s.Set.BufferName, *s.Set.Slot.Name, text))
 			}
 		} else {
 			f.WriteString(fmt.Sprintf("\t\t%s.set(%s)\n", s.Set.BufferName, text))

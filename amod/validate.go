@@ -13,27 +13,27 @@ func validateSetStatement(set *setStatement, model *actr.Model, production *actr
 		errs.Addc(&set.Pos, "buffer '%s' not found in production '%s'", name, production.Name)
 	}
 
-	if set.Field != nil {
+	if set.Slot != nil {
 		match := production.LookupMatchByBuffer(name)
 
 		if match == nil {
 			errs.Addc(&set.Pos, "match buffer '%s' not found in production '%s'", name, production.Name)
 		} else {
-			if set.Field.ArgNum != nil {
-				argNum := int(*set.Field.ArgNum)
-				if (argNum == 0) || (argNum > len(match.Pattern.Fields)) {
-					errs.Addc(&set.Pos, "field %d does not exist in match buffer '%s' in production '%s'", argNum, name, production.Name)
+			if set.Slot.ArgNum != nil {
+				argNum := int(*set.Slot.ArgNum)
+				if (argNum == 0) || (argNum > len(match.Pattern.Slots)) {
+					errs.Addc(&set.Pos, "slot %d does not exist in match buffer '%s' in production '%s'", argNum, name, production.Name)
 				}
-			} else if set.Field.Name != nil {
-				fieldName := *set.Field.Name
+			} else if set.Slot.Name != nil {
+				slotName := *set.Slot.Name
 
-				field := match.Pattern.LookupFieldName(fieldName)
-				if field == nil {
-					errs.Addc(&set.Pos, "field '%s' does not exist in match buffer '%s' in production '%s'", fieldName, name, production.Name)
+				slot := match.Pattern.LookupSlotName(slotName)
+				if slot == nil {
+					errs.Addc(&set.Pos, "slot '%s' does not exist in match buffer '%s' in production '%s'", slotName, name, production.Name)
 				}
 			} else {
 				// should not be possible to get here since the parser will pick this up
-				errs.Addc(&set.Pos, "set statement is missing a field number or name in production '%s'", production.Name)
+				errs.Addc(&set.Pos, "set statement is missing a slot number or name in production '%s'", production.Name)
 			}
 		}
 	}
@@ -56,10 +56,10 @@ func validateRecallStatement(recall *recallStatement, model *actr.Model, product
 		errs.Addc(&recall.Pos, "recall statement memory '%s' not found in production '%s'", name, production.Name)
 	}
 
-	for _, field := range recall.Pattern.Fields {
-		for _, f := range field.Items {
+	for _, slot := range recall.Pattern.Slots {
+		for _, item := range slot.Items {
 
-			varName := f.getVar()
+			varName := item.getVar()
 			if (varName == nil) || (*varName == "?") {
 				continue
 			}

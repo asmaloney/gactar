@@ -4,16 +4,16 @@ package actr
 // so we can verify variable use.
 
 type Pattern struct {
-	Fields []*PatternField
+	Slots []*PatternSlot
 }
 
-// PatternField allows for named fields - e.g. `foo:?bar!?blat`
-type PatternField struct {
+// PatternSlot allows for named slots - e.g. `foo:?bar!?blat`
+type PatternSlot struct {
 	Name  *string
-	Items []*PatternFieldItem
+	Items []*PatternSlotItem
 }
 
-type PatternFieldItem struct {
+type PatternSlotItem struct {
 	ID  *string
 	Var *string
 	Num *string // we don't need to treat this as a number anywhere, so keep as a string
@@ -22,7 +22,7 @@ type PatternFieldItem struct {
 	Optional bool // ?
 }
 
-func (p PatternField) String() (str string) {
+func (p PatternSlot) String() (str string) {
 	if p.Name != nil {
 		str = *p.Name + ":"
 	}
@@ -48,15 +48,15 @@ func (p PatternField) String() (str string) {
 	return
 }
 
-func (p *PatternField) AddItem(item *PatternFieldItem) {
+func (p *PatternSlot) AddItem(item *PatternSlotItem) {
 	p.Items = append(p.Items, item)
 }
 
 func (p Pattern) String() (str string) {
-	for i, item := range p.Fields {
+	for i, item := range p.Slots {
 		str += item.String()
 
-		if i != len(p.Fields)-1 {
+		if i != len(p.Slots)-1 {
 			str += " "
 		}
 	}
@@ -65,36 +65,36 @@ func (p Pattern) String() (str string) {
 }
 
 func (p *Pattern) AddID(id *string) {
-	field := PatternField{}
-	field.Items = append(field.Items, &PatternFieldItem{ID: id})
+	slot := PatternSlot{}
+	slot.Items = append(slot.Items, &PatternSlotItem{ID: id})
 
-	p.Fields = append(p.Fields, &field)
+	p.Slots = append(p.Slots, &slot)
 }
 
 func (p *Pattern) AddVar(id *string, negated, optional bool) {
-	field := PatternField{}
-	field.Items = append(field.Items, &PatternFieldItem{Var: id,
+	slot := PatternSlot{}
+	slot.Items = append(slot.Items, &PatternSlotItem{Var: id,
 		Negated:  negated,
 		Optional: optional,
 	})
 
-	p.Fields = append(p.Fields, &field)
+	p.Slots = append(p.Slots, &slot)
 }
 
 func (p *Pattern) AddNum(num *string) {
-	field := PatternField{}
-	field.Items = append(field.Items, &PatternFieldItem{Num: num})
+	slot := PatternSlot{}
+	slot.Items = append(slot.Items, &PatternSlotItem{Num: num})
 
-	p.Fields = append(p.Fields, &field)
+	p.Slots = append(p.Slots, &slot)
 }
 
-func (p *Pattern) AddField(field *PatternField) {
-	p.Fields = append(p.Fields, field)
+func (p *Pattern) AddSlot(slot *PatternSlot) {
+	p.Slots = append(p.Slots, slot)
 }
 
-func (p Pattern) LookupVariable(varName string) *PatternFieldItem {
-	for _, field := range p.Fields {
-		for _, item := range field.Items {
+func (p Pattern) LookupVariable(varName string) *PatternSlotItem {
+	for _, slot := range p.Slots {
+		for _, item := range slot.Items {
 			if item.Var == nil {
 				continue
 			}
@@ -108,14 +108,14 @@ func (p Pattern) LookupVariable(varName string) *PatternFieldItem {
 	return nil
 }
 
-func (p Pattern) LookupFieldName(fieldName string) *PatternField {
-	for _, field := range p.Fields {
-		if field.Name == nil {
+func (p Pattern) LookupSlotName(slotName string) *PatternSlot {
+	for _, slot := range p.Slots {
+		if slot.Name == nil {
 			continue
 		}
 
-		if *field.Name == fieldName {
-			return field
+		if *slot.Name == slotName {
+			return slot
 		}
 	}
 

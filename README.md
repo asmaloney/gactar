@@ -40,14 +40,14 @@ The format still feels a little heavy, so if I continue with this project I woul
    recall statement variable '?ojb' not found in matches for production 'initialRetrieve' (line 58)
    ```
 
-   **Example #2 (invalid field name)**
+   **Example #2 (invalid slot name)**
 
    ```
     match {
         goal: `isMember ?obj ?cat result:None`
     }
     do {
-        set field resutl of goal to 'pending'
+        set slot resutl of goal to 'pending'
     }
    ```
 
@@ -79,7 +79,7 @@ The format still feels a little heavy, so if I continue with this project I woul
    Instead, by adding validation, gactar produces a much better message:
 
    ```
-   field 'resutl' does not exist in match buffer 'goal' in production 'initialRetrieve' (line 57)
+   slot 'resutl' does not exist in match buffer 'goal' in production 'initialRetrieve' (line 57)
    ```
 
 ## Setup
@@ -293,7 +293,7 @@ increment {
     do {
         print x
         recall `count ?next ?` from memory
-        set field 1 of goal to next
+        set slot 1 of goal to next
     }
 }
 
@@ -312,15 +312,15 @@ You can find other examples of amod files in the [examples folder](examples).
 
 ### Syntax
 
-The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property ?obj category ?cat` ``. These are parsed to ensure their format is correct and to validate fields and variables.
+The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property ?obj category ?cat` ``. These are parsed to ensure their format is correct and to validate slots and variables.
 
 The _do_ section in the productions uses a small language which currently understands the following commands:
 
-| command                                                                          | example                            |
-| -------------------------------------------------------------------------------- | ---------------------------------- |
-| clear _(buffer name)+_                                                           | clear buff1, buff2                 |
-| print _(string or ident or number)+_                                             | print foo, 'text', 42              |
-| recall _(pattern)_ from _(memory name)_                                          | recall \`car ?colour\` from memory |
-| set field _(number or name)_ of _(buffer name)_ to _(string or ident or number)_ | set field 1 of goal to 6           |
-| set _(buffer name)_ to _(string or ident or number or pattern)_                  | set goal to \`start 6 None\`       |
-| write _(string or ident or number)+_ to _(text output name)_                     | write 'foo' to text                |
+| command                                                                         | example                            |
+| ------------------------------------------------------------------------------- | ---------------------------------- |
+| clear _(buffer name)+_                                                          | clear buff1, buff2                 |
+| print _(string or ident or number)+_                                            | print foo, 'text', 42              |
+| recall _(pattern)_ from _(memory name)_                                         | recall \`car ?colour\` from memory |
+| set slot _(number or name)_ of _(buffer name)_ to _(string or ident or number)_ | set slot 1 of goal to 6            |
+| set _(buffer name)_ to _(string or ident or number or pattern)_                 | set goal to \`start 6 None\`       |
+| write _(string or ident or number)+_ to _(text output name)_                    | write 'foo' to text                |

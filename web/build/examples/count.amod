@@ -67,7 +67,7 @@ increment {
     do {
         print x
         recall `count ?next ?` from memory
-        set field 1 of goal to next
+        set slot 1 of goal to next
     }
 }
 

@@ -318,30 +318,30 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 
 func createChunkPattern(cp *pattern) *actr.Pattern {
 	pattern := actr.Pattern{}
-	for _, f := range cp.Fields {
+	for _, s := range cp.Slots {
 
-		field := actr.PatternField{}
+		slot := actr.PatternSlot{}
 
-		if f.Name != nil {
-			field.Name = f.Name
+		if s.Name != nil {
+			slot.Name = s.Name
 		}
 
-		for _, f := range f.Items {
-			if f.ID != nil {
-				field.AddItem(&actr.PatternFieldItem{ID: f.ID})
-			} else if f.Num != nil {
-				field.AddItem(&actr.PatternFieldItem{Num: f.Num})
-			} else if f.Var != nil {
-				field.AddItem(&actr.PatternFieldItem{Var: f.Var})
-			} else if f.NotVar != nil {
-				field.AddItem(&actr.PatternFieldItem{ID: f.NotVar, Negated: true})
-			} else if f.OptionalVar != nil {
-				field.AddItem(&actr.PatternFieldItem{ID: f.OptionalVar, Optional: true})
-			} else if f.NotOptionalVar != nil {
-				field.AddItem(&actr.PatternFieldItem{ID: f.NotOptionalVar, Negated: true, Optional: true})
+		for _, item := range s.Items {
+			if item.ID != nil {
+				slot.AddItem(&actr.PatternSlotItem{ID: item.ID})
+			} else if item.Num != nil {
+				slot.AddItem(&actr.PatternSlotItem{Num: item.Num})
+			} else if item.Var != nil {
+				slot.AddItem(&actr.PatternSlotItem{Var: item.Var})
+			} else if item.NotVar != nil {
+				slot.AddItem(&actr.PatternSlotItem{ID: item.NotVar, Negated: true})
+			} else if item.OptionalVar != nil {
+				slot.AddItem(&actr.PatternSlotItem{ID: item.OptionalVar, Optional: true})
+			} else if item.NotOptionalVar != nil {
+				slot.AddItem(&actr.PatternSlotItem{ID: item.NotOptionalVar, Negated: true, Optional: true})
 			}
 		}
-		pattern.AddField(&field)
+		pattern.AddSlot(&slot)
 	}
 
 	return &pattern
@@ -386,16 +386,16 @@ func addSetStatement(model *actr.Model, set *setStatement, production *actr.Prod
 		},
 	}
 
-	if set.Field != nil {
-		field := actr.SetField{}
-		if set.Field.ArgNum != nil {
-			argNum := int(*set.Field.ArgNum)
-			field.ArgNum = &argNum
-		} else if set.Field.Name != nil {
-			field.FieldName = set.Field.Name
+	if set.Slot != nil {
+		slot := actr.Slot{}
+		if set.Slot.ArgNum != nil {
+			argNum := int(*set.Slot.ArgNum)
+			slot.ArgNum = &argNum
+		} else if set.Slot.Name != nil {
+			slot.Name = set.Slot.Name
 		}
 
-		s.Set.Field = &field
+		s.Set.Slot = &slot
 	}
 
 	if set.Pattern != nil {

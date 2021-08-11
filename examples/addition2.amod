@@ -46,7 +46,7 @@ startPair {
     }
     // Steps to execute
     do {
-        set field 6 of goal to 'busy'
+        set slot 6 of goal to 'busy'
         recall `addfact ?one1 ?one2 ?` from memory
     }
 }
@@ -57,8 +57,8 @@ addOnes {
         retrieve: `addfact ? ? ?sum`
     }
     do {
-        set field 6 of goal to sum
-        set field 7 of goal to 'busy'
+        set slot 6 of goal to sum
+        set slot 7 of goal to 'busy'
         recall `addfact 10 ? ?sum` from memory
     }
 }
@@ -69,9 +69,9 @@ processCarry {
         retrieve: `addfact 10 ?rem ?sum`
     }
     do {
-        set field 5 of goal to 'busy'
-        set field 6 of goal to rem
-        set field 7 of goal to 1
+        set slot 5 of goal to 'busy'
+        set slot 6 of goal to rem
+        set slot 7 of goal to 1
         recall `addfact ?ten1 ?ten2 ?` from memory
     }
 }
@@ -82,8 +82,8 @@ noCarry {
         memory: `error:True`
     }
     do {
-        set field 4 of goal to 'busy'
-        set field 6 of goal to 0
+        set slot 4 of goal to 'busy'
+        set slot 6 of goal to 0
         recall `addfact ?ten1 ?ten2 ?` from memory
     }
 }
@@ -95,7 +95,7 @@ addTensDone {
     }
     do {
         print sum, oneAns
-        set field 5 of goal to sum
+        set slot 5 of goal to sum
     }
 }
 
@@ -105,7 +105,7 @@ addTensCarry {
         retrieve: `addfact ? ? ?sum`
     }
     do {
-        set field 7 of goal to 0
+        set slot 7 of goal to 0
         recall `addfact 1 ?sum ?` from memory
     }
 }

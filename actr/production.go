@@ -45,15 +45,16 @@ type WriteStatement struct {
 	TextOutputName string
 }
 
-type SetField struct {
-	ArgNum    *int
-	FieldName *string
+// Slot represents either a slot position number or a name
+type Slot struct {
+	ArgNum *int
+	Name   *string
 }
 
-// SetStatement will set a field or the entire contents of the named buffer to a string or a pattern.
+// SetStatement will set a slot or the entire contents of the named buffer to a string or a pattern.
 type SetStatement struct {
-	Field      *SetField // set this field
-	BufferName string    // of this buffer
+	Slot       *Slot  // set this slot
+	BufferName string // of this buffer
 
 	Text    *string  // to this string OR
 	Pattern *Pattern // this pattern

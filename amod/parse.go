@@ -122,7 +122,7 @@ type initSection struct {
 	Pos lexer.Position
 }
 
-type patternFieldItem struct {
+type patternSlotItem struct {
 	ID             *string `parser:"( @Ident"`
 	Num            *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
 	Var            *string `parser:"| @PatternVar"`
@@ -131,16 +131,16 @@ type patternFieldItem struct {
 	NotOptionalVar *string `parser:"| '!' '?' @PatternVar)"`
 }
 
-type patternField struct {
-	Name  *string             `parser:"(@Ident ':')?"`
-	Items []*patternFieldItem `parser:"@@+"`
-	Space string              `parser:" @PatternSpace? "`
+type patternSlot struct {
+	Name  *string            `parser:"(@Ident ':')?"`
+	Items []*patternSlotItem `parser:"@@+"`
+	Space string             `parser:" @PatternSpace? "`
 
 	Pos lexer.Position
 }
 
 type pattern struct {
-	Fields []*patternField "parser:\"'`' @@+ '`'\""
+	Slots []*patternSlot "parser:\"'`' @@+ '`'\""
 
 	Pos lexer.Position
 }
@@ -185,19 +185,19 @@ type writeStatement struct {
 	Pos lexer.Position
 }
 
-type setField struct {
-	ArgNum *float64 `parser:"'field' (@Number"`
+type slot struct {
+	ArgNum *float64 `parser:"'slot' (@Number"`
 	Name   *string  `parser:"| @Ident)"`
 
 	Pos lexer.Position
 }
 
 type setStatement struct {
-	Set        string    `parser:"'set'"` // not used, but must be visible for parse to work
-	Field      *setField `parser:"(@@ 'of')?"`
-	BufferName string    `parser:"@Ident"`
-	Arg        *arg      `parser:"'to' (@@"`
-	Pattern    *pattern  `parser:"| @@)"`
+	Set        string   `parser:"'set'"` // not used, but must be visible for parse to work
+	Slot       *slot    `parser:"(@@ 'of')?"`
+	BufferName string   `parser:"@Ident"`
+	Arg        *arg     `parser:"'to' (@@"`
+	Pattern    *pattern `parser:"| @@)"`
 
 	Pos lexer.Position
 }
@@ -262,7 +262,7 @@ func parseFile(filename string) (*amodFile, error) {
 	return parse(file)
 }
 
-func (p patternFieldItem) getVar() *string {
+func (p patternSlotItem) getVar() *string {
 	if p.Var != nil {
 		return p.Var
 	} else if p.NotVar != nil {

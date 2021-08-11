@@ -52,8 +52,8 @@ initializeAddition {
     }
     // Steps to execute
     do {
-        set field count of goal to 0
-        set field sum of goal to num1
+        set slot count of goal to 0
+        set slot sum of goal to num1
         recall `count ?num1 ?` from memory
     }
 }
@@ -64,7 +64,7 @@ incrementSum {
         retrieve: `count ?sum ?next`
     }
     do {
-        set field sum of goal to next
+        set slot sum of goal to next
         recall `count ?count ?` from memory
     }
 }
@@ -75,7 +75,7 @@ incrementCount {
         retrieve: `count ?count ?next`
     }
     do {
-        set field count of goal to next
+        set slot count of goal to next
         recall `count ?sum ?` from memory
    }
 }
