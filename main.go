@@ -8,7 +8,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"gitlab.com/asmaloney/gactar/amod"
-	"gitlab.com/asmaloney/gactar/framework/pyactr"
+	"gitlab.com/asmaloney/gactar/framework/ccm_pyactr"
 	"gitlab.com/asmaloney/gactar/shell"
 	"gitlab.com/asmaloney/gactar/web"
 )
@@ -50,8 +50,14 @@ func main() {
 				return nil
 			}
 
+			framework, err := ccm_pyactr.New(c)
+			if err != nil {
+				fmt.Println(err.Error())
+				return err
+			}
+
 			if c.Bool("web") {
-				w, err := web.Initialize(c)
+				w, err := web.Initialize(c, framework)
 				if err != nil {
 					fmt.Println(err.Error())
 					return err
@@ -69,7 +75,7 @@ func main() {
 			}
 
 			if c.Bool("interactive") {
-				s, err := shell.Initialize(c)
+				s, err := shell.Initialize(c, framework)
 				if err != nil {
 					fmt.Println(err.Error())
 					return err
@@ -82,13 +88,9 @@ func main() {
 				}
 			}
 
-			cli.ShowVersion(c)
+			// We are not interactive or web, so simply generate the output files.
 
-			framework, err := pyactr.Initialize()
-			if err != nil {
-				fmt.Println(err.Error())
-				return err
-			}
+			cli.ShowVersion(c)
 
 			for _, arg := range c.Args().Slice() {
 				fmt.Printf("-- Generating code for %s\n", arg)

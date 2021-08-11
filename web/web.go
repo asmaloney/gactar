@@ -10,9 +10,10 @@ import (
 	"path"
 
 	"github.com/urfave/cli/v2"
+
 	"gitlab.com/asmaloney/gactar/actr"
 	"gitlab.com/asmaloney/gactar/amod"
-	"gitlab.com/asmaloney/gactar/framework/pyactr"
+	"gitlab.com/asmaloney/gactar/framework"
 )
 
 //go:embed build/*
@@ -27,23 +28,21 @@ func (f fsFunc) Open(name string) (fs.File, error) {
 
 type Web struct {
 	context       *cli.Context
-	actrFramework *pyactr.PyACTR
+	actrFramework framework.Framework
 	port          int
 }
 
-func Initialize(cli *cli.Context) (w *Web, err error) {
+func Initialize(cli *cli.Context, framework framework.Framework) (w *Web, err error) {
 	w = &Web{
 		context:       cli,
-		actrFramework: &pyactr.PyACTR{},
+		actrFramework: framework,
 		port:          cli.Int("port"),
 	}
 
-	actrFramework, err := pyactr.Initialize()
+	err = framework.Initialize()
 	if err != nil {
 		return nil, err
 	}
-
-	w.actrFramework = actrFramework
 
 	return
 }
@@ -122,7 +121,7 @@ func assetHandler(root string) http.Handler {
 	return http.FileServer(http.FS(handler))
 }
 
-func (w *Web) run(model *actr.Model, intialGoal string) (output []byte, err error) {
+func (w *Web) run(model *actr.Model, initialGoal string) (output []byte, err error) {
 	if model == nil {
 		err = fmt.Errorf("no model loaded")
 		return
@@ -133,7 +132,7 @@ func (w *Web) run(model *actr.Model, intialGoal string) (output []byte, err erro
 		return
 	}
 
-	output, err = w.actrFramework.Run(intialGoal)
+	output, err = w.actrFramework.Run(initialGoal)
 	if err != nil {
 		return
 	}

@@ -1,10 +1,12 @@
-package pyactr
+package ccm_pyactr
 
 import (
 	"fmt"
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/urfave/cli/v2"
 
 	"gitlab.com/asmaloney/gactar/actr"
 )
@@ -15,10 +17,18 @@ type PyACTR struct {
 	tmpPath   string
 }
 
+// New simply creates a new PyACTR instance and sets the tmp path.
+func New(cli *cli.Context) (p *PyACTR, err error) {
+
+	p = &PyACTR{tmpPath: "tmp"}
+
+	return
+}
+
 // Initialize will check for python3 and the ccm package, and create a tmp dir to save files for running.
 // Note that this directory is not currently created in the proper place - it should end up in the OS's
 // tmp directory. It is created locally so we can look at and debug the generated python files.
-func Initialize() (p *PyACTR, err error) {
+func (p *PyACTR) Initialize() (err error) {
 	_, err = checkForExecutable("python3")
 	if err != nil {
 		return
@@ -30,8 +40,6 @@ func Initialize() (p *PyACTR, err error) {
 	if err != nil {
 		return
 	}
-
-	p = &PyACTR{tmpPath: "tmp"}
 
 	err = os.MkdirAll(p.tmpPath, os.ModePerm)
 	if err != nil {

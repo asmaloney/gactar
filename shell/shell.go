@@ -12,7 +12,7 @@ import (
 
 	"gitlab.com/asmaloney/gactar/actr"
 	"gitlab.com/asmaloney/gactar/amod"
-	"gitlab.com/asmaloney/gactar/framework/pyactr"
+	"gitlab.com/asmaloney/gactar/framework"
 )
 
 type command struct {
@@ -24,23 +24,21 @@ type Shell struct {
 	context       *cli.Context
 	history       []string
 	currentModel  *actr.Model
-	actrFramework *pyactr.PyACTR
+	actrFramework framework.Framework
 	cmds          map[string]command
 }
 
-func Initialize(cli *cli.Context) (s *Shell, err error) {
+func Initialize(cli *cli.Context, framework framework.Framework) (s *Shell, err error) {
 	s = &Shell{
 		context: cli,
 	}
 
 	s.preamble()
 
-	actrFramework, err := pyactr.Initialize()
+	err = framework.Initialize()
 	if err != nil {
 		return nil, err
 	}
-
-	s.actrFramework = actrFramework
 
 	s.cmds = map[string]command{
 		"history": {"outputs your command history", s.cmdHistory},
@@ -171,7 +169,7 @@ func (s *Shell) cmdLoad(fileName string) (err error) {
 	return
 }
 
-func (s *Shell) cmdRun(intialGoal string) (err error) {
+func (s *Shell) cmdRun(initialGoal string) (err error) {
 	if s.currentModel == nil {
 		err = fmt.Errorf("no model loaded")
 		return
@@ -182,7 +180,7 @@ func (s *Shell) cmdRun(intialGoal string) (err error) {
 		return err
 	}
 
-	output, err := s.actrFramework.Run(intialGoal)
+	output, err := s.actrFramework.Run(initialGoal)
 	if err != nil {
 		return err
 	}
