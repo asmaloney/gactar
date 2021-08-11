@@ -436,11 +436,12 @@ func addPrintStatement(model *actr.Model, print *printStatement, production *act
 		return nil, err
 	}
 
-	s := actr.Statement{
-		Print: &actr.PrintStatement{
-			Args: print.Args.Strings(),
-		},
+	p := actr.PrintStatement{}
+	if print.Args != nil {
+		p.Args = print.Args.Strings()
 	}
+
+	s := actr.Statement{Print: &p}
 
 	return &s, nil
 }

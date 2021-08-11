@@ -166,7 +166,7 @@ type clearStatement struct {
 }
 
 type printStatement struct {
-	Args *argList `parser:"'print' @@"`
+	Args *argList `parser:"'print' @@?"`
 
 	Pos lexer.Position
 }
