@@ -92,6 +92,12 @@ func main() {
 
 			cli.ShowVersion(c)
 
+			err = framework.Initialize()
+			if err != nil {
+				fmt.Println(err.Error())
+				return err
+			}
+
 			for _, arg := range c.Args().Slice() {
 				fmt.Printf("-- Generating code for %s\n", arg)
 				model, err := amod.GenerateModelFromFile(arg)
