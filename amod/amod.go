@@ -210,7 +210,7 @@ func addMemories(model *actr.Model, list *memoryList, errs *errorListWithContext
 				memory.FinstTime = field.Value.Number
 
 			default:
-				errs.Addc(&field.Pos, "Unrecognized field '%s' in memory '%s'", field.Key, memory.Name)
+				errs.Addc(&field.Pos, "unrecognized field '%s' in memory '%s'", field.Key, memory.Name)
 			}
 		}
 

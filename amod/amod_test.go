@@ -14,7 +14,7 @@ func TestACTRUnrecognizedField(t *testing.T) {
 
 	_, err := GenerateModel(src)
 
-	expected := "Unrecognized field in actr section: 'foo' (line 5)"
+	expected := "unrecognized field in actr section: 'foo' (line 5)"
 	if err == nil {
 		t.Errorf("Expected error: %s", expected)
 	} else {
@@ -78,7 +78,7 @@ func TestMemoryUnrecognizedField(t *testing.T) {
 
 	_, err := GenerateModel(src)
 
-	expected := "Unrecognized field 'foo' in memory 'a_memory' (line 6)"
+	expected := "unrecognized field 'foo' in memory 'a_memory' (line 6)"
 	if err == nil {
 		t.Errorf("Expected error: %s", expected)
 	} else {
