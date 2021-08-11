@@ -135,6 +135,13 @@ func (lexer_def) Lex(filename string, r io.Reader) (lexer.Lexer, error) {
 	}
 
 	data := s.String()
+
+	l := lex(filename, data)
+
+	return l, nil
+}
+
+func lex(filename string, data string) *lexer_amod {
 	cleanData(&data)
 
 	l := &lexer_amod{
@@ -154,7 +161,7 @@ func (lexer_def) Lex(filename string, r io.Reader) (lexer.Lexer, error) {
 
 	go l.run()
 
-	return l, nil
+	return l
 }
 
 // Next is used by participle to get the next token
