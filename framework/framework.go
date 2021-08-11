@@ -1,6 +1,11 @@
 package framework
 
-import "gitlab.com/asmaloney/gactar/actr"
+import (
+	"fmt"
+	"os/exec"
+
+	"gitlab.com/asmaloney/gactar/actr"
+)
 
 type Framework interface {
 	Initialize() (err error)
@@ -8,4 +13,14 @@ type Framework interface {
 
 	Run(initialGoal string) (output []byte, err error)
 	WriteModel(path string) (outputFileName string, err error)
+}
+
+func CheckForExecutable(exe string) (path string, err error) {
+	path, err = exec.LookPath(exe)
+	if err != nil {
+		err = fmt.Errorf("cannot find '%s' in your path", exe)
+		return
+	}
+
+	return
 }

@@ -9,18 +9,19 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"gitlab.com/asmaloney/gactar/actr"
+	"gitlab.com/asmaloney/gactar/framework"
 )
 
-type PyACTR struct {
+type CCMPyACTR struct {
 	model     *actr.Model
 	className string
 	tmpPath   string
 }
 
-// New simply creates a new PyACTR instance and sets the tmp path.
-func New(cli *cli.Context) (p *PyACTR, err error) {
+// New simply creates a new CCMPyACTR instance and sets the tmp path.
+func New(cli *cli.Context) (p *CCMPyACTR, err error) {
 
-	p = &PyACTR{tmpPath: "tmp"}
+	p = &CCMPyACTR{tmpPath: "tmp"}
 
 	return
 }
@@ -28,15 +29,15 @@ func New(cli *cli.Context) (p *PyACTR, err error) {
 // Initialize will check for python3 and the ccm package, and create a tmp dir to save files for running.
 // Note that this directory is not currently created in the proper place - it should end up in the OS's
 // tmp directory. It is created locally so we can look at and debug the generated python files.
-func (p *PyACTR) Initialize() (err error) {
-	_, err = checkForExecutable("python3")
+func (p *CCMPyACTR) Initialize() (err error) {
+	_, err = framework.CheckForExecutable("python3")
 	if err != nil {
 		return
 	}
 
-	identifyPython()
+	framework.PythonIdentify()
 
-	err = checkForPackage("ccm")
+	err = framework.PythonCheckForPackage("ccm")
 	if err != nil {
 		return
 	}
@@ -50,7 +51,7 @@ func (p *PyACTR) Initialize() (err error) {
 }
 
 // SetModel sets our model and saves the python class name we are going to use.
-func (p *PyACTR) SetModel(model *actr.Model) (err error) {
+func (p *CCMPyACTR) SetModel(model *actr.Model) (err error) {
 	if model.Name == "" {
 		err = fmt.Errorf("model is missing name")
 		return
@@ -64,7 +65,7 @@ func (p *PyACTR) SetModel(model *actr.Model) (err error) {
 
 // Run generates the python code from the amod file, writes it to disk, creates a "run" file
 // to actually run the model, and returns the output (stdout and stderr combined).
-func (p *PyACTR) Run(initialGoal string) (output []byte, err error) {
+func (p *CCMPyACTR) Run(initialGoal string) (output []byte, err error) {
 	_, err = p.WriteModel(p.tmpPath)
 	if err != nil {
 		return
@@ -78,7 +79,6 @@ func (p *PyACTR) Run(initialGoal string) (output []byte, err error) {
 	cmd := exec.Command("python3", runFile)
 
 	output, err = cmd.CombinedOutput()
-
 	if err != nil {
 		err = fmt.Errorf("%s", string(output))
 		return
@@ -88,7 +88,7 @@ func (p *PyACTR) Run(initialGoal string) (output []byte, err error) {
 }
 
 // WriteModel converts the internal actr.Model to python and writes it to a file.
-func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
+func (p *CCMPyACTR) WriteModel(path string) (outputFileName string, err error) {
 	outputFileName = fmt.Sprintf("%s.py", p.className)
 	if path != "" {
 		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
@@ -248,43 +248,7 @@ func outputStatement(f *os.File, s *actr.Statement) {
 	}
 }
 
-func identifyPython() {
-	cmd := exec.Command("python3", "--version")
-	output, _ := cmd.CombinedOutput()
-
-	version := strings.TrimSpace(string(output))
-
-	cmd = exec.Command("which", "python3")
-	output, _ = cmd.CombinedOutput()
-
-	fmt.Printf("Using %s from %s", version, string(output))
-}
-
-func checkForExecutable(exe string) (path string, err error) {
-	path, err = exec.LookPath(exe)
-	if err != nil {
-		err = fmt.Errorf("cannot find '%s' in your path", exe)
-		return
-	}
-
-	return
-}
-
-func checkForPackage(packageName string) (err error) {
-	importCmd := fmt.Sprintf("import %s", packageName)
-
-	cmd := exec.Command("python3", "-c", importCmd)
-
-	err = cmd.Run()
-	if err != nil {
-		err = fmt.Errorf("python package '%s' not found. Please ensure it is installed with pip or is in your PYTHONPATH env variable", packageName)
-		return
-	}
-
-	return
-}
-
-func (p *PyACTR) writeRunFile(path, initialGoal string) (outputFileName string, err error) {
+func (p *CCMPyACTR) writeRunFile(path, initialGoal string) (outputFileName string, err error) {
 	outputFileName = fmt.Sprintf("%s_Run.py", p.className)
 	if path != "" {
 		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
