@@ -109,7 +109,7 @@ func addACTR(model *actr.Model, list *fieldList, errs *errorListWithContext) {
 				model.Logging = (strings.ToLower(*field.Value.String) == "true")
 			}
 		default:
-			errs.Addc(&field.Pos, "Unrecognized field in actr section: '%s'", field.Key)
+			errs.Addc(&field.Pos, "unrecognized field in actr section: '%s'", field.Key)
 		}
 	}
 }
@@ -120,6 +120,12 @@ func addBuffers(model *actr.Model, list *identList, errs *errorListWithContext) 
 	}
 
 	for _, name := range list.Identifiers {
+		b := model.LookupBuffer(name)
+		if b != nil {
+			errs.Addc(&list.Pos, "duplicate buffer name: '%s'", name)
+			continue
+		}
+
 		buffer := actr.Buffer{
 			Name: name,
 		}
@@ -134,6 +140,12 @@ func addMemories(model *actr.Model, list *memoryList, errs *errorListWithContext
 	}
 
 	for _, mem := range list.Memories {
+		m := model.LookupMemory(mem.Name)
+		if m != nil {
+			errs.Addc(&mem.Pos, "duplicate memory name: '%s'", mem.Name)
+			continue
+		}
+
 		memory := actr.Memory{
 			Name: mem.Name,
 		}
