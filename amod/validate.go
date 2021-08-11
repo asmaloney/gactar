@@ -38,7 +38,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, production *actr
 		}
 	}
 
-	if set.Pattern == nil && set.Arg == nil {
+	if set.Pattern == nil && set.Arg == nil && set.String == nil {
 		// should not be possible to get here since the parser should pick this up
 		errs.Addc(&set.Pos, "set statement is missing value (set to what?) in production '%s'", production.Name)
 	}

@@ -56,8 +56,9 @@ type SetStatement struct {
 	Slot       *Slot  // set this slot
 	BufferName string // of this buffer
 
-	Text    *string  // to this string OR
-	Pattern *Pattern // this pattern
+	ID      *string  // to this ID OR
+	Text    *string  // OR this string
+	Pattern *Pattern // OR this pattern
 }
 
 func (p Production) LookupMatchByBuffer(bufferName string) *Match {

@@ -172,7 +172,7 @@ func (p *CCMPyACTR) WriteModel(path string) (outputFileName string, err error) {
 		f.WriteString("\tdef init():\n")
 
 		for _, init := range p.model.Initializers {
-			f.WriteString(fmt.Sprintf("\t\t%s.add(%s)\n", init.MemoryName, init.Text))
+			f.WriteString(fmt.Sprintf("\t\t%s.add('%s')\n", init.Memory.Name, init.Text))
 		}
 
 		f.WriteString("\n")
@@ -220,10 +220,12 @@ func outputMatch(f *os.File, match *actr.Match) {
 func outputStatement(f *os.File, s *actr.Statement) {
 	if s.Set != nil {
 		var text string
-		if s.Set.Text != nil {
-			text = *s.Set.Text
+		if s.Set.ID != nil {
+			text = *s.Set.ID
 		} else if s.Set.Pattern != nil {
 			text = "'" + s.Set.Pattern.String() + "'"
+		} else if s.Set.Text != nil {
+			text = "'" + *s.Set.Text + "'"
 		}
 
 		if s.Set.Slot != nil {
@@ -244,7 +246,7 @@ func outputStatement(f *os.File, s *actr.Statement) {
 	} else if s.Print != nil {
 		f.WriteString(fmt.Sprintf("\t\tprint(%s)\n", strings.Join(s.Print.Args, ",")))
 	} else if s.Write != nil {
-		f.WriteString(fmt.Sprintf("\t\t%s.write(%s)\n", s.Write.TextOutputName, strings.Join(s.Write.Args, ",")))
+		f.WriteString(fmt.Sprintf("\t\t%s.write('%s')\n", s.Write.TextOutputName, strings.Join(s.Write.Args, ",")))
 	}
 }
 

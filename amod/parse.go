@@ -196,7 +196,8 @@ type setStatement struct {
 	Set        string   `parser:"'set'"` // not used, but must be visible for parse to work
 	Slot       *slot    `parser:"(@@ 'of')?"`
 	BufferName string   `parser:"@Ident"`
-	Arg        *arg     `parser:"'to' (@@"`
+	Arg        *string  `parser:"'to' ((@Ident|@Number)"`
+	String     *string  `parser:"| @String"`
 	Pattern    *pattern `parser:"| @@)"`
 
 	Pos lexer.Position
@@ -238,6 +239,7 @@ type productionSection struct {
 var parser = participle.MustBuild(&amodFile{},
 	participle.Lexer(LexerDefinition),
 	participle.Elide("Comment", "Whitespace"),
+	participle.Unquote(),
 )
 
 func parse(r io.Reader) (*amodFile, error) {

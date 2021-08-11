@@ -402,8 +402,9 @@ func addSetStatement(model *actr.Model, set *setStatement, production *actr.Prod
 		pattern := createChunkPattern(set.Pattern)
 		s.Set.Pattern = pattern
 	} else if set.Arg != nil {
-		arg := set.Arg
-		s.Set.Text = &arg.Arg
+		s.Set.ID = set.Arg
+	} else if set.String != nil {
+		s.Set.Text = set.String
 	}
 
 	return &s, nil
