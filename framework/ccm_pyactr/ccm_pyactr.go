@@ -58,7 +58,7 @@ func (p *CCMPyACTR) SetModel(model *actr.Model) (err error) {
 	}
 
 	p.model = model
-	p.className = fmt.Sprintf("gactar_%s", strings.Title(p.model.Name))
+	p.className = fmt.Sprintf("gactar_ccm_%s", strings.Title(p.model.Name))
 
 	return
 }
