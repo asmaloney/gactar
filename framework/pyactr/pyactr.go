@@ -62,7 +62,7 @@ func (p *PyACTR) Run(initialGoal string) (output []byte, err error) {
 	return
 }
 
-func (p *PyACTR) WriteModel(path string) (outputFileName string, err error) {
+func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, err error) {
 	outputFileName = fmt.Sprintf("%s.py", p.className)
 	if path != "" {
 		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)

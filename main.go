@@ -112,7 +112,7 @@ func main() {
 					return err
 				}
 
-				fileName, err := framework.WriteModel("")
+				fileName, err := framework.WriteModel("", "")
 				if err != nil {
 					fmt.Println(err.Error())
 					return err

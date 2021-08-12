@@ -12,7 +12,7 @@ type Framework interface {
 	SetModel(model *actr.Model) (err error)
 
 	Run(initialGoal string) (output []byte, err error)
-	WriteModel(path string) (outputFileName string, err error)
+	WriteModel(path, initialGoal string) (outputFileName string, err error)
 }
 
 func CheckForExecutable(exe string) (path string, err error) {
