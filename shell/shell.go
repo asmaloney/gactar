@@ -30,7 +30,8 @@ type Shell struct {
 
 func Initialize(cli *cli.Context, framework framework.Framework) (s *Shell, err error) {
 	s = &Shell{
-		context: cli,
+		context:       cli,
+		actrFramework: framework,
 	}
 
 	s.preamble()
