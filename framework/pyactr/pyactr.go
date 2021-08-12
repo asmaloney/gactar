@@ -3,6 +3,7 @@ package pyactr
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/urfave/cli/v2"
@@ -59,6 +60,20 @@ func (p *PyACTR) SetModel(model *actr.Model) (err error) {
 }
 
 func (p *PyACTR) Run(initialGoal string) (output []byte, err error) {
+	outputFile, err := p.WriteModel(p.tmpPath, initialGoal)
+	if err != nil {
+		return
+	}
+
+	// run it!
+	cmd := exec.Command("python3", outputFile)
+
+	output, err = cmd.CombinedOutput()
+	if err != nil {
+		err = fmt.Errorf("%s", string(output))
+		return
+	}
+
 	return
 }
 
@@ -132,22 +147,26 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 
 	f.WriteString("\n")
 
-	// goal (this is just for testing - it will be created dynamically)
-	f.WriteString(fmt.Sprintf("%s.goal.add(actr.chunkstring(string=\"\"\"\n", p.className))
+	if initialGoal != "" {
+		// add our goal...
+		f.WriteString(fmt.Sprintf("%s.goal.add(actr.chunkstring(string=\"\"\"\n", p.className))
 
-	f.WriteString("\tisa\tgoal\n")
-	f.WriteString("\tslot_1\tcountFrom\n")
-	f.WriteString("\tslot_2\t2\n")
-	f.WriteString("\tslot_3\t4\n")
-	f.WriteString("\tslot_4\tstarting\n")
+		f.WriteString("\tisa\tgoal\n")
 
-	f.WriteString("\"\"\"))\n")
-	f.WriteString("\n")
+		slots := strings.Split(initialGoal, " ")
+		for i, slot := range slots {
+			f.WriteString(fmt.Sprintf("\tslot_%d\t%s\n", i+1, slot))
 
-	// run
-	f.WriteString("if __name__ == \"__main__\":\n")
-	f.WriteString(fmt.Sprintf("\tsim = %s.simulation()\n", p.className))
-	f.WriteString("\tsim.run()\n")
+		}
+
+		f.WriteString("\"\"\"))\n")
+		f.WriteString("\n")
+
+		// ...and our code to run
+		f.WriteString("if __name__ == \"__main__\":\n")
+		f.WriteString(fmt.Sprintf("\tsim = %s.simulation()\n", p.className))
+		f.WriteString("\tsim.run()\n")
+	}
 
 	return
 }
@@ -160,6 +179,9 @@ func outputMatch(f *os.File, match *actr.Match) {
 
 	f.WriteString(fmt.Sprintf("\t=%s>\n", text))
 	f.WriteString(fmt.Sprintf("\tisa\t%s\n", match.Buffer.Name))
+
+	// TODO Not sure how to handle memory here.
+	// e.g.  memory: `error:True`
 
 	for i, slot := range match.Buffer.SlotNames {
 		patternSlot := match.Pattern.Slots[i]
