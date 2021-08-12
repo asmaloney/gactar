@@ -334,11 +334,11 @@ func createChunkPattern(cp *pattern) *actr.Pattern {
 			} else if item.Var != nil {
 				slot.AddItem(&actr.PatternSlotItem{Var: item.Var})
 			} else if item.NotVar != nil {
-				slot.AddItem(&actr.PatternSlotItem{ID: item.NotVar, Negated: true})
+				slot.AddItem(&actr.PatternSlotItem{Var: item.NotVar, Negated: true})
 			} else if item.OptionalVar != nil {
-				slot.AddItem(&actr.PatternSlotItem{ID: item.OptionalVar, Optional: true})
+				slot.AddItem(&actr.PatternSlotItem{Var: item.OptionalVar, Optional: true})
 			} else if item.NotOptionalVar != nil {
-				slot.AddItem(&actr.PatternSlotItem{ID: item.NotOptionalVar, Negated: true, Optional: true})
+				slot.AddItem(&actr.PatternSlotItem{Var: item.NotOptionalVar, Negated: true, Optional: true})
 			}
 		}
 		pattern.AddSlot(&slot)
