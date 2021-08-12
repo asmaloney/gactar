@@ -9,7 +9,7 @@ import (
 // Some tools for working with Python
 
 // PythonIdentify outputs version info and the path to the python executable.
-func PythonIdentify() {
+func PythonIdentify(name string) {
 	cmd := exec.Command("python3", "--version")
 	output, _ := cmd.CombinedOutput()
 
@@ -18,7 +18,7 @@ func PythonIdentify() {
 	cmd = exec.Command("which", "python3")
 	output, _ = cmd.CombinedOutput()
 
-	fmt.Printf("Using %s from %s", version, string(output))
+	fmt.Printf("%s: Using %s from %s", name, version, string(output))
 }
 
 // PythonCheckForPackage checks for the proper installation of the named package.
