@@ -77,6 +77,16 @@ func generateModel(amod *amodFile) (model *actr.Model, err error) {
 		return
 	}
 
+	err = inferSlotNames(model)
+	if err != nil {
+		return
+	}
+
+	err = validateInitializers(model, amod.Init)
+	if err != nil {
+		return
+	}
+
 	return
 }
 
@@ -255,7 +265,7 @@ func initialize(model *actr.Model, init *initSection) (err error) {
 		for _, item := range initializer.Items.Strings {
 			init := actr.Initializer{
 				Memory: memory,
-				Text:       item,
+				Text:   item,
 			}
 
 			model.Initializers = append(model.Initializers, &init)
@@ -300,7 +310,7 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 				prod.Matches = append(prod.Matches, &actr.Match{
 					Buffer: buffer,
 					Memory: memory,
-					Text: item.Text,
+					Text:   item.Text,
 				})
 			}
 		}
@@ -426,7 +436,7 @@ func addRecallStatement(model *actr.Model, recall *recallStatement, production *
 
 	s := actr.Statement{
 		Recall: &actr.RecallStatement{
-			Pattern:    pattern,
+			Pattern: pattern,
 			Memory:  model.LookupMemory(recall.MemoryName),
 		},
 	}
@@ -478,4 +488,50 @@ func addWriteStatement(model *actr.Model, write *writeStatement, production *act
 	}
 
 	return &s, nil
+}
+
+// inferSlotNames looks at how the buffers are used to determine slot names.
+func inferSlotNames(model *actr.Model) (err error) {
+	// Map buffer names to a slice of slot names.
+	// At the end of all the loops, this will be filled in with the names we need for the top level.
+	gather := map[string][]string{}
+
+	// We look at each slot of each match of each production to see if we have names for the slots.
+	// Any unnamed slot will be named "slot_N" where N is the position of the slot.
+	// If the slot names conflict we will choose the first one.
+	for _, production := range model.Productions {
+		for _, match := range production.Matches {
+			if match.Buffer == nil {
+				// only need to check buffers, not memory
+				continue
+			}
+
+			bufferName := match.Buffer.Name
+			pattern := match.Pattern
+
+			numSlots := len(pattern.Slots)
+			if len(gather[bufferName]) < numSlots {
+				gather[bufferName] = append(gather[bufferName], make([]string, numSlots-len(gather[bufferName]))...)
+			}
+			for i, slot := range pattern.Slots {
+				currentName := gather[bufferName][i]
+
+				if currentName != "" && !strings.HasPrefix(currentName, "slot") {
+					continue
+				}
+
+				if slot.Name != nil {
+					gather[bufferName][i] = *slot.Name
+				} else {
+					gather[bufferName][i] = fmt.Sprintf("slot_%d", i+1)
+				}
+			}
+		}
+	}
+
+	for _, buffer := range model.Buffers {
+		buffer.SlotNames = gather[buffer.Name]
+	}
+
+	return
 }

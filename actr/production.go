@@ -36,7 +36,7 @@ type PrintStatement struct {
 
 // RecallStatement is used to pull information from a memory.
 type RecallStatement struct {
-	Pattern    *Pattern
+	Pattern *Pattern
 	Memory  *Memory
 }
 
@@ -54,7 +54,7 @@ type Slot struct {
 
 // SetStatement will set a slot or the entire contents of the named buffer to a string or a pattern.
 type SetStatement struct {
-	Slot       *Slot  // set this slot
+	Slot   *Slot   // set this slot
 	Buffer *Buffer // of this buffer
 
 	ID      *string  // to this ID OR

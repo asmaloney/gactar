@@ -1,6 +1,40 @@
 package amod
 
-import "gitlab.com/asmaloney/gactar/actr"
+import (
+	"strings"
+
+	"gitlab.com/asmaloney/gactar/actr"
+)
+
+// validateInitializers looks at the initializers and ensures that the number of slots is valid relative
+// to the number of slot names. Note this has to happen after we've determined the slot names.
+func validateInitializers(model *actr.Model, init *initSection) (err error) {
+	errs := errorListWithContext{}
+
+	for _, i := range init.Initializers {
+		memoryName := i.Name
+		memory := model.LookupMemory(memoryName)
+		if memory == nil {
+			errs.Addc(&i.Pos, "memory not found for initialization '%s'", memoryName)
+			continue
+		}
+
+		expectedNumItems := len(memory.Buffer.SlotNames)
+
+		for line, str := range i.Items.Strings {
+			slots := strings.Split(str, " ")
+			if len(slots) != expectedNumItems {
+				// we need to guess the line number since we just have an array of strings here
+				pos := i.Pos
+				pos.Line += line + 1
+				errs.Addc(&pos, "invalid initialization '%s' for memory '%s' - expected %d slots (line number approximate)", str, memoryName, expectedNumItems)
+				continue
+			}
+		}
+	}
+
+	return errs.ErrorOrNil()
+}
 
 // validateSetStatement checks a "set" statement to verify the buffer name & field indexing is correct.
 // The production's matches have been constructed, so that's what we check against.

@@ -16,7 +16,8 @@ type Model struct {
 }
 
 type Buffer struct {
-	Name string
+	Name      string
+	SlotNames []string
 }
 
 type Memory struct {
@@ -35,7 +36,7 @@ type TextOutput struct {
 
 type Initializer struct {
 	Memory *Memory
-	Text       string
+	Text   string
 }
 
 // LookupBuffer looks up the named buffer in the model and returns it (or nil if it does not exist).
