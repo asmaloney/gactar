@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 
 	"github.com/urfave/cli/v2"
@@ -69,6 +70,7 @@ func (p *PyACTR) Run(initialGoal string) (output []byte, err error) {
 	cmd := exec.Command("python3", outputFile)
 
 	output, err = cmd.CombinedOutput()
+	output = removeWarning(output)
 	if err != nil {
 		err = fmt.Errorf("%s", string(output))
 		return
@@ -261,4 +263,17 @@ func outputStatement(f *os.File, s *actr.Statement) {
 		f.WriteString(fmt.Sprintf("\t~%s>\n", "g"))
 		// }
 	}
+}
+
+// removeWarning will remove the long warning whenever pyactr is run without tkinter.
+func removeWarning(text []byte) []byte {
+	str := string(text)
+
+	r := regexp.MustCompile(`(?s).+warnings.warn\("Simulation GUI is set to False."\)(.+)`)
+	matches := r.FindAllStringSubmatch(str, -1)
+	if len(matches) == 1 {
+		str = strings.TrimSpace(matches[0][1])
+	}
+
+	return []byte(str)
 }
