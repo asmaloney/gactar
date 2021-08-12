@@ -11,6 +11,10 @@ import (
 func validateInitializers(model *actr.Model, init *initSection) (err error) {
 	errs := errorListWithContext{}
 
+	if init == nil {
+		return
+	}
+
 	for _, i := range init.Initializers {
 		memoryName := i.Name
 		memory := model.LookupMemory(memoryName)

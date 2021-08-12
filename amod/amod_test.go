@@ -131,7 +131,7 @@ func TestProductionInvalidMemory(t *testing.T) {
 	==productions==
 	start {
 		match {
-			another_goal: 'add ? ?one1 ? ?one2 ? None?ans ?'
+			another_goal: ` + "`add ? ?one1 ? ?one2 ? None?ans ?`" + `
 		}
 		do {
 			print 'foo'
@@ -159,7 +159,7 @@ func TestProductionClearBuffer(t *testing.T) {
 	==productions==
 	start {
 		match {
-			bar: 'foo'
+			bar: ` + "`foo`" + `
 		}
 		do {
 			clear some_buffer
@@ -185,7 +185,7 @@ func TestProductionClearBuffer(t *testing.T) {
 	==productions==
 	start {
 		match {
-			bar: 'foo'
+			bar: ` + "`foo`" + `
 		}
 		do {
 			clear bar, blat
