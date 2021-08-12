@@ -19,6 +19,9 @@ python3 --version
 # update pip
 pip install --upgrade pip
 
+# install pyactor - should we use requirements.txt?
+pip install pyactr
+
 # because CCMSuite isn't a proper package, we need to copy files to the right place
 cd ./pyenv
 git clone https://github.com/CarletonCognitiveModelingLab/CCMSuite3
