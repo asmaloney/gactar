@@ -179,16 +179,24 @@ func outputMatch(f *os.File, match *actr.Match) {
 		text = "retrieval"
 	}
 
+	name := ""
+	if match.Buffer != nil {
+		name = match.Buffer.Name
+	} else if match.Memory != nil {
+		name = match.Memory.Buffer.Name
+	}
+
 	f.WriteString(fmt.Sprintf("\t=%s>\n", text))
-	f.WriteString(fmt.Sprintf("\tisa\t%s\n", match.Buffer.Name))
+	f.WriteString(fmt.Sprintf("\tisa\t%s\n", name))
 
 	// TODO Not sure how to handle memory here.
 	// e.g.  memory: `error:True`
+	if match.Buffer != nil {
+		for i, slot := range match.Buffer.SlotNames {
+			patternSlot := match.Pattern.Slots[i]
 
-	for i, slot := range match.Buffer.SlotNames {
-		patternSlot := match.Pattern.Slots[i]
-
-		outputPatternSlot(f, slot, patternSlot)
+			outputPatternSlot(f, slot, patternSlot)
+		}
 	}
 }
 
