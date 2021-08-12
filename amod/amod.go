@@ -254,7 +254,7 @@ func initialize(model *actr.Model, init *initSection) (err error) {
 
 		for _, item := range initializer.Items.Strings {
 			init := actr.Initializer{
-				MemoryName: memory.Name,
+				Memory: memory,
 				Text:       item,
 			}
 
@@ -280,8 +280,10 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 		for _, item := range production.Match.Items {
 			name := item.Name
 
-			exists := model.BufferOrMemoryExists(name)
-			if !exists {
+			buffer := model.LookupBuffer(name)
+			memory := model.LookupMemory(name)
+
+			if (buffer == nil) && (memory == nil) {
 				errs.Addc(&item.Pos, "buffer or memory '%s' not found in production '%s'", name, prod.Name)
 				continue
 			}
@@ -290,12 +292,14 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 				pattern := createChunkPattern(item.Pattern)
 
 				prod.Matches = append(prod.Matches, &actr.Match{
-					Name:    name,
+					Buffer:  buffer,
+					Memory:  memory,
 					Pattern: pattern,
 				})
 			} else if item.Text != nil {
 				prod.Matches = append(prod.Matches, &actr.Match{
-					Name: name,
+					Buffer: buffer,
+					Memory: memory,
 					Text: item.Text,
 				})
 			}
@@ -382,7 +386,7 @@ func addSetStatement(model *actr.Model, set *setStatement, production *actr.Prod
 
 	s := actr.Statement{
 		Set: &actr.SetStatement{
-			BufferName: set.BufferName,
+			Buffer: model.LookupBuffer(set.BufferName),
 		},
 	}
 
@@ -401,10 +405,12 @@ func addSetStatement(model *actr.Model, set *setStatement, production *actr.Prod
 	if set.Pattern != nil {
 		pattern := createChunkPattern(set.Pattern)
 		s.Set.Pattern = pattern
-	} else if set.Arg != nil {
-		s.Set.ID = set.Arg
+	} else if set.ID != nil {
+		s.Set.ID = set.ID
+	} else if set.Number != nil {
+		s.Set.Number = set.Number
 	} else if set.String != nil {
-		s.Set.Text = set.String
+		s.Set.String = set.String
 	}
 
 	return &s, nil
@@ -421,7 +427,7 @@ func addRecallStatement(model *actr.Model, recall *recallStatement, production *
 	s := actr.Statement{
 		Recall: &actr.RecallStatement{
 			Pattern:    pattern,
-			MemoryName: recall.MemoryName,
+			Memory:  model.LookupMemory(recall.MemoryName),
 		},
 	}
 

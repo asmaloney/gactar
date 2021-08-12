@@ -10,7 +10,8 @@ type Production struct {
 }
 
 type Match struct {
-	Name    string
+	Buffer  *Buffer
+	Memory  *Memory
 	Text    *string
 	Pattern *Pattern
 }
@@ -36,7 +37,7 @@ type PrintStatement struct {
 // RecallStatement is used to pull information from a memory.
 type RecallStatement struct {
 	Pattern    *Pattern
-	MemoryName string
+	Memory  *Memory
 }
 
 // WriteStatement will send the list of strings, ids, and numbers to the text output.
@@ -54,16 +55,17 @@ type Slot struct {
 // SetStatement will set a slot or the entire contents of the named buffer to a string or a pattern.
 type SetStatement struct {
 	Slot       *Slot  // set this slot
-	BufferName string // of this buffer
+	Buffer *Buffer // of this buffer
 
 	ID      *string  // to this ID OR
-	Text    *string  // OR this string
+	Number  *string  // OR this number (no need to store as actual number at the moment)
+	String  *string  // OR this string
 	Pattern *Pattern // OR this pattern
 }
 
 func (p Production) LookupMatchByBuffer(bufferName string) *Match {
 	for _, m := range p.Matches {
-		if m.Name == bufferName {
+		if m.Buffer.Name == bufferName {
 			return m
 		}
 	}

@@ -209,12 +209,19 @@ func (p *CCMPyACTR) WriteModel(path string) (outputFileName string, err error) {
 }
 
 func outputMatch(f *os.File, match *actr.Match) {
+	var name string
+	if match.Buffer != nil {
+		name = match.Buffer.Name
+	} else if match.Memory != nil {
+		name = match.Memory.Name
+	}
+
 	if match.Text != nil {
-		f.WriteString(fmt.Sprintf("%s=%s", match.Name, *match.Text))
+		f.WriteString(fmt.Sprintf("%s=%s", name, *match.Text))
 		return
 	}
 
-	f.WriteString(fmt.Sprintf("%s='%s'", match.Name, *match.Pattern))
+	f.WriteString(fmt.Sprintf("%s='%s'", name, *match.Pattern))
 }
 
 func outputStatement(f *os.File, s *actr.Statement) {
@@ -222,23 +229,25 @@ func outputStatement(f *os.File, s *actr.Statement) {
 		var text string
 		if s.Set.ID != nil {
 			text = *s.Set.ID
+		} else if s.Set.Number != nil {
+			text = *s.Set.Number
 		} else if s.Set.Pattern != nil {
 			text = "'" + s.Set.Pattern.String() + "'"
-		} else if s.Set.Text != nil {
-			text = "'" + *s.Set.Text + "'"
+		} else if s.Set.String != nil {
+			text = "'" + *s.Set.String + "'"
 		}
 
 		if s.Set.Slot != nil {
 			if s.Set.Slot.ArgNum != nil {
-				f.WriteString(fmt.Sprintf("\t\t%s.modify(_%d=%s)\n", s.Set.BufferName, *s.Set.Slot.ArgNum, text))
+				f.WriteString(fmt.Sprintf("\t\t%s.modify(_%d=%s)\n", s.Set.Buffer.Name, *s.Set.Slot.ArgNum, text))
 			} else if s.Set.Slot.Name != nil {
-				f.WriteString(fmt.Sprintf("\t\t%s.modify(%s=%s)\n", s.Set.BufferName, *s.Set.Slot.Name, text))
+				f.WriteString(fmt.Sprintf("\t\t%s.modify(%s=%s)\n", s.Set.Buffer.Name, *s.Set.Slot.Name, text))
 			}
 		} else {
-			f.WriteString(fmt.Sprintf("\t\t%s.set(%s)\n", s.Set.BufferName, text))
+			f.WriteString(fmt.Sprintf("\t\t%s.set(%s)\n", s.Set.Buffer.Name, text))
 		}
 	} else if s.Recall != nil {
-		f.WriteString(fmt.Sprintf("\t\t%s.request('%s')\n", s.Recall.MemoryName, s.Recall.Pattern))
+		f.WriteString(fmt.Sprintf("\t\t%s.request('%s')\n", s.Recall.Memory.Name, s.Recall.Pattern))
 	} else if s.Clear != nil {
 		for _, name := range s.Clear.BufferNames {
 			f.WriteString(fmt.Sprintf("\t\t%s.clear()\n", name))

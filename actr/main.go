@@ -34,7 +34,7 @@ type TextOutput struct {
 }
 
 type Initializer struct {
-	MemoryName string
+	Memory *Memory
 	Text       string
 }
 
