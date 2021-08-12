@@ -15,6 +15,8 @@ type Framework interface {
 	WriteModel(path, initialGoal string) (outputFileName string, err error)
 }
 
+type List map[string]Framework
+
 func CheckForExecutable(exe string) (path string, err error) {
 	path, err = exec.LookPath(exe)
 	if err != nil {

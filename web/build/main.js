@@ -21,19 +21,35 @@ function runModel() {
     })
     .then(function (data) {
       if (data.error) {
-        setResults(data.error)
+        setError(data.error)
         return
       }
 
       setResults(data.results)
     })
     .catch(function (error) {
-      setResults(error)
+      clearResults()
+      setError(error)
     })
 }
 
-function setResults(text) {
+function clearResults() {
+  document.getElementById('results').textContent = ''
+}
+
+function setResults(results) {
+  let text = ''
+  for (const [key, value] of Object.entries(results)) {
+    text += key + '\n' + '---\n'
+    text += value
+    text += '\n\n'
+  }
+
   document.getElementById('results').textContent = text
+}
+
+function setError(error) {
+  document.getElementById('results').textContent += error
 }
 
 function setAMOD(text) {

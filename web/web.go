@@ -27,20 +27,27 @@ func (f fsFunc) Open(name string) (fs.File, error) {
 }
 
 type Web struct {
-	context       *cli.Context
-	actrFramework framework.Framework
-	port          int
+	context        *cli.Context
+	actrFrameworks framework.List
+	port           int
 }
 
-func Initialize(cli *cli.Context, framework framework.Framework) (w *Web, err error) {
+func Initialize(cli *cli.Context, frameworks framework.List) (w *Web, err error) {
 	w = &Web{
-		context:       cli,
-		actrFramework: framework,
-		port:          cli.Int("port"),
+		context:        cli,
+		actrFrameworks: frameworks,
+		port:           cli.Int("port"),
 	}
 
-	err = framework.Initialize()
-	if err != nil {
+	for name, f := range w.actrFrameworks {
+		err = f.Initialize()
+		if err != nil {
+			delete(w.actrFrameworks, name)
+		}
+	}
+
+	if len(w.actrFrameworks) == 0 {
+		err := fmt.Errorf("could not initialize any frameworks - please check your installation")
 		return nil, err
 	}
 
@@ -65,12 +72,13 @@ func (w *Web) Start() (err error) {
 
 func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
 	type request struct {
-		AMODFile string `json:"amod"`
-		RunStr   string `json:"run"`
+		AMODFile   string   `json:"amod"`
+		RunStr     string   `json:"run"`
+		Frameworks []string `json:"frameworks"`
 	}
 
 	type response struct {
-		Results string `json:"results"`
+		Results json.RawMessage `json:"results"`
 	}
 
 	decoder := json.NewDecoder(req.Body)
@@ -88,14 +96,25 @@ func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	output, err := w.run(model, data.RunStr)
+	outputs := make(map[string]string, len(w.actrFrameworks))
+
+	for name, f := range w.actrFrameworks {
+		output, err := w.run(model, data.RunStr, f)
+		if err != nil {
+			outputs[name] = err.Error()
+		} else {
+			outputs[name] = string(output)
+		}
+	}
+
+	results, err := json.Marshal(outputs)
 	if err != nil {
 		errorResponse(rw, err)
 		return
 	}
 
 	r := response{
-		Results: string(output),
+		Results: json.RawMessage(string(results)),
 	}
 
 	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -121,18 +140,18 @@ func assetHandler(root string) http.Handler {
 	return http.FileServer(http.FS(handler))
 }
 
-func (w *Web) run(model *actr.Model, initialGoal string) (output []byte, err error) {
+func (w *Web) run(model *actr.Model, initialGoal string, framework framework.Framework) (output []byte, err error) {
 	if model == nil {
 		err = fmt.Errorf("no model loaded")
 		return
 	}
 
-	err = w.actrFramework.SetModel(model)
+	err = framework.SetModel(model)
 	if err != nil {
 		return
 	}
 
-	output, err = w.actrFramework.Run(initialGoal)
+	output, err = framework.Run(initialGoal)
 	if err != nil {
 		return
 	}
