@@ -306,10 +306,12 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 }
 
 func createChunkPattern(model *actr.Model, cp *pattern) (*actr.Pattern, error) {
+	errs := errorListWithContext{}
+
 	chunk := model.LookupChunk(cp.ChunkName)
 	if chunk == nil {
-		err := fmt.Errorf("could not find chunk named '%s'", cp.ChunkName)
-		return nil, err
+		errs.Addc(&cp.Pos, "could not find chunk named '%s'", cp.ChunkName)
+		return nil, errs
 	}
 
 	pattern := actr.Pattern{
