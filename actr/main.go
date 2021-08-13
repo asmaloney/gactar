@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+var reservedChunkNames = map[string]bool{"_status": true}
+
 // Model represents a basic ACT-R model.
 // This is used as input to a Framework where it can be run or output to a file.
 // (This is incomplete w.r.t. all of ACT-R's capabilities.)
@@ -53,11 +55,29 @@ type Initializer struct {
 	Text   string
 }
 
+func IsInternalChunkName(name string) bool {
+	return name[0] == '_'
+}
+
+func ReservedChunkNameExists(name string) bool {
+	v, ok := reservedChunkNames[name]
+	return v && ok
+}
+
 func (c Chunk) String() (str string) {
 	return fmt.Sprintf("%s( %s )", c.Name, strings.Join(c.SlotNames, " "))
 }
 
-func (model *Model) CreateBuffersAndMemory() {
+func (model *Model) Initialize() {
+	// Internal chunk for handling buffer and memory status
+	model.Chunks = []*Chunk{
+		{
+			Name:      "_status",
+			SlotNames: []string{"status"},
+			NumSlots:  1,
+		},
+	}
+
 	model.Buffers = []*Buffer{
 		{Name: "goal"},
 		{Name: "retrieve"},

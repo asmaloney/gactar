@@ -18,6 +18,22 @@ func TestACTRUnrecognizedField(t *testing.T) {
 	checkExpectedError(err, expected, t)
 }
 
+func TestChunkReservedName(t *testing.T) {
+	src := `
+	==model==
+	name: Test
+	==config==
+	chunks {
+    	_internal( foo bar )
+	}
+	==productions==`
+
+	_, err := GenerateModel(src)
+
+	expected := "cannot use reserved chunk name '_internal' (chunks begining with '_' are reserved) (line 6)"
+	checkExpectedError(err, expected, t)
+}
+
 func TestMemoryUnrecognizedField(t *testing.T) {
 	src := `
 	==model==
@@ -239,7 +255,84 @@ func TestProductionChunkNotFound(t *testing.T) {
 	checkExpectedError(err, expected, t)
 }
 
+func TestProductionMatchInternal(t *testing.T) {
+	src := `
+	==model==
+	name: Test
+	==config==
+	==productions==
+	start {
+		match {
+			memory: ` + "`_status error`" + `
+		}
+		do {
+			print 42
+		}
+	}`
+
+	_, err := GenerateModel(src)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	==productions==
+	start {
+		match {
+			memory: ` + "`_status busy error`" + `
+		}
+		do {
+			print 42
+		}
+	}`
+
+	_, err = GenerateModel(src)
+	expected := "_status should only have one slot for 'memory' in production 'start' (should be 'busy', 'free', or 'error') (line 8)"
+	checkExpectedError(err, expected, t)
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	==productions==
+	start {
+		match {
+			goal: ` + "`_status something`" + `
+		}
+		do {
+			print 42
+		}
+	}`
+
+	_, err = GenerateModel(src)
+	expected = "invalid _status 'something' for 'goal' in production 'start' (should be 'full' or 'empty') (line 8)"
+	checkExpectedError(err, expected, t)
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	==productions==
+	start {
+		match {
+			memory: ` + "`_status something`" + `
+		}
+		do {
+			print 42
+		}
+	}`
+
+	_, err = GenerateModel(src)
+	expected = "invalid _status 'something' for 'memory' in production 'start' (should be 'busy', 'free', or 'error') (line 8)"
+	checkExpectedError(err, expected, t)
+}
+
 func checkExpectedError(err error, expected string, t *testing.T) {
+	t.Helper()
+
 	if err == nil {
 		t.Errorf("Expected error: %s", expected)
 	} else {

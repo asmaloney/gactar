@@ -43,6 +43,61 @@ func validateInitializers(model *actr.Model, init *initSection) (err error) {
 	return errs.ErrorOrNil()
 }
 
+func validateMatch(match *match, model *actr.Model, production *actr.Production) (err error) {
+	errs := errorListWithContext{}
+
+	if match == nil {
+		return
+	}
+
+	for _, item := range match.Items {
+		name := item.Name
+
+		buffer := model.LookupBuffer(name)
+		memory := model.LookupMemory(name)
+
+		if (buffer == nil) && (memory == nil) {
+			errs.Addc(&item.Pos, "buffer or memory '%s' not found in production '%s'", name, production.Name)
+			continue
+		}
+
+		pattern := item.Pattern
+		if pattern == nil {
+			errs.Addc(&item.Pos, "invalid pattern for '%s' in production '%s'", name, production.Name)
+			continue
+		}
+
+		// check _status chunks to ensure they have one of the allowed tests
+		if buffer != nil {
+			if pattern.ChunkName == "_status" {
+				if len(pattern.Slots) != 1 {
+					errs.Addc(&item.Pos, "_status should only have one slot for '%s' in production '%s' (should be 'full' or 'empty')", name, production.Name)
+				}
+
+				slot := *pattern.Slots[0].Items[0].ID
+
+				if slot != "full" && slot != "empty" {
+					errs.Addc(&item.Pos, "invalid _status '%s' for '%s' in production '%s' (should be 'full' or 'empty')", slot, name, production.Name)
+				}
+			}
+		} else if memory != nil {
+			if pattern.ChunkName == "_status" {
+				if len(pattern.Slots) != 1 {
+					errs.Addc(&item.Pos, "_status should only have one slot for '%s' in production '%s' (should be 'busy', 'free', or 'error')", name, production.Name)
+				}
+
+				slot := *pattern.Slots[0].Items[0].ID
+
+				if slot != "busy" && slot != "free" && slot != "error" {
+					errs.Addc(&item.Pos, "invalid _status '%s' for '%s' in production '%s' (should be 'busy', 'free', or 'error')", slot, name, production.Name)
+				}
+			}
+		}
+	}
+
+	return errs.ErrorOrNil()
+}
+
 // validateSetStatement checks a "set" statement to verify the buffer name & field indexing is correct.
 // The production's matches have been constructed, so that's what we check against.
 func validateSetStatement(set *setStatement, model *actr.Model, production *actr.Production) (err error) {

@@ -189,20 +189,45 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 }
 
 func outputMatch(f *os.File, match *actr.Match) {
-	text := "g"
-	if (match.Memory != nil) || (match.Buffer.Name == "retrieve") {
-		text = "retrieval"
-	}
-
-	f.WriteString(fmt.Sprintf("\t=%s>\n", text))
-	f.WriteString(fmt.Sprintf("\tisa\t%s\n", match.Pattern.Chunk.Name))
-
-	// TODO Not sure how to handle memory here.
-	// e.g.  memory: `error:True`
 	if match.Buffer != nil {
-		for i, slot := range match.Pattern.Slots {
-			slotName := match.Pattern.Chunk.SlotNames[i]
-			outputPatternSlot(f, slotName, slot)
+		var text string
+		switch match.Buffer.Name {
+		case "goal":
+			text = "g"
+		case "retrieve":
+			text = "retrieval"
+		}
+
+		chunkName := match.Pattern.Chunk.Name
+
+		if actr.IsInternalChunkName(chunkName) {
+			if chunkName == "_status" {
+				status := match.Pattern.Slots[0]
+				f.WriteString(fmt.Sprintf("\t?%s>\n", text))
+				f.WriteString(fmt.Sprintf("\tbuffer %s\n", status))
+			}
+		} else {
+			f.WriteString(fmt.Sprintf("\t=%s>\n", text))
+			f.WriteString(fmt.Sprintf("\tisa\t%s\n", chunkName))
+
+			for i, slot := range match.Pattern.Slots {
+				slotName := match.Pattern.Chunk.SlotNames[i]
+				outputPatternSlot(f, slotName, slot)
+			}
+		}
+	} else if match.Memory != nil {
+		text := "retrieval"
+
+		chunkName := match.Pattern.Chunk.Name
+		if actr.IsInternalChunkName(chunkName) {
+			if chunkName == "_status" {
+				status := match.Pattern.Slots[0]
+				f.WriteString(fmt.Sprintf("\t?%s>\n", text))
+				f.WriteString(fmt.Sprintf("\tstate %s\n", status))
+			}
+		} else {
+			f.WriteString(fmt.Sprintf("\t=%s>\n", text))
+			f.WriteString(fmt.Sprintf("\tisa\t%s\n", chunkName))
 		}
 	}
 }

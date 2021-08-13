@@ -18,7 +18,7 @@ actr { log: false }
 
 // Declare chunks and their layouts
 chunks {
-    add( slot_1 slot_2 slot_3 slot_4 slot_5 slot_6 slot7 )
+    add( slot_1 slot_2 slot_3 slot_4 slot_5 slot_6 slot_7 )
     addfact( first second sum )
 }
 
@@ -75,7 +75,7 @@ processCarry {
 noCarry {
     match {
         goal: `add ?ten1 ? ?ten2 None?tenAns ?oneAns busy?carry`
-        memory: `error:True`
+        memory: `_status error`
     }
     do {
         set slot_4 of goal to 'busy'

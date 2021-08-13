@@ -79,7 +79,7 @@ chainCategory {
 fail {
     match {
         goal: `isMember ?obj1 ?cat pending`
-        memory: `error:True`
+        memory: `_status error`
     }
     do {
         set result of goal to 'no'

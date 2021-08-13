@@ -62,7 +62,7 @@ func generateModel(amod *amodFile) (model *actr.Model, err error) {
 		Examples:    amod.Model.Examples,
 	}
 
-	model.CreateBuffersAndMemory()
+	model.Initialize()
 
 	err = addConfig(model, amod.Config)
 	if err != nil {
@@ -127,6 +127,13 @@ func addChunks(model *actr.Model, chunks []*chunk, errs *errorListWithContext) {
 	}
 
 	for _, chunk := range chunks {
+		if actr.IsInternalChunkName(chunk.Name) {
+			if !actr.ReservedChunkNameExists(chunk.Name) {
+				errs.Addc(&chunk.Pos, "cannot use reserved chunk name '%s' (chunks begining with '_' are reserved)", chunk.Name)
+				continue
+			}
+		}
+
 		c := model.LookupChunk(chunk.Name)
 		if c != nil {
 			errs.Addc(&chunk.Pos, "duplicate chunk name: '%s'", chunk.Name)
@@ -261,33 +268,27 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 			Name: production.Name,
 		}
 
+		err := validateMatch(production.Match, model, &prod)
+		if err != nil {
+			errs.AddErrorIfNotNil(err)
+			continue
+		}
+
 		for _, item := range production.Match.Items {
-			name := item.Name
-
-			buffer := model.LookupBuffer(name)
-			memory := model.LookupMemory(name)
-
-			if (buffer == nil) && (memory == nil) {
-				errs.Addc(&item.Pos, "buffer or memory '%s' not found in production '%s'", name, prod.Name)
-				continue
-			}
-
-			if item.Pattern == nil {
-				errs.Addc(&item.Pos, "invalid pattern for '%s' in production '%s'", name, prod.Name)
-				continue
-			}
-
 			pattern, err := createChunkPattern(model, item.Pattern)
 			if err != nil {
 				errs.AddErrorIfNotNil(err)
-
-			} else {
-				prod.Matches = append(prod.Matches, &actr.Match{
-					Buffer:  buffer,
-					Memory:  memory,
-					Pattern: pattern,
-				})
+				continue
 			}
+
+			name := item.Name
+
+			prod.Matches = append(prod.Matches, &actr.Match{
+				Buffer:  model.LookupBuffer(name),
+				Memory:  model.LookupMemory(name),
+				Pattern: pattern,
+			})
+
 		}
 
 		if production.Do.PyCode != nil {

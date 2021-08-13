@@ -305,6 +305,23 @@ stop {
 
 You can find other examples of amod files in the [examples folder](examples).
 
+### Special Chunks
+
+User-defined chunks must not begin with '\_' - these are reserved for internal use. Currently there is one internal chunk - _\_status_ - which is used to check the status of buffers and memory.
+
+It is used in a `match` as follows:
+
+```
+match {
+    goal: `_status full`
+    memory: `_status error`
+}
+```
+
+For buffers, the valid statuses are `full` and `empty`.
+
+For memory, valid statuses are `busy`, `free`, `error`.
+
 ### Syntax
 
 The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property ?obj category ?cat` ``. The first item is the chunk name and the others are the slots. These are parsed to ensure their format is consistent with chunks which are declared in the _config_ section.

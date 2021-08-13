@@ -219,7 +219,15 @@ func outputMatch(f *os.File, match *actr.Match) {
 		name = match.Memory.Name
 	}
 
-	f.WriteString(fmt.Sprintf("%s='%s'", name, *match.Pattern))
+	chunkName := match.Pattern.Chunk.Name
+	if actr.IsInternalChunkName(chunkName) {
+		if chunkName == "_status" {
+			status := match.Pattern.Slots[0]
+			f.WriteString(fmt.Sprintf("%s='%s:True'", name, status))
+		}
+	} else {
+		f.WriteString(fmt.Sprintf("%s='%s'", name, *match.Pattern))
+	}
 }
 
 func outputStatement(f *os.File, s *actr.Statement) {
