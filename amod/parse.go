@@ -147,7 +147,7 @@ type pattern struct {
 }
 
 type matchItem struct {
-	Name    string   `parser:"(@Ident|'memory':Keyword) ':'"`
+	Name    string   `parser:"(@Ident|@('memory':Keyword)) ':'"`
 	Pattern *pattern `parser:" @@ "`
 
 	Pos lexer.Position
