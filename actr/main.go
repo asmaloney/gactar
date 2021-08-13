@@ -33,6 +33,10 @@ type Buffer struct {
 	Name string
 }
 
+func (b Buffer) String() string {
+	return b.Name
+}
+
 type Memory struct {
 	Name   string
 	Buffer *Buffer // required
@@ -53,6 +57,10 @@ type TextOutput struct {
 type Initializer struct {
 	Memory *Memory
 	Text   string
+}
+
+func (c Chunk) IsInternal() bool {
+	return c.Name[0] == '_'
 }
 
 func IsInternalChunkName(name string) bool {
