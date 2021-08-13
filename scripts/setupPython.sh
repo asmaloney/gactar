@@ -22,10 +22,11 @@ pip install --upgrade pip
 # install pyactor - should we use requirements.txt?
 pip install pyactr
 
-# because CCMSuite isn't a proper package, we need to copy files to the right place
+# Because CCMSuite isn't a proper package, we need to copy files to the right place.
+# I'm using a fork (CCM-PyACTR) to avoid pulling all the tmp and .pyc files in the original repo.
 cd ./pyenv
-git clone https://github.com/CarletonCognitiveModelingLab/CCMSuite3
-cp -rpf CCMSuite3/ccm lib/python3.9/site-packages/
+git clone https://github.com/asmaloney/CCM-PyACTR.git
+cp -rpf CCM-PyACTR/ccm lib/python3.9/site-packages/
 
 echo "Your environment is set up."
 echo "To load your virtual enviroment, run: source ./pyenv/bin/activate"
