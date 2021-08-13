@@ -98,7 +98,12 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	f.WriteString("import pyactr as actr\n\n")
 	f.WriteString(fmt.Sprintf("%s = actr.ACTRModel()\n\n", p.className))
 
+	// chunks
 	for _, chunk := range p.model.Chunks {
+		if chunk.IsInternal() {
+			continue
+		}
+
 		f.WriteString(fmt.Sprintf("actr.chunktype(\"%s\", \"%s\")\n", chunk.Name, strings.Join(chunk.SlotNames, ", ")))
 	}
 	f.WriteString("\n")
