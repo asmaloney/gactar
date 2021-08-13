@@ -238,9 +238,8 @@ func outputMatch(f *os.File, match *actr.Match) {
 }
 
 func outputPatternSlot(f *os.File, slotName string, patternSlot *actr.PatternSlot) {
-	value := ""
-
 	for _, item := range patternSlot.Items {
+		value := ""
 		if item.ID != nil {
 			value = *item.ID
 		} else if item.Var != nil {
@@ -254,9 +253,8 @@ func outputPatternSlot(f *os.File, slotName string, patternSlot *actr.PatternSlo
 			value += "="
 			value += strings.TrimPrefix(*item.Var, "?")
 		}
+		f.WriteString(fmt.Sprintf("\t%s\t%s\n", slotName, value))
 	}
-
-	f.WriteString(fmt.Sprintf("\t%s\t%s\n", slotName, value))
 }
 
 func outputStatement(f *os.File, s *actr.Statement) {
