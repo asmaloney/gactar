@@ -98,10 +98,8 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	f.WriteString("import pyactr as actr\n\n")
 	f.WriteString(fmt.Sprintf("%s = actr.ACTRModel()\n\n", p.className))
 
-	for _, buffer := range p.model.Buffers {
-		// Note that this is not quite what pyactr is expecting. It has the concept of a class and some slots
-		// where the class seems to be what we have in the first slot.
-		f.WriteString(fmt.Sprintf("actr.chunktype(\"%s\", \"%s\")\n", buffer.Name, strings.Join(buffer.SlotNames, ", ")))
+	for _, chunk := range p.model.Chunks {
+		f.WriteString(fmt.Sprintf("actr.chunktype(\"%s\", \"%s\")\n", chunk.Name, strings.Join(chunk.SlotNames, ", ")))
 	}
 	f.WriteString("\n")
 
@@ -112,14 +110,19 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 		for _, init := range p.model.Initializers {
 			f.WriteString("dm.add(actr.chunkstring(string=\"\"\"\n")
 
-			buffer := init.Memory.Buffer
+			chunkName, slots := actr.SplitStringForChunk(init.Text)
+			chunk := p.model.LookupChunk(chunkName)
 
-			f.WriteString(fmt.Sprintf("\tisa\t%s\n", buffer.Name))
+			if chunk == nil {
+				err = fmt.Errorf("cannot find chunk named '%s' in initializer", chunkName)
+				return
+			}
 
-			slots := strings.Split(init.Text, " ")
+			f.WriteString(fmt.Sprintf("\tisa\t%s\n", chunkName))
 
-			for i, slot := range buffer.SlotNames {
-				f.WriteString(fmt.Sprintf("\t%s\t%s\n", slot, slots[i]))
+			for i, name := range chunk.SlotNames {
+				value := slots[i]
+				f.WriteString(fmt.Sprintf("\t%s\t%s\n", name, value))
 			}
 
 			f.WriteString("\"\"\"))\n")
@@ -153,12 +156,24 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 		// add our goal...
 		f.WriteString(fmt.Sprintf("%s.goal.add(actr.chunkstring(string=\"\"\"\n", p.className))
 
-		f.WriteString("\tisa\tgoal\n")
+		chunkName, slots := actr.SplitStringForChunk(initialGoal)
+		chunk := p.model.LookupChunk(chunkName)
 
-		slots := strings.Split(initialGoal, " ")
-		for i, slot := range slots {
-			f.WriteString(fmt.Sprintf("\tslot_%d\t%s\n", i+1, slot))
+		if chunk == nil {
+			err = fmt.Errorf("cannot find chunk named '%s' from initial goal", chunkName)
+			return
+		}
 
+		if len(slots) != chunk.NumSlots {
+			err = fmt.Errorf("expecting %d slots for '%s', found %d", chunk.NumSlots, chunkName, len(slots))
+			return
+		}
+
+		f.WriteString(fmt.Sprintf("\tisa\t%s\n", chunkName))
+
+		for i, name := range chunk.SlotNames {
+			value := slots[i]
+			f.WriteString(fmt.Sprintf("\t%s\t%s\n", name, value))
 		}
 
 		f.WriteString("\"\"\"))\n")
@@ -179,23 +194,15 @@ func outputMatch(f *os.File, match *actr.Match) {
 		text = "retrieval"
 	}
 
-	name := ""
-	if match.Buffer != nil {
-		name = match.Buffer.Name
-	} else if match.Memory != nil {
-		name = match.Memory.Buffer.Name
-	}
-
 	f.WriteString(fmt.Sprintf("\t=%s>\n", text))
-	f.WriteString(fmt.Sprintf("\tisa\t%s\n", name))
+	f.WriteString(fmt.Sprintf("\tisa\t%s\n", match.Pattern.Chunk.Name))
 
 	// TODO Not sure how to handle memory here.
 	// e.g.  memory: `error:True`
 	if match.Buffer != nil {
-		for i, slot := range match.Buffer.SlotNames {
-			patternSlot := match.Pattern.Slots[i]
-
-			outputPatternSlot(f, slot, patternSlot)
+		for i, slot := range match.Pattern.Slots {
+			slotName := match.Pattern.Chunk.SlotNames[i]
+			outputPatternSlot(f, slotName, slot)
 		}
 	}
 }
@@ -226,46 +233,44 @@ func outputStatement(f *os.File, s *actr.Statement) {
 	if s.Set != nil {
 		buffer := s.Set.Buffer
 
-		text := "g"
+		text := "g" // default to "goal"
 		if buffer.Name == "retrieve" {
 			text = "retrieval"
 		}
 
 		f.WriteString(fmt.Sprintf("\t=%s>\n", text))
-		f.WriteString(fmt.Sprintf("\tisa\t%s\n", buffer.Name))
 
 		if s.Set.Slot != nil {
-			slotName := ""
+			f.WriteString(fmt.Sprintf("\tisa\t%s\n", s.Set.Chunk.Name))
 
-			if s.Set.Slot.ArgNum != nil {
-				slotName = buffer.SlotNames[*s.Set.Slot.ArgNum]
-			} else if s.Set.Slot.Name != nil {
-				slotName = *s.Set.Slot.Name
-			}
+			slotName := *s.Set.Slot
+
 			if s.Set.ID != nil {
 				f.WriteString(fmt.Sprintf("\t%s\t=%s\n", slotName, *s.Set.ID))
 			} else if s.Set.Number != nil {
 				f.WriteString(fmt.Sprintf("\t%s\t%s\n", slotName, *s.Set.Number))
 			}
 		} else if s.Set.Pattern != nil {
-			for i, slot := range s.Set.Buffer.SlotNames {
-				patternSlot := s.Set.Pattern.Slots[i]
+			f.WriteString(fmt.Sprintf("\tisa\t%s\n", s.Set.Pattern.Chunk.Name))
 
-				outputPatternSlot(f, slot, patternSlot)
+			for i, slot := range s.Set.Pattern.Slots {
+				slotName := s.Set.Pattern.Chunk.SlotNames[i]
+				outputPatternSlot(f, slotName, slot)
 			}
 		} else {
 			f.WriteString("# writing text not yet handled\n")
 		}
 	} else if s.Recall != nil {
-		memoryName := s.Recall.Memory.Buffer.Name
+		chunk := s.Recall.Pattern.Chunk
+
 		f.WriteString("\t+retrieval>\n")
-		f.WriteString(fmt.Sprintf("\tisa\t%s\n", memoryName))
+		f.WriteString(fmt.Sprintf("\tisa\t%s\n", chunk.Name))
 
-		for i, slot := range s.Recall.Memory.Buffer.SlotNames {
-			patternSlot := s.Recall.Pattern.Slots[i]
-
-			outputPatternSlot(f, slot, patternSlot)
+		for i, slot := range s.Recall.Pattern.Slots {
+			slotName := chunk.SlotNames[i]
+			outputPatternSlot(f, slotName, slot)
 		}
+
 	} else if s.Clear != nil {
 		// for _, name := range s.Clear.BufferNames {
 		f.WriteString(fmt.Sprintf("\t~%s>\n", "g"))

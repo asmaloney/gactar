@@ -24,61 +24,19 @@ func TestACTRUnrecognizedField(t *testing.T) {
 	}
 }
 
-func TestMemoryBufferField(t *testing.T) {
-	src := `
-	==model==
-	name: Test
-	==config==
-	memories {
-    	a_memory { buffer: foo }
-	}
-	==productions==`
-
-	_, err := GenerateModel(src)
-
-	expected := "buffer 'foo' not found for memory 'a_memory' (line 6)"
-	if err == nil {
-		t.Errorf("Expected error: %s", expected)
-	} else {
-		if err.Error() != expected {
-			t.Errorf("Expected '%s' but got '%s'", expected, err.Error())
-		}
-	}
-
-	src = `
-	==model==
-	name: Test
-	==config==
-	memories {
-    	a_memory { buffer: 42 }
-	}
-	==productions==`
-
-	_, err = GenerateModel(src)
-
-	expected = "buffer '42' should not be a number in memory 'a_memory' (line 6)"
-	if err == nil {
-		t.Errorf("Expected error: %s", expected)
-	} else {
-		if err.Error() != expected {
-			t.Errorf("Expected '%s' but got '%s'", expected, err.Error())
-		}
-	}
-}
-
 func TestMemoryUnrecognizedField(t *testing.T) {
 	src := `
 	==model==
 	name: Test
 	==config==
-	memories {
-    	a_memory { foo: bar }
+	memory {
+    	foo: bar
 	}
 	==productions==`
 
 	_, err := GenerateModel(src)
 
-	expected := "unrecognized field 'foo' in memory 'a_memory' (line 6)"
+	expected := "unrecognized field 'foo' in memory (line 6)"
 	if err == nil {
 		t.Errorf("Expected error: %s", expected)
 	} else {
@@ -93,25 +51,19 @@ func TestInitializers(t *testing.T) {
 	==model==
 	name: Test
 	==config==
-	buffers { bar }
-	memories {
-    	a_memory { buffer: bar }
+	chunks {
+		remember( who )
 	}
 	==init==
-	another_memory {
+	memory {
 		'remember me'
 	}
 	==productions==`
 
 	_, err := GenerateModel(src)
 
-	expected := "memory not found for initialization 'another_memory' (line 10)"
-	if err == nil {
-		t.Errorf("Expected error: %s", expected)
-	} else {
-		if err.Error() != expected {
-			t.Errorf("Expected '%s' but got '%s'", expected, err.Error())
-		}
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
 	}
 }
 
@@ -120,14 +72,7 @@ func TestProductionInvalidMemory(t *testing.T) {
 	==model==
 	name: Test
 	==config==
-	buffers { bar }
-	memories {
-    	a_memory { buffer: bar }
-	}
 	==init==
-	a_memory {
-		'remember me'
-	}
 	==productions==
 	start {
 		match {
@@ -140,7 +85,7 @@ func TestProductionInvalidMemory(t *testing.T) {
 
 	_, err := GenerateModel(src)
 
-	expected := "buffer or memory 'another_goal' not found in production 'start' (line 16)"
+	expected := "buffer or memory 'another_goal' not found in production 'start' (line 9)"
 	if err == nil {
 		t.Errorf("Expected error: %s", expected)
 	} else {
@@ -150,16 +95,18 @@ func TestProductionInvalidMemory(t *testing.T) {
 	}
 }
 
-func TestProductionClearBuffer(t *testing.T) {
+func TestProductionClearStatement(t *testing.T) {
 	src := `
 	==model==
 	name: Test
 	==config==
-	buffers { bar }
+	chunks {
+		foo( thing )
+	}
 	==productions==
 	start {
 		match {
-			bar: ` + "`foo`" + `
+			goal: ` + "`foo blat`" + `
 		}
 		do {
 			clear some_buffer
@@ -168,7 +115,7 @@ func TestProductionClearBuffer(t *testing.T) {
 
 	_, err := GenerateModel(src)
 
-	expected := "buffer 'some_buffer' not found in production 'start' (line 12)"
+	expected := "buffer 'some_buffer' not found in production 'start' (line 14)"
 	if err == nil {
 		t.Errorf("Expected error: %s", expected)
 	} else {
@@ -181,18 +128,121 @@ func TestProductionClearBuffer(t *testing.T) {
 	==model==
 	name: Test
 	==config==
-	buffers { bar, blat }
+	chunks {
+		foo( thing )
+	}
 	==productions==
 	start {
 		match {
-			bar: ` + "`foo`" + `
+			goal: ` + "`foo blat`" + `
 		}
 		do {
-			clear bar, blat
+			clear goal
 		}
 	}`
 
 	_, err = GenerateModel(src)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+}
+
+func TestProductionSetStatement(t *testing.T) {
+	src := `
+	==model==
+	name: Test
+	==config==
+	chunks {
+		foo( thing )
+	}
+	==productions==
+	start {
+		match {
+			goal: ` + "`foo blat`" + `
+		}
+		do {
+			set goal to ` + "`foo ding`" + `
+		}
+	}`
+
+	_, err := GenerateModel(src)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+}
+
+func TestProductionRecallStatement(t *testing.T) {
+	src := `
+	==model==
+	name: Test
+	==config==
+	chunks {
+		foo( thing )
+	}
+	==productions==
+	start {
+		match {
+			goal: ` + "`foo blat`" + `
+		}
+		do {
+        	recall ` + "`count ?next ?`" + `
+		}
+	}`
+
+	_, err := GenerateModel(src)
+
+	expected := "recall statement variable '?next' not found in matches for production 'start' (line 14)"
+	if err == nil {
+		t.Errorf("Expected error: %s", expected)
+	} else {
+		if err.Error() != expected {
+			t.Errorf("Expected '%s' but got '%s'", expected, err.Error())
+		}
+	}
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	chunks {
+		foo( thing1 thing2 )
+	}
+	==productions==
+	start {
+		match {
+			goal: ` + "`foo ?next ?other`" + `
+		}
+		do {
+        	recall ` + "`foo ?next ?`" + `
+		}
+	}`
+
+	_, err = GenerateModel(src)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+}
+
+func TestProductionMultipleStatement(t *testing.T) {
+	src := `
+	==model==
+	name: Test
+	==config==
+	chunks {
+		foo( thing1 thing2 )
+	}
+	==productions==
+	start {
+		match {
+			goal: ` + "`foo ?next ?other`" + `
+		}
+		do {
+        	recall ` + "`foo ?next ?`" + `
+			set goal to ` + "`foo ?other 42`" + `
+		}
+	}`
+
+	_, err := GenerateModel(src)
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err)
 	}

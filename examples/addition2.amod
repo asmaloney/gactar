@@ -3,7 +3,7 @@
 // The name of the model (used when generating code and for error messages)
 name: addition2
 
-// Description of the model (currently output as a comment in the python code)
+// Description of the model (currently output as a comment in the generated code)
 description: "This model is based on the u1_addition2.py tutorial."
 
 // Examples of starting goals to use when running the model
@@ -13,22 +13,18 @@ examples {
 
 ==config==
 
+// Turn on logging by setting 'log' to 'true' or 1
 actr { log: false }
 
-// List of buffers to create by name
-buffers { goal, retrieve }
-
-// Memories to create
-memories {
-    memory {
-        // Attach this buffer by name
-        buffer: retrieve
-    }
+// Declare chunks and their layouts
+chunks {
+    add( slot_1 slot_2 slot_3 slot_4 slot_5 slot_6 slot7 )
+    addfact( first second sum )
 }
 
 ==init==
 
-// Initialize the memory named "memory"
+// Initialize the memory
 memory {
     'addfact 3 4 7'
     'addfact 6 7 13'
@@ -46,8 +42,8 @@ startPair {
     }
     // Steps to execute
     do {
-        set slot 6 of goal to 'busy'
-        recall `addfact ?one1 ?one2 ?` from memory
+        set slot_6 of goal to 'busy'
+        recall `addfact ?one1 ?one2 ?`
     }
 }
 
@@ -57,9 +53,9 @@ addOnes {
         retrieve: `addfact ? ? ?sum`
     }
     do {
-        set slot 6 of goal to sum
-        set slot 7 of goal to 'busy'
-        recall `addfact 10 ? ?sum` from memory
+        set slot_6 of goal to sum
+        set slot_7 of goal to 'busy'
+        recall `addfact 10 ? ?sum`
     }
 }
 
@@ -69,10 +65,10 @@ processCarry {
         retrieve: `addfact 10 ?rem ?sum`
     }
     do {
-        set slot 5 of goal to 'busy'
-        set slot 6 of goal to rem
-        set slot 7 of goal to 1
-        recall `addfact ?ten1 ?ten2 ?` from memory
+        set slot_5 of goal to 'busy'
+        set slot_6 of goal to rem
+        set slot_7 of goal to 1
+        recall `addfact ?ten1 ?ten2 ?`
     }
 }
 
@@ -82,9 +78,9 @@ noCarry {
         memory: `error:True`
     }
     do {
-        set slot 4 of goal to 'busy'
-        set slot 6 of goal to 0
-        recall `addfact ?ten1 ?ten2 ?` from memory
+        set slot_4 of goal to 'busy'
+        set slot_6 of goal to 0
+        recall `addfact ?ten1 ?ten2 ?`
     }
 }
 
@@ -95,7 +91,7 @@ addTensDone {
     }
     do {
         print sum, oneAns
-        set slot 5 of goal to sum
+        set slot_5 of goal to sum
     }
 }
 
@@ -105,7 +101,7 @@ addTensCarry {
         retrieve: `addfact ? ? ?sum`
     }
     do {
-        set slot 7 of goal to 0
-        recall `addfact 1 ?sum ?` from memory
+        set slot_7 of goal to 0
+        recall `addfact 1 ?sum ?`
     }
 }

@@ -27,10 +27,10 @@ The format still feels a little heavy, so if I continue with this project I woul
 
    ```
     match {
-        goal: `isMember ?obj ?cat result:None`
+        goal: `isMember ?obj ?cat None`
     }
     do {
-        recall `property ?ojb category ?` from memory
+        recall `property ?ojb category ?`
     }
    ```
 
@@ -44,10 +44,10 @@ The format still feels a little heavy, so if I continue with this project I woul
 
    ```
     match {
-        goal: `isMember ?obj ?cat result:None`
+        goal: `isMember ?obj ?cat None`
     }
     do {
-        set slot resutl of goal to 'pending'
+        set resutl of goal to 'pending'
     }
    ```
 
@@ -234,13 +234,13 @@ Here is an example of the file format:
 // The name of the model (used when generating code and for error messages)
 name: count
 
-// Description of the model (currently output as a comment in the python code)
-description: "This is a model which adds numbers. Based on the u1_count.py tutorial."
+// Description of the model (currently output as a comment in the generated code)
+description: 'This is a model which adds numbers. Based on the u1_count.py tutorial.'
 
 // Examples of starting goals to use when running the model
 examples {
-    "countFrom 2 5 starting"
-    "countFrom 1 7 starting"
+    'countFrom 2 5 starting'
+    'countFrom 1 3 starting'
 }
 
 ==config==
@@ -248,20 +248,15 @@ examples {
 // Turn on logging by setting 'log' to 'true' or 1
 actr { log: false }
 
-// List of buffers to create by name
-buffers { goal, retrieve }
-
-// Memories to create
-memories {
-    memory {
-        // Attach this buffer by name
-        buffer: retrieve
-    }
+// Declare chunks and their layouts
+chunks {
+    count( first second )
+    countFrom( start end status )
 }
 
 ==init==
 
-// Initialize the memory named "memory"
+// Initialize the memory
 memory {
     'count 0 1'
     'count 1 2'
@@ -280,7 +275,7 @@ start {
     }
     // Steps to execute
     do {
-        recall `count ?start ?` from memory
+        recall `count ?start ?`
         set goal to `countFrom ?start ?end counting`
     }
 }
@@ -292,8 +287,8 @@ increment {
     }
     do {
         print x
-        recall `count ?next ?` from memory
-        set slot 1 of goal to next
+        recall `count ?next ?`
+        set start of goal to next
     }
 }
 
@@ -312,15 +307,15 @@ You can find other examples of amod files in the [examples folder](examples).
 
 ### Syntax
 
-The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property ?obj category ?cat` ``. These are parsed to ensure their format is correct and to validate slots and variables.
+The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property ?obj category ?cat` ``. The first item is the chunk name and the others are the slots. These are parsed to ensure their format is consistent with chunks which are declared in the _config_ section.
 
 The _do_ section in the productions uses a small language which currently understands the following commands:
 
-| command                                                                         | example                            |
-| ------------------------------------------------------------------------------- | ---------------------------------- |
-| clear _(buffer name)+_                                                          | clear buff1, buff2                 |
-| print _(string or ident or number)+_                                            | print foo, 'text', 42              |
-| recall _(pattern)_ from _(memory name)_                                         | recall \`car ?colour\` from memory |
-| set slot _(number or name)_ of _(buffer name)_ to _(string or ident or number)_ | set slot 1 of goal to 6            |
-| set _(buffer name)_ to _(string or ident or number or pattern)_                 | set goal to \`start 6 None\`       |
-| write _(string or ident or number)+_ to _(text output name)_                    | write 'foo' to text                |
+| command                                                         | example                      |
+| --------------------------------------------------------------- | ---------------------------- |
+| clear _(buffer name)+_                                          | clear buff1, buff2           |
+| print _(string or ident or number)+_                            | print foo, 'text', 42        |
+| recall _(pattern)_                                              | recall \`car ?colour\`       |
+| set _name_ of _(buffer name)_ to _(string or ident or number)_  | set sum of goal to 6         |
+| set _(buffer name)_ to _(string or ident or number or pattern)_ | set goal to \`start 6 None\` |
+| write _(string or ident or number)+_ to _(text output name)_    | write 'foo' to text          |

@@ -1,5 +1,10 @@
 package actr
 
+import (
+	"fmt"
+	"strings"
+)
+
 // Model represents a basic ACT-R model.
 // This is used as input to a Framework where it can be run or output to a file.
 // (This is incomplete w.r.t. all of ACT-R's capabilities.)
@@ -7,22 +12,31 @@ type Model struct {
 	Name         string
 	Description  string
 	Examples     []string
+	Chunks       []*Chunk
 	Buffers      []*Buffer
-	Memories     []*Memory
+	Memories     []*Memory // we only have one memory now, but leave as slice until we determine if we can have multiple memories
 	TextOutputs  []*TextOutput
 	Initializers []*Initializer
 	Productions  []*Production
 	Logging      bool
 }
 
-type Buffer struct {
+type Chunk struct {
 	Name      string
 	SlotNames []string
+	NumSlots  int
+}
+
+type Buffer struct {
+	Name string
 }
 
 type Memory struct {
-	Name      string
-	Buffer    *Buffer // required
+	Name   string
+	Buffer *Buffer // required
+
+	// The following optional fields came from the ccm framework.
+	// TODO: determine if they apply to others.
 	Latency   *float64
 	Threshold *float64
 	MaxTime   *float64
@@ -37,6 +51,35 @@ type TextOutput struct {
 type Initializer struct {
 	Memory *Memory
 	Text   string
+}
+
+func (c Chunk) String() (str string) {
+	return fmt.Sprintf("%s( %s )", c.Name, strings.Join(c.SlotNames, " "))
+}
+
+func (model *Model) CreateBuffersAndMemory() {
+	model.Buffers = []*Buffer{
+		{Name: "goal"},
+		{Name: "retrieve"},
+	}
+
+	model.Memories = []*Memory{
+		{
+			Name:   "memory",
+			Buffer: model.Buffers[1], // "retrieve"
+		},
+	}
+}
+
+// LookupChunk looks up the named chunk in the model and returns it (or nil if it does not exist).
+func (model *Model) LookupChunk(chunkName string) *Chunk {
+	for _, chunk := range model.Chunks {
+		if chunk.Name == chunkName {
+			return chunk
+		}
+	}
+
+	return nil
 }
 
 // LookupBuffer looks up the named buffer in the model and returns it (or nil if it does not exist).
@@ -82,4 +125,35 @@ func (model *Model) BufferOrMemoryExists(name string) bool {
 	memory := model.LookupMemory(name)
 
 	return memory != nil
+}
+
+// SlotExists checks if the slot name exists on this chunk.
+func (chunk Chunk) SlotExists(slot string) bool {
+	for _, name := range chunk.SlotNames {
+		if name == slot {
+			return true
+		}
+	}
+
+	return false
+}
+
+// GetSlotIndex returns the slot index (indexed from 1) of the slot name or -1 if not found.
+func (chunk Chunk) GetSlotIndex(slot string) int {
+	for i, name := range chunk.SlotNames {
+		if name == slot {
+			return i + 1
+		}
+	}
+
+	return -1
+}
+
+// SplitStringForChunk takes a string such as "add 1 2" and splits it into name and slots.
+func SplitStringForChunk(str string) (name string, slots []string) {
+	slots = strings.Split(str, " ")
+	name = slots[0]
+	slots = slots[1:]
+
+	return
 }

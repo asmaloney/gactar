@@ -1,8 +1,6 @@
 package amod
 
 import (
-	"strings"
-
 	"gitlab.com/asmaloney/gactar/actr"
 )
 
@@ -16,22 +14,27 @@ func validateInitializers(model *actr.Model, init *initSection) (err error) {
 	}
 
 	for _, i := range init.Initializers {
-		memoryName := i.Name
-		memory := model.LookupMemory(memoryName)
+		memory := model.LookupMemory("memory")
 		if memory == nil {
-			errs.Addc(&i.Pos, "memory not found for initialization '%s'", memoryName)
+			errs.Addc(&i.Pos, "memory not found")
 			continue
 		}
 
-		expectedNumItems := len(memory.Buffer.SlotNames)
-
 		for line, str := range i.Items.Strings {
-			slots := strings.Split(str, " ")
-			if len(slots) != expectedNumItems {
-				// we need to guess the line number since we just have an array of strings here
-				pos := i.Pos
-				pos.Line += line + 1
-				errs.Addc(&pos, "invalid initialization '%s' for memory '%s' - expected %d slots (line number approximate)", str, memoryName, expectedNumItems)
+			// we need to guess the line number since we just have an array of strings here
+			pos := i.Pos
+			pos.Line += line + 1
+
+			chunkName, slots := actr.SplitStringForChunk(str)
+
+			chunk := model.LookupChunk(chunkName)
+			if chunk == nil {
+				errs.Addc(&pos, "could not find chunk named '%s' in initialization '%s' for memory (line number approximate)", chunkName, str)
+				continue
+			}
+
+			if len(slots) != chunk.NumSlots {
+				errs.Addc(&pos, "invalid initialization '%s' for memory - expected %d slots (line number approximate)", str, chunk.NumSlots)
 				continue
 			}
 		}
@@ -56,22 +59,18 @@ func validateSetStatement(set *setStatement, model *actr.Model, production *actr
 
 		if match == nil {
 			errs.Addc(&set.Pos, "match buffer '%s' not found in production '%s'", name, production.Name)
+		} else if set.Slot == nil {
+			// should not be possible to get here since the parser will pick this up
+			errs.Addc(&set.Pos, "set statement is missing a slot number or name in production '%s'", production.Name)
 		} else {
-			if set.Slot.ArgNum != nil {
-				argNum := int(*set.Slot.ArgNum)
-				if (argNum == 0) || (argNum > len(match.Pattern.Slots)) {
-					errs.Addc(&set.Pos, "slot %d does not exist in match buffer '%s' in production '%s'", argNum, name, production.Name)
-				}
-			} else if set.Slot.Name != nil {
-				slotName := *set.Slot.Name
-
-				slot := match.Pattern.LookupSlotName(slotName)
-				if slot == nil {
-					errs.Addc(&set.Pos, "slot '%s' does not exist in match buffer '%s' in production '%s'", slotName, name, production.Name)
-				}
+			slotName := *set.Slot
+			chunk := match.Pattern.Chunk
+			if chunk == nil {
+				errs.Addc(&set.Pos, "chunk does not exist in match buffer '%s' in production '%s'", name, production.Name)
 			} else {
-				// should not be possible to get here since the parser will pick this up
-				errs.Addc(&set.Pos, "set statement is missing a slot number or name in production '%s'", production.Name)
+				if !chunk.SlotExists(slotName) {
+					errs.Addc(&set.Pos, "slot '%s' does not exist in chunk '%s' for match buffer '%s' in production '%s'", slotName, chunk.Name, name, production.Name)
+				}
 			}
 		}
 	}
@@ -88,7 +87,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, production *actr
 func validateRecallStatement(recall *recallStatement, model *actr.Model, production *actr.Production) (err error) {
 	errs := errorListWithContext{}
 
-	name := recall.MemoryName
+	name := "memory"
 	memory := model.LookupMemory(name)
 	if memory == nil {
 		errs.Addc(&recall.Pos, "recall statement memory '%s' not found in production '%s'", name, production.Name)

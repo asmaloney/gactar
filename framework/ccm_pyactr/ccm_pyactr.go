@@ -219,11 +219,6 @@ func outputMatch(f *os.File, match *actr.Match) {
 		name = match.Memory.Name
 	}
 
-	if match.Text != nil {
-		f.WriteString(fmt.Sprintf("%s=%s", name, *match.Text))
-		return
-	}
-
 	f.WriteString(fmt.Sprintf("%s='%s'", name, *match.Pattern))
 }
 
@@ -241,11 +236,7 @@ func outputStatement(f *os.File, s *actr.Statement) {
 		}
 
 		if s.Set.Slot != nil {
-			if s.Set.Slot.ArgNum != nil {
-				f.WriteString(fmt.Sprintf("\t\t%s.modify(_%d=%s)\n", s.Set.Buffer.Name, *s.Set.Slot.ArgNum, text))
-			} else if s.Set.Slot.Name != nil {
-				f.WriteString(fmt.Sprintf("\t\t%s.modify(%s=%s)\n", s.Set.Buffer.Name, *s.Set.Slot.Name, text))
-			}
+			f.WriteString(fmt.Sprintf("\t\t%s.modify(_%d=%s)\n", s.Set.Buffer.Name, s.Set.SlotIndex, text))
 		} else {
 			f.WriteString(fmt.Sprintf("\t\t%s.set(%s)\n", s.Set.Buffer.Name, text))
 		}

@@ -3,14 +3,14 @@
 // The name of the model (used when generating code and for error messages)
 name: semantic
 
-// Description of the model (currently output as a comment in the python code)
-description: "This model is based on the u1_semantic.py tutorial."
+// Description of the model (currently output as a comment in the generated code)
+description: 'This model is based on the u1_semantic.py tutorial.'
 
 // Examples of starting goals to use when running the model
 examples {
-    'isMember shark fish result:None'
-    'isMember shark animal result:None'
-    'isMember canary fish result:None'
+    'isMember shark fish None'
+    'isMember shark animal None'
+    'isMember canary fish None'
 }
 
 ==config==
@@ -18,23 +18,18 @@ examples {
 // Turn on logging by setting 'log' to 'true' or 1
 actr { log: false }
 
-// List of buffers to create by name
-buffers { goal, retrieve }
-
-// Memories to create
-memories {
-    memory {
-        // Attach this buffer by name
-        buffer: retrieve
-    }
+// Declare chunks and their layouts
+chunks {
+    isMember( object group result )
+    property( object key value )
 }
 
-// List of text outputs to create by name
+// List of text outputs to create (by name)
 text_outputs { text }
 
 ==init==
 
-// Initialize the memory named "memory"
+// Initialize the memory
 memory {
     'property shark dangerous true'
     'property shark locomotion swimming'
@@ -50,44 +45,44 @@ memory {
 initialRetrieve {
     // Buffers to match
     match {
-        goal: `isMember ?obj ?cat result:None`
+        goal: `isMember ?obj ?cat None`
     }
     // Steps to execute
     do {
-        set slot result of goal to 'pending'
-        recall `property ?obj category ?` from memory
+        set result of goal to 'pending'
+        recall `property ?obj category ?`
     }
 }
 
 directVerify {
     match {
-        goal: `isMember ?obj ?cat result:pending`
+        goal: `isMember ?obj ?cat pending`
         retrieve: `property ?obj category ?cat`
     }
     do {
-        set slot result of goal to 'yes'
+        set result of goal to 'yes'
         write 'Yes' to text
     }
 }
 
 chainCategory {
     match {
-        goal: `isMember ?obj1 ?cat result:pending`
+        goal: `isMember ?obj1 ?cat pending`
         retrieve: `property ?obj1 category ?obj2!?cat`
     }
     do {
-        set slot 1 of goal to obj2
-        recall `property ?obj2 category ?` from memory
+        set object of goal to obj2
+        recall `property ?obj2 category ?`
     }
 }
 
 fail {
     match {
-        goal: `isMember ?obj1 ?cat result:pending`
+        goal: `isMember ?obj1 ?cat pending`
         memory: `error:True`
     }
     do {
-        set slot result of goal to 'no'
+        set result of goal to 'no'
         write 'No' to text
     }
 }

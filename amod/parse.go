@@ -87,31 +87,31 @@ type fieldList struct {
 	Pos lexer.Position
 }
 
+type chunk struct {
+	Name      string   `parser:"@Ident"`
+	SlotNames []string `parser:"'(' @Ident+ ')'"`
+
+	Pos lexer.Position
+}
+
 type memory struct {
-	Name   string    `parser:"@Ident"`
 	Fields fieldList `parser:"@@+"`
 
 	Pos lexer.Position
 }
 
-type memoryList struct {
-	Memories []*memory `parser:"'{' @@+ '}'"`
-
-	Pos lexer.Position
-}
-
 type configSection struct {
-	ACTR        *fieldList  `parser:"('actr' @@)?"`
-	Buffers     *identList  `parser:"('buffers' '{' @@ '}')?"`
-	Memories    *memoryList `parser:"('memories' @@)?"`
-	TextOutputs *identList  `parser:"('text_outputs' '{' @@ '}')?"`
+	ACTR        *fieldList `parser:"('actr' @@)?"`
+	Chunks      []*chunk   `parser:"('chunks' '{' @@+ '}')?"`
+	Buffers     *identList `parser:"('buffers' '{' @@ '}')?"`
+	Memory      *memory    `parser:"('memory' @@)?"`
+	TextOutputs *identList `parser:"('text_outputs' '{' @@ '}')?"`
 
 	Pos lexer.Position
 }
 
 type initializer struct {
-	Name  string      `parser:"@Ident"`
-	Items *stringList `parser:"'{' @@+ '}'"`
+	Items *stringList `parser:"'memory' '{' @@+ '}'"`
 
 	Pos lexer.Position
 }
@@ -123,16 +123,15 @@ type initSection struct {
 }
 
 type patternSlotItem struct {
-	ID             *string `parser:"( @Ident"`
-	Num            *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
-	Var            *string `parser:"| @PatternVar"`
-	NotVar         *string `parser:"| '!' @PatternVar"`
-	OptionalVar    *string `parser:"| '?' @PatternVar"`
-	NotOptionalVar *string `parser:"| '!' '?' @PatternVar)"`
+	ID     *string `parser:"( @Ident"`
+	Num    *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
+	Var    *string `parser:"| @PatternVar"`
+	NotVar *string `parser:"| '!' @PatternVar)"`
+
+	Pos lexer.Position
 }
 
 type patternSlot struct {
-	Name  *string            `parser:"(@Ident ':')?"`
 	Items []*patternSlotItem `parser:"@@+"`
 	Space string             `parser:" @PatternSpace? "`
 
@@ -140,15 +139,16 @@ type patternSlot struct {
 }
 
 type pattern struct {
-	Slots []*patternSlot "parser:\"'`' @@+ '`'\""
+	ChunkName string         "parser:\"'`' @Ident \""
+	Space     string         `parser:" @PatternSpace "`
+	Slots     []*patternSlot "parser:\" @@+ '`'\""
 
 	Pos lexer.Position
 }
 
 type matchItem struct {
-	Name    string   `parser:"@Ident ':'"`
-	Text    *string  `parser:"(@String"`
-	Pattern *pattern `parser:"| @@)"`
+	Name    string   `parser:"(@Ident|'memory':Keyword) ':'"`
+	Pattern *pattern `parser:" @@ "`
 
 	Pos lexer.Position
 }
@@ -172,8 +172,7 @@ type printStatement struct {
 }
 
 type recallStatement struct {
-	Pattern    *pattern `parser:"'recall' @@"`
-	MemoryName string   `parser:"'from' @Ident"`
+	Pattern *pattern `parser:"'recall' @@"`
 
 	Pos lexer.Position
 }
@@ -185,16 +184,9 @@ type writeStatement struct {
 	Pos lexer.Position
 }
 
-type slot struct {
-	ArgNum *float64 `parser:"'slot' (@Number"`
-	Name   *string  `parser:"| @Ident)"`
-
-	Pos lexer.Position
-}
-
 type setStatement struct {
 	Set        string   `parser:"'set'"` // not used, but must be visible for parse to work
-	Slot       *slot    `parser:"(@@ 'of')?"`
+	Slot       *string  `parser:"(@Ident 'of')?"`
 	BufferName string   `parser:"@Ident"`
 	ID         *string  `parser:"'to' (@Ident"`
 	Number     *string  `parser:"| @Number"`
@@ -217,7 +209,7 @@ type statement struct {
 type do struct {
 	Do         string        `parser:"'do'"` // not used, but must be visible for parse to work
 	PyCode     *[]string     `parser:"('#<' (@DoCode)+ '>#'"`
-	Statements *[]*statement `parser:"| '{' (@@)+ '}')"`
+	Statements *[]*statement `parser:"| '{' @@+ '}')"`
 
 	Pos lexer.Position
 }
@@ -270,10 +262,6 @@ func (p patternSlotItem) getVar() *string {
 		return p.Var
 	} else if p.NotVar != nil {
 		return p.NotVar
-	} else if p.OptionalVar != nil {
-		return p.OptionalVar
-	} else if p.NotOptionalVar != nil {
-		return p.NotOptionalVar
 	}
 
 	return nil

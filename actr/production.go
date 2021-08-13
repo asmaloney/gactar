@@ -10,9 +10,9 @@ type Production struct {
 }
 
 type Match struct {
-	Buffer  *Buffer
-	Memory  *Memory
-	Text    *string
+	Buffer *Buffer // buffer
+	Memory *Memory // OR memory
+
 	Pattern *Pattern
 }
 
@@ -46,18 +46,15 @@ type WriteStatement struct {
 	TextOutputName string
 }
 
-// Slot represents either a slot position number or a name
-type Slot struct {
-	ArgNum *int
-	Name   *string
-}
-
 // SetStatement will set a slot or the entire contents of the named buffer to a string or a pattern.
 type SetStatement struct {
-	Slot   *Slot   // set this slot
-	Buffer *Buffer // of this buffer
+	Slot      *string // set this slot (optional)
+	SlotIndex int     // (this slot index in the chunk)
+	Chunk     *Chunk  // if we are setting a slot, point at the chunk it's referencing for easy lookup
 
-	ID      *string  // to this ID OR
+	Buffer *Buffer // buffer we are manipulating
+
+	ID      *string  // set to this ID OR
 	Number  *string  // OR this number (no need to store as actual number at the moment)
 	String  *string  // OR this string
 	Pattern *Pattern // OR this pattern

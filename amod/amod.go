@@ -62,6 +62,8 @@ func generateModel(amod *amodFile) (model *actr.Model, err error) {
 		Examples:    amod.Model.Examples,
 	}
 
+	model.CreateBuffersAndMemory()
+
 	err = addConfig(model, amod.Config)
 	if err != nil {
 		return
@@ -73,11 +75,6 @@ func generateModel(amod *amodFile) (model *actr.Model, err error) {
 	}
 
 	err = addProductions(model, amod.Productions)
-	if err != nil {
-		return
-	}
-
-	err = inferSlotNames(model)
 	if err != nil {
 		return
 	}
@@ -98,8 +95,8 @@ func addConfig(model *actr.Model, config *configSection) (err error) {
 	errs := errorListWithContext{}
 
 	addACTR(model, config.ACTR, &errs)
-	addBuffers(model, config.Buffers, &errs)
-	addMemories(model, config.Memories, &errs)
+	addChunks(model, config.Chunks, &errs)
+	addMemory(model, config.Memory, &errs)
 	addTextOutputs(model, config.TextOutputs, &errs)
 
 	return errs.ErrorOrNil()
@@ -124,107 +121,85 @@ func addACTR(model *actr.Model, list *fieldList, errs *errorListWithContext) {
 	}
 }
 
-func addBuffers(model *actr.Model, list *identList, errs *errorListWithContext) {
-	if list == nil {
+func addChunks(model *actr.Model, chunks []*chunk, errs *errorListWithContext) {
+	if chunks == nil {
 		return
 	}
 
-	for _, name := range list.Identifiers {
-		b := model.LookupBuffer(name)
-		if b != nil {
-			errs.Addc(&list.Pos, "duplicate buffer name: '%s'", name)
+	for _, chunk := range chunks {
+		c := model.LookupChunk(chunk.Name)
+		if c != nil {
+			errs.Addc(&chunk.Pos, "duplicate chunk name: '%s'", chunk.Name)
 			continue
 		}
 
-		buffer := actr.Buffer{
-			Name: name,
+		aChunk := actr.Chunk{
+			Name:      chunk.Name,
+			SlotNames: chunk.SlotNames,
+			NumSlots:  len(chunk.SlotNames),
 		}
 
-		model.Buffers = append(model.Buffers, &buffer)
+		model.Chunks = append(model.Chunks, &aChunk)
 	}
 }
 
-func addMemories(model *actr.Model, list *memoryList, errs *errorListWithContext) {
-	if list == nil {
+func addMemory(model *actr.Model, mem *memory, errs *errorListWithContext) {
+	if mem == nil {
 		return
 	}
 
-	for _, mem := range list.Memories {
-		m := model.LookupMemory(mem.Name)
-		if m != nil {
-			errs.Addc(&mem.Pos, "duplicate memory name: '%s'", mem.Name)
-			continue
-		}
+	memory := model.LookupMemory("memory")
+	if memory == nil {
+		errs.Add("could not find memory on model")
+		return
+	}
 
-		memory := actr.Memory{
-			Name: mem.Name,
-		}
-
-		for _, field := range mem.Fields.Fields {
-			switch field.Key {
-			case "buffer":
-				if field.Value.Number != nil {
-					errs.Addc(&field.Pos, "buffer '%v' should not be a number in memory '%s'", *field.Value.Number, mem.Name)
-					continue
-				}
-
-				bufferName := field.Value.String
-
-				buffer := model.LookupBuffer(*bufferName)
-				if buffer == nil {
-					errs.Addc(&field.Pos, "buffer '%s' not found for memory '%s'", *bufferName, mem.Name)
-					continue
-				} else {
-					memory.Buffer = buffer
-				}
-
-			case "latency":
-				if field.Value.String != nil {
-					errs.Addc(&field.Pos, "latency '%s' should not be a string in memory '%s'", *field.Value.String, mem.Name)
-					continue
-				}
-
-				memory.Latency = field.Value.Number
-
-			case "threshold":
-				if field.Value.String != nil {
-					errs.Addc(&field.Pos, "threshold '%s' should not be a string in memory '%s'", *field.Value.String, mem.Name)
-					continue
-				}
-
-				memory.Threshold = field.Value.Number
-
-			case "max_time":
-				if field.Value.String != nil {
-					errs.Addc(&field.Pos, "max_time '%s' should not be a string in memory '%s'", *field.Value.String, mem.Name)
-					continue
-				}
-
-				memory.MaxTime = field.Value.Number
-
-			case "finst_size":
-				if field.Value.String != nil {
-					errs.Addc(&field.Pos, "finst_size '%s' should not be a string in memory '%s'", *field.Value.String, mem.Name)
-					continue
-				}
-
-				size := int(*field.Value.Number)
-				memory.FinstSize = &size
-
-			case "finst_time":
-				if field.Value.String != nil {
-					errs.Addc(&field.Pos, "finst_time '%s' should not be a string in memory '%s'", *field.Value.String, mem.Name)
-					continue
-				}
-
-				memory.FinstTime = field.Value.Number
-
-			default:
-				errs.Addc(&field.Pos, "unrecognized field '%s' in memory '%s'", field.Key, memory.Name)
+	for _, field := range mem.Fields.Fields {
+		switch field.Key {
+		case "latency":
+			if field.Value.String != nil {
+				errs.Addc(&field.Pos, "memory latency '%s' should not be a string", *field.Value.String)
+				continue
 			}
-		}
 
-		model.Memories = append(model.Memories, &memory)
+			memory.Latency = field.Value.Number
+
+		case "threshold":
+			if field.Value.String != nil {
+				errs.Addc(&field.Pos, "memory threshold '%s' should not be a string", *field.Value.String)
+				continue
+			}
+
+			memory.Threshold = field.Value.Number
+
+		case "max_time":
+			if field.Value.String != nil {
+				errs.Addc(&field.Pos, "memory max_time '%s' should not be a string", *field.Value.String)
+				continue
+			}
+
+			memory.MaxTime = field.Value.Number
+
+		case "finst_size":
+			if field.Value.String != nil {
+				errs.Addc(&field.Pos, "memory finst_size '%s' should not be a string", *field.Value.String)
+				continue
+			}
+
+			size := int(*field.Value.Number)
+			memory.FinstSize = &size
+
+		case "finst_time":
+			if field.Value.String != nil {
+				errs.Addc(&field.Pos, "memory finst_time '%s' should not be a string", *field.Value.String)
+				continue
+			}
+
+			memory.FinstTime = field.Value.Number
+
+		default:
+			errs.Addc(&field.Pos, "unrecognized field '%s' in memory", field.Key)
+		}
 	}
 }
 
@@ -250,15 +225,14 @@ func initialize(model *actr.Model, init *initSection) (err error) {
 	errs := errorListWithContext{}
 
 	for _, initializer := range init.Initializers {
-		name := initializer.Name
-		memory := model.LookupMemory(name)
+		memory := model.LookupMemory("memory")
 		if memory == nil {
-			errs.Addc(&initializer.Pos, "memory not found for initialization '%s'", name)
+			errs.Addc(&initializer.Pos, "memory not found")
 			continue
 		}
 
 		if initializer.Items == nil {
-			errs.Addc(&initializer.Pos, "no memory initializers for memory '%s'", name)
+			errs.Addc(&initializer.Pos, "no memory initializers found")
 			continue
 		}
 
@@ -298,19 +272,20 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 				continue
 			}
 
-			if item.Pattern != nil {
-				pattern := createChunkPattern(item.Pattern)
+			if item.Pattern == nil {
+				errs.Addc(&item.Pos, "invalid pattern for '%s' in production '%s'", name, prod.Name)
+				continue
+			}
 
+			pattern, err := createChunkPattern(model, item.Pattern)
+			if err != nil {
+				errs.AddErrorIfNotNil(err)
+
+			} else {
 				prod.Matches = append(prod.Matches, &actr.Match{
 					Buffer:  buffer,
 					Memory:  memory,
 					Pattern: pattern,
-				})
-			} else if item.Text != nil {
-				prod.Matches = append(prod.Matches, &actr.Match{
-					Buffer: buffer,
-					Memory: memory,
-					Text:   item.Text,
 				})
 			}
 		}
@@ -330,15 +305,19 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 	return errs.ErrorOrNil()
 }
 
-func createChunkPattern(cp *pattern) *actr.Pattern {
-	pattern := actr.Pattern{}
+func createChunkPattern(model *actr.Model, cp *pattern) (*actr.Pattern, error) {
+	chunk := model.LookupChunk(cp.ChunkName)
+	if chunk == nil {
+		err := fmt.Errorf("could not find chunk named '%s'", cp.ChunkName)
+		return nil, err
+	}
+
+	pattern := actr.Pattern{
+		Chunk: chunk,
+	}
 	for _, s := range cp.Slots {
 
 		slot := actr.PatternSlot{}
-
-		if s.Name != nil {
-			slot.Name = s.Name
-		}
 
 		for _, item := range s.Items {
 			if item.ID != nil {
@@ -349,16 +328,12 @@ func createChunkPattern(cp *pattern) *actr.Pattern {
 				slot.AddItem(&actr.PatternSlotItem{Var: item.Var})
 			} else if item.NotVar != nil {
 				slot.AddItem(&actr.PatternSlotItem{Var: item.NotVar, Negated: true})
-			} else if item.OptionalVar != nil {
-				slot.AddItem(&actr.PatternSlotItem{Var: item.OptionalVar, Optional: true})
-			} else if item.NotOptionalVar != nil {
-				slot.AddItem(&actr.PatternSlotItem{Var: item.NotOptionalVar, Negated: true, Optional: true})
 			}
 		}
 		pattern.AddSlot(&slot)
 	}
 
-	return &pattern
+	return &pattern, nil
 }
 
 func addStatement(model *actr.Model, statement *statement, production *actr.Production) (err error) {
@@ -394,26 +369,42 @@ func addSetStatement(model *actr.Model, set *setStatement, production *actr.Prod
 		return nil, err
 	}
 
+	buffer := model.LookupBuffer(set.BufferName)
+
 	s := actr.Statement{
 		Set: &actr.SetStatement{
-			Buffer: model.LookupBuffer(set.BufferName),
+			Buffer: buffer,
 		},
 	}
 
 	if set.Slot != nil {
-		slot := actr.Slot{}
-		if set.Slot.ArgNum != nil {
-			argNum := int(*set.Slot.ArgNum)
-			slot.ArgNum = &argNum
-		} else if set.Slot.Name != nil {
-			slot.Name = set.Slot.Name
+		s.Set.Slot = set.Slot
+
+		// find slot index in chunk
+		match := production.LookupMatchByBuffer(buffer.Name)
+		if match == nil {
+			err = fmt.Errorf("could not find buffer match '%s' in production '%s'", buffer.Name, production.Name)
+			return nil, err
 		}
 
-		s.Set.Slot = &slot
+		s.Set.Chunk = match.Pattern.Chunk
+
+		slotName := *set.Slot
+		index := match.Pattern.Chunk.GetSlotIndex(slotName)
+		if index == -1 {
+			err = fmt.Errorf("could not find slot named '%s' in buffer match '%s' in production '%s'", slotName, buffer.Name, production.Name)
+			return nil, err
+		}
+
+		s.Set.SlotIndex = index
 	}
 
 	if set.Pattern != nil {
-		pattern := createChunkPattern(set.Pattern)
+		pattern, err := createChunkPattern(model, set.Pattern)
+		if err != nil {
+			return nil, err
+		}
+
 		s.Set.Pattern = pattern
 	} else if set.ID != nil {
 		s.Set.ID = set.ID
@@ -432,12 +423,15 @@ func addRecallStatement(model *actr.Model, recall *recallStatement, production *
 		return nil, err
 	}
 
-	pattern := createChunkPattern(recall.Pattern)
+	pattern, err := createChunkPattern(model, recall.Pattern)
+	if err != nil {
+		return nil, err
+	}
 
 	s := actr.Statement{
 		Recall: &actr.RecallStatement{
 			Pattern: pattern,
-			Memory:  model.LookupMemory(recall.MemoryName),
+			Memory:  model.LookupMemory("memory"),
 		},
 	}
 
@@ -488,50 +482,4 @@ func addWriteStatement(model *actr.Model, write *writeStatement, production *act
 	}
 
 	return &s, nil
-}
-
-// inferSlotNames looks at how the buffers are used to determine slot names.
-func inferSlotNames(model *actr.Model) (err error) {
-	// Map buffer names to a slice of slot names.
-	// At the end of all the loops, this will be filled in with the names we need for the top level.
-	gather := map[string][]string{}
-
-	// We look at each slot of each match of each production to see if we have names for the slots.
-	// Any unnamed slot will be named "slot_N" where N is the position of the slot.
-	// If the slot names conflict we will choose the first one.
-	for _, production := range model.Productions {
-		for _, match := range production.Matches {
-			if match.Buffer == nil {
-				// only need to check buffers, not memory
-				continue
-			}
-
-			bufferName := match.Buffer.Name
-			pattern := match.Pattern
-
-			numSlots := len(pattern.Slots)
-			if len(gather[bufferName]) < numSlots {
-				gather[bufferName] = append(gather[bufferName], make([]string, numSlots-len(gather[bufferName]))...)
-			}
-			for i, slot := range pattern.Slots {
-				currentName := gather[bufferName][i]
-
-				if currentName != "" && !strings.HasPrefix(currentName, "slot") {
-					continue
-				}
-
-				if slot.Name != nil {
-					gather[bufferName][i] = *slot.Name
-				} else {
-					gather[bufferName][i] = fmt.Sprintf("slot_%d", i+1)
-				}
-			}
-		}
-	}
-
-	for _, buffer := range model.Buffers {
-		buffer.SlotNames = gather[buffer.Name]
-	}
-
-	return
 }
