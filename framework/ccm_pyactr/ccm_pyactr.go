@@ -232,20 +232,15 @@ func outputMatch(f *os.File, match *actr.Match) {
 
 func outputStatement(f *os.File, s *actr.Statement) {
 	if s.Set != nil {
-		var text string
-		if s.Set.ID != nil {
-			text = *s.Set.ID
-		} else if s.Set.Number != nil {
-			text = *s.Set.Number
-		} else if s.Set.Pattern != nil {
-			text = "'" + s.Set.Pattern.String() + "'"
-		} else if s.Set.String != nil {
-			text = "'" + *s.Set.String + "'"
-		}
-
-		if s.Set.Slot != nil {
-			f.WriteString(fmt.Sprintf("\t\t%s.modify(_%d=%s)\n", s.Set.Buffer.Name, s.Set.SlotIndex, text))
+		if s.Set.Slots != nil {
+			slotAssignments := []string{}
+			for _, slot := range *s.Set.Slots {
+				slotAssignments = append(slotAssignments, fmt.Sprintf("_%d=%s", slot.SlotIndex, slot.Value))
+			}
+			f.WriteString(fmt.Sprintf("\t\t%s.modify(%s)\n", s.Set.Buffer.Name, strings.Join(slotAssignments, ", ")))
 		} else {
+			text := "'" + s.Set.Pattern.String() + "'"
+
 			f.WriteString(fmt.Sprintf("\t\t%s.set(%s)\n", s.Set.Buffer.Name, text))
 		}
 	} else if s.Recall != nil {

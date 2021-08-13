@@ -268,15 +268,19 @@ func outputStatement(f *os.File, s *actr.Statement) {
 
 		f.WriteString(fmt.Sprintf("\t=%s>\n", text))
 
-		if s.Set.Slot != nil {
+		if s.Set.Slots != nil {
 			f.WriteString(fmt.Sprintf("\tisa\t%s\n", s.Set.Chunk.Name))
 
-			slotName := *s.Set.Slot
+			for _, slot := range *s.Set.Slots {
+				slotName := slot.Name
 
-			if s.Set.ID != nil {
-				f.WriteString(fmt.Sprintf("\t%s\t=%s\n", slotName, *s.Set.ID))
-			} else if s.Set.Number != nil {
-				f.WriteString(fmt.Sprintf("\t%s\t%s\n", slotName, *s.Set.Number))
+				if slot.Value.ID != nil {
+					f.WriteString(fmt.Sprintf("\t%s\t=%s\n", slotName, *slot.Value.ID))
+				} else if slot.Value.Number != nil {
+					f.WriteString(fmt.Sprintf("\t%s\t%s\n", slotName, *slot.Value.Number))
+				} else if slot.Value.Str != nil {
+					f.WriteString(fmt.Sprintf("\t%s\t%s\n", slotName, *slot.Value.Str))
+				}
 			}
 		} else if s.Set.Pattern != nil {
 			f.WriteString(fmt.Sprintf("\tisa\t%s\n", s.Set.Pattern.Chunk.Name))

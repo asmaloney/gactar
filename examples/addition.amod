@@ -43,7 +43,7 @@ memory {
 initializeAddition {
     // Buffers to match
     match {
-        goal: `add ?num1 ?num2 None?count None?sum`
+        goal: `add ?num1 ?num2 None None`
     }
     // Steps to execute
     do {

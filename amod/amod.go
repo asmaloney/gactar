@@ -361,7 +361,9 @@ func addStatement(model *actr.Model, statement *statement, production *actr.Prod
 		return err
 	}
 
-	production.DoStatements = append(production.DoStatements, s)
+	if s != nil {
+		production.DoStatements = append(production.DoStatements, s)
+	}
 
 	return nil
 }
@@ -374,15 +376,18 @@ func addSetStatement(model *actr.Model, set *setStatement, production *actr.Prod
 
 	buffer := model.LookupBuffer(set.BufferName)
 
-	s := actr.Statement{
-		Set: &actr.SetStatement{
-			Buffer: buffer,
-		},
+	s := actr.Statement{Set: &actr.SetStatement{
+		Buffer: buffer,
+	}}
+	createNewStatement := true
+	setStatement := production.LookupSetStatementByBuffer(set.BufferName)
+	if setStatement != nil {
+		// If we found one, use its set statement
+		createNewStatement = false
+		s.Set = setStatement
 	}
 
 	if set.Slot != nil {
-		s.Set.Slot = set.Slot
-
 		// find slot index in chunk
 		match := production.LookupMatchByBuffer(buffer.Name)
 		if match == nil {
@@ -399,22 +404,35 @@ func addSetStatement(model *actr.Model, set *setStatement, production *actr.Prod
 			return nil, err
 		}
 
-		s.Set.SlotIndex = index
-	}
+		value := &actr.SetValue{}
 
-	if set.Pattern != nil {
+		if set.ID != nil {
+			value.ID = set.ID
+		} else if set.Number != nil {
+			value.Number = set.Number
+		} else if set.String != nil {
+			value.Str = set.String
+		}
+
+		newSlot := &actr.SetSlot{
+			Name:      *set.Slot,
+			SlotIndex: index,
+			Value:     value,
+		}
+
+		s.Set.AddSlot(newSlot)
+
+	} else if set.Pattern != nil {
 		pattern, err := createChunkPattern(model, set.Pattern)
 		if err != nil {
 			return nil, err
 		}
 
 		s.Set.Pattern = pattern
-	} else if set.ID != nil {
-		s.Set.ID = set.ID
-	} else if set.Number != nil {
-		s.Set.Number = set.Number
-	} else if set.String != nil {
-		s.Set.String = set.String
+	}
+
+	if !createNewStatement {
+		return nil, nil
 	}
 
 	return &s, nil

@@ -46,18 +46,41 @@ type WriteStatement struct {
 	TextOutputName string
 }
 
+type SetValue struct {
+	ID     *string // set to this ID OR
+	Number *string // OR this number (no need to store as actual number at the moment)
+	Str    *string // OR this string
+}
+
+func (s SetValue) String() string {
+	if s.ID != nil {
+		return *s.ID
+	} else if s.Number != nil {
+		return *s.Number
+	} else if s.Str != nil {
+		return "'" + *s.Str + "'"
+	}
+
+	return ""
+}
+
+type SetSlot struct {
+	Name      string
+	SlotIndex int // (this slot index in the chunk)
+	Value     *SetValue
+}
+
 // SetStatement will set a slot or the entire contents of the named buffer to a string or a pattern.
+// There are two forms:
+//	(1) set (SetSlot) of (Buffer) to (SetValue)
+//	(2) set (Buffer) to (Pattern)
 type SetStatement struct {
-	Slot      *string // set this slot (optional)
-	SlotIndex int     // (this slot index in the chunk)
-	Chunk     *Chunk  // if we are setting a slot, point at the chunk it's referencing for easy lookup
+	Slots *[]SetSlot // (1) set this slot (optional)
+	Chunk *Chunk     // (1) if we are setting slots, point at the chunk they reference for easy lookup
 
-	Buffer *Buffer // buffer we are manipulating
+	Buffer *Buffer // (1 & 2) buffer we are manipulating
 
-	ID      *string  // set to this ID OR
-	Number  *string  // OR this number (no need to store as actual number at the moment)
-	String  *string  // OR this string
-	Pattern *Pattern // OR this pattern
+	Pattern *Pattern // (2) pattern if we are setting the whole buffer
 }
 
 func (p Production) LookupMatchByBuffer(bufferName string) *Match {
@@ -65,6 +88,30 @@ func (p Production) LookupMatchByBuffer(bufferName string) *Match {
 		if m.Buffer.Name == bufferName {
 			return m
 		}
+	}
+
+	return nil
+}
+
+// LookupSetStatementByBuffer is used when combining several set consecutive statements on one buffer.
+// So this:
+//		set foo on goal to 1
+//		set bar on goal to 10
+// is treated like this:
+//		set foo, bar on goal to 1, 10
+func (p Production) LookupSetStatementByBuffer(bufferName string) *SetStatement {
+	if len(p.DoStatements) == 0 {
+		return nil
+	}
+
+	last := p.DoStatements[len(p.DoStatements)-1]
+
+	if (last.Set == nil) || (last.Set.Slots == nil) {
+		return nil
+	}
+
+	if last.Set.Buffer.Name == bufferName {
+		return last.Set
 	}
 
 	return nil
@@ -88,4 +135,13 @@ func (p Production) LookupMatchByVariable(varName string) *Match {
 	}
 
 	return nil
+}
+
+func (s *SetStatement) AddSlot(slot *SetSlot) {
+	if s.Slots == nil {
+		newSlots := []SetSlot{}
+		s.Slots = &newSlots
+	}
+
+	*s.Slots = append(*s.Slots, *slot)
 }
