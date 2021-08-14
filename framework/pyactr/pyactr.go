@@ -111,34 +111,31 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	f.WriteString(fmt.Sprintf("dm = %s.decmem\n\n", p.className))
 
 	// initialize
-	if len(p.model.Initializers) > 0 {
-		for _, init := range p.model.Initializers {
-			f.WriteString("dm.add(actr.chunkstring(string=\"\"\"\n")
+	for _, init := range p.model.Initializers {
+		f.WriteString("dm.add(actr.chunkstring(string=\"\"\"\n")
 
-			chunkName, slots := actr.SplitStringForChunk(init.Text)
-			chunk := p.model.LookupChunk(chunkName)
+		chunkName, slots := actr.SplitStringForChunk(init.Text)
+		chunk := p.model.LookupChunk(chunkName)
 
-			if chunk == nil {
-				err = fmt.Errorf("cannot find chunk named '%s' in initializer", chunkName)
-				return
-			}
-
-			f.WriteString(fmt.Sprintf("\tisa\t%s\n", chunkName))
-
-			for i, name := range chunk.SlotNames {
-				value := slots[i]
-				f.WriteString(fmt.Sprintf("\t%s\t%s\n", name, value))
-			}
-
-			f.WriteString("\"\"\"))\n")
+		if chunk == nil {
+			err = fmt.Errorf("cannot find chunk named '%s' in initializer", chunkName)
+			return
 		}
+
+		f.WriteString(fmt.Sprintf("\tisa\t%s\n", chunkName))
+
+		for i, name := range chunk.SlotNames {
+			value := slots[i]
+			f.WriteString(fmt.Sprintf("\t%s\t%s\n", name, value))
+		}
+
+		f.WriteString("\"\"\"))\n")
 	}
 
 	f.WriteString("\n")
 
 	// productions
 	for _, production := range p.model.Productions {
-
 		f.WriteString(fmt.Sprintf("%s.productionstring(name=\"%s\", string=\"\"\"\n", p.className, production.Name))
 		for _, match := range production.Matches {
 			outputMatch(f, match)
