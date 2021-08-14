@@ -53,10 +53,20 @@ initializeAddition {
     }
 }
 
+terminateAddition {
+    match {
+        goal: `add ?num1 ?num2 ?num2 ?sum`
+    }
+    do {
+        print sum
+        clear goal
+    }
+}
+
 incrementSum {
     match {
         goal: `add ?num1 ?num2 ?count!?num2 ?sum`
-        retrieve: `count ?sum ?next`
+        retrieval: `count ?sum ?next`
     }
     do {
         set sum of goal to next
@@ -67,20 +77,10 @@ incrementSum {
 incrementCount {
     match {
         goal: `add ?num1 ?num2 ?count ?sum`
-        retrieve: `count ?count ?next`
+        retrieval: `count ?count ?next`
     }
     do {
         set count of goal to next
         recall `count ?sum ?`
    }
-}
-
-terminateAddition {
-    match {
-        goal: `add ?num1 ?num2 ?num2 ?sum`
-    }
-    do {
-        print sum
-        clear goal
-    }
 }

@@ -50,7 +50,7 @@ startPair {
 addOnes {
     match {
         goal: `add ? ? ? ? ? busy?ans ?carry`
-        retrieve: `addfact ? ? ?sum`
+        retrieval: `addfact ? ? ?sum`
     }
     do {
         set slot_6 of goal to sum
@@ -62,7 +62,7 @@ addOnes {
 processCarry {
     match {
         goal: `add ?ten1 ? ?ten2 ? None?tenAns ?oneAns busy?carry`
-        retrieve: `addfact 10 ?rem ?sum`
+        retrieval: `addfact 10 ?rem ?sum`
     }
     do {
         set slot_5 of goal to 'busy'
@@ -87,7 +87,7 @@ noCarry {
 addTensDone {
     match {
         goal: `add ? ? ? ? busy?tenAns ?oneAns 0`
-        retrieve: `addfact ? ? ?sum`
+        retrieval: `addfact ? ? ?sum`
     }
     do {
         print sum, oneAns
@@ -98,7 +98,7 @@ addTensDone {
 addTensCarry {
     match {
         goal: `add ? ? ? ? busy?tenAns ? 1?carry`
-        retrieve: `addfact ? ? ?sum`
+        retrieval: `addfact ? ? ?sum`
     }
     do {
         set slot_7 of goal to 0

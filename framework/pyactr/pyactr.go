@@ -192,12 +192,9 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 
 func outputMatch(f *os.File, match *actr.Match) {
 	if match.Buffer != nil {
-		var text string
-		switch match.Buffer.Name {
-		case "goal":
-			text = "g"
-		case "retrieve":
-			text = "retrieval"
+		bufferName := match.Buffer.Name
+		if bufferName == "goal" {
+			bufferName = "g"
 		}
 
 		chunkName := match.Pattern.Chunk.Name
@@ -205,11 +202,11 @@ func outputMatch(f *os.File, match *actr.Match) {
 		if actr.IsInternalChunkName(chunkName) {
 			if chunkName == "_status" {
 				status := match.Pattern.Slots[0]
-				f.WriteString(fmt.Sprintf("\t?%s>\n", text))
+				f.WriteString(fmt.Sprintf("\t?%s>\n", bufferName))
 				f.WriteString(fmt.Sprintf("\tbuffer %s\n", status))
 			}
 		} else {
-			f.WriteString(fmt.Sprintf("\t=%s>\n", text))
+			f.WriteString(fmt.Sprintf("\t=%s>\n", bufferName))
 			f.WriteString(fmt.Sprintf("\tisa\t%s\n", chunkName))
 
 			for i, slot := range match.Pattern.Slots {
@@ -257,13 +254,12 @@ func outputPatternSlot(f *os.File, slotName string, patternSlot *actr.PatternSlo
 func outputStatement(f *os.File, s *actr.Statement) {
 	if s.Set != nil {
 		buffer := s.Set.Buffer
-
-		text := "g" // default to "goal"
-		if buffer.Name == "retrieve" {
-			text = "retrieval"
+		bufferName := buffer.Name
+		if bufferName == "goal" {
+			bufferName = "g"
 		}
 
-		f.WriteString(fmt.Sprintf("\t=%s>\n", text))
+		f.WriteString(fmt.Sprintf("\t=%s>\n", bufferName))
 
 		if s.Set.Slots != nil {
 			f.WriteString(fmt.Sprintf("\tisa\t%s\n", s.Set.Chunk.Name))

@@ -88,13 +88,13 @@ func (model *Model) Initialize() {
 
 	model.Buffers = []*Buffer{
 		{Name: "goal"},
-		{Name: "retrieve"},
+		{Name: "retrieval"},
 	}
 
 	model.Memories = []*Memory{
 		{
 			Name:   "memory",
-			Buffer: model.Buffers[1], // "retrieve"
+			Buffer: model.Buffers[1], // "retrieval"
 		},
 	}
 }

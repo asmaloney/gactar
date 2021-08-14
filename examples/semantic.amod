@@ -42,7 +42,7 @@ memory {
 ==productions==
 
 // Name of the production
-initialRetrieve {
+initialRetrieval {
     // Buffers to match
     match {
         goal: `isMember ?obj ?cat None`
@@ -57,7 +57,7 @@ initialRetrieve {
 directVerify {
     match {
         goal: `isMember ?obj ?cat pending`
-        retrieve: `property ?obj category ?cat`
+        retrieval: `property ?obj category ?cat`
     }
     do {
         set result of goal to 'yes'
@@ -68,7 +68,7 @@ directVerify {
 chainCategory {
     match {
         goal: `isMember ?obj1 ?cat pending`
-        retrieve: `property ?obj1 category ?obj2!?cat`
+        retrieval: `property ?obj1 category ?obj2!?cat`
     }
     do {
         set object of goal to obj2
