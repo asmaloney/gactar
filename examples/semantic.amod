@@ -20,8 +20,8 @@ actr { log: false }
 
 // Declare chunks and their layouts
 chunks {
-    isMember( object group result )
-    property( object key value )
+    isMember( object category judgment )
+    property( object attribute value )
 }
 
 // List of text outputs to create (by name)
@@ -49,7 +49,7 @@ initialRetrieval {
     }
     // Steps to execute
     do {
-        set result of goal to 'pending'
+        set judgment of goal to 'pending'
         recall `property ?obj category ?`
     }
 }
@@ -60,7 +60,7 @@ directVerify {
         retrieval: `property ?obj category ?cat`
     }
     do {
-        set result of goal to 'yes'
+        set judgment of goal to 'yes'
         write 'Yes' to text
     }
 }
@@ -82,7 +82,7 @@ fail {
         memory: `_status error`
     }
     do {
-        set result of goal to 'no'
+        set judgment of goal to 'no'
         write 'No' to text
     }
 }
