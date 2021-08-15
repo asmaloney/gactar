@@ -100,7 +100,7 @@ func (model *Model) Initialize() {
 }
 
 // LookupChunk looks up the named chunk in the model and returns it (or nil if it does not exist).
-func (model *Model) LookupChunk(chunkName string) *Chunk {
+func (model Model) LookupChunk(chunkName string) *Chunk {
 	for _, chunk := range model.Chunks {
 		if chunk.Name == chunkName {
 			return chunk
@@ -111,7 +111,7 @@ func (model *Model) LookupChunk(chunkName string) *Chunk {
 }
 
 // LookupBuffer looks up the named buffer in the model and returns it (or nil if it does not exist).
-func (model *Model) LookupBuffer(bufferName string) *Buffer {
+func (model Model) LookupBuffer(bufferName string) *Buffer {
 	for _, buf := range model.Buffers {
 		if buf.Name == bufferName {
 			return buf
@@ -122,7 +122,7 @@ func (model *Model) LookupBuffer(bufferName string) *Buffer {
 }
 
 // LookupMemory looks up the named memory in the model and returns it (or nil if it does not exist).
-func (model *Model) LookupMemory(memoryName string) *Memory {
+func (model Model) LookupMemory(memoryName string) *Memory {
 	for _, mem := range model.Memories {
 		if mem.Name == memoryName {
 			return mem
@@ -133,7 +133,7 @@ func (model *Model) LookupMemory(memoryName string) *Memory {
 }
 
 // LookupTextOutput looks up the named text output in the model and returns it (or nil if it does not exist).
-func (model *Model) LookupTextOutput(textOutputName string) *TextOutput {
+func (model Model) LookupTextOutput(textOutputName string) *TextOutput {
 	for _, textOutput := range model.TextOutputs {
 		if textOutput.Name == textOutputName {
 			return textOutput
@@ -144,7 +144,7 @@ func (model *Model) LookupTextOutput(textOutputName string) *TextOutput {
 }
 
 // BufferOrMemoryExists looks up the named buffer or memory in the model and returns it (or nil if it does not exist).
-func (model *Model) BufferOrMemoryExists(name string) bool {
+func (model Model) BufferOrMemoryExists(name string) bool {
 	buffer := model.LookupBuffer(name)
 	if buffer != nil {
 		return true
