@@ -103,28 +103,29 @@ func validateMatch(match *match, model *actr.Model, production *actr.Production)
 func validateSetStatement(set *setStatement, model *actr.Model, production *actr.Production) (err error) {
 	errs := errorListWithContext{}
 
-	name := set.BufferName
-	buffer := model.LookupBuffer(name)
+	bufferName := set.BufferName
+	buffer := model.LookupBuffer(bufferName)
 	if buffer == nil {
-		errs.Addc(&set.Pos, "buffer '%s' not found in production '%s'", name, production.Name)
+		errs.Addc(&set.Pos, "buffer '%s' not found in production '%s'", bufferName, production.Name)
 	}
 
 	if set.Slot != nil {
-		match := production.LookupMatchByBuffer(name)
+		slotName := *set.Slot
+		if set.Pattern != nil {
+			errs.Addc(&set.Pos, "cannot set a slot ('%s') to a pattern in match buffer '%s' in production '%s'", slotName, bufferName, production.Name)
+		}
+
+		match := production.LookupMatchByBuffer(bufferName)
 
 		if match == nil {
-			errs.Addc(&set.Pos, "match buffer '%s' not found in production '%s'", name, production.Name)
-		} else if set.Slot == nil {
-			// should not be possible to get here since the parser will pick this up
-			errs.Addc(&set.Pos, "set statement is missing a slot number or name in production '%s'", production.Name)
+			errs.Addc(&set.Pos, "match buffer '%s' not found in production '%s'", bufferName, production.Name)
 		} else {
-			slotName := *set.Slot
 			chunk := match.Pattern.Chunk
 			if chunk == nil {
-				errs.Addc(&set.Pos, "chunk does not exist in match buffer '%s' in production '%s'", name, production.Name)
+				errs.Addc(&set.Pos, "chunk does not exist in match buffer '%s' in production '%s'", bufferName, production.Name)
 			} else {
 				if !chunk.SlotExists(slotName) {
-					errs.Addc(&set.Pos, "slot '%s' does not exist in chunk '%s' for match buffer '%s' in production '%s'", slotName, chunk.Name, name, production.Name)
+					errs.Addc(&set.Pos, "slot '%s' does not exist in chunk '%s' for match buffer '%s' in production '%s'", slotName, chunk.Name, bufferName, production.Name)
 				}
 			}
 		}

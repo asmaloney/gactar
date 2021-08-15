@@ -161,6 +161,28 @@ func TestProductionSetStatement(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err)
 	}
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	chunks {
+		foo( thing )
+	}
+	==productions==
+	start {
+		match {
+			goal: ` + "`foo blat`" + `
+		}
+		do {
+			set thing of goal to ` + "`foo ding`" + `
+		}
+	}`
+
+	_, err = GenerateModel(src)
+
+	expected := "cannot set a slot ('thing') to a pattern in match buffer 'goal' in production 'start' (line 14)"
+	checkExpectedError(err, expected, t)
 }
 
 func TestProductionRecallStatement(t *testing.T) {
