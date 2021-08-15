@@ -4,45 +4,62 @@ import (
 	"gitlab.com/asmaloney/gactar/actr"
 )
 
-// validateInitializers looks at the initializers and ensures that the number of slots is valid relative
-// to the number of slot names. Note this has to happen after we've determined the slot names.
-func validateInitializers(model *actr.Model, init *initSection) (err error) {
+// validateChunk checks the chunk name to ensure uniqueness and that it isn't using
+// reserved names.
+func validateChunk(model *actr.Model, chunk *chunk) (err error) {
 	errs := errorListWithContext{}
 
-	if init == nil {
+	if actr.IsInternalChunkName(chunk.Name) {
+		errs.Addc(&chunk.Pos, "cannot use reserved chunk name '%s' (chunks begining with '_' are reserved)", chunk.Name)
+		return errs
+	}
+
+	if actr.ReservedChunkNameExists(chunk.Name) {
+		errs.Addc(&chunk.Pos, "cannot use reserved chunk name '%s'", chunk.Name)
+		return errs
+	}
+
+	c := model.LookupChunk(chunk.Name)
+	if c != nil {
+		errs.Addc(&chunk.Pos, "duplicate chunk name: '%s'", chunk.Name)
+	}
+
+	return errs.ErrorOrNil()
+}
+
+// validateInitializer ensures that the init text matches a chunk.
+func validateInitializer(model *actr.Model, init *initializer) (err error) {
+	errs := errorListWithContext{}
+
+	memory := model.LookupMemory("memory")
+	if memory == nil {
+		errs.Addc(&init.Pos, "memory not found")
 		return
 	}
 
-	for _, i := range init.Initializers {
-		memory := model.LookupMemory("memory")
-		if memory == nil {
-			errs.Addc(&i.Pos, "memory not found")
+	for line, str := range init.Items.Strings {
+		// we need to guess the line number since we just have an array of strings here
+		pos := init.Pos
+		pos.Line += line + 1
+
+		chunkName, slots := actr.SplitStringForChunk(str)
+
+		chunk := model.LookupChunk(chunkName)
+		if chunk == nil {
+			errs.Addc(&pos, "could not find chunk named '%s' in initialization '%s' for memory (line number approximate)", chunkName, str)
 			continue
 		}
 
-		for line, str := range i.Items.Strings {
-			// we need to guess the line number since we just have an array of strings here
-			pos := i.Pos
-			pos.Line += line + 1
-
-			chunkName, slots := actr.SplitStringForChunk(str)
-
-			chunk := model.LookupChunk(chunkName)
-			if chunk == nil {
-				errs.Addc(&pos, "could not find chunk named '%s' in initialization '%s' for memory (line number approximate)", chunkName, str)
-				continue
-			}
-
-			if len(slots) != chunk.NumSlots {
-				errs.Addc(&pos, "invalid initialization '%s' for memory - expected %d slots (line number approximate)", str, chunk.NumSlots)
-				continue
-			}
+		if len(slots) != chunk.NumSlots {
+			errs.Addc(&pos, "invalid initialization '%s' for memory - expected %d slots (line number approximate)", str, chunk.NumSlots)
+			continue
 		}
 	}
 
 	return errs.ErrorOrNil()
 }
 
+// validateMatch verifies several aspects of a match item.
 func validateMatch(match *match, model *actr.Model, production *actr.Production) (err error) {
 	errs := errorListWithContext{}
 

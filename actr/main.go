@@ -5,7 +5,13 @@ import (
 	"strings"
 )
 
-var reservedChunkNames = map[string]bool{"_status": true}
+// User cannot create chunks with these names. Perhaps needs to be expanded with other keywords?
+var reservedChunkNames = map[string]bool{
+	"_status":   true,
+	"goal":      true,
+	"memory":    true,
+	"retrieval": true,
+}
 
 // Model represents a basic ACT-R model.
 // This is used as input to a Framework where it can be run or output to a file.

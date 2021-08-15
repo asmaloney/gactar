@@ -69,17 +69,12 @@ func generateModel(amod *amodFile) (model *actr.Model, err error) {
 		return
 	}
 
-	err = initialize(model, amod.Init)
+	err = addInit(model, amod.Init)
 	if err != nil {
 		return
 	}
 
 	err = addProductions(model, amod.Productions)
-	if err != nil {
-		return
-	}
-
-	err = validateInitializers(model, amod.Init)
 	if err != nil {
 		return
 	}
@@ -127,16 +122,9 @@ func addChunks(model *actr.Model, chunks []*chunk, errs *errorListWithContext) {
 	}
 
 	for _, chunk := range chunks {
-		if actr.IsInternalChunkName(chunk.Name) {
-			if !actr.ReservedChunkNameExists(chunk.Name) {
-				errs.Addc(&chunk.Pos, "cannot use reserved chunk name '%s' (chunks begining with '_' are reserved)", chunk.Name)
-				continue
-			}
-		}
-
-		c := model.LookupChunk(chunk.Name)
-		if c != nil {
-			errs.Addc(&chunk.Pos, "duplicate chunk name: '%s'", chunk.Name)
+		err := validateChunk(model, chunk)
+		if err != nil {
+			errs.AddErrorIfNotNil(err)
 			continue
 		}
 
@@ -224,7 +212,7 @@ func addTextOutputs(model *actr.Model, list *identList, errs *errorListWithConte
 	}
 }
 
-func initialize(model *actr.Model, init *initSection) (err error) {
+func addInit(model *actr.Model, init *initSection) (err error) {
 	if init == nil {
 		return
 	}
@@ -232,6 +220,13 @@ func initialize(model *actr.Model, init *initSection) (err error) {
 	errs := errorListWithContext{}
 
 	for _, initializer := range init.Initializers {
+
+		err = validateInitializer(model, initializer)
+		if err != nil {
+			errs.AddErrorIfNotNil(err)
+			continue
+		}
+
 		memory := model.LookupMemory("memory")
 		if memory == nil {
 			errs.Addc(&initializer.Pos, "memory not found")

@@ -32,6 +32,37 @@ func TestChunkReservedName(t *testing.T) {
 
 	expected := "cannot use reserved chunk name '_internal' (chunks begining with '_' are reserved) (line 6)"
 	checkExpectedError(err, expected, t)
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	chunks {
+    	goal( foo bar )
+	}
+	==productions==`
+
+	_, err = GenerateModel(src)
+
+	expected = "cannot use reserved chunk name 'goal' (line 6)"
+	checkExpectedError(err, expected, t)
+}
+
+func TestChunkDuplicateName(t *testing.T) {
+	src := `
+	==model==
+	name: Test
+	==config==
+	chunks {
+    	something( foo bar )
+    	something( foo bar )
+	}
+	==productions==`
+
+	_, err := GenerateModel(src)
+
+	expected := "duplicate chunk name: 'something' (line 7)"
+	checkExpectedError(err, expected, t)
 }
 
 func TestMemoryUnrecognizedField(t *testing.T) {
