@@ -43,6 +43,7 @@ func Initialize(cli *cli.Context, frameworks framework.List) (w *Web, err error)
 		err = f.Initialize()
 		if err != nil {
 			delete(w.actrFrameworks, name)
+			err = nil
 		}
 	}
 
