@@ -37,7 +37,7 @@ func (c *CCMPyACTR) Initialize() (err error) {
 		return
 	}
 
-	framework.PythonIdentify("ccm")
+	framework.IdentifyYourself("ccm", "python3")
 
 	err = framework.PythonCheckForPackage("ccm")
 	if err != nil {

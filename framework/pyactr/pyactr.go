@@ -35,7 +35,7 @@ func (p *PyACTR) Initialize() (err error) {
 		return
 	}
 
-	framework.PythonIdentify("pyactr")
+	framework.IdentifyYourself("pyactr", "python3")
 
 	err = framework.PythonCheckForPackage("pyactr")
 	if err != nil {

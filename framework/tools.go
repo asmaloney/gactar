@@ -6,19 +6,19 @@ import (
 	"strings"
 )
 
-// Some tools for working with Python
+// Some tools for working with our frameworks
 
-// PythonIdentify outputs version info and the path to the python executable.
-func PythonIdentify(name string) {
-	cmd := exec.Command("python3", "--version")
+// IdentifyYourself outputs version info and the path to an executable.
+func IdentifyYourself(frameworkName, exeName string) {
+	cmd := exec.Command(exeName, "--version")
 	output, _ := cmd.CombinedOutput()
 
 	version := strings.TrimSpace(string(output))
 
-	cmd = exec.Command("which", "python3")
+	cmd = exec.Command("which", exeName)
 	output, _ = cmd.CombinedOutput()
 
-	fmt.Printf("%s: Using %s from %s", name, version, string(output))
+	fmt.Printf("%s: Using %s from %s", frameworkName, version, string(output))
 }
 
 // PythonCheckForPackage checks for the proper installation of the named package.
