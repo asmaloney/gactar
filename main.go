@@ -11,6 +11,7 @@ import (
 	"gitlab.com/asmaloney/gactar/framework"
 	"gitlab.com/asmaloney/gactar/framework/ccm_pyactr"
 	"gitlab.com/asmaloney/gactar/framework/pyactr"
+	"gitlab.com/asmaloney/gactar/framework/vanilla_actr"
 	"gitlab.com/asmaloney/gactar/shell"
 	"gitlab.com/asmaloney/gactar/web"
 )
@@ -34,6 +35,8 @@ func main() {
 		EnableBashCompletion: true,
 		HideHelpCommand:      true,
 		Flags: []cli.Flag{
+			&cli.StringFlag{Name: "env", Usage: "directory where ACT-R, pyactr, and other necessary files are installed", EnvVars: []string{"VIRTUAL_ENV"}},
+
 			&cli.BoolFlag{Name: "debug", Aliases: []string{"d"}, Usage: "turn on debugging output"},
 			&cli.BoolFlag{Name: "ebnf", Usage: "output amod EBNF to stdout and quit"},
 
@@ -148,6 +151,13 @@ func createFrameworks(cli *cli.Context) framework.List {
 		fmt.Println(err.Error())
 	} else {
 		frameworks["pyactr"] = pyactr_framework
+	}
+
+	vanilla_framework, err := vanilla_actr.New(cli)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		frameworks["vanilla"] = vanilla_framework
 	}
 
 	return frameworks
