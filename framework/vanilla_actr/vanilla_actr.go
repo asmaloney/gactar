@@ -126,9 +126,8 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 
 		v.Write(" (chunk_%d isa %s", i, chunkName)
 
-		for i, name := range chunk.SlotNames {
-			value := slots[i]
-			v.Write(" %s %s", name, value)
+		for i, slotName := range chunk.SlotNames {
+			v.writeSlot(slotName, slots[i])
 		}
 
 		v.Writeln(")")
@@ -170,6 +169,17 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 	return
 }
 
+func (v *VanillaACTR) writeSlot(slot, value string) {
+	intValue, conversionErr := strconv.Atoi(value)
+	if conversionErr == nil {
+		v.Write(" %s %d", slot, intValue)
+	} else if value == "None" {
+		v.Write(" %s nil", slot)
+	} else {
+		v.Write(` %s "%s"`, slot, value)
+	}
+}
+
 func (v *VanillaACTR) writeGoal(goal string) (err error) {
 	chunkName, slots := actr.SplitStringForChunk(goal)
 	chunk := v.model.LookupChunk(chunkName)
@@ -186,17 +196,8 @@ func (v *VanillaACTR) writeGoal(goal string) (err error) {
 
 	v.Write(" (chunk_goal isa %s", chunkName)
 
-	for i, name := range chunk.SlotNames {
-		value := slots[i]
-
-		intValue, conversionErr := strconv.Atoi(value)
-		if conversionErr == nil {
-			v.Write(" %s %d", name, intValue)
-		} else if value == "None" {
-			v.Write(" %s nil", name)
-		} else {
-			v.Write(` %s "%s"`, name, value)
-		}
+	for i, slotName := range chunk.SlotNames {
+		v.writeSlot(slotName, slots[i])
 	}
 
 	v.Writeln(")")
@@ -213,7 +214,7 @@ func (v *VanillaACTR) outputMatch(match *actr.Match) {
 			if chunkName == "_status" {
 				status := match.Pattern.Slots[0]
 				v.Writeln("\t?%s>", bufferName)
-				v.Writeln("\tbuffer %s", status)
+				v.Writeln("\t\tbuffer %s", status)
 			}
 		} else {
 			v.Writeln("\t=%s>", bufferName)
@@ -236,7 +237,7 @@ func (v *VanillaACTR) outputMatch(match *actr.Match) {
 			if chunkName == "_status" {
 				status := match.Pattern.Slots[0]
 				v.Writeln("\t?%s>", text)
-				v.Writeln("\tstate %s", status)
+				v.Writeln("\t\tstate %s", status)
 			}
 		} else {
 			v.Writeln("\t=%s>", text)
@@ -294,7 +295,7 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 				} else if slot.Value.Number != nil {
 					v.Writeln("\t\t%s\t%s", slotName, *slot.Value.Number)
 				} else if slot.Value.Str != nil {
-					v.Writeln("\t\t%s\t%s", slotName, *slot.Value.Str)
+					v.Writeln("\t\t%s\t\"%s\"", slotName, *slot.Value.Str)
 				}
 			}
 		} else if s.Set.Pattern != nil {
