@@ -321,9 +321,13 @@ func (p *PyACTR) outputStatement(s *actr.Statement) {
 
 		p.TabWrite(2, tabbedItems)
 	} else if s.Clear != nil {
-		// for _, name := range s.Clear.BufferNames {
-		p.Writeln("\t~%s>", "g")
-		// }
+		for _, name := range s.Clear.BufferNames {
+			if name == "goal" {
+				name = "g"
+			}
+
+			p.Writeln("\t~%s>", name)
+		}
 	}
 }
 
