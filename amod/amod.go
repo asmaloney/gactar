@@ -291,9 +291,7 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 
 		}
 
-		if production.Do.PyCode != nil {
-			prod.DoPython = append(prod.DoPython, *production.Do.PyCode...)
-		} else if production.Do.Statements != nil {
+		if production.Do.Statements != nil {
 			for _, statement := range *production.Do.Statements {
 				err := addStatement(model, statement, &prod)
 				errs.AddErrorIfNotNil(err)

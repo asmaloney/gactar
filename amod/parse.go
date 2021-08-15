@@ -208,8 +208,7 @@ type statement struct {
 
 type do struct {
 	Do         string        `parser:"'do'"` // not used, but must be visible for parse to work
-	PyCode     *[]string     `parser:"('#<' (@DoCode)+ '>#'"`
-	Statements *[]*statement `parser:"| '{' @@+ '}')"`
+	Statements *[]*statement `parser:"'{' @@+ '}'"`
 
 	Pos lexer.Position
 }

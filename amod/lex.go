@@ -42,7 +42,6 @@ type lexer_amod struct {
 	lexemes        chan lexeme     // channel of scanned lexemes
 	keywords       map[string]bool // used to lookup identifier to see if they are keywords
 	inPattern      bool            // state: a pattern - delimited by `` is lexed specially
-	inDoBlock      bool            // state: a "do" block is lexed as a series of strings
 }
 
 // stateFn is used to move through the lexing states
@@ -69,18 +68,12 @@ const (
 	lexemeSectionConfig
 	lexemeSectionInit
 	lexemeSectionProductions
-
-	lexemeCodeBegin // marks beginning of code in "do" block
-	lexemeDoCode
-	lexemeCodeEnd // marks end of code in "do" block
 )
 
 const (
 	eof = -1
 
 	commentDelim = "//"
-	codeBegin    = "#<"
-	codeEnd      = ">#"
 
 	sectionModel       = "==model=="
 	sectionConfig      = "==config=="
@@ -119,7 +112,6 @@ func (lexer_def) Symbols() map[string]lexer.TokenType {
 		"PatternDelim": lexer.TokenType(lexemePatternDelim),
 		"PatternSpace": lexer.TokenType(lexemePatternSpace),
 		"PatternVar":   lexer.TokenType(lexemePatternVar),
-		"DoCode":       lexer.TokenType(lexemeDoCode),
 	}
 }
 
@@ -149,7 +141,6 @@ func lex(filename string, data string) *lexer_amod {
 		lexemes:        make(chan lexeme),
 		keywords:       make(map[string]bool),
 		inPattern:      false,
-		inDoBlock:      false,
 	}
 
 	for _, v := range keywords {
@@ -360,16 +351,6 @@ func lexStart(l *lexer_amod) stateFn {
 			l.emit(lexemeChar)
 		}
 
-	case r == '#':
-		if l.nextIs('<') {
-			l.next()
-			l.inDoBlock = true
-			l.emit(lexemeCodeBegin)
-
-			return lexDoBlock
-		}
-		l.emit(lexemeChar)
-
 	case r <= unicode.MaxASCII && unicode.IsPrint(r):
 		l.emit(lexemeChar)
 
@@ -525,43 +506,6 @@ func lexQuotedString(l *lexer_amod) stateFn {
 	l.emit(lexemeString)
 
 	return lexSpace
-}
-
-func lexDoItem(l *lexer_amod) stateFn {
-	eatSpace(l)
-
-	for {
-		r := l.next()
-
-		if isNewline(r) {
-			break
-		}
-	}
-
-	l.emit(lexemeDoCode)
-
-	eatSpace(l)
-
-	return lexDoBlock
-}
-
-func lexDoBlock(l *lexer_amod) stateFn {
-	// check for ending ">#"
-	if l.inDoBlock {
-		r := l.next()
-		if r == '>' {
-			if l.peek() == '#' {
-				l.next()
-				l.inDoBlock = false
-				l.emit(lexemeCodeEnd)
-
-				return lexSpace
-			}
-		}
-		l.backup()
-	}
-
-	return lexDoItem
 }
 
 // cleanData normalizes line endings
