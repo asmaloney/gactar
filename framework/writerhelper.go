@@ -23,7 +23,7 @@ type keyValue struct {
 }
 
 func (w *WriterHelper) InitWriterHelper(outputFileName string) (err error) {
-	w.File, err = os.Create(outputFileName)
+	w.File, err = os.OpenFile(outputFileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0770)
 	if err != nil {
 		return
 	}
