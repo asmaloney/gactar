@@ -33,6 +33,12 @@ func (w *WriterHelper) InitWriterHelper(outputFileName string) (err error) {
 	return
 }
 
+func (w *WriterHelper) CloseWriterHelper() {
+	w.File.Close()
+	w.File = nil
+	w.TabWriter = nil
+}
+
 func (w WriterHelper) Write(e string, a ...interface{}) {
 	str := fmt.Sprintf(e, a...)
 	w.File.WriteString(str)
