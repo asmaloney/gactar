@@ -86,6 +86,13 @@ func (c *CCMPyACTR) Run(initialGoal string) (output []byte, err error) {
 
 // WriteModel converts the internal actr.Model to python and writes it to a file.
 func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string, err error) {
+	if initialGoal != "" {
+		err = c.verifyChunk(initialGoal, "initial goal")
+		if err != nil {
+			return
+		}
+	}
+
 	outputFileName = fmt.Sprintf("%s.py", c.className)
 	if path != "" {
 		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
@@ -172,6 +179,10 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		c.Writeln("\tdef init():")
 
 		for _, init := range c.model.Initializers {
+			err = c.verifyChunk(init.Text, "initializer")
+			if err != nil {
+				return
+			}
 			c.Writeln("\t\t%s.add('%s')", init.Memory.Name, init.Text)
 		}
 
@@ -211,6 +222,18 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		c.Writeln(fmt.Sprintf("\tmodel = %s()", c.className))
 		c.Writeln(fmt.Sprintf("\tmodel.goal.set('%s')", initialGoal))
 		c.Writeln("\tmodel.run()")
+	}
+
+	return
+}
+
+func (c *CCMPyACTR) verifyChunk(chunk, where string) (err error) {
+	chunkName, _ := actr.SplitStringForChunk(chunk)
+	modelChunk := c.model.LookupChunk(chunkName)
+
+	if modelChunk == nil {
+		err = fmt.Errorf("cannot find chunk named '%s' from %s", chunkName, where)
+		return
 	}
 
 	return
