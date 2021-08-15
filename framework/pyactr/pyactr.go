@@ -251,6 +251,8 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patter
 		value := ""
 		if item.ID != nil {
 			value = *item.ID
+		} else if item.Num != nil {
+			value = *item.Num
 		} else if item.Var != nil {
 			if *item.Var == "?" {
 				return
