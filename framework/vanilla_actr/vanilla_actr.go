@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -135,30 +136,10 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 
 	// with vanilla act-r, the goal is included with the initializations
 	if initialGoal != "" {
-		chunkName, slots := actr.SplitStringForChunk(initialGoal)
-		chunk := v.model.LookupChunk(chunkName)
-
-		if chunk == nil {
-			err = fmt.Errorf("cannot find chunk named '%s' from initial goal", chunkName)
+		err = v.writeGoal(initialGoal)
+		if err != nil {
 			return
 		}
-
-		if len(slots) != chunk.NumSlots {
-			err = fmt.Errorf("expecting %d slots for '%s', found %d", chunk.NumSlots, chunkName, len(slots))
-			return
-		}
-
-		v.Write(" (chunk_goal isa %s", chunkName)
-
-		for i, name := range chunk.SlotNames {
-			value := slots[i]
-			if value == "None" {
-				value = "nil"
-			}
-			v.Write(" %s %s", name, value)
-		}
-
-		v.Writeln(")")
 	}
 
 	v.Writeln(")\n")
@@ -183,6 +164,40 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 	}
 
 	v.Writeln("(goal-focus chunk_goal)")
+
+	v.Writeln(")")
+
+	return
+}
+
+func (v *VanillaACTR) writeGoal(goal string) (err error) {
+	chunkName, slots := actr.SplitStringForChunk(goal)
+	chunk := v.model.LookupChunk(chunkName)
+
+	if chunk == nil {
+		err = fmt.Errorf("cannot find chunk named '%s' from initial goal", chunkName)
+		return
+	}
+
+	if len(slots) != chunk.NumSlots {
+		err = fmt.Errorf("expecting %d slots for '%s', found %d", chunk.NumSlots, chunkName, len(slots))
+		return
+	}
+
+	v.Write(" (chunk_goal isa %s", chunkName)
+
+	for i, name := range chunk.SlotNames {
+		value := slots[i]
+
+		intValue, conversionErr := strconv.Atoi(value)
+		if conversionErr == nil {
+			v.Write(" %s %d", name, intValue)
+		} else if value == "None" {
+			v.Write(" %s nil", name)
+		} else {
+			v.Write(` %s "%s"`, name, value)
+		}
+	}
 
 	v.Writeln(")")
 
@@ -238,7 +253,11 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patter
 			value = *item.ID
 			if value == "None" {
 				value = "nil"
+			} else {
+				value = fmt.Sprintf(`"%s"`, value)
 			}
+		} else if item.Num != nil {
+			value = *item.Num
 		} else if item.Var != nil {
 			if *item.Var == "?" {
 				return
