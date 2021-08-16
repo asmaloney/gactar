@@ -32,10 +32,10 @@ The format still feels a little heavy, so if I continue with this project I woul
 
    ```
     match {
-        goal: `isMember ?obj ?cat None`
+        goal `isMember( ?obj ?cat None )`
     }
     do {
-        recall `property ?ojb category ?`
+        recall `property( ?ojb category ? )`
     }
    ```
 
@@ -49,7 +49,7 @@ The format still feels a little heavy, so if I continue with this project I woul
 
    ```
     match {
-        goal: `isMember ?obj ?cat None`
+        goal `isMember( ?obj ?cat None )`
     }
     do {
         set resutl of goal to 'pending'
@@ -295,30 +295,30 @@ memory {
 start {
     // Buffers to match
     match {
-        goal: `countFrom ?start ?end starting`
+        goal `countFrom( ?start ?end starting )`
     }
     // Steps to execute
     do {
-        recall `count ?start ?`
-        set goal to `countFrom ?start ?end counting`
+        recall `count( ?start ?)`
+        set goal to `countFrom( ?start ?end counting )`
     }
 }
 
 increment {
     match {
-        goal: `countFrom ?x !?x counting`
-        retrieval: `count ?x ?next`
+        goal `countFrom( ?x !?x counting )`
+        retrieval `count( ?x ?next )`
     }
     do {
         print x
-        recall `count ?next ?`
+        recall `count( ?next ? )`
         set start of goal to next
     }
 }
 
 stop {
     match {
-        goal: `countFrom ?x ?x counting`
+        goal `countFrom( ?x ?x counting )`
     }
     do {
         print x
@@ -337,8 +337,8 @@ It is used in a `match` as follows:
 
 ```
 match {
-    goal: `_status full`
-    memory: `_status error`
+    goal `_status( full )`
+    memory `_status( error )`
 }
 ```
 
@@ -348,15 +348,15 @@ For memory, valid statuses are `busy`, `free`, `error`.
 
 ### Pattern Syntax
 
-The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property ?obj category ?cat` ``. The first item is the chunk name and the others are the slots. These are parsed to ensure their format is consistent with _chunks_ which are declared in the _config_ section.
+The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property( ?obj category ?cat )` ``. The first item is the chunk name and the others are the slots. These are parsed to ensure their format is consistent with _chunks_ which are declared in the _config_ section.
 
 The _do_ section in the productions uses a small language which currently understands the following commands:
 
-| command                                                        | example                      |
-| -------------------------------------------------------------- | ---------------------------- |
-| clear _(buffer name)+_                                         | clear goal, retrieval        |
-| print _(string or ident or number)+_                           | print foo, 'text', 42        |
-| recall _(pattern)_                                             | recall \`car ?colour\`       |
-| set _slot_ of _(buffer name)_ to _(string or ident or number)_ | set sum of goal to 6         |
-| set _(buffer name)_ to _(pattern)_                             | set goal to \`start 6 None\` |
-| write _(string or ident or number)+_ to _(text output name)_   | write 'foo' to text          |
+| command                                                               | example                         |
+| --------------------------------------------------------------------- | ------------------------------- |
+| clear _(buffer name)+_                                                | clear goal, retrieval           |
+| print _(string or ident or number)+_                                  | print foo, 'text', 42           |
+| recall _(pattern)_                                                    | recall \`car( ?colour )\`       |
+| set _(slot name)_ of _(buffer name)_ to _(string or ident or number)_ | set sum of goal to 6            |
+| set _(buffer name)_ to _(pattern)_                                    | set goal to \`start( 6 None )\` |
+| write _(string or ident or number)+_ to _(text output name)_          | write 'foo' to text             |

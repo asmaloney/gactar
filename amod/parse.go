@@ -139,15 +139,17 @@ type patternSlot struct {
 }
 
 type pattern struct {
-	ChunkName string         "parser:\"'`' @Ident \""
-	Space     string         `parser:" @PatternSpace "`
-	Slots     []*patternSlot "parser:\" @@+ '`'\""
+	StartTick string         "parser:\"'`'\"" // not used - must be set for parse
+	ChunkName string         `parser:" @Ident '('"`
+	Space     string         `parser:" @PatternSpace? "`
+	Slots     []*patternSlot `parser:" @@+ ')'"`
+	EndTick   string         "parser:\"'`'\"" // not used - must be set for parse
 
 	Pos lexer.Position
 }
 
 type matchItem struct {
-	Name    string   `parser:"(@Ident|@('memory':Keyword)) ':'"`
+	Name    string   `parser:"(@Ident|@('memory':Keyword))"`
 	Pattern *pattern `parser:" @@ "`
 
 	Pos lexer.Position

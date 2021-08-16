@@ -45,30 +45,30 @@ memory {
 start {
     // Buffers to match
     match {
-        goal: `countFrom ?start ?end starting`
+        goal `countFrom( ?start ?end starting )`
     }
     // Steps to execute
     do {
-        recall `count ?start ?`
-        set goal to `countFrom ?start ?end counting`
+        recall `count( ?start ?)`
+        set goal to `countFrom( ?start ?end counting )`
     }
 }
 
 increment {
     match {
-        goal: `countFrom ?x !?x counting`
-        retrieval: `count ?x ?next`
+        goal `countFrom( ?x !?x counting )`
+        retrieval `count( ?x ?next )`
     }
     do {
         print x
-        recall `count ?next ?`
+        recall `count( ?next ? )`
         set start of goal to next
     }
 }
 
 stop {
     match {
-        goal: `countFrom ?x ?x counting`
+        goal `countFrom( ?x ?x counting )`
     }
     do {
         print x

@@ -38,56 +38,56 @@ memory {
 startPair {
     // Buffers to match
     match {
-        goal: `add ? ?one1 ? ?one2 ? None?ans ?`
+        goal `add( ? ?one1 ? ?one2 ? None?ans ? )`
     }
     // Steps to execute
     do {
         set slot_6 of goal to 'busy'
-        recall `addfact ?one1 ?one2 ?`
+        recall `addfact( ?one1 ?one2 ? )`
     }
 }
 
 addOnes {
     match {
-        goal: `add ? ? ? ? ? busy?ans ?carry`
-        retrieval: `addfact ? ? ?sum`
+        goal `add( ? ? ? ? ? busy?ans ?carry )`
+        retrieval `addfact( ? ? ?sum )`
     }
     do {
         set slot_6 of goal to sum
         set slot_7 of goal to 'busy'
-        recall `addfact 10 ? ?sum`
+        recall `addfact( 10 ? ?sum )`
     }
 }
 
 processCarry {
     match {
-        goal: `add ?ten1 ? ?ten2 ? None?tenAns ?oneAns busy?carry`
-        retrieval: `addfact 10 ?rem ?sum`
+        goal `add( ?ten1 ? ?ten2 ? None?tenAns ?oneAns busy?carry )`
+        retrieval `addfact( 10 ?rem ?sum )`
     }
     do {
         set slot_5 of goal to 'busy'
         set slot_6 of goal to rem
         set slot_7 of goal to 1
-        recall `addfact ?ten1 ?ten2 ?`
+        recall `addfact( ?ten1 ?ten2 ? )`
     }
 }
 
 noCarry {
     match {
-        goal: `add ?ten1 ? ?ten2 None?tenAns ?oneAns busy?carry`
-        memory: `_status error`
+        goal `add( ?ten1 ? ?ten2 None?tenAns ?oneAns busy?carry )`
+        memory `_status( error )`
     }
     do {
         set slot_4 of goal to 'busy'
         set slot_6 of goal to 0
-        recall `addfact ?ten1 ?ten2 ?`
+        recall `addfact( ?ten1 ?ten2 ? )`
     }
 }
 
 addTensDone {
     match {
-        goal: `add ? ? ? ? busy?tenAns ?oneAns 0`
-        retrieval: `addfact ? ? ?sum`
+        goal `add( ? ? ? ? busy?tenAns ?oneAns 0 )`
+        retrieval `addfact( ? ? ?sum )`
     }
     do {
         print sum, oneAns
@@ -97,11 +97,11 @@ addTensDone {
 
 addTensCarry {
     match {
-        goal: `add ? ? ? ? busy?tenAns ? 1?carry`
-        retrieval: `addfact ? ? ?sum`
+        goal `add( ? ? ? ? busy?tenAns ? 1?carry )`
+        retrieval `addfact( ? ? ?sum )`
     }
     do {
         set slot_7 of goal to 0
-        recall `addfact 1 ?sum ?`
+        recall `addfact( 1 ?sum ? )`
     }
 }

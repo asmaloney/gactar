@@ -45,19 +45,19 @@ memory {
 initialRetrieval {
     // Buffers to match
     match {
-        goal: `isMember ?obj ?cat None`
+        goal `isMember( ?obj ?cat None )`
     }
     // Steps to execute
     do {
         set judgment of goal to 'pending'
-        recall `property ?obj category ?`
+        recall `property( ?obj category ? )`
     }
 }
 
 directVerify {
     match {
-        goal: `isMember ?obj ?cat pending`
-        retrieval: `property ?obj category ?cat`
+        goal `isMember( ?obj ?cat pending )`
+        retrieval `property( ?obj category ?cat )`
     }
     do {
         set judgment of goal to 'yes'
@@ -67,19 +67,19 @@ directVerify {
 
 chainCategory {
     match {
-        goal: `isMember ?obj1 ?cat pending`
-        retrieval: `property ?obj1 category ?obj2!?cat`
+        goal `isMember( ?obj1 ?cat pending )`
+        retrieval `property( ?obj1 category ?obj2!?cat )`
     }
     do {
         set object of goal to obj2
-        recall `property ?obj2 category ?`
+        recall `property( ?obj2 category ? )`
     }
 }
 
 fail {
     match {
-        goal: `isMember ?obj1 ?cat pending`
-        memory: `_status error`
+        goal `isMember( ?obj1 ?cat pending )`
+        memory `_status( error )`
     }
     do {
         set judgment of goal to 'no'

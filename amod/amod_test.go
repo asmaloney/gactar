@@ -101,7 +101,7 @@ func TestProductionInvalidMemory(t *testing.T) {
 	==init==
 	==productions==
 	start {
-		match { another_goal: ` + "`add ? ?one1 ? ?one2 ? None?ans ?`" + ` }
+		match { another_goal ` + "`add( ? ?one1 ? ?one2 ? None?ans ? )`" + ` }
 		do { print 'foo' }
 	}`
 
@@ -119,7 +119,7 @@ func TestProductionClearStatement(t *testing.T) {
 	chunks { foo( thing ) }
 	==productions==
 	start {
-		match { goal: ` + "`foo blat`" + ` }
+		match { goal ` + "`foo( blat )`" + ` }
 		do { clear some_buffer }
 	}`
 
@@ -135,7 +135,7 @@ func TestProductionClearStatement(t *testing.T) {
 	chunks { foo( thing ) }
 	==productions==
 	start {
-		match { goal: ` + "`foo blat`" + ` }
+		match { goal ` + "`foo( blat )`" + ` }
 		do { clear goal }
 	}`
 
@@ -153,8 +153,8 @@ func TestProductionSetStatement(t *testing.T) {
 	chunks { foo( thing ) }
 	==productions==
 	start {
-		match { goal: ` + "`foo blat`" + ` }
-		do { set goal to ` + "`foo ding`" + ` }
+		match { goal ` + "`foo( blat )`" + ` }
+		do { set goal to ` + "`foo( ding )`" + ` }
 	}`
 
 	_, err := GenerateModel(src)
@@ -170,7 +170,7 @@ func TestProductionSetStatement(t *testing.T) {
 	chunks { foo( thing ) }
 	==productions==
 	start {
-		match { goal: ` + "`foo blat`" + ` }
+		match { goal ` + "`foo( blat )`" + ` }
 		do { set goal to 6 }
 	}`
 
@@ -187,8 +187,8 @@ func TestProductionSetStatement(t *testing.T) {
 	chunks { foo( thing ) }
 	==productions==
 	start {
-		match { goal: ` + "`foo blat`" + ` }
-		do { set thing of goal to ` + "`foo ding`" + ` }
+		match { goal ` + "`foo( blat )`" + ` }
+		do { set thing of goal to ` + "`foo( ding )`" + ` }
 	}`
 
 	_, err = GenerateModel(src)
@@ -205,8 +205,8 @@ func TestProductionRecallStatement(t *testing.T) {
 	chunks { foo( thing ) }
 	==productions==
 	start {
-		match { goal: ` + "`foo blat`" + ` }
-		do { recall ` + "`count ?next ?`" + ` }
+		match { goal ` + "`foo( blat )`" + ` }
+		do { recall ` + "`count( ?next ? )`" + ` }
 	}`
 
 	_, err := GenerateModel(src)
@@ -221,8 +221,8 @@ func TestProductionRecallStatement(t *testing.T) {
 	chunks { foo( thing1 thing2 ) }
 	==productions==
 	start {
-		match { goal: ` + "`foo ?next ?other`" + ` }
-		do { recall ` + "`foo ?next ?`" + ` }
+		match { goal ` + "`foo( ?next ?other )`" + ` }
+		do { recall ` + "`foo( ?next ? )`" + ` }
 	}`
 
 	_, err = GenerateModel(src)
@@ -239,10 +239,10 @@ func TestProductionMultipleStatement(t *testing.T) {
 	chunks { foo( thing1 thing2 ) }
 	==productions==
 	start {
-		match { goal: ` + "`foo ?next ?other`" + ` }
+		match { goal ` + "`foo( ?next ?other )`" + ` }
 		do {
-        	recall ` + "`foo ?next ?`" + `
-			set goal to ` + "`foo ?other 42`" + `
+        	recall ` + "`foo( ?next ? )`" + `
+			set goal to ` + "`foo( ?other 42 )`" + `
 		}
 	}`
 
@@ -259,7 +259,7 @@ func TestProductionChunkNotFound(t *testing.T) {
 	==config==
 	==productions==
 	start {
-		match { goal: ` + "`foo error`" + ` }
+		match { goal ` + "`foo( error )`" + ` }
 		do { print 42 }
 	}`
 
@@ -276,7 +276,7 @@ func TestProductionPrintStatement(t *testing.T) {
 	==config==
 	==productions==
 	start {
-		match { memory: ` + "`_status error`" + ` }
+		match { memory ` + "`_status( error )`" + ` }
 		do { print 42 }
 	}`
 
@@ -292,7 +292,7 @@ func TestProductionPrintStatement(t *testing.T) {
 	==config==
 	==productions==
 	start {
-		match { memory: ` + "`_status error`" + ` }
+		match { memory ` + "`_status( error )`" + ` }
 		do { print }
 	}`
 
@@ -309,7 +309,7 @@ func TestProductionMatchInternal(t *testing.T) {
 	==config==
 	==productions==
 	start {
-		match { memory: ` + "`_status error`" + ` }
+		match { memory ` + "`_status( error )`" + ` }
 		do { print 42 }
 	}`
 
@@ -324,7 +324,7 @@ func TestProductionMatchInternal(t *testing.T) {
 	==config==
 	==productions==
 	start {
-		match { memory: ` + "`_status busy error`" + ` }
+		match { memory ` + "`_status( busy error )`" + ` }
 		do { print 42 }
 	}`
 
@@ -338,7 +338,7 @@ func TestProductionMatchInternal(t *testing.T) {
 	==config==
 	==productions==
 	start {
-		match { goal: ` + "`_status something`" + ` }
+		match { goal ` + "`_status( something )`" + ` }
 		do { print 42 }
 	}`
 
@@ -352,7 +352,7 @@ func TestProductionMatchInternal(t *testing.T) {
 	==config==
 	==productions==
 	start {
-		match { memory: ` + "`_status something`" + ` }
+		match { memory ` + "`_status( something )`" + ` }
 		do { print 42 }
 	}`
 
