@@ -127,7 +127,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, production *actr
 	}
 
 	if set.Slot != nil {
-		// we should have the form "set slot <name> in <buffer> to <!pattern>"
+		// we should have the form "set <slot name> in <buffer> to <!pattern>"
 		slotName := *set.Slot
 		if set.Pattern != nil {
 			errs.Addc(&set.Pos, "cannot set a slot ('%s') to a pattern in match buffer '%s' in production '%s'", slotName, bufferName, production.Name)

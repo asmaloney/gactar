@@ -327,7 +327,7 @@ stop {
 }
 ```
 
-You can find other examples of amod files in the [examples folder](examples).
+You can find other examples of `amod` files in the [examples folder](examples).
 
 ### Special Chunks
 
@@ -348,15 +348,15 @@ For memory, valid statuses are `busy`, `free`, `error`.
 
 ### Pattern Syntax
 
-The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property ?obj category ?cat` ``. The first item is the chunk name and the others are the slots. These are parsed to ensure their format is consistent with chunks which are declared in the _config_ section.
+The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property ?obj category ?cat` ``. The first item is the chunk name and the others are the slots. These are parsed to ensure their format is consistent with _chunks_ which are declared in the _config_ section.
 
 The _do_ section in the productions uses a small language which currently understands the following commands:
 
-| command                                                         | example                      |
-| --------------------------------------------------------------- | ---------------------------- |
-| clear _(buffer name)+_                                          | clear goal, retrieval        |
-| print _(string or ident or number)+_                            | print foo, 'text', 42        |
-| recall _(pattern)_                                              | recall \`car ?colour\`       |
-| set _slot_ of _(buffer name)_ to _(string or ident or number)_  | set sum of goal to 6         |
-| set _(buffer name)_ to _(string or ident or number or pattern)_ | set goal to \`start 6 None\` |
-| write _(string or ident or number)+_ to _(text output name)_    | write 'foo' to text          |
+| command                                                        | example                      |
+| -------------------------------------------------------------- | ---------------------------- |
+| clear _(buffer name)+_                                         | clear goal, retrieval        |
+| print _(string or ident or number)+_                           | print foo, 'text', 42        |
+| recall _(pattern)_                                             | recall \`car ?colour\`       |
+| set _slot_ of _(buffer name)_ to _(string or ident or number)_ | set sum of goal to 6         |
+| set _(buffer name)_ to _(pattern)_                             | set goal to \`start 6 None\` |
+| write _(string or ident or number)+_ to _(text output name)_   | write 'foo' to text          |
