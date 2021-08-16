@@ -8,9 +8,13 @@
 
 **This is just a proof-of-concept.**
 
-Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate the python code to run it with the [CCM Suite](https://github.com/CarletonCognitiveModelingLab/CCMSuite3).
+Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate the code to run it on three different ACT-R implementations:
 
-gactar will work with the small tutorial models included in the _examples_ directory. It doesn't handle a lot beyond what's in there - it only works with memory modules, not perceptual-motor ones - so _it's limited at the moment_.
+- [CCM Suite](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) (python)
+- [pyactr](https://github.com/jakdot/pyactr) (python)
+- ["vanilla" ACT-R](http://act-r.psy.cmu.edu/) (lisp)
+
+`gactar` will work with the short tutorial models included in the _examples_ directory. It doesn't handle a lot beyond what's in there - it only works with memory modules, not perceptual-motor ones - so _it's limited at the moment_.
 
 The format still feels a little heavy, so if I continue with this project I would expect to iterate on it.
 
@@ -21,7 +25,8 @@ The format still feels a little heavy, so if I continue with this project I woul
 3. Abstracts away the "programming" to focus on writing and understanding models.
 4. Restricts the model to a small language to prevent programming "outside the model".
 5. Provides a very simple setup for teaching environments.
-6. Parses buffer patterns to catch and report errors.
+6. Runs the same model on multiple ACT-R implementations.
+7. Parses chunks to catch and report errors in a more user-friendly manner.
 
    **Example #1 (invalid variable name)**
 
@@ -37,7 +42,7 @@ The format still feels a little heavy, so if I continue with this project I woul
    The CCM Suite implementation _fails silently_ when given invalid variables which makes it difficult to catch errors & can result in incorrect output. Instead of ignoring the incorrect variable, gactar outputs a nice error message so it's obvious what the problem is:
 
    ```
-   recall statement variable '?ojb' not found in matches for production 'initialRetrieve' (line 58)
+   recall statement variable '?ojb' not found in matches for production 'initialRetrieval' (line 58)
    ```
 
    **Example #2 (invalid slot name)**
@@ -67,7 +72,7 @@ The format still feels a little heavy, so if I continue with this project I woul
     choice.fire(self._context)
    File "/path/CCMSuite3/ccm/production.py", line 51, in fire
     exec(self.func, context, self.bound)
-   File "<production-initialRetrieve>", line 2, in <module>
+   File "<production-initialRetrieval>", line 2, in <module>
    File "/path/CCMSuite3/ccm/model.py", line 22, in __call__
     val = self.func(self.obj, *args, **keys)
    File "/path/CCMSuite3/ccm/lib/actr/buffer.py", line 60, in modify
@@ -79,48 +84,53 @@ The format still feels a little heavy, so if I continue with this project I woul
    Instead, by adding validation, gactar produces a much better message:
 
    ```
-   slot 'resutl' does not exist in match buffer 'goal' in production 'initialRetrieve' (line 57)
+   slot 'resutl' does not exist in match buffer 'goal' in production 'initialRetrieval' (line 57)
    ```
 
 ## Setup
 
-1. `gactar` requires **python3** which needs to be somewhere in your environment's `PATH` environment variable.
+1. Although the `gactar` executable itself is compiled for each platform, it requires **python3** to run the setup and to run the _ccm_ and _pyactr_ implementations. **python3** needs to be somewhere in your environment's `PATH` environment variable.
 
-2. `gactar` requires the [CCM Suite](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) (for python3) - see the following two options for how to set that up.
+2. `gactar` requires one or more of the three implementations (_ccm_, _pyactr_, _vanilla_) be installed.
 
-### Setup with virtual python environment (easiest)
+`gactar` uses a python virtual environment to keep all the required python packages, lisp files, and other implementation files in one place so it does not affect the rest of your system. For more information about the virtual environment see the [python docs](https://docs.python.org/3/library/venv.html).
 
-A python virtual environment keeps all of your python packages local to your project so it does not affect the rest of your system. For more information see the [python docs](https://docs.python.org/3/library/venv.html).
+### Setup the virtual python environment
 
-1. Run `./scripts/setupPython.sh`
+1. Run `./scripts/setup.sh`
 
-   This will create a virtual environment for the project, download the [CCM Suite](https://github.com/CarletonCognitiveModelingLab/CCMSuite3), and put its files in the right place.
+   This will create a virtual environment for the project in a directory called `env`, download the [CCM Suite](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) & put its files in the right place, and install [pyactr](https://github.com/jakdot/pyactr) using pip.
 
-2. You need to activate the virtual environment by running this in the terminal before you run gactar:
+2. You need to activate the virtual environment by running this in the terminal before you run `gactar`:
 
    ```sh
-   source ./pyenv/bin/activate
+   source ./env/bin/activate
    ```
 
-   If it activated properly, your command line prompt will start with `(pyenv)`. To deactivate it, run `deactivate`.
+   If it activated properly, your command line prompt will start with `(env)`. If you want to deactivate it, run `deactivate`.
 
-### Setup by cloning CCMSuite
+### Install the SBCL lisp compiler
 
-2.  Clone the [CCM Suite](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) (for python3):
+For now this is not automated because the required files are not easy to determine programmatically. I may be able to improve this in the future by adding it to the auto-setup process.
 
-    ```sh
-    git clone https://github.com/CarletonCognitiveModelingLab/CCMSuite3
-    ```
+1. We are using the [Steel Bank Common Lisp](http://www.sbcl.org/index.html) (sbcl) compiler. Download the correct version [from here](http://www.sbcl.org/platform-table.html) by finding your OS and platform in the table and clicking the box. Put it in the `env` directory and unpack it there.
 
-3.  The ccm package from there needs to be available in your `PYTHONPATH`.
+2. To install it in our environment, change to the new directory it created (e.g. `sbcl-1.2.11-x86-64-darwin`) and run this command (setting the path to wherever the env directory is):
+   ```sh
+   INSTALL_ROOT=/path/to/gactar/env/ ./install.sh
+   ```
 
-    You can do this in the terminal each time you want to run `gactar` (or you can set it in your environment variables):
+### Install the vanilla ACT-R files
 
-    ```
-    export PYTHONPATH=/path/to/CCMSuite3/
-    ```
+For now this is not automated because the required files are not easy to determine programmatically. I may be able to improve this in the future by adding it to the auto-setup process.
 
-    Note that setting PYTHONPATH affects your entire system, so it may interfere with other python projects.
+1. Download the zip file for you platform from here. Put it in the `env` directory and unpack it there. This should create a directory there named `actr7.x`
+
+2. In the `env` directory, run the following command to let the lisp compiler compile the main actr files (setting the path to wherever the env directory is):
+   ```sh
+   export SBCL_HOME=/path/to/env/lib/sbcl; sbcl --script actr7.x/load-single-threaded-act-r.lisp
+   ```
+   This will take a few moments to compile all the files so we don't have to do it every time we run it.
 
 ## Build
 
@@ -161,14 +171,14 @@ gactar [OPTIONS] [FILES...]
 
 ## Example Usage
 
-These examples assume you have set up your environment properly - either using python's virtual environment or by setting up your PYTHONPATH. See [setup](#setup) above.
+These examples assume you have set up your virtual environment properly. See [setup](#setup) above.
 
 ### Generate a python file
 
 ```
-(pyenv)$ ./gactar examples/count.amod
+(env)$ ./gactar examples/count.amod
 gactar version v0.0.2
-Using Python 3.9.6 from /path/to/gactar/pyenv/bin/python3
+ccm: Using Python 3.9.6 from /path/to/gactar/env/bin/python3
 -- Generating code for examples/count.amod
    Written to gactar_Count.py
 ```
@@ -184,14 +194,16 @@ model.goal.set('countFrom 2 5 starting')
 model.run()
 ```
 
+Currently only generates the `ccm` version.
+
 ### Run interactively
 
 ```
-(pyenv)$ ./gactar -i
+(env)$ ./gactar -i
 gactar version v0.0.2
 Type 'help' for a list of commands.
 To exit, type 'exit' or 'quit'.
-Using Python 3.9.6 from /path/to/gactar/pyenv/bin/python3
+ccm: Using Python 3.9.6 from /path/to/gactar/env/bin/python3
 > help
   exit:     exits the program
   history:  outputs your command history
@@ -214,11 +226,15 @@ end...
 > quit
 ```
 
+Currently only runs the `ccm` version. This will be [fixed in the future](https://github.com/asmaloney/gactar/issues/15).
+
 ### Run as a web server
 
 ```
-(pyenv)$ ./gactar -w
-Using Python 3.9.6 from /path/to/gactar/pyenv/bin/python3
+(env)$ ./gactar -w
+ccm: Using Python 3.9.6 from /path/to/gactar/env/bin/python3
+pyactr: Using Python 3.9.6 from /path/to/gactar/env/bin/python3
+vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
 Serving gactar on http://localhost:8181
 ```
 
@@ -283,7 +299,7 @@ start {
 increment {
     match {
         goal: `countFrom ?x !?x counting`
-        retrieve: `count ?x ?next`
+        retrieval: `count ?x ?next`
     }
     do {
         print x
@@ -307,7 +323,7 @@ You can find other examples of amod files in the [examples folder](examples).
 
 ### Special Chunks
 
-User-defined chunks must not begin with '\_' - these are reserved for internal use. Currently there is one internal chunk - _\_status_ - which is used to check the status of buffers and memory.
+User-defined chunks must not begin with '\_' - these are reserved for internal use. Currently there is one internal chunk - _\_status_ - which is used to check the status of buffers and memory. They also cannot be named `goal`, `retrieval`, or `memory`.
 
 It is used in a `match` as follows:
 
@@ -322,7 +338,7 @@ For buffers, the valid statuses are `full` and `empty`.
 
 For memory, valid statuses are `busy`, `free`, `error`.
 
-### Syntax
+### Pattern Syntax
 
 The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property ?obj category ?cat` ``. The first item is the chunk name and the others are the slots. These are parsed to ensure their format is consistent with chunks which are declared in the _config_ section.
 
@@ -330,9 +346,9 @@ The _do_ section in the productions uses a small language which currently unders
 
 | command                                                         | example                      |
 | --------------------------------------------------------------- | ---------------------------- |
-| clear _(buffer name)+_                                          | clear buff1, buff2           |
+| clear _(buffer name)+_                                          | clear goal, retrieval        |
 | print _(string or ident or number)+_                            | print foo, 'text', 42        |
 | recall _(pattern)_                                              | recall \`car ?colour\`       |
-| set _name_ of _(buffer name)_ to _(string or ident or number)_  | set sum of goal to 6         |
+| set _slot_ of _(buffer name)_ to _(string or ident or number)_  | set sum of goal to 6         |
 | set _(buffer name)_ to _(string or ident or number or pattern)_ | set goal to \`start 6 None\` |
 | write _(string or ident or number)+_ to _(text output name)_    | write 'foo' to text          |
