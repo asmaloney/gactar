@@ -127,6 +127,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, production *actr
 	}
 
 	if set.Slot != nil {
+		// we should have the form "set slot <name> in <buffer> to <!pattern>"
 		slotName := *set.Slot
 		if set.Pattern != nil {
 			errs.Addc(&set.Pos, "cannot set a slot ('%s') to a pattern in match buffer '%s' in production '%s'", slotName, bufferName, production.Name)
@@ -145,6 +146,11 @@ func validateSetStatement(set *setStatement, model *actr.Model, production *actr
 					errs.Addc(&set.Pos, "slot '%s' does not exist in chunk '%s' for match buffer '%s' in production '%s'", slotName, chunk.Name, bufferName, production.Name)
 				}
 			}
+		}
+	} else {
+		// we should have the form "set <buffer> to <pattern>"
+		if set.ID != nil || set.Number != nil || set.String != nil {
+			errs.Addc(&set.Pos, "buffer '%s' must be set to a pattern in production '%s'", bufferName, production.Name)
 		}
 	}
 
