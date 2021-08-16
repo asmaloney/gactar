@@ -8,6 +8,7 @@ import (
 )
 
 func TestNumber(t *testing.T) {
+	// https://github.com/asmaloney/gactar/issues/2
 	src := `0 0.3 5 55.6 .9`
 
 	l := lex("test", src)
