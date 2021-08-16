@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"sync"
 
 	"github.com/urfave/cli/v2"
 
@@ -100,14 +101,22 @@ func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
 
 	outputs := make(map[string]string, len(w.actrFrameworks))
 
+	var wg sync.WaitGroup
 	for name, f := range w.actrFrameworks {
-		output, err := w.run(model, data.RunStr, f)
-		if err != nil {
-			outputs[name] = err.Error()
-		} else {
-			outputs[name] = string(output)
-		}
+		wg.Add(1)
+
+		go func(wg *sync.WaitGroup, name string, f framework.Framework) {
+			defer wg.Done()
+
+			output, err := w.run(model, data.RunStr, f)
+			if err != nil {
+				outputs[name] = err.Error()
+			} else {
+				outputs[name] = string(output)
+			}
+		}(&wg, name, f)
 	}
+	wg.Wait()
 
 	results, err := json.Marshal(outputs)
 	if err != nil {
