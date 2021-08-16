@@ -95,7 +95,7 @@ The format still feels a little heavy, so if I continue with this project I woul
 
 `gactar` uses a python virtual environment to keep all the required python packages, lisp files, and other implementation files in one place so it does not affect the rest of your system. For more information about the virtual environment see the [python docs](https://docs.python.org/3/library/venv.html).
 
-### Setup the virtual python environment
+### Setup Virtual Environment
 
 1. Run `./scripts/setup.sh`
 
@@ -109,28 +109,28 @@ The format still feels a little heavy, so if I continue with this project I woul
 
    If it activated properly, your command line prompt will start with `(env)`. If you want to deactivate it, run `deactivate`.
 
-### Install the SBCL lisp compiler
+### Install SBCL Lisp Compiler
 
 For now this is not automated because the required files are not easy to determine programmatically. I may be able to improve this in the future by adding it to the auto-setup process.
 
-1. We are using the [Steel Bank Common Lisp](http://www.sbcl.org/index.html) (sbcl) compiler. Download the correct version [from here](http://www.sbcl.org/platform-table.html) by finding your OS and platform in the table and clicking the box. Put it in the `env` directory and unpack it there.
+1. We are using the [Steel Bank Common Lisp](http://www.sbcl.org/index.html) (sbcl) compiler. Download the correct version [from here](http://www.sbcl.org/platform-table.html) by finding your platform (OS and architecture) in the table and clicking its box. Put it in the `env` directory and unpack it there.
 
 2. To install it in our environment, change to the new directory it created (e.g. `sbcl-1.2.11-x86-64-darwin`) and run this command (setting the path to wherever the env directory is):
    ```sh
    INSTALL_ROOT=/path/to/gactar/env/ ./install.sh
    ```
 
-### Install the vanilla ACT-R files
+### Install Vanilla ACT-R
 
 For now this is not automated because the required files are not easy to determine programmatically. I may be able to improve this in the future by adding it to the auto-setup process.
 
-1. Download the zip file for you platform from here. Put it in the `env` directory and unpack it there. This should create a directory there named `actr7.x`
+1. Download the zip file for your OS from here. Put it in the `env` directory and unpack it there. This should create a directory named `actr7.x`
 
-2. In the `env` directory, run the following command to let the lisp compiler compile the main actr files (setting the path to wherever the env directory is):
+2. In the `env` directory, run the following command to compile the main actr files using the lisp compiler (setting the path to wherever the env directory is):
    ```sh
    export SBCL_HOME=/path/to/env/lib/sbcl; sbcl --script actr7.x/load-single-threaded-act-r.lisp
    ```
-   This will take a few moments to compile all the files so we don't have to do it every time we run it.
+   This will take a few moments to compile all the ACT-R files so we don't have to do it every time we run it.
 
 ## Build
 
@@ -151,13 +151,21 @@ go build
 
 This will create the `gactar` executable.
 
+## Test
+
+To run the built-in tests, from the top-level of the repo run:
+
+```
+go test ./...
+```
+
 ## Usage
 
 ```
 gactar [OPTIONS] [FILES...]
 ```
 
-### OPTIONS
+### Command Line Options
 
 **--debug, -d**: turn on debugging output (mainly output tokens from lexer)
 
@@ -173,7 +181,7 @@ gactar [OPTIONS] [FILES...]
 
 These examples assume you have set up your virtual environment properly. See [setup](#setup) above.
 
-### Generate a python file
+### Generate a Python File
 
 ```
 (env)$ ./gactar examples/count.amod
@@ -196,7 +204,7 @@ model.run()
 
 Currently only generates the `ccm` version.
 
-### Run interactively
+### Run Interactively
 
 ```
 (env)$ ./gactar -i
@@ -228,7 +236,7 @@ end...
 
 Currently only runs the `ccm` version. This will be [fixed in the future](https://github.com/asmaloney/gactar/issues/15).
 
-### Run as a web server
+### Run As Web Server
 
 ```
 (env)$ ./gactar -w
