@@ -31,12 +31,12 @@ text_outputs { text }
 
 // Initialize the memory
 memory {
-    'property shark dangerous true'
-    'property shark locomotion swimming'
-    'property shark category fish'
-    'property fish category animal'
-    'property bird category animal'
-    'property canary category bird'
+    `property( shark dangerous true )`
+    `property( shark locomotion swimming)`
+    `property( shark category fish )`
+    `property( fish category animal )`
+    `property( bird category animal )`
+    `property( canary category bird )`
 }
 
 ==productions==

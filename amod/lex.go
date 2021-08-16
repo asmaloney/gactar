@@ -299,6 +299,7 @@ func lexStart(l *lexer_amod) stateFn {
 	switch r := l.next(); {
 	case isSpace(r):
 		if l.inPattern {
+			eatSpace(l)
 			l.emit(lexemePatternSpace)
 			return lexStart
 		}

@@ -81,9 +81,15 @@ func TestInitializers(t *testing.T) {
 	==model==
 	name: Test
 	==config==
-	chunks { remember( who )}
+	chunks {
+		remember( person )
+		author( person object )
+	}
 	==init==
-	memory { 'remember me' }
+	memory {
+		` + "`remember(me)`" + `
+		` + "`author(  me  software  )`" + `
+	}
 	==productions==`
 
 	_, err := GenerateModel(src)
@@ -91,6 +97,33 @@ func TestInitializers(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err)
 	}
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	chunks { author( person object year ) }
+	==init==
+	memory { ` + "`author( me software )`" + ` }
+	==productions==`
+
+	_, err = GenerateModel(src)
+
+	expected := "invalid initialization - expected 3 slots (line 7)"
+	checkExpectedError(err, expected, t)
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	==init==
+	memory { ` + "`author( me software )`" + ` }
+	==productions==`
+
+	_, err = GenerateModel(src)
+
+	expected = "could not find chunk named 'author' in initialization (line 6)"
+	checkExpectedError(err, expected, t)
 }
 
 func TestProductionInvalidMemory(t *testing.T) {

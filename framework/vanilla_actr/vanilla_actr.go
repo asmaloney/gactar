@@ -123,18 +123,13 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 	v.Writeln("(add-dm")
 	for i, init := range v.model.Initializers {
 
-		chunkName, slots := actr.SplitStringForChunk(init.Text)
-		chunk := v.model.LookupChunk(chunkName)
+		pattern := init.Pattern
 
-		if chunk == nil {
-			err = fmt.Errorf("cannot find chunk named '%s' in initializer", chunkName)
-			return
-		}
+		v.Write(" (chunk_%d isa %s", i, pattern.Chunk.Name)
 
-		v.Write(" (chunk_%d isa %s", i, chunkName)
-
-		for i, slotName := range chunk.SlotNames {
-			v.writeSlot(slotName, slots[i])
+		for i, slotName := range pattern.Chunk.SlotNames {
+			slot := pattern.Slots[i]
+			v.writeSlot(slotName, slot.String())
 		}
 
 		v.Writeln(")")

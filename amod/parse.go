@@ -111,7 +111,7 @@ type configSection struct {
 }
 
 type initializer struct {
-	Items *stringList `parser:"'memory' '{' @@+ '}'"`
+	Patterns []*pattern `parser:"'memory' '{' @@+ '}'"`
 
 	Pos lexer.Position
 }

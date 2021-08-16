@@ -179,11 +179,9 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		c.Writeln("\tdef init():")
 
 		for _, init := range c.model.Initializers {
-			err = c.verifyChunk(init.Text, "initializer")
-			if err != nil {
-				return
-			}
-			c.Writeln("\t\t%s.add('%s')", init.Memory.Name, init.Text)
+			c.Write("\t\t%s.add(", init.Memory.Name)
+			c.outputPattern(init.Pattern)
+			c.Writeln(")")
 		}
 
 		c.Writeln("")
@@ -239,6 +237,22 @@ func (c *CCMPyACTR) verifyChunk(chunk, where string) (err error) {
 	return
 }
 
+func (c *CCMPyACTR) outputPattern(pattern *actr.Pattern) {
+	str := fmt.Sprintf("'%s ", pattern.Chunk.Name)
+
+	for i, slot := range pattern.Slots {
+		str += slot.String()
+
+		if i != len(pattern.Slots)-1 {
+			str += " "
+		}
+	}
+
+	str += "'"
+
+	c.Write(str)
+}
+
 func (c *CCMPyACTR) outputMatch(match *actr.Match) {
 	var name string
 	if match.Buffer != nil {
@@ -254,7 +268,8 @@ func (c *CCMPyACTR) outputMatch(match *actr.Match) {
 			c.Write("%s='%s:True'", name, status)
 		}
 	} else {
-		c.Write("%s='%s'", name, *match.Pattern)
+		c.Write("%s=", name)
+		c.outputPattern(match.Pattern)
 	}
 }
 
@@ -267,12 +282,14 @@ func (c *CCMPyACTR) outputStatement(s *actr.Statement) {
 			}
 			c.Writeln("\t\t%s.modify(%s)", s.Set.Buffer.Name, strings.Join(slotAssignments, ", "))
 		} else {
-			text := "'" + s.Set.Pattern.String() + "'"
-
-			c.Writeln("\t\t%s.set(%s)", s.Set.Buffer.Name, text)
+			c.Write("\t\t%s.set(", s.Set.Buffer.Name)
+			c.outputPattern(s.Set.Pattern)
+			c.Writeln(")")
 		}
 	} else if s.Recall != nil {
-		c.Writeln("\t\t%s.request('%s')", s.Recall.Memory.Name, s.Recall.Pattern)
+		c.Write("\t\t%s.request(", s.Recall.Memory.Name)
+		c.outputPattern(s.Recall.Pattern)
+		c.Writeln(")")
 	} else if s.Clear != nil {
 		for _, name := range s.Clear.BufferNames {
 			c.Writeln("\t\t%s.clear()", name)

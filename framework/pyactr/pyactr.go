@@ -119,20 +119,14 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	for _, init := range p.model.Initializers {
 		p.Writeln("dm.add(actr.chunkstring(string=\"\"\"")
 
-		chunkName, slots := actr.SplitStringForChunk(init.Text)
-		chunk := p.model.LookupChunk(chunkName)
-
-		if chunk == nil {
-			err = fmt.Errorf("cannot find chunk named '%s' in initializer", chunkName)
-			return
-		}
+		pattern := init.Pattern
 
 		tabbedItems := framework.KeyValueList{}
-		tabbedItems.Add("isa", chunkName)
+		tabbedItems.Add("isa", pattern.Chunk.Name)
 
-		err = tabbedItems.AddArrays(chunk.SlotNames, slots)
-		if err != nil {
-			return
+		for i, slot := range pattern.Slots {
+			slotName := pattern.Chunk.SlotNames[i]
+			addPatternSlot(&tabbedItems, slotName, slot)
 		}
 
 		p.TabWrite(1, tabbedItems)

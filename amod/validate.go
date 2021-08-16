@@ -37,21 +37,17 @@ func validateInitializer(model *actr.Model, init *initializer) (err error) {
 		return
 	}
 
-	for line, str := range init.Items.Strings {
+	for _, pattern := range init.Patterns {
 		// we need to guess the line number since we just have an array of strings here
-		pos := init.Pos
-		pos.Line += line + 1
-
-		chunkName, slots := actr.SplitStringForChunk(str)
-
+		chunkName := pattern.ChunkName
 		chunk := model.LookupChunk(chunkName)
 		if chunk == nil {
-			errs.Addc(&pos, "could not find chunk named '%s' in initialization '%s' for memory (line number approximate)", chunkName, str)
+			errs.Addc(&pattern.Pos, "could not find chunk named '%s' in initialization", chunkName)
 			continue
 		}
 
-		if len(slots) != chunk.NumSlots {
-			errs.Addc(&pos, "invalid initialization '%s' for memory - expected %d slots (line number approximate)", str, chunk.NumSlots)
+		if len(pattern.Slots) != chunk.NumSlots {
+			errs.Addc(&pattern.Pos, "invalid initialization - expected %d slots", chunk.NumSlots)
 			continue
 		}
 	}

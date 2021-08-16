@@ -282,11 +282,11 @@ chunks {
 
 // Initialize the memory
 memory {
-    'count 0 1'
-    'count 1 2'
-    'count 2 3'
-    'count 3 4'
-    'count 4 5'
+    `count( 0 1 )`
+    `count( 1 2 )`
+    `count( 2 3 )`
+    `count( 3 4 )`
+    `count( 4 5 )`
 }
 
 ==productions==

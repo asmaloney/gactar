@@ -220,7 +220,6 @@ func addInit(model *actr.Model, init *initSection) (err error) {
 	errs := errorListWithContext{}
 
 	for _, initializer := range init.Initializers {
-
 		err = validateInitializer(model, initializer)
 		if err != nil {
 			errs.AddErrorIfNotNil(err)
@@ -233,15 +232,21 @@ func addInit(model *actr.Model, init *initSection) (err error) {
 			continue
 		}
 
-		if initializer.Items == nil {
+		if initializer.Patterns == nil {
 			errs.Addc(&initializer.Pos, "no memory initializers found")
 			continue
 		}
 
-		for _, item := range initializer.Items.Strings {
+		for _, init := range initializer.Patterns {
+			pattern, err := createChunkPattern(model, init)
+			if err != nil {
+				errs.AddErrorIfNotNil(err)
+				continue
+			}
+
 			init := actr.Initializer{
-				Memory: memory,
-				Text:   item,
+				Memory:  memory,
+				Pattern: pattern,
 			}
 
 			model.Initializers = append(model.Initializers, &init)

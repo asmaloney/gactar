@@ -61,8 +61,8 @@ type TextOutput struct {
 }
 
 type Initializer struct {
-	Memory *Memory
-	Text   string
+	Memory  *Memory
+	Pattern *Pattern
 }
 
 func (c Chunk) IsInternal() bool {
