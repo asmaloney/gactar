@@ -2,6 +2,7 @@ package vanilla_actr
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
@@ -67,7 +68,13 @@ func (v *VanillaACTR) Run(initialGoal string) (output []byte, err error) {
 	}
 
 	// run it!
-	cmd := exec.Command(fmt.Sprintf("./%s", runFile))
+	command := fmt.Sprintf("./%s", runFile)
+	cmd := exec.Command(command)
+
+	// set SBCL_HOME so compiler works
+	sbclPath := fmt.Sprintf("%s/lib/sbcl", v.envPath)
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, fmt.Sprintf("SBCL_HOME=%s", sbclPath))
 
 	output, err = cmd.CombinedOutput()
 	output = removePreamble(output)
