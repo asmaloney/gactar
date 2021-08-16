@@ -110,14 +110,8 @@ type configSection struct {
 	Pos lexer.Position
 }
 
-type initializer struct {
-	Patterns []*pattern `parser:"'memory' '{' @@+ '}'"`
-
-	Pos lexer.Position
-}
-
 type initSection struct {
-	Initializers []*initializer `parser:"@@+"`
+	Patterns []*pattern `parser:"'memory' '{' @@+ '}'"`
 
 	Pos lexer.Position
 }
@@ -132,8 +126,9 @@ type patternSlotItem struct {
 }
 
 type patternSlot struct {
-	Items []*patternSlotItem `parser:"@@+"`
-	Space string             `parser:" @PatternSpace? "`
+	Space1 string             `parser:" @PatternSpace? "`
+	Items  []*patternSlotItem `parser:"@@+"`
+	Space2 string             `parser:" @PatternSpace? "`
 
 	Pos lexer.Position
 }
@@ -141,7 +136,6 @@ type patternSlot struct {
 type pattern struct {
 	StartTick string         "parser:\"'`'\"" // not used - must be set for parse
 	ChunkName string         `parser:" @Ident '('"`
-	Space     string         `parser:" @PatternSpace? "`
 	Slots     []*patternSlot `parser:" @@+ ')'"`
 	EndTick   string         "parser:\"'`'\"" // not used - must be set for parse
 

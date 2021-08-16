@@ -219,38 +219,34 @@ func addInit(model *actr.Model, init *initSection) (err error) {
 
 	errs := errorListWithContext{}
 
-	for _, initializer := range init.Initializers {
-		err = validateInitializer(model, initializer)
+	memory := model.LookupMemory("memory")
+	if memory == nil {
+		errs.Addc(&init.Pos, "memory not found")
+	}
+
+	if init.Patterns == nil {
+		errs.Addc(&init.Pos, "no memory initializers found")
+	}
+
+	for _, init := range init.Patterns {
+		err = validatePattern(model, init)
 		if err != nil {
 			errs.AddErrorIfNotNil(err)
 			continue
 		}
 
-		memory := model.LookupMemory("memory")
-		if memory == nil {
-			errs.Addc(&initializer.Pos, "memory not found")
+		pattern, err := createChunkPattern(model, init)
+		if err != nil {
+			errs.AddErrorIfNotNil(err)
 			continue
 		}
 
-		if initializer.Patterns == nil {
-			errs.Addc(&initializer.Pos, "no memory initializers found")
-			continue
+		init := actr.Initializer{
+			Memory:  memory,
+			Pattern: pattern,
 		}
 
-		for _, init := range initializer.Patterns {
-			pattern, err := createChunkPattern(model, init)
-			if err != nil {
-				errs.AddErrorIfNotNil(err)
-				continue
-			}
-
-			init := actr.Initializer{
-				Memory:  memory,
-				Pattern: pattern,
-			}
-
-			model.Initializers = append(model.Initializers, &init)
-		}
+		model.Initializers = append(model.Initializers, &init)
 	}
 
 	return errs.ErrorOrNil()

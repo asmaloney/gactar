@@ -27,29 +27,19 @@ func validateChunk(model *actr.Model, chunk *chunk) (err error) {
 	return errs.ErrorOrNil()
 }
 
-// validateInitializer ensures that the init text matches a chunk.
-func validateInitializer(model *actr.Model, init *initializer) (err error) {
+// validatePattern ensures that the pattern's chunk exists and that its number of slots match.
+func validatePattern(model *actr.Model, pattern *pattern) (err error) {
 	errs := errorListWithContext{}
 
-	memory := model.LookupMemory("memory")
-	if memory == nil {
-		errs.Addc(&init.Pos, "memory not found")
-		return
+	chunkName := pattern.ChunkName
+	chunk := model.LookupChunk(chunkName)
+	if chunk == nil {
+		errs.Addc(&pattern.Pos, "could not find chunk named '%s' in initialization", chunkName)
+		return errs
 	}
 
-	for _, pattern := range init.Patterns {
-		// we need to guess the line number since we just have an array of strings here
-		chunkName := pattern.ChunkName
-		chunk := model.LookupChunk(chunkName)
-		if chunk == nil {
-			errs.Addc(&pattern.Pos, "could not find chunk named '%s' in initialization", chunkName)
-			continue
-		}
-
-		if len(pattern.Slots) != chunk.NumSlots {
-			errs.Addc(&pattern.Pos, "invalid initialization - expected %d slots", chunk.NumSlots)
-			continue
-		}
+	if len(pattern.Slots) != chunk.NumSlots {
+		errs.Addc(&pattern.Pos, "invalid initialization - expected %d slots", chunk.NumSlots)
 	}
 
 	return errs.ErrorOrNil()
