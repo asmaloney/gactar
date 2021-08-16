@@ -42,6 +42,7 @@ func Initialize(cli *cli.Context, frameworks framework.List) (w *Web, err error)
 	for name, f := range w.actrFrameworks {
 		err = f.Initialize()
 		if err != nil {
+			fmt.Println(err.Error())
 			delete(w.actrFrameworks, name)
 			err = nil
 		}
