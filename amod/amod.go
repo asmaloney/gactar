@@ -90,9 +90,9 @@ func addConfig(model *actr.Model, config *configSection) (err error) {
 	errs := errorListWithContext{}
 
 	addACTR(model, config.ACTR, &errs)
-	addChunks(model, config.Chunks, &errs)
-	addMemory(model, config.Memory, &errs)
-	addTextOutputs(model, config.TextOutputs, &errs)
+	addChunks(model, config.ChunkDecls, &errs)
+	addMemory(model, config.MemoryDecl, &errs)
+	addTextOutputs(model, config.TextOutputDecls, &errs)
 
 	return errs.ErrorOrNil()
 }
@@ -108,7 +108,7 @@ func addACTR(model *actr.Model, list *fieldList, errs *errorListWithContext) {
 			if field.Value.Number != nil {
 				model.Logging = (*field.Value.Number != 0)
 			} else {
-				model.Logging = (strings.ToLower(*field.Value.String) == "true")
+				model.Logging = (strings.ToLower(*field.Value.Str) == "true")
 			}
 		default:
 			errs.Addc(&field.Pos, "unrecognized field in actr section: '%s'", field.Key)
@@ -116,7 +116,7 @@ func addACTR(model *actr.Model, list *fieldList, errs *errorListWithContext) {
 	}
 }
 
-func addChunks(model *actr.Model, chunks []*chunk, errs *errorListWithContext) {
+func addChunks(model *actr.Model, chunks []*chunkDecl, errs *errorListWithContext) {
 	if chunks == nil {
 		return
 	}
@@ -138,7 +138,7 @@ func addChunks(model *actr.Model, chunks []*chunk, errs *errorListWithContext) {
 	}
 }
 
-func addMemory(model *actr.Model, mem *memory, errs *errorListWithContext) {
+func addMemory(model *actr.Model, mem *memoryDecl, errs *errorListWithContext) {
 	if mem == nil {
 		return
 	}
@@ -152,32 +152,32 @@ func addMemory(model *actr.Model, mem *memory, errs *errorListWithContext) {
 	for _, field := range mem.Fields.Fields {
 		switch field.Key {
 		case "latency":
-			if field.Value.String != nil {
-				errs.Addc(&field.Pos, "memory latency '%s' should not be a string", *field.Value.String)
+			if field.Value.Str != nil {
+				errs.Addc(&field.Pos, "memory latency '%s' should not be a string", *field.Value.Str)
 				continue
 			}
 
 			memory.Latency = field.Value.Number
 
 		case "threshold":
-			if field.Value.String != nil {
-				errs.Addc(&field.Pos, "memory threshold '%s' should not be a string", *field.Value.String)
+			if field.Value.Str != nil {
+				errs.Addc(&field.Pos, "memory threshold '%s' should not be a string", *field.Value.Str)
 				continue
 			}
 
 			memory.Threshold = field.Value.Number
 
 		case "max_time":
-			if field.Value.String != nil {
-				errs.Addc(&field.Pos, "memory max_time '%s' should not be a string", *field.Value.String)
+			if field.Value.Str != nil {
+				errs.Addc(&field.Pos, "memory max_time '%s' should not be a string", *field.Value.Str)
 				continue
 			}
 
 			memory.MaxTime = field.Value.Number
 
 		case "finst_size":
-			if field.Value.String != nil {
-				errs.Addc(&field.Pos, "memory finst_size '%s' should not be a string", *field.Value.String)
+			if field.Value.Str != nil {
+				errs.Addc(&field.Pos, "memory finst_size '%s' should not be a string", *field.Value.Str)
 				continue
 			}
 
@@ -185,8 +185,8 @@ func addMemory(model *actr.Model, mem *memory, errs *errorListWithContext) {
 			memory.FinstSize = &size
 
 		case "finst_time":
-			if field.Value.String != nil {
-				errs.Addc(&field.Pos, "memory finst_time '%s' should not be a string", *field.Value.String)
+			if field.Value.Str != nil {
+				errs.Addc(&field.Pos, "memory finst_time '%s' should not be a string", *field.Value.Str)
 				continue
 			}
 

@@ -1,6 +1,7 @@
 package amod
 
 import (
+	"fmt"
 	"io"
 	"os"
 
@@ -40,38 +41,37 @@ type stringList struct {
 	Pos lexer.Position
 }
 
-type arg struct {
-	Arg string `parser:"@String|@Ident|@Number"`
+type value struct {
+	Str    *string  `parser:"  (@String|@Ident)"`
+	Number *float64 `parser:"| @Number"`
 
 	Pos lexer.Position
 }
 
-// String returns just the string portion of an arg struct
-func (a *arg) String() string {
-	return a.Arg
+func (v *value) String() string {
+	if v.Str != nil {
+		return *v.Str
+	} else if v.Number != nil {
+		return fmt.Sprintf("%f", *v.Number)
+	}
+
+	return ""
 }
 
 type argList struct {
-	Args []*arg `parser:"( @@ ','? )+"`
+	Args []*value `parser:"( @@ ','? )+"`
 
 	Pos lexer.Position
 }
 
 // Strings converts an arg list into a string slice
 func (a *argList) Strings() []string {
-	strs := make([]string, len(a.Args))
+	str := make([]string, len(a.Args))
 	for i, arg := range a.Args {
-		strs[i] = arg.Arg
+		str[i] = arg.String()
 	}
 
-	return strs
-}
-
-type value struct {
-	String *string  `parser:"  (@String|@Ident)"`
-	Number *float64 `parser:"| @Number"`
-
-	Pos lexer.Position
+	return str
 }
 
 type field struct {
@@ -87,25 +87,25 @@ type fieldList struct {
 	Pos lexer.Position
 }
 
-type chunk struct {
+type chunkDecl struct {
 	Name      string   `parser:"@Ident"`
 	SlotNames []string `parser:"'(' @Ident+ ')'"`
 
 	Pos lexer.Position
 }
 
-type memory struct {
+type memoryDecl struct {
 	Fields fieldList `parser:"@@+"`
 
 	Pos lexer.Position
 }
 
 type configSection struct {
-	ACTR        *fieldList `parser:"('actr' @@)?"`
-	Chunks      []*chunk   `parser:"('chunks' '{' @@+ '}')?"`
-	Buffers     *identList `parser:"('buffers' '{' @@ '}')?"`
-	Memory      *memory    `parser:"('memory' @@)?"`
-	TextOutputs *identList `parser:"('text_outputs' '{' @@ '}')?"`
+	ACTR            *fieldList   `parser:"('actr' @@)?"`
+	ChunkDecls      []*chunkDecl `parser:"('chunks' '{' @@+ '}')?"`
+	BufferDecls     *identList   `parser:"('buffers' '{' @@ '}')?"`
+	MemoryDecl      *memoryDecl  `parser:"('memory' @@)?"`
+	TextOutputDecls *identList   `parser:"('text_outputs' '{' @@ '}')?"`
 
 	Pos lexer.Position
 }

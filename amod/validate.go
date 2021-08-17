@@ -6,7 +6,7 @@ import (
 
 // validateChunk checks the chunk name to ensure uniqueness and that it isn't using
 // reserved names.
-func validateChunk(model *actr.Model, chunk *chunk) (err error) {
+func validateChunk(model *actr.Model, chunk *chunkDecl) (err error) {
 	errs := errorListWithContext{}
 
 	if actr.IsInternalChunkName(chunk.Name) {
