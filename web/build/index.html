@@ -10,7 +10,16 @@
     <h1>Andy's Fancy ACT-R Thingamabob (a.k.a. gactar)</h1>
     <row class="wrapper">
       <column class="amod">
-        <textarea id="amod" placeholder="(amod file contents here)"></textarea>
+        <row>
+          Example:
+          <select id="examples" onchange="handleExampleChange()" />
+        </row>
+        <row class="code">
+          <textarea
+            id="amod"
+            placeholder="(amod file contents here)"
+          ></textarea>
+        </row>
       </column>
       <column>
         <row class="run">

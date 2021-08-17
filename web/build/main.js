@@ -19,7 +19,7 @@ function runModel() {
 
       throw new Error('Unreachable: ' + response.statusText)
     })
-    .then(function (data) {
+    .then((data) => {
       if (data.error) {
         setError(data.error)
         return
@@ -27,7 +27,7 @@ function runModel() {
 
       setResults(data.results)
     })
-    .catch(function (error) {
+    .catch((error) => {
       clearResults()
       setError(error)
     })
@@ -60,8 +60,8 @@ function setRun(text) {
   document.getElementById('run').textContent = text
 }
 
-function loadExampleAMOD() {
-  const url = '/examples/count.amod'
+function loadExampleAMOD(example) {
+  const url = '/examples/' + example
   const params = {
     headers: { 'content-type': 'text/plain; charset=UTF-8' },
     method: 'GET',
@@ -69,22 +69,57 @@ function loadExampleAMOD() {
   }
 
   fetch(url, params)
-    .then(function (response) {
+    .then((response) => {
       if (response.ok) {
         return response.text()
       }
 
       throw new Error('Unreachable: ' + response.statusText)
     })
-    .then(function (text) {
+    .then((text) => {
       setAMOD(text)
       setRun('countFrom 2 5 starting')
     })
-    .catch(function (error) {
+    .catch((error) => {
+      setResults(error)
+    })
+}
+
+function addExamples(example_list) {
+  var select = document.getElementById('examples')
+
+  for (const name of example_list) {
+    var option = document.createElement('option')
+    option.text = name
+    select.add(option)
+  }
+}
+
+function handleExampleChange() {
+  var selectBox = document.getElementById('examples')
+
+  loadExampleAMOD(selectBox.value)
+}
+
+function loadExampleList() {
+  const url = '/examples/list'
+  const params = {
+    headers: { 'content-type': 'text/plain; charset=UTF-8' },
+    method: 'GET',
+    mode: 'cors',
+  }
+
+  fetch(url, params)
+    .then((res) => res.json())
+    .then((res) => {
+      addExamples(res.example_list)
+      handleExampleChange()
+    })
+    .catch((error) => {
       setResults(error)
     })
 }
 
 window.addEventListener('load', function () {
-  loadExampleAMOD()
+  loadExampleList()
 })

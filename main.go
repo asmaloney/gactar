@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"os"
 	"time"
@@ -15,6 +16,10 @@ import (
 	"gitlab.com/asmaloney/gactar/shell"
 	"gitlab.com/asmaloney/gactar/web"
 )
+
+// "embed" cannot use relative paths, so we must declare this at the top level and pass into web.
+//go:embed examples/*
+var amodExamples embed.FS
 
 func main() {
 	defaultPort := 8181
@@ -62,7 +67,7 @@ func main() {
 			}
 
 			if c.Bool("web") {
-				w, err := web.Initialize(c, frameworks)
+				w, err := web.Initialize(c, frameworks, &amodExamples)
 				if err != nil {
 					fmt.Println(err.Error())
 					return err

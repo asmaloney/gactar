@@ -47,6 +47,12 @@ column.runButton {
   flex: 1;
 }
 
+row.code {
+  flex: 1 1 auto;
+  height: 100%;
+  width: 100%;
+}
+
 row.results {
   flex: 1 1 auto;
   height: 100%;

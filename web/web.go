@@ -18,7 +18,7 @@ import (
 )
 
 //go:embed build/*
-var assets embed.FS
+var mainAssets embed.FS
 
 // fsFunc is used to access embedded files in assetHandler()
 type fsFunc func(name string) (fs.File, error)
@@ -30,13 +30,15 @@ func (f fsFunc) Open(name string) (fs.File, error) {
 type Web struct {
 	context        *cli.Context
 	actrFrameworks framework.List
+	examples       *embed.FS
 	port           int
 }
 
-func Initialize(cli *cli.Context, frameworks framework.List) (w *Web, err error) {
+func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS) (w *Web, err error) {
 	w = &Web{
 		context:        cli,
 		actrFrameworks: frameworks,
+		examples:       examples,
 		port:           cli.Int("port"),
 	}
 
@@ -60,8 +62,12 @@ func Initialize(cli *cli.Context, frameworks framework.List) (w *Web, err error)
 func (w *Web) Start() (err error) {
 	http.HandleFunc("/run", w.runModel)
 
-	handler := assetHandler("build")
-	http.HandleFunc("/", handler.ServeHTTP)
+	exampleHandler := assetHandler(w.examples, "")
+	http.HandleFunc("/examples/", exampleHandler.ServeHTTP)
+	http.HandleFunc("/examples/list", w.listExamples)
+
+	mainHandler := assetHandler(&mainAssets, "build")
+	http.HandleFunc("/", mainHandler.ServeHTTP)
 
 	fmt.Printf("Serving gactar on http://localhost:%d\n", w.port)
 
@@ -133,10 +139,10 @@ func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
 }
 
 // assetHandler returns an http.Handler that will serve files from
-// the assets embed.FS.  When locating a file, it will prepend the root
+// the given embed.FS.  When locating a file, it will prepend the root
 // to the filesystem lookup.
-// From https://blog.lawrencejones.dev/golang-embed/ and modified.
-func assetHandler(root string) http.Handler {
+// Adapted from https://blog.lawrencejones.dev/golang-embed/
+func assetHandler(assets *embed.FS, root string) http.Handler {
 	handler := fsFunc(func(name string) (fs.File, error) {
 		assetPath := path.Join(root, name)
 
@@ -149,6 +155,32 @@ func assetHandler(root string) http.Handler {
 	})
 
 	return http.FileServer(http.FS(handler))
+}
+
+// listExamples simply returns a list of the examples included in the build.
+func (w *Web) listExamples(rw http.ResponseWriter, req *http.Request) {
+	type response struct {
+		List []string `json:"example_list"`
+	}
+
+	entries, err := w.examples.ReadDir("examples")
+	if err != nil {
+		errorResponse(rw, err)
+		return
+	}
+
+	list := []string{}
+
+	for _, entry := range entries {
+		list = append(list, entry.Name())
+	}
+
+	r := response{
+		List: list,
+	}
+
+	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(rw).Encode(r)
 }
 
 func (w *Web) run(model *actr.Model, initialGoal string, framework framework.Framework) (output []byte, err error) {
