@@ -78,7 +78,6 @@ function loadExampleAMOD(example) {
     })
     .then((text) => {
       setAMOD(text)
-      setRun('countFrom 2 5 starting')
     })
     .catch((error) => {
       setResults(error)

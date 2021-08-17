@@ -8,11 +8,11 @@
 
 **This is just a proof-of-concept.**
 
-Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate the code to run it on three different ACT-R implementations:
+Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate code to run it on three different ACT-R implementations:
 
 - [CCM Suite](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) (python)
 - [pyactr](https://github.com/jakdot/pyactr) (python)
-- ["vanilla" ACT-R](http://act-r.psy.cmu.edu/) (lisp)
+- ["vanilla" ACT-R](https://act-r.psy.cmu.edu/) (lisp)
 
 `gactar` will work with the short tutorial models included in the _examples_ directory. It doesn't handle a lot beyond what's in there - it only works with memory modules, not perceptual-motor ones - so _it's limited at the moment_.
 
@@ -26,7 +26,8 @@ The format still feels a little heavy, so if I continue with this project I woul
 4. Restricts the model to a small language to prevent programming "outside the model".
 5. Provides a very simple setup for teaching environments.
 6. Runs the same model on multiple ACT-R implementations.
-7. Parses chunks to catch and report errors in a more user-friendly manner.
+7. Generates human-readable code (for now!) which is useful for learning the implementations and comparing them.
+8. Parses chunks to catch and report errors in a user-friendly manner.
 
    **Example #1 (invalid variable name)**
 
@@ -89,7 +90,7 @@ The format still feels a little heavy, so if I continue with this project I woul
 
 ## Setup
 
-1. Although the `gactar` executable itself is compiled for each platform, it requires **python3** to run the setup and to run the _ccm_ and _pyactr_ implementations. **python3** needs to be somewhere in your environment's `PATH` environment variable.
+1. Although the `gactar` executable itself is compiled for each platform, it requires **python3** to run the setup and to run the _ccm_ and _pyactr_ implementations. **python3** needs to be somewhere in your `PATH` environment variable.
 
 2. `gactar` requires one or more of the three implementations (_ccm_, _pyactr_, _vanilla_) be installed.
 
@@ -101,7 +102,7 @@ The format still feels a little heavy, so if I continue with this project I woul
 
    This will create a virtual environment for the project in a directory called `env`, download the [CCM Suite](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) & put its files in the right place, and install [pyactr](https://github.com/jakdot/pyactr) using pip.
 
-2. You need to activate the virtual environment by running this in the terminal before you run `gactar`:
+2. You will need to activate the virtual environment by running this in the terminal before you run `gactar`:
 
    ```sh
    source ./env/bin/activate
@@ -113,7 +114,7 @@ The format still feels a little heavy, so if I continue with this project I woul
 
 For now this is not automated because the required files are not easy to determine programmatically. I may be able to improve this in the future by adding it to the auto-setup process.
 
-1. We are using the [Steel Bank Common Lisp](http://www.sbcl.org/index.html) (sbcl) compiler. Download the correct version [from here](http://www.sbcl.org/platform-table.html) by finding your platform (OS and architecture) in the table and clicking its box. Put it in the `env` directory and unpack it there.
+1. We are using the [Steel Bank Common Lisp](https://www.sbcl.org/index.html) (sbcl) compiler. Download the correct version [from here](https://www.sbcl.org/platform-table.html) by finding your platform (OS and architecture) in the table and clicking its box. Put the file in the `env` directory and unpack it there.
 
 2. To install it in our environment, change to the new directory it created (e.g. `sbcl-1.2.11-x86-64-darwin`) and run this command (setting the path to wherever the env directory is):
    ```sh
@@ -124,17 +125,17 @@ For now this is not automated because the required files are not easy to determi
 
 For now this is not automated because the required files are not easy to determine programmatically. I may be able to improve this in the future by adding it to the auto-setup process.
 
-1. Download the zip file for your OS from here. Put it in the `env` directory and unpack it there. This should create a directory named `actr7.x`
+1. Download the zip file for your OS from [here](https://act-r.psy.cmu.edu/software). Put the zip file in the `env` directory and unpack it there. This should create a directory named `actr7.x`
 
-2. In the `env` directory, run the following command to compile the main actr files using the lisp compiler (setting the path to wherever the env directory is):
+2. Back in the `env` directory, run the following command to compile the main actr files using the lisp compiler (setting the path to wherever the env directory is):
    ```sh
    export SBCL_HOME=/path/to/env/lib/sbcl; sbcl --script actr7.x/load-single-threaded-act-r.lisp
    ```
-   This will take a few moments to compile all the ACT-R files so we don't have to do it every time we run it.
+   This will take a few moments to compile all the ACT-R files so it is ready to use.
 
 ## Build
 
-If you want to build `gactar`, you will need the [go compiler](https://golang.org/) installed.
+If you want to build `gactar`, you will need [git](https://git-scm.com/) and the [go compiler](https://golang.org/) installed.
 
 Then you just need to clone this repo:
 
@@ -188,10 +189,10 @@ These examples assume you have set up your virtual environment properly. See [se
 gactar version v0.0.2
 ccm: Using Python 3.9.6 from /path/to/gactar/env/bin/python3
 -- Generating code for examples/count.amod
-   Written to gactar_Count.py
+   Written to gactar_ccm_Count.py.py
 ```
 
-This will generate a python file called `gactar_Count.py` in the directory you are running from. It doesn't contain the run command, so in order to use it you would need to create another python file like this:
+This will generate a python file called `gactar_ccm_Count.py.py` in the directory you are running from. It doesn't contain the run command, so in order to use it you would need to create another python file like this:
 
 ```py
 from gactar_Count import gactar_Count
@@ -202,7 +203,7 @@ model.goal.set('countFrom 2 5 starting')
 model.run()
 ```
 
-Currently only generates the `ccm` version.
+Currently this form only generates the `ccm` version. This will be [fixed in the future](https://github.com/asmaloney/gactar/issues/15).
 
 ### Run Interactively
 
@@ -246,7 +247,7 @@ vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
 Serving gactar on http://localhost:8181
 ```
 
-Open `http://localhost:8181` in your browser, modify the amod description &amp; the goal, and click **Run**.
+Open `http://localhost:8181` in your browser, select an example from the menu, modify the amod description &amp; the goal, and click **Run**.
 
 ## amod File Format
 
@@ -270,7 +271,7 @@ examples {
 ==config==
 
 // Turn on logging by setting 'log' to 'true' or 1
-actr { log: false }
+actr { log: true }
 
 // Declare chunks and their layouts
 chunks {
@@ -331,7 +332,7 @@ You can find other examples of `amod` files in the [examples folder](examples).
 
 ### Special Chunks
 
-User-defined chunks must not begin with '\_' - these are reserved for internal use. Currently there is one internal chunk - _\_status_ - which is used to check the status of buffers and memory. They also cannot be named `goal`, `retrieval`, or `memory`.
+User-defined chunks must not begin with '\_' or be named `goal`, `retrieval`, or `memory` - these are reserved for internal use. Currently there is one internal chunk - _\_status_ - which is used to check the status of buffers and memory.
 
 It is used in a `match` as follows:
 
@@ -348,7 +349,7 @@ For memory, valid statuses are `busy`, `free`, `error`.
 
 ### Pattern Syntax
 
-The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property( ?obj category ?cat )` ``. The first item is the chunk name and the others are the slots. These are parsed to ensure their format is consistent with _chunks_ which are declared in the _config_ section.
+The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property( ?obj category ?cat )` ``. The first item is the chunk name and the items between the parentheses are the slots. These are parsed to ensure their format is consistent with _chunks_ which are declared in the _config_ section.
 
 The _do_ section in the productions uses a small language which currently understands the following commands:
 
