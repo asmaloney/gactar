@@ -1,4 +1,4 @@
-![Build](https://github.com/asmaloney/gactar/actions/workflows/build.yaml/badge.svg)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/asmaloney/gactar)](https://github.com/asmaloney/gactar/releases/latest) ![Build](https://github.com/asmaloney/gactar/actions/workflows/build.yaml/badge.svg) [![GitHub](https://img.shields.io/github/license/asmaloney/gactar)](LICENSE)
 
 # gactar
 
