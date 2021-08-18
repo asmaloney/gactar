@@ -354,7 +354,7 @@ func (v *VanillaACTR) createRunFile(modelFile string) (outputFile string, err er
 	defer v.CloseWriterHelper()
 
 	v.Writeln("#!%s/bin/sbcl --script", v.envPath)
-	v.Writeln(`(load "%s/actr7.x/load-single-threaded-act-r.lisp")`, v.envPath)
+	v.Writeln(`(load "%s/actr/load-single-threaded-act-r.lisp")`, v.envPath)
 	v.Writeln(`(load "%s")`, modelFile)
 	v.Writeln(`(run 10.0)`)
 
