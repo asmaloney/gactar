@@ -2,7 +2,7 @@
 
 # gactar
 
-`gactar` is a tool for creating [ACT-R](https://en.wikipedia.org/wiki/ACT-R) models using a new declarative file format (called _amod_).
+`gactar` is a tool for creating and running [ACT-R](https://en.wikipedia.org/wiki/ACT-R) models using a declarative file format called _amod_.
 
 ## Proof-of-Concept
 
@@ -10,13 +10,11 @@
 
 Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate code to run it on three different ACT-R implementations:
 
-- [CCM Suite](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) (python)
+- [CCM PyACTR](https://github.com/asmaloney/CCM-PyACTR) (python) - a.k.a. _"ccm"_
 - [pyactr](https://github.com/jakdot/pyactr) (python)
-- ["vanilla" ACT-R](https://act-r.psy.cmu.edu/) (lisp)
+- [ACT-R](https://github.com/asmaloney/ACT-R) (lisp) - a.k.a. _"vanilla"_
 
 `gactar` will work with the short tutorial models included in the _examples_ directory. It doesn't handle a lot beyond what's in there - it only works with memory modules, not perceptual-motor ones - so _it's limited at the moment_.
-
-The format still feels a little heavy, so if I continue with this project I would expect to iterate on it.
 
 ## Why?
 
