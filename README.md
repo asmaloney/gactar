@@ -361,3 +361,9 @@ The _do_ section in the productions uses a small language which currently unders
 | set _(slot name)_ of _(buffer name)_ to _(string or ident or number)_ | set sum of goal to 6            |
 | set _(buffer name)_ to _(pattern)_                                    | set goal to \`start( 6 None )\` |
 | write _(string or ident or number)+_ to _(text output name)_          | write 'foo' to text             |
+
+## Processing
+
+This diagram shows how an amod file is processed by gactar. The partial paths at the bottom of the items is the path to the source code responsible for that part of the processing.
+
+![How gactar processes an amod file](doc/gactar.svg)
