@@ -20,13 +20,17 @@ python3 --version
 pip install --upgrade pip
 
 # should we use requirements.txt?
-pip install wget pyactr
+pip install autopep8 pyactr pylint requests
 
-# Because CCMSuite isn't a proper package, we need to copy files to the right place.
-# I'm using a fork (CCM-PyACTR) to avoid pulling all the tmp and .pyc files in the original repo.
 cd ./env
-git clone https://github.com/asmaloney/CCM-PyACTR.git
-cp -rpf CCM-PyACTR/ccm lib/python3.9/site-packages/
-
-echo "Your environment is set up."
-echo "To load your virtual enviroment, run: source ./env/bin/activate"
+python3 ../scripts/getImplementations.py
+if [ $? -eq 0 ]; then
+    echo "SUCCESS"
+    echo "Your environment is set up."
+    echo "To load your virtual enviroment, run: source ./env/bin/activate"
+else
+    echo "INSTALLATION ERROR"
+    echo "There was a problem setting up your environment. Please check the errors."
+    echo "If you can't figure out the problem, search for solutions in the github issues at:"
+    echo "  https://github.com/asmaloney/gactar/issues"
+fi
