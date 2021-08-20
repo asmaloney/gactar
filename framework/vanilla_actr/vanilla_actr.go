@@ -328,16 +328,30 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 
 		v.TabWrite(2, tabbedItems)
 	} else if s.Print != nil {
-		v.Writeln(";;; print not yet handled")
-		// v.Write("\t=%s>\n", "goal"))
-		// for _, arg := range s.Print.Args {
-		// 	v.Write("\t!output!\t=%s>\n", arg))
-		// }
+		values := valuesToStrings(s.Print.Values)
+		v.Write("\t!output!\t(%s)\n", strings.Join(values, " "))
 	} else if s.Clear != nil {
 		for _, name := range s.Clear.BufferNames {
 			v.Writeln("\t-%s>", name)
 		}
 	}
+}
+
+func valuesToStrings(values *[]*actr.Value) []string {
+	str := make([]string, len(*values))
+	for i, v := range *values {
+		if v.Var != nil {
+			varName := strings.TrimPrefix(*v.Var, "?")
+			str[i] = fmt.Sprintf("=%s", varName)
+		} else if v.Str != nil {
+			str[i] = *v.Str
+		} else if v.Number != nil {
+			str[i] = fmt.Sprintf("%f", *v.Number)
+		}
+		// v.ID should not be possible because of validation
+	}
+
+	return str
 }
 
 // createRunFile creates a lisp program to load ACTR and our model and then run them.

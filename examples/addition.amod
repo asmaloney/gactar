@@ -58,7 +58,7 @@ terminateAddition {
         goal `add( ?num1 ?num2 ?num2 ?sum )`
     }
     do {
-        print sum
+        print ?sum
         clear goal
     }
 }

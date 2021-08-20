@@ -312,7 +312,7 @@ increment {
         retrieval `count( ?x ?next )`
     }
     do {
-        print x
+        print ?x
         recall `count( ?next ? )`
         set start of goal to next
     }
@@ -323,7 +323,7 @@ stop {
         goal `countFrom( ?x ?x counting )`
     }
     do {
-        print x
+        print ?x
         clear goal
     }
 }
@@ -357,11 +357,11 @@ The _do_ section in the productions uses a small language which currently unders
 | command                                                               | example                         |
 | --------------------------------------------------------------------- | ------------------------------- |
 | clear _(buffer name)+_                                                | clear goal, retrieval           |
-| print _(string or ident or number)+_                                  | print foo, 'text', 42           |
+| print _(string or var or number)+_                                    | print 'text', ?var, 42          |
 | recall _(pattern)_                                                    | recall \`car( ?colour )\`       |
 | set _(slot name)_ of _(buffer name)_ to _(string or ident or number)_ | set sum of goal to 6            |
 | set _(buffer name)_ to _(pattern)_                                    | set goal to \`start( 6 None )\` |
-| write _(string or ident or number)+_ to _(text output name)_          | write 'foo' to text             |
+| write _(string or var or number)+_ to _(text output name)_            | write 'text', ?var to text      |
 
 ## Processing
 

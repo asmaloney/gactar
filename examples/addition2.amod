@@ -18,7 +18,7 @@ actr { log: true }
 
 // Declare chunks and their layouts
 chunks {
-    add( slot_1 slot_2 slot_3 slot_4 slot_5 slot_6 slot_7 )
+    add( slot_1 slot_2 slot_3 slot_4 slot_5 answer remainder )
     addFact( first second sum )
 }
 
@@ -42,7 +42,7 @@ startPair {
     }
     // Steps to execute
     do {
-        set slot_6 of goal to 'busy'
+        set answer of goal to 'busy'
         recall `addFact( ?one1 ?one2 ? )`
     }
 }
@@ -53,8 +53,8 @@ addOnes {
         retrieval `addFact( ? ? ?sum )`
     }
     do {
-        set slot_6 of goal to sum
-        set slot_7 of goal to 'busy'
+        set answer of goal to sum
+        set remainder of goal to 'busy'
         recall `addFact( 10 ? ?sum )`
     }
 }
@@ -66,8 +66,8 @@ processCarry {
     }
     do {
         set slot_5 of goal to 'busy'
-        set slot_6 of goal to rem
-        set slot_7 of goal to 1
+        set answer of goal to rem
+        set remainder of goal to 1
         recall `addFact( ?ten1 ?ten2 ? )`
     }
 }
@@ -79,7 +79,7 @@ noCarry {
     }
     do {
         set slot_4 of goal to 'busy'
-        set slot_6 of goal to 0
+        set answer of goal to 0
         recall `addFact( ?ten1 ?ten2 ? )`
     }
 }
@@ -90,7 +90,7 @@ addTensDone {
         retrieval `addFact( ? ? ?sum )`
     }
     do {
-        print sum, oneAns
+        print ?sum, ?oneAns
         set slot_5 of goal to sum
     }
 }
@@ -101,7 +101,7 @@ addTensCarry {
         retrieval `addFact( ? ? ?sum )`
     }
     do {
-        set slot_7 of goal to 0
+        set remainder of goal to 0
         recall `addFact( 1 ?sum ? )`
     }
 }

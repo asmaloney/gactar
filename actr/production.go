@@ -29,9 +29,17 @@ type ClearStatement struct {
 	BufferNames []string
 }
 
+// Value holds something that may be printed.
+type Value struct {
+	Var    *string
+	ID     *string
+	Str    *string
+	Number *float64
+}
+
 // PrintStatement outputs the string, id, or number to stdout.
 type PrintStatement struct {
-	Args []string // the strings, identifiers, or numbers to print
+	Values *[]*Value
 }
 
 // RecallStatement is used to pull information from a memory.
@@ -42,7 +50,7 @@ type RecallStatement struct {
 
 // WriteStatement will send the list of strings, ids, and numbers to the text output.
 type WriteStatement struct {
-	Args           []string // the strings, identifiers, or numbers to write
+	Values         *[]*Value
 	TextOutputName string
 }
 

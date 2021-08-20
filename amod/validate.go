@@ -197,6 +197,19 @@ func validateClearStatement(clear *clearStatement, model *actr.Model, production
 func validatePrintStatement(print *printStatement, model *actr.Model, production *actr.Production) (err error) {
 	errs := errorListWithContext{}
 
+	if print.Args != nil {
+		for _, v := range print.Args.Values {
+			if v.ID != nil {
+				errs.Addc(&print.Pos, "cannot use ID '%s' in print statement", *v.ID)
+			} else if v.Var != nil {
+				match := production.LookupMatchByVariable(*v.Var)
+				if match == nil {
+					errs.Addc(&print.Pos, "print statement variable '%s' not found in matches for production '%s'", *v.Var, production.Name)
+				}
+			}
+		}
+	}
+
 	return errs.ErrorOrNil()
 }
 
@@ -208,6 +221,19 @@ func validateWriteStatement(write *writeStatement, model *actr.Model, production
 	textOutput := model.LookupTextOutput(name)
 	if textOutput == nil {
 		errs.Addc(&write.Pos, "text output '%s' not found in production '%s'", name, production.Name)
+	}
+
+	if write.Args != nil {
+		for _, v := range write.Args.Values {
+			if v.ID != nil {
+				errs.Addc(&write.Pos, "cannot use ID '%s' in write statement", *v.ID)
+			} else if v.Var != nil {
+				match := production.LookupMatchByVariable(*v.Var)
+				if match == nil {
+					errs.Addc(&write.Pos, "write statement variable '%s' not found in matches for production '%s'", *v.Var, production.Name)
+				}
+			}
+		}
 	}
 
 	return errs.ErrorOrNil()

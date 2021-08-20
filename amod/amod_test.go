@@ -307,10 +307,11 @@ func TestProductionPrintStatement(t *testing.T) {
 	==model==
 	name: Test
 	==config==
+	chunks { foo( thing1 thing2 ) }
 	==productions==
 	start {
-		match { memory ` + "`_status( error )`" + ` }
-		do { print 42 }
+		match { goal ` + "`foo( ?next ?other )`" + ` }
+		do { print 42, ?other, "blat" }
 	}`
 
 	_, err := GenerateModel(src)
@@ -333,6 +334,34 @@ func TestProductionPrintStatement(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err)
 	}
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	==productions==
+	start {
+		match { memory ` + "`_status( error )`" + ` }
+		do { print fooID }
+	}`
+
+	_, err = GenerateModel(src)
+	expected := "cannot use ID 'fooID' in print statement (line 8)"
+	checkExpectedError(err, expected, t)
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	==productions==
+	start {
+		match { memory ` + "`_status( error )`" + ` }
+		do { print ?fooVar }
+	}`
+
+	_, err = GenerateModel(src)
+	expected = "print statement variable '?fooVar' not found in matches for production 'start' (line 8)"
+	checkExpectedError(err, expected, t)
 }
 
 func TestProductionMatchInternal(t *testing.T) {

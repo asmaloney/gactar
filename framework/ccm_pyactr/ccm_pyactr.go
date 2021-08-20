@@ -295,8 +295,30 @@ func (c *CCMPyACTR) outputStatement(s *actr.Statement) {
 			c.Writeln("\t\t%s.clear()", name)
 		}
 	} else if s.Print != nil {
-		c.Writeln("\t\tprint(%s)", strings.Join(s.Print.Args, ","))
+		values := valuesToStrings(s.Print.Values, true)
+		c.Writeln("\t\tprint(%s)", strings.Join(values, ", "))
 	} else if s.Write != nil {
-		c.Writeln("\t\t%s.write('%s')", s.Write.TextOutputName, strings.Join(s.Write.Args, ","))
+		values := valuesToStrings(s.Write.Values, false)
+		c.Writeln("\t\t%s.write('%s')", s.Write.TextOutputName, strings.Join(values, ", "))
 	}
+}
+
+func valuesToStrings(values *[]*actr.Value, quoteStrings bool) []string {
+	str := make([]string, len(*values))
+	for i, v := range *values {
+		if v.Var != nil {
+			str[i] = strings.TrimPrefix(*v.Var, "?")
+		} else if v.Str != nil {
+			if quoteStrings {
+				str[i] = fmt.Sprintf("'%s'", *v.Str)
+			} else {
+				str[i] = *v.Str
+			}
+		} else if v.Number != nil {
+			str[i] = fmt.Sprintf("%f", *v.Number)
+		}
+		// v.ID should not be possible because of validation
+	}
+
+	return str
 }

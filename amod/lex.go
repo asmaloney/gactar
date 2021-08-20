@@ -346,11 +346,7 @@ func lexStart(l *lexer_amod) stateFn {
 		l.emit(lexemePatternDelim)
 
 	case r == '?':
-		if l.inPattern {
-			return lexIdentifier
-		} else {
-			l.emit(lexemeChar)
-		}
+		return lexIdentifier
 
 	case r <= unicode.MaxASCII && unicode.IsPrint(r):
 		l.emit(lexemeChar)
@@ -450,6 +446,8 @@ func lexIdentifier(l *lexer_amod) stateFn {
 		isKeyword := l.lookupKeyword(l.input[l.start:l.pos])
 		if isKeyword {
 			l.emit(lexemeKeyword)
+		} else if l.input[l.start] == '?' {
+			l.emit(lexemePatternVar)
 		} else {
 			l.emit(lexemeIdentifier)
 		}

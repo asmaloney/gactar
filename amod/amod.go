@@ -107,7 +107,9 @@ func addACTR(model *actr.Model, list *fieldList, errs *errorListWithContext) {
 		case "log":
 			if field.Value.Number != nil {
 				model.Logging = (*field.Value.Number != 0)
-			} else {
+			} else if field.Value.ID != nil {
+				model.Logging = (strings.ToLower(*field.Value.ID) == "true")
+			} else if field.Value.Str != nil {
 				model.Logging = (strings.ToLower(*field.Value.Str) == "true")
 			}
 		default:
@@ -476,7 +478,7 @@ func addPrintStatement(model *actr.Model, print *printStatement, production *act
 
 	p := actr.PrintStatement{}
 	if print.Args != nil {
-		p.Args = print.Args.Strings()
+		p.Values = convertArgs(print.Args.Values)
 	}
 
 	s := actr.Statement{Print: &p}
@@ -492,9 +494,31 @@ func addWriteStatement(model *actr.Model, write *writeStatement, production *act
 
 	s := actr.Statement{
 		Write: &actr.WriteStatement{
-			Args:           write.Args.Strings(),
+			Values:         convertArgs(write.Args.Values),
 			TextOutputName: write.TextOutputName},
 	}
 
 	return &s, nil
+}
+
+func convertArgs(values []*value) *[]*actr.Value {
+	actrValues := []*actr.Value{}
+
+	for _, v := range values {
+		newValue := actr.Value{}
+
+		if v.Var != nil {
+			newValue.Var = v.Var
+		} else if v.ID != nil {
+			newValue.ID = v.ID
+		} else if v.Str != nil {
+			newValue.Str = v.Str
+		} else if v.Number != nil {
+			newValue.Number = v.Number
+		}
+
+		actrValues = append(actrValues, &newValue)
+	}
+
+	return &actrValues
 }

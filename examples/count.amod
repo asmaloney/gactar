@@ -60,7 +60,7 @@ increment {
         retrieval `count( ?x ?next )`
     }
     do {
-        print x
+        print ?x
         recall `count( ?next ? )`
         set start of goal to next
     }
@@ -71,7 +71,7 @@ stop {
         goal `countFrom( ?x ?x counting )`
     }
     do {
-        print x
+        print ?x
         clear goal
     }
 }

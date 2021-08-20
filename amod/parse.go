@@ -1,7 +1,6 @@
 package amod
 
 import (
-	"fmt"
 	"io"
 	"os"
 
@@ -42,36 +41,18 @@ type stringList struct {
 }
 
 type value struct {
-	Str    *string  `parser:"  (@String|@Ident)"`
-	Number *float64 `parser:"| @Number"`
+	Var    *string  `parser:"( @PatternVar"`
+	ID     *string  `parser:"| @Ident"`
+	Str    *string  `parser:"| @String"`
+	Number *float64 `parser:"| @Number)"`
 
 	Pos lexer.Position
-}
-
-func (v *value) String() string {
-	if v.Str != nil {
-		return *v.Str
-	} else if v.Number != nil {
-		return fmt.Sprintf("%f", *v.Number)
-	}
-
-	return ""
 }
 
 type argList struct {
-	Args []*value `parser:"( @@ ','? )+"`
+	Values []*value `parser:"( @@ ','? )+"`
 
 	Pos lexer.Position
-}
-
-// Strings converts an arg list into a string slice
-func (a *argList) Strings() []string {
-	str := make([]string, len(a.Args))
-	for i, arg := range a.Args {
-		str[i] = arg.String()
-	}
-
-	return str
 }
 
 type field struct {
