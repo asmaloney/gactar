@@ -109,7 +109,7 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 			continue
 		}
 
-		p.Writeln("actr.chunktype(\"%s\", \"%s\")", chunk.Name, strings.Join(chunk.SlotNames, ", "))
+		p.Writeln("actr.chunktype('%s', '%s')", chunk.Name, strings.Join(chunk.SlotNames, ", "))
 	}
 	p.Writeln("")
 
@@ -117,7 +117,7 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 
 	// initialize
 	for _, init := range p.model.Initializers {
-		p.Writeln("dm.add(actr.chunkstring(string=\"\"\"")
+		p.Writeln("dm.add(actr.chunkstring(string='''")
 
 		pattern := init.Pattern
 
@@ -131,14 +131,14 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 
 		p.TabWrite(1, tabbedItems)
 
-		p.Writeln("\"\"\"))")
+		p.Writeln("'''))")
 	}
 
 	p.Writeln("")
 
 	// productions
 	for _, production := range p.model.Productions {
-		p.Writeln("%s.productionstring(name=\"%s\", string=\"\"\"", p.className, production.Name)
+		p.Writeln("%s.productionstring(name='%s', string='''", p.className, production.Name)
 		for _, match := range production.Matches {
 			p.outputMatch(match)
 		}
@@ -151,7 +151,7 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 			}
 		}
 
-		p.Writeln("\"\"\")")
+		p.Writeln("''')")
 	}
 
 	p.Writeln("")
@@ -190,7 +190,7 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 		p.Writeln("")
 
 		// ...and our code to run
-		p.Writeln("if __name__ == \"__main__\":")
+		p.Writeln("if __name__ == '__main__':")
 		p.Writeln("\tsim = %s.simulation()", p.className)
 		p.Writeln("\tsim.run()")
 	}
