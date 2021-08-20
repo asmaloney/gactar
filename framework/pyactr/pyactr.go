@@ -158,7 +158,7 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 
 	if initialGoal != "" {
 		// add our goal...
-		p.Write("%s.goal.add(actr.chunkstring(string=\"\"\"\n", p.className)
+		p.Writeln("initial_goal = actr.chunkstring(string='''")
 
 		chunkName, slots := actr.SplitStringForChunk(initialGoal)
 		chunk := p.model.LookupChunk(chunkName)
@@ -183,7 +183,10 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 
 		p.TabWrite(1, tabbedItems)
 
-		p.Writeln("\"\"\"))")
+		p.Writeln("''')")
+		p.Writeln("")
+		p.Writeln("goal = %s.set_goal('goal')", p.className)
+		p.Writeln("goal.add(initial_goal)")
 		p.Writeln("")
 
 		// ...and our code to run
@@ -198,10 +201,6 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 func (p *PyACTR) outputMatch(match *actr.Match) {
 	if match.Buffer != nil {
 		bufferName := match.Buffer.Name
-		if bufferName == "goal" {
-			bufferName = "g"
-		}
-
 		chunkName := match.Pattern.Chunk.Name
 
 		if actr.IsInternalChunkName(chunkName) {
@@ -267,9 +266,6 @@ func (p *PyACTR) outputStatement(s *actr.Statement) {
 	if s.Set != nil {
 		buffer := s.Set.Buffer
 		bufferName := buffer.Name
-		if bufferName == "goal" {
-			bufferName = "g"
-		}
 
 		p.Write("\t=%s>\n", bufferName)
 
@@ -318,10 +314,6 @@ func (p *PyACTR) outputStatement(s *actr.Statement) {
 		p.TabWrite(2, tabbedItems)
 	} else if s.Clear != nil {
 		for _, name := range s.Clear.BufferNames {
-			if name == "goal" {
-				name = "g"
-			}
-
 			p.Writeln("\t~%s>", name)
 		}
 	}
