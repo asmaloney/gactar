@@ -369,6 +369,26 @@ func TestProductionPrintStatement(t *testing.T) {
 		t.Errorf("Unexpected error: %s", err)
 	}
 
+	// Test print with vars from two different buffers
+	src = `
+	==model==
+	name: Test
+	==config==
+	chunks { foo( thing1 thing2 ) }
+	==productions==
+	start {
+		match {
+			goal ` + "`foo( ?next ?other )`" + `
+			memory ` + "`foo( ?next1 ?other1 )`" + `
+		}
+		do { print 42, ?other, ?other1, "blat" }
+	}`
+
+	_, err = GenerateModel(src)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
 	// https://github.com/asmaloney/gactar/issues/7
 	src = `
 	==model==
