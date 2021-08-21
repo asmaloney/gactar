@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+
+	"gitlab.com/asmaloney/gactar/actr"
 )
 
 // Some tools for working with our frameworks
@@ -34,4 +36,24 @@ func PythonCheckForPackage(packageName string) (err error) {
 	}
 
 	return
+}
+
+func PythonValuesToStrings(values *[]*actr.Value, quoteStrings bool) []string {
+	str := make([]string, len(*values))
+	for i, v := range *values {
+		if v.Var != nil {
+			str[i] = strings.TrimPrefix(*v.Var, "?")
+		} else if v.Str != nil {
+			if quoteStrings {
+				str[i] = fmt.Sprintf("'%s'", *v.Str)
+			} else {
+				str[i] = *v.Str
+			}
+		} else if v.Number != nil {
+			str[i] = *v.Number
+		}
+		// v.ID should not be possible because of validation
+	}
+
+	return str
 }

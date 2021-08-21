@@ -35,10 +35,10 @@ type identList struct {
 }
 
 type value struct {
-	Var    *string  `parser:"( @PatternVar"`
-	ID     *string  `parser:"| @Ident"`
-	Str    *string  `parser:"| @String"`
-	Number *float64 `parser:"| @Number)"`
+	Var    *string `parser:"( @PatternVar"`
+	ID     *string `parser:"| @Ident"`
+	Str    *string `parser:"| @String"`
+	Number *string `parser:"| @Number)"`
 
 	Pos lexer.Position
 }
@@ -164,9 +164,9 @@ type writeStatement struct {
 }
 
 type setValue struct {
-	Var    *string  `parser:"( @PatternVar"`
-	Str    *string  `parser:"| @String"`
-	Number *float64 `parser:"| @Number)"`
+	Var    *string `parser:"( @PatternVar"`
+	Str    *string `parser:"| @String"`
+	Number *string `parser:"| @Number)"`
 
 	Pos lexer.Position
 }

@@ -406,8 +406,7 @@ func addSetStatement(model *actr.Model, set *setStatement, production *actr.Prod
 			varName := strings.TrimPrefix(*set.Value.Var, "?")
 			value.Var = &varName
 		} else if set.Value.Number != nil {
-			num := fmt.Sprintf("%f", *set.Value.Number)
-			value.Number = &num
+			value.Number = set.Value.Number
 		} else if set.Value.Str != nil {
 			value.Str = set.Value.Str
 		}

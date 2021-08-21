@@ -34,7 +34,7 @@ type Value struct {
 	Var    *string
 	ID     *string
 	Str    *string
-	Number *float64
+	Number *string
 }
 
 // PrintStatement outputs the string, id, or number to stdout.

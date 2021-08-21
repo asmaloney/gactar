@@ -347,7 +347,7 @@ func valuesToStrings(values *[]*actr.Value) []string {
 			// quote the string to preserve case and allow non-alphanumeric characters
 			str[i] = fmt.Sprintf(`"%s"`, *v.Str)
 		} else if v.Number != nil {
-			str[i] = fmt.Sprintf("%f", *v.Number)
+			str[i] = *v.Number
 		}
 		// v.ID should not be possible because of validation
 	}
