@@ -204,7 +204,7 @@ model.goal.set('countFrom 2 5 starting')
 model.run()
 ```
 
-Currently this form only generates the `ccm` version. This will be [fixed in the future](https://github.com/asmaloney/gactar/issues/15).
+**Note:** Currently this form only generates the `ccm` version. This will be [fixed in the future](https://github.com/asmaloney/gactar/issues/15).
 
 ### Run Interactively
 
@@ -236,7 +236,7 @@ end...
 > quit
 ```
 
-Currently only runs the `ccm` version. This will be [fixed in the future](https://github.com/asmaloney/gactar/issues/15).
+**Note:** Currently only runs the `ccm` version. This will be [fixed in the future](https://github.com/asmaloney/gactar/issues/15).
 
 ### Run As Web Server
 
@@ -314,7 +314,7 @@ increment {
     do {
         print ?x
         recall `count( ?next ? )`
-        set start of goal to next
+        set start of goal to ?next
     }
 }
 
@@ -354,14 +354,14 @@ The _match_ section matches _patterns_ to buffers. Patterns are delineated by ba
 
 The _do_ section in the productions uses a small language which currently understands the following commands:
 
-| command                                                               | example                         |
-| --------------------------------------------------------------------- | ------------------------------- |
-| clear _(buffer name)+_                                                | clear goal, retrieval           |
-| print _(string or var or number)+_                                    | print 'text', ?var, 42          |
-| recall _(pattern)_                                                    | recall \`car( ?colour )\`       |
-| set _(slot name)_ of _(buffer name)_ to _(string or ident or number)_ | set sum of goal to 6            |
-| set _(buffer name)_ to _(pattern)_                                    | set goal to \`start( 6 None )\` |
-| write _(string or var or number)+_ to _(text output name)_            | write 'text', ?var to text      |
+| command                                                             | example                            |
+| ------------------------------------------------------------------- | ---------------------------------- |
+| clear _(buffer name)+_                                              | clear goal, retrieval              |
+| print _(string or var or number)+_                                  | print 'text', ?var, 42             |
+| recall _(pattern)_                                                  | recall \`car( ?colour )\`          |
+| set _(slot name)_ of _(buffer name)_ to _(string or var or number)_ | set wall_colour of goal to ?colour |
+| set _(buffer name)_ to _(pattern)_                                  | set goal to \`start( 6 None )\`    |
+| write _(string or var or number)+_ to _(text output name)_          | write 'text', ?var to text         |
 
 ## Processing
 
