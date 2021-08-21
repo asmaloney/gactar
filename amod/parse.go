@@ -34,12 +34,6 @@ type identList struct {
 	Pos lexer.Position
 }
 
-type stringList struct {
-	Strings []string `parser:"( @String ','? )+"`
-
-	Pos lexer.Position
-}
-
 type value struct {
 	Var    *string  `parser:"( @PatternVar"`
 	ID     *string  `parser:"| @Ident"`
@@ -55,9 +49,17 @@ type argList struct {
 	Pos lexer.Position
 }
 
+type fieldValue struct {
+	ID     *string  `parser:"( @Ident"`
+	Str    *string  `parser:"| @String"`
+	Number *float64 `parser:"| @Number)"`
+
+	Pos lexer.Position
+}
+
 type field struct {
-	Key   string `parser:"@Ident ':'"`
-	Value value  `parser:"@@ (',')?"`
+	Key   string     `parser:"@Ident ':'"`
+	Value fieldValue `parser:"@@ (',')?"`
 
 	Pos lexer.Position
 }
@@ -161,14 +163,21 @@ type writeStatement struct {
 	Pos lexer.Position
 }
 
+type setValue struct {
+	Var    *string  `parser:"( @PatternVar"`
+	Str    *string  `parser:"| @String"`
+	Number *float64 `parser:"| @Number)"`
+
+	Pos lexer.Position
+}
+
 type setStatement struct {
-	Set        string   `parser:"'set'"` // not used, but must be visible for parse to work
-	Slot       *string  `parser:"(@Ident 'of')?"`
-	BufferName string   `parser:"@Ident"`
-	ID         *string  `parser:"'to' (@Ident"`
-	Number     *string  `parser:"| @Number"`
-	String     *string  `parser:"| @String"`
-	Pattern    *pattern `parser:"| @@)"`
+	Set        string  `parser:"'set'"` // not used, but must be visible for parse to work
+	Slot       *string `parser:"(@Ident 'of')?"`
+	BufferName string  `parser:"@Ident"`
+
+	Value   *setValue `parser:"'to' (@@"`
+	Pattern *pattern  `parser:"| @@)"`
 
 	Pos lexer.Position
 }

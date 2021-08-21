@@ -55,14 +55,14 @@ type WriteStatement struct {
 }
 
 type SetValue struct {
-	ID     *string // set to this ID OR
+	Var    *string // set to this Var OR
 	Number *string // OR this number (no need to store as actual number at the moment)
 	Str    *string // OR this string
 }
 
 func (s SetValue) String() string {
-	if s.ID != nil {
-		return *s.ID
+	if s.Var != nil {
+		return *s.Var
 	} else if s.Number != nil {
 		return *s.Number
 	} else if s.Str != nil {

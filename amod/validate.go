@@ -113,34 +113,42 @@ func validateSetStatement(set *setStatement, model *actr.Model, production *actr
 	}
 
 	if set.Slot != nil {
-		// we should have the form "set <slot name> in <buffer> to <!pattern>"
+		// we should have the form "set <slot name> of <buffer> to <value>"
 		slotName := *set.Slot
 		if set.Pattern != nil {
 			errs.Addc(&set.Pos, "cannot set a slot ('%s') to a pattern in match buffer '%s' in production '%s'", slotName, bufferName, production.Name)
-		}
-
-		match := production.LookupMatchByBuffer(bufferName)
-
-		if match == nil {
-			errs.Addc(&set.Pos, "match buffer '%s' not found in production '%s'", bufferName, production.Name)
 		} else {
-			chunk := match.Pattern.Chunk
-			if chunk == nil {
-				errs.Addc(&set.Pos, "chunk does not exist in match buffer '%s' in production '%s'", bufferName, production.Name)
+			match := production.LookupMatchByBuffer(bufferName)
+
+			if match == nil {
+				errs.Addc(&set.Pos, "match buffer '%s' not found in production '%s'", bufferName, production.Name)
 			} else {
-				if !chunk.SlotExists(slotName) {
-					errs.Addc(&set.Pos, "slot '%s' does not exist in chunk '%s' for match buffer '%s' in production '%s'", slotName, chunk.Name, bufferName, production.Name)
+				chunk := match.Pattern.Chunk
+				if chunk == nil {
+					errs.Addc(&set.Pos, "chunk does not exist in match buffer '%s' in production '%s'", bufferName, production.Name)
+				} else {
+					if !chunk.SlotExists(slotName) {
+						errs.Addc(&set.Pos, "slot '%s' does not exist in chunk '%s' for match buffer '%s' in production '%s'", slotName, chunk.Name, bufferName, production.Name)
+					}
+
+					if set.Value.Var != nil {
+						// Check set.Value.Var to ensure it exists
+						match := production.LookupMatchByVariable(*set.Value.Var)
+						if match == nil {
+							errs.Addc(&set.Value.Pos, "set statement variable '%s' not found in matches for production '%s'", *set.Value.Var, production.Name)
+						}
+					}
 				}
 			}
 		}
 	} else {
 		// we should have the form "set <buffer> to <pattern>"
-		if set.ID != nil || set.Number != nil || set.String != nil {
+		if set.Value != nil {
 			errs.Addc(&set.Pos, "buffer '%s' must be set to a pattern in production '%s'", bufferName, production.Name)
 		}
 	}
 
-	if set.Pattern == nil && set.ID == nil && set.Number == nil && set.String == nil {
+	if set.Pattern == nil && set.Value == nil {
 		// should not be possible to get here since the parser should pick this up
 		errs.Addc(&set.Pos, "set statement is missing value (set to what?) in production '%s'", production.Name)
 	}

@@ -71,7 +71,7 @@ chainCategory {
         retrieval `property( ?obj1 category ?obj2!?cat )`
     }
     do {
-        set object of goal to obj2
+        set object of goal to ?obj2
         recall `property( ?obj2 category ? )`
     }
 }

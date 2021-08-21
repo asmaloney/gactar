@@ -53,7 +53,7 @@ addOnes {
         retrieval `addFact( ? ? ?sum )`
     }
     do {
-        set answer of goal to sum
+        set answer of goal to ?sum
         set remainder of goal to 'busy'
         recall `addFact( 10 ? ?sum )`
     }
@@ -66,7 +66,7 @@ processCarry {
     }
     do {
         set slot_5 of goal to 'busy'
-        set answer of goal to rem
+        set answer of goal to ?rem
         set remainder of goal to 1
         recall `addFact( ?ten1 ?ten2 ? )`
     }
@@ -91,7 +91,7 @@ addTensDone {
     }
     do {
         print ?sum, ?oneAns
-        set slot_5 of goal to sum
+        set slot_5 of goal to ?sum
     }
 }
 

@@ -276,8 +276,8 @@ func (p *PyACTR) outputStatement(s *actr.Statement) {
 			for _, slot := range *s.Set.Slots {
 				slotName := slot.Name
 
-				if slot.Value.ID != nil {
-					tabbedItems.Add(slotName, fmt.Sprintf("=%s", *slot.Value.ID))
+				if slot.Value.Var != nil {
+					tabbedItems.Add(slotName, fmt.Sprintf("=%s", *slot.Value.Var))
 				} else if slot.Value.Number != nil {
 					tabbedItems.Add(slotName, *slot.Value.Number)
 				} else if slot.Value.Str != nil {

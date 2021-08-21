@@ -48,7 +48,7 @@ initializeAddition {
     // Steps to execute
     do {
         set count of goal to 0
-        set sum of goal to num1
+        set sum of goal to ?num1
         recall `count( ?num1 ? )`
     }
 }
@@ -69,7 +69,7 @@ incrementSum {
         retrieval `count( ?sum ?next )`
     }
     do {
-        set sum of goal to next
+        set sum of goal to ?next
         recall `count( ?count ? )`
     }
 }
@@ -80,7 +80,7 @@ incrementCount {
         retrieval `count( ?count ?next )`
     }
     do {
-        set count of goal to next
+        set count of goal to ?next
         recall `count( ?sum ? )`
    }
 }

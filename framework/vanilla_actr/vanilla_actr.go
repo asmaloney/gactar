@@ -292,8 +292,8 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 			for _, slot := range *s.Set.Slots {
 				slotName := slot.Name
 
-				if slot.Value.ID != nil {
-					v.Writeln("\t\t%s\t=%s", slotName, *slot.Value.ID)
+				if slot.Value.Var != nil {
+					v.Writeln("\t\t%s\t=%s", slotName, *slot.Value.Var)
 				} else if slot.Value.Number != nil {
 					v.Writeln("\t\t%s\t%s", slotName, *slot.Value.Number)
 				} else if slot.Value.Str != nil {

@@ -62,7 +62,7 @@ increment {
     do {
         print ?x
         recall `count( ?next ? )`
-        set start of goal to next
+        set start of goal to ?next
     }
 }
 

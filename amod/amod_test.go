@@ -179,6 +179,7 @@ func TestProductionClearStatement(t *testing.T) {
 }
 
 func TestProductionSetStatement(t *testing.T) {
+	// Check setting to pattern
 	src := `
 	==model==
 	name: Test
@@ -195,6 +196,39 @@ func TestProductionSetStatement(t *testing.T) {
 		t.Errorf("Unexpected error: %s", err)
 	}
 
+	// Check setting to var
+	src = `
+	==model==
+	name: Test
+	==config==
+	chunks { foo( thing ) }
+	==productions==
+	start {
+		match { goal ` + "`foo( ?blat )`" + ` }
+		do { set thing of goal to ?blat }
+	}`
+
+	_, err = GenerateModel(src)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
+	// Check setting to non-existent var
+	src = `
+	==model==
+	name: Test
+	==config==
+	chunks { foo( thing ) }
+	==productions==
+	start {
+		match { goal ` + "`foo( ?blat )`" + ` }
+		do { set thing of goal to ?ding }
+	}`
+
+	_, err = GenerateModel(src)
+	expected := "set statement variable '?ding' not found in matches for production 'start' (line 9)"
+	checkExpectedError(err, expected, t)
+
 	// https://github.com/asmaloney/gactar/issues/28
 	src = `
 	==model==
@@ -209,7 +243,7 @@ func TestProductionSetStatement(t *testing.T) {
 
 	_, err = GenerateModel(src)
 
-	expected := "buffer 'goal' must be set to a pattern in production 'start' (line 9)"
+	expected = "buffer 'goal' must be set to a pattern in production 'start' (line 9)"
 	checkExpectedError(err, expected, t)
 
 	// https://github.com/asmaloney/gactar/issues/17
@@ -227,6 +261,22 @@ func TestProductionSetStatement(t *testing.T) {
 	_, err = GenerateModel(src)
 
 	expected = "cannot set a slot ('thing') to a pattern in match buffer 'goal' in production 'start' (line 9)"
+	checkExpectedError(err, expected, t)
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	chunks { foo( thing ) }
+	==productions==
+	start {
+		match { goal ` + "`foo( blat )`" + ` }
+		do { set goal to blat }
+	}`
+
+	_, err = GenerateModel(src)
+
+	expected = `9:22: unexpected token "blat" (expected (SetValue | Pattern))`
 	checkExpectedError(err, expected, t)
 }
 

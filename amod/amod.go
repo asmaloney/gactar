@@ -402,12 +402,14 @@ func addSetStatement(model *actr.Model, set *setStatement, production *actr.Prod
 
 		value := &actr.SetValue{}
 
-		if set.ID != nil {
-			value.ID = set.ID
-		} else if set.Number != nil {
-			value.Number = set.Number
-		} else if set.String != nil {
-			value.Str = set.String
+		if set.Value.Var != nil {
+			varName := strings.TrimPrefix(*set.Value.Var, "?")
+			value.Var = &varName
+		} else if set.Value.Number != nil {
+			num := fmt.Sprintf("%f", *set.Value.Number)
+			value.Number = &num
+		} else if set.Value.Str != nil {
+			value.Str = set.Value.Str
 		}
 
 		newSlot := &actr.SetSlot{
