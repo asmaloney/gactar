@@ -344,7 +344,8 @@ func valuesToStrings(values *[]*actr.Value) []string {
 			varName := strings.TrimPrefix(*v.Var, "?")
 			str[i] = fmt.Sprintf("=%s", varName)
 		} else if v.Str != nil {
-			str[i] = *v.Str
+			// quote the string to preserve case and allow non-alphanumeric characters
+			str[i] = fmt.Sprintf(`"%s"`, *v.Str)
 		} else if v.Number != nil {
 			str[i] = fmt.Sprintf("%f", *v.Number)
 		}
