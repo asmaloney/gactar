@@ -25,7 +25,7 @@ Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate c
 5. Provides a very simple setup for teaching environments.
 6. Runs the same model on multiple ACT-R implementations.
 7. Generates human-readable code (for now!) which is useful for learning the implementations and comparing them.
-8. Parses chunks to catch and report errors in a user-friendly manner.
+8. Parses chunks (including the `examples` section) to catch and report errors in a user-friendly manner.
 
    **Example #1 (invalid variable name)**
 
@@ -265,8 +265,8 @@ description: 'This is a model which adds numbers. Based on the u1_count.py tutor
 
 // Examples of starting goals to use when running the model
 examples {
-    'countFrom 2 5 starting'
-    'countFrom 1 3 starting'
+    `countFrom( 2 5 starting )`
+    `countFrom( 1 3 starting )`
 }
 
 ==config==
