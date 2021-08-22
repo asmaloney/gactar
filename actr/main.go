@@ -19,7 +19,7 @@ var reservedChunkNames = map[string]bool{
 type Model struct {
 	Name         string
 	Description  string
-	Examples     []string
+	Examples     []*Pattern
 	Chunks       []*Chunk
 	Buffers      []*Buffer
 	Memories     []*Memory // we only have one memory now, but leave as slice until we determine if we can have multiple memories

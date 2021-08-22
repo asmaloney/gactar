@@ -11,6 +11,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 	"gitlab.com/asmaloney/gactar/actr"
+	"gitlab.com/asmaloney/gactar/amod"
 	"gitlab.com/asmaloney/gactar/framework"
 )
 
@@ -87,6 +88,12 @@ func (v *VanillaACTR) Run(initialGoal string) (output []byte, err error) {
 }
 
 func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, err error) {
+	goal, err := amod.ParseChunk(v.model, initialGoal)
+	if err != nil {
+		err = fmt.Errorf("error in initial goal - %s", err)
+		return
+	}
+
 	outputFile = fmt.Sprintf("%s.lisp", v.modelName)
 	if path != "" {
 		outputFile = fmt.Sprintf("%s/%s", path, outputFile)
@@ -136,11 +143,10 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 	}
 
 	// with vanilla act-r, the goal is included with the initializations
-	if initialGoal != "" {
-		err = v.writeGoal(initialGoal)
-		if err != nil {
-			return
-		}
+	if goal != nil {
+		v.Write(" (chunk_goal")
+		v.outputPattern(goal, 1)
+		v.Writeln(")")
 	}
 
 	v.Writeln(")\n")
@@ -182,29 +188,16 @@ func (v *VanillaACTR) writeSlot(slot, value string) {
 	}
 }
 
-func (v *VanillaACTR) writeGoal(goal string) (err error) {
-	chunkName, slots := actr.SplitStringForChunk(goal)
-	chunk := v.model.LookupChunk(chunkName)
+func (v *VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int) {
+	tabbedItems := framework.KeyValueList{}
+	tabbedItems.Add("ISA", pattern.Chunk.Name)
 
-	if chunk == nil {
-		err = fmt.Errorf("cannot find chunk named '%s' from initial goal", chunkName)
-		return
+	for i, slot := range pattern.Slots {
+		slotName := pattern.Chunk.SlotNames[i]
+		addPatternSlot(&tabbedItems, slotName, slot)
 	}
 
-	if len(slots) != chunk.NumSlots {
-		err = fmt.Errorf("expecting %d slots for '%s', found %d", chunk.NumSlots, chunkName, len(slots))
-		return
-	}
-
-	v.Write(" (chunk_goal isa %s", chunkName)
-
-	for i, slotName := range chunk.SlotNames {
-		v.writeSlot(slotName, slots[i])
-	}
-
-	v.Writeln(")")
-
-	return
+	v.TabWrite(tabs, tabbedItems)
 }
 
 func (v *VanillaACTR) outputMatch(match *actr.Match) {
@@ -220,16 +213,7 @@ func (v *VanillaACTR) outputMatch(match *actr.Match) {
 			}
 		} else {
 			v.Writeln("\t=%s>", bufferName)
-
-			tabbedItems := framework.KeyValueList{}
-			tabbedItems.Add("ISA", chunkName)
-
-			for i, slot := range match.Pattern.Slots {
-				slotName := match.Pattern.Chunk.SlotNames[i]
-				addPatternSlot(&tabbedItems, slotName, slot)
-			}
-
-			v.TabWrite(2, tabbedItems)
+			v.outputPattern(match.Pattern, 2)
 		}
 	} else if match.Memory != nil {
 		text := "retrieval"
@@ -301,32 +285,14 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 				}
 			}
 		} else if s.Set.Pattern != nil {
-			tabbedItems := framework.KeyValueList{}
-			tabbedItems.Add("ISA", s.Set.Pattern.Chunk.Name)
-
-			for i, slot := range s.Set.Pattern.Slots {
-				slotName := s.Set.Pattern.Chunk.SlotNames[i]
-				addPatternSlot(&tabbedItems, slotName, slot)
-			}
-
-			v.TabWrite(2, tabbedItems)
+			v.outputPattern(s.Set.Pattern, 2)
 		} else {
 			v.Writeln(";;; writing text not yet handled")
 		}
 	} else if s.Recall != nil {
-		chunk := s.Recall.Pattern.Chunk
-
 		v.Writeln("\t+retrieval>")
 
-		tabbedItems := framework.KeyValueList{}
-		tabbedItems.Add("ISA", chunk.Name)
-
-		for i, slot := range s.Recall.Pattern.Slots {
-			slotName := chunk.SlotNames[i]
-			addPatternSlot(&tabbedItems, slotName, slot)
-		}
-
-		v.TabWrite(2, tabbedItems)
+		v.outputPattern(s.Recall.Pattern, 2)
 	} else if s.Print != nil {
 		values := valuesToStrings(s.Print.Values)
 		v.Write("\t!output!\t(%s)\n", strings.Join(values, " "))

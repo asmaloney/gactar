@@ -8,8 +8,8 @@ description: 'This is a model which adds numbers. Based on the u1_count.py tutor
 
 // Examples of starting goals to use when running the model
 examples {
-    'countFrom 2 5 starting'
-    'countFrom 1 7 starting'
+    `countFrom( 2 5 starting )`
+    `countFrom( 1 7 starting )`
 }
 
 ==config==

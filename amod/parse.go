@@ -33,9 +33,9 @@ type amodFile struct {
 }
 
 type modelSection struct {
-	Name        string   `parser:"'name' ':' (@String|@Ident)"`
-	Description string   `parser:"('description' ':' (@String|@Ident))?"`
-	Examples    []string `parser:"('examples' '{' (@String)+ '}')?"`
+	Name        string     `parser:"'name' ':' (@String|@Ident)"`
+	Description string     `parser:"('description' ':' (@String|@Ident))?"`
+	Examples    []*pattern `parser:"('examples' '{' @@+ '}')?"`
 
 	Pos lexer.Position
 }
@@ -201,7 +201,13 @@ type productionSection struct {
 	Pos lexer.Position
 }
 
-var parser = participle.MustBuild(&amodFile{},
+var amodParser = participle.MustBuild(&amodFile{},
+	participle.Lexer(LexerDefinition),
+	participle.Elide("Comment", "Whitespace"),
+	participle.Unquote(),
+)
+
+var patternParser = participle.MustBuild(&pattern{},
 	participle.Lexer(LexerDefinition),
 	participle.Elide("Comment", "Whitespace"),
 	participle.Unquote(),
@@ -210,7 +216,7 @@ var parser = participle.MustBuild(&amodFile{},
 func parse(r io.Reader) (*amodFile, error) {
 	var amod amodFile
 
-	err := parser.Parse("", r, &amod)
+	err := amodParser.Parse("", r, &amod)
 
 	if err != nil {
 		return nil, err

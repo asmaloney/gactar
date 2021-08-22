@@ -11,6 +11,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"gitlab.com/asmaloney/gactar/actr"
+	"gitlab.com/asmaloney/gactar/amod"
 	"gitlab.com/asmaloney/gactar/framework"
 )
 
@@ -82,6 +83,12 @@ func (p *PyACTR) Run(initialGoal string) (output []byte, err error) {
 }
 
 func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, err error) {
+	goal, err := amod.ParseChunk(p.model, initialGoal)
+	if err != nil {
+		err = fmt.Errorf("error in initial goal - %s", err)
+		return
+	}
+
 	outputFileName = fmt.Sprintf("%s.py", p.className)
 	if path != "" {
 		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
@@ -118,19 +125,7 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	// initialize
 	for _, init := range p.model.Initializers {
 		p.Writeln("dm.add(actr.chunkstring(string='''")
-
-		pattern := init.Pattern
-
-		tabbedItems := framework.KeyValueList{}
-		tabbedItems.Add("isa", pattern.Chunk.Name)
-
-		for i, slot := range pattern.Slots {
-			slotName := pattern.Chunk.SlotNames[i]
-			addPatternSlot(&tabbedItems, slotName, slot)
-		}
-
-		p.TabWrite(1, tabbedItems)
-
+		p.outputPattern(init.Pattern, 1)
 		p.Writeln("'''))")
 	}
 
@@ -156,34 +151,12 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 
 	p.Writeln("")
 
-	if initialGoal != "" {
+	if goal != nil {
 		// add our goal...
 		p.Writeln("initial_goal = actr.chunkstring(string='''")
-
-		chunkName, slots := actr.SplitStringForChunk(initialGoal)
-		chunk := p.model.LookupChunk(chunkName)
-
-		if chunk == nil {
-			err = fmt.Errorf("cannot find chunk named '%s' from initial goal", chunkName)
-			return
-		}
-
-		if len(slots) != chunk.NumSlots {
-			err = fmt.Errorf("expecting %d slots for '%s', found %d", chunk.NumSlots, chunkName, len(slots))
-			return
-		}
-
-		tabbedItems := framework.KeyValueList{}
-		tabbedItems.Add("isa", chunkName)
-
-		err = tabbedItems.AddArrays(chunk.SlotNames, slots)
-		if err != nil {
-			return
-		}
-
-		p.TabWrite(1, tabbedItems)
-
+		p.outputPattern(goal, 1)
 		p.Writeln("''')")
+
 		p.Writeln("")
 		p.Writeln("goal = %s.set_goal('goal')", p.className)
 		p.Writeln("goal.add(initial_goal)")
@@ -196,6 +169,18 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	}
 
 	return
+}
+
+func (p *PyACTR) outputPattern(pattern *actr.Pattern, tabs int) {
+	tabbedItems := framework.KeyValueList{}
+	tabbedItems.Add("isa", pattern.Chunk.Name)
+
+	for i, slot := range pattern.Slots {
+		slotName := pattern.Chunk.SlotNames[i]
+		addPatternSlot(&tabbedItems, slotName, slot)
+	}
+
+	p.TabWrite(tabs, tabbedItems)
 }
 
 func (p *PyACTR) outputMatch(match *actr.Match) {
@@ -211,16 +196,7 @@ func (p *PyACTR) outputMatch(match *actr.Match) {
 			}
 		} else {
 			p.Writeln("\t=%s>", bufferName)
-
-			tabbedItems := framework.KeyValueList{}
-			tabbedItems.Add("isa", chunkName)
-
-			for i, slot := range match.Pattern.Slots {
-				slotName := match.Pattern.Chunk.SlotNames[i]
-				addPatternSlot(&tabbedItems, slotName, slot)
-			}
-
-			p.TabWrite(2, tabbedItems)
+			p.outputPattern(match.Pattern, 2)
 		}
 	} else if match.Memory != nil {
 		bufferName := "retrieval"
@@ -286,32 +262,13 @@ func (p *PyACTR) outputStatement(s *actr.Statement) {
 			}
 			p.TabWrite(2, tabbedItems)
 		} else if s.Set.Pattern != nil {
-			tabbedItems := framework.KeyValueList{}
-			tabbedItems.Add("isa", s.Set.Pattern.Chunk.Name)
-
-			for i, slot := range s.Set.Pattern.Slots {
-				slotName := s.Set.Pattern.Chunk.SlotNames[i]
-				addPatternSlot(&tabbedItems, slotName, slot)
-			}
-
-			p.TabWrite(2, tabbedItems)
+			p.outputPattern(s.Set.Pattern, 2)
 		} else {
 			p.Writeln("# writing text not yet handled")
 		}
 	} else if s.Recall != nil {
-		chunk := s.Recall.Pattern.Chunk
-
 		p.Writeln("\t+retrieval>")
-
-		tabbedItems := framework.KeyValueList{}
-		tabbedItems.Add("isa", chunk.Name)
-
-		for i, slot := range s.Recall.Pattern.Slots {
-			slotName := chunk.SlotNames[i]
-			addPatternSlot(&tabbedItems, slotName, slot)
-		}
-
-		p.TabWrite(2, tabbedItems)
+		p.outputPattern(s.Recall.Pattern, 2)
 	} else if s.Clear != nil {
 		for _, name := range s.Clear.BufferNames {
 			p.Writeln("\t~%s>", name)

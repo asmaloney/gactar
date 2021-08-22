@@ -57,19 +57,6 @@ func (w WriterHelper) TabWrite(level int, list KeyValueList) {
 	w.TabWriter.Flush()
 }
 
-func (l *KeyValueList) AddArrays(keys, values []string) (err error) {
-	if len(keys) != len(values) {
-		err = fmt.Errorf("(internal error) expecting arrays of the same length")
-		return
-	}
-
-	for i, key := range keys {
-		l.Add(key, values[i])
-	}
-
-	return
-}
-
 func (l *KeyValueList) Add(key, value string) {
 	l.list = append(l.list, keyValue{
 		key:   key,

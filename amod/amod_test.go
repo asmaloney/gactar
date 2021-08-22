@@ -4,6 +4,33 @@ import (
 	"testing"
 )
 
+func TestModelExamples(t *testing.T) {
+	src := `
+	==model==
+	name: Test
+	examples { ` + "`foo( bar )`" + ` }
+	==config==
+	==productions==`
+
+	_, err := GenerateModel(src)
+
+	expected := "could not find chunk named 'foo' (line 4)"
+	checkExpectedError(err, expected, t)
+
+	src = `
+	==model==
+	name: Test
+	examples { ` + "`foo( bar )`" + ` }
+	==config==
+	chunks { foo( thing ) }
+	==productions==`
+
+	_, err = GenerateModel(src)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+}
+
 func TestACTRUnrecognizedField(t *testing.T) {
 	src := `
 	==model==
@@ -93,7 +120,6 @@ func TestInitializers(t *testing.T) {
 	==productions==`
 
 	_, err := GenerateModel(src)
-
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err)
 	}
@@ -109,7 +135,7 @@ func TestInitializers(t *testing.T) {
 
 	_, err = GenerateModel(src)
 
-	expected := "invalid initialization - expected 3 slots (line 7)"
+	expected := "invalid chunk - 'author' expects 3 slots (line 7)"
 	checkExpectedError(err, expected, t)
 
 	src = `
@@ -122,7 +148,7 @@ func TestInitializers(t *testing.T) {
 
 	_, err = GenerateModel(src)
 
-	expected = "could not find chunk named 'author' in initialization (line 6)"
+	expected = "could not find chunk named 'author' (line 6)"
 	checkExpectedError(err, expected, t)
 }
 

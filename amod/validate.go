@@ -34,12 +34,12 @@ func validatePattern(model *actr.Model, pattern *pattern) (err error) {
 	chunkName := pattern.ChunkName
 	chunk := model.LookupChunk(chunkName)
 	if chunk == nil {
-		errs.Addc(&pattern.Pos, "could not find chunk named '%s' in initialization", chunkName)
+		errs.Addc(&pattern.Pos, "could not find chunk named '%s'", chunkName)
 		return errs
 	}
 
 	if len(pattern.Slots) != chunk.NumSlots {
-		errs.Addc(&pattern.Pos, "invalid initialization - expected %d slots", chunk.NumSlots)
+		errs.Addc(&pattern.Pos, "invalid chunk - '%s' expects %d slots", chunkName, chunk.NumSlots)
 	}
 
 	return errs.ErrorOrNil()

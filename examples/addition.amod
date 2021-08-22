@@ -8,8 +8,8 @@ description: 'This is a model which adds numbers. From the u1_addition.py tutori
 
 // Examples of starting goals to use when running the model
 examples {
-    'add 3 1 None None'
-    'add 5 2 None None'
+    `add( 3 1 None None )`
+    `add( 5 2 None None )`
 }
 
 ==config==

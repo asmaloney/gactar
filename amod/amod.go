@@ -29,7 +29,7 @@ func SetDebug(debug bool) {
 // OutputEBNF outputs the extended Backus–Naur form (EBNF) of the amod grammar to stdout.
 // See: https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 func OutputEBNF() {
-	fmt.Println(parser.String())
+	fmt.Println(amodParser.String())
 }
 
 // GenerateModel generates a model from the text in the buffer.
@@ -54,17 +54,49 @@ func GenerateModelFromFile(fileName string) (model *actr.Model, err error) {
 	return generateModel(amod)
 }
 
+// ParseChunk is used to parse goals when given as input from a user.
+func ParseChunk(model *actr.Model, chunk string) (*actr.Pattern, error) {
+	if chunk == "" {
+		return nil, nil
+	}
+
+	// "chunk" needs backticks in order to parse properly.
+	if !strings.HasPrefix(chunk, "`") {
+		chunk = "`" + chunk + "`"
+	}
+
+	var p pattern
+
+	r := strings.NewReader(chunk)
+
+	err := patternParser.Parse("", r, &p)
+	if err != nil {
+		return nil, err
+	}
+
+	err = validatePattern(model, &p)
+	if err != nil {
+		return nil, err
+	}
+
+	return createChunkPattern(model, &p)
+}
+
 // generateModel runs through the parsed structures and creates an actr.Model from them
 func generateModel(amod *amodFile) (model *actr.Model, err error) {
 	model = &actr.Model{
 		Name:        amod.Model.Name,
 		Description: amod.Model.Description,
-		Examples:    amod.Model.Examples,
 	}
 
 	model.Initialize()
 
 	err = addConfig(model, amod.Config)
+	if err != nil {
+		return
+	}
+
+	err = addExamples(model, amod.Model.Examples)
 	if err != nil {
 		return
 	}
@@ -93,6 +125,32 @@ func addConfig(model *actr.Model, config *configSection) (err error) {
 	addChunks(model, config.ChunkDecls, &errs)
 	addMemory(model, config.MemoryDecl, &errs)
 	addTextOutputs(model, config.TextOutputDecls, &errs)
+
+	return errs.ErrorOrNil()
+}
+
+func addExamples(model *actr.Model, examples []*pattern) (err error) {
+	if len(examples) == 0 {
+		return
+	}
+
+	errs := errorListWithContext{}
+
+	for _, example := range examples {
+		err = validatePattern(model, example)
+		if err != nil {
+			errs.AddErrorIfNotNil(err)
+			continue
+		}
+
+		pattern, err := createChunkPattern(model, example)
+		if err != nil {
+			errs.AddErrorIfNotNil(err)
+			continue
+		}
+
+		model.Examples = append(model.Examples, pattern)
+	}
 
 	return errs.ErrorOrNil()
 }

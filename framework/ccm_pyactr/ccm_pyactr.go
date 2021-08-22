@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"gitlab.com/asmaloney/gactar/actr"
+	"gitlab.com/asmaloney/gactar/amod"
 	"gitlab.com/asmaloney/gactar/framework"
 )
 
@@ -86,11 +87,10 @@ func (c *CCMPyACTR) Run(initialGoal string) (output []byte, err error) {
 
 // WriteModel converts the internal actr.Model to python and writes it to a file.
 func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string, err error) {
-	if initialGoal != "" {
-		err = c.verifyChunk(initialGoal, "initial goal")
-		if err != nil {
-			return
-		}
+	goal, err := amod.ParseChunk(c.model, initialGoal)
+	if err != nil {
+		err = fmt.Errorf("error in initial goal - %s", err)
+		return
 	}
 
 	outputFileName = fmt.Sprintf("%s.py", c.className)
@@ -214,24 +214,12 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		c.Write("\n")
 	}
 
-	if initialGoal != "" {
+	if goal != nil {
 		c.Writeln("")
 		c.Writeln("if __name__ == \"__main__\":")
 		c.Writeln(fmt.Sprintf("\tmodel = %s()", c.className))
-		c.Writeln(fmt.Sprintf("\tmodel.goal.set('%s')", initialGoal))
+		c.Writeln(fmt.Sprintf("\tmodel.goal.set('%s')", convertGoal(goal)))
 		c.Writeln("\tmodel.run()")
-	}
-
-	return
-}
-
-func (c *CCMPyACTR) verifyChunk(chunk, where string) (err error) {
-	chunkName, _ := actr.SplitStringForChunk(chunk)
-	modelChunk := c.model.LookupChunk(chunkName)
-
-	if modelChunk == nil {
-		err = fmt.Errorf("cannot find chunk named '%s' from %s", chunkName, where)
-		return
 	}
 
 	return
@@ -301,4 +289,14 @@ func (c *CCMPyACTR) outputStatement(s *actr.Statement) {
 		values := framework.PythonValuesToStrings(s.Write.Values, false)
 		c.Writeln("\t\t%s.write('%s')", s.Write.TextOutputName, strings.Join(values, ", "))
 	}
+}
+
+// convertGoal strips out the parentheses for output.
+func convertGoal(g *actr.Pattern) string {
+	goal := g.String()
+
+	goal = strings.Replace(goal, "(", "", 1)
+	goal = strings.TrimSuffix(goal, " )")
+
+	return goal
 }

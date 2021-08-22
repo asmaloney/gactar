@@ -8,9 +8,9 @@ description: 'This model is based on the u1_semantic.py tutorial.'
 
 // Examples of starting goals to use when running the model
 examples {
-    'isMember shark fish None'
-    'isMember shark animal None'
-    'isMember canary fish None'
+    `isMember( shark fish None )`
+    `isMember( shark animal None )`
+    `isMember( canary fish None )`
 }
 
 ==config==
