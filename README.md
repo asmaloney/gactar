@@ -31,7 +31,7 @@ Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate c
 
    ```
     match {
-        goal `isMember( ?obj ?cat None )`
+        goal `isMember( ?obj ? None )`
     }
     do {
         recall `property( ?ojb category ? )`
@@ -41,17 +41,17 @@ Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate c
    The CCM Suite implementation _fails silently_ when given invalid variables which makes it difficult to catch errors & can result in incorrect output. Instead of ignoring the incorrect variable, gactar outputs a nice error message so it's obvious what the problem is:
 
    ```
-   recall statement variable '?ojb' not found in matches for production 'initialRetrieval' (line 58)
+   recall statement variable '?ojb' not found in matches for production 'initialRetrieval' (line 53)
    ```
 
    **Example #2 (invalid slot name)**
 
    ```
     match {
-        goal `isMember( ?obj ?cat None )`
+        goal `isMember( ?obj ? None )`
     }
     do {
-        set resutl of goal to 'pending'
+        set goal.resutl to 'pending'
     }
    ```
 
@@ -83,7 +83,7 @@ Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate c
    Instead, by adding validation, gactar produces a much better message:
 
    ```
-   slot 'resutl' does not exist in match buffer 'goal' in production 'initialRetrieval' (line 57)
+   slot 'resutl' does not exist in chunk 'isMember' for match buffer 'goal' in production 'initialRetrieval' (line 52)
    ```
 
 ## Setup
@@ -314,7 +314,7 @@ increment {
     do {
         print ?x
         recall `count( ?next ? )`
-        set start of goal to ?next
+        set goal.start to ?next
     }
 }
 
@@ -354,14 +354,14 @@ The _match_ section matches _patterns_ to buffers. Patterns are delineated by ba
 
 The _do_ section in the productions uses a small language which currently understands the following commands:
 
-| command                                                             | example                            |
-| ------------------------------------------------------------------- | ---------------------------------- |
-| clear _(buffer name)+_                                              | clear goal, retrieval              |
-| print _(string or var or number)+_                                  | print 'text', ?var, 42             |
-| recall _(pattern)_                                                  | recall \`car( ?colour )\`          |
-| set _(slot name)_ of _(buffer name)_ to _(string or var or number)_ | set wall_colour of goal to ?colour |
-| set _(buffer name)_ to _(pattern)_                                  | set goal to \`start( 6 None )\`    |
-| write _(string or var or number)+_ to _(text output name)_          | write 'text', ?var to text         |
+| command                                                          | example                         |
+| ---------------------------------------------------------------- | ------------------------------- |
+| clear _(buffer name)+_                                           | clear goal, retrieval           |
+| print _(string or var or number)+_                               | print 'text', ?var, 42          |
+| recall _(pattern)_                                               | recall \`car( ?colour )\`       |
+| set _(buffer name)_._(slot name)_ to _(string or var or number)_ | set goal.wall_colour to ?colour |
+| set _(buffer name)_ to _(pattern)_                               | set goal to \`start( 6 None )\` |
+| write _(string or var or number)+_ to _(text output name)_       | write 'text', ?var to text      |
 
 ## Processing
 

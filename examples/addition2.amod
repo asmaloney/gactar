@@ -42,7 +42,7 @@ startPair {
     }
     // Steps to execute
     do {
-        set answer of goal to 'busy'
+        set goal.answer to 'busy'
         recall `addFact( ?one1 ?one2 ? )`
     }
 }
@@ -53,8 +53,8 @@ addOnes {
         retrieval `addFact( ? ? ?sum )`
     }
     do {
-        set answer of goal to ?sum
-        set remainder of goal to 'busy'
+        set goal.answer to ?sum
+        set goal.remainder to 'busy'
         recall `addFact( 10 ? ?sum )`
     }
 }
@@ -65,9 +65,9 @@ processCarry {
         retrieval `addFact( 10 ?rem ?sum )`
     }
     do {
-        set slot_5 of goal to 'busy'
-        set answer of goal to ?rem
-        set remainder of goal to 1
+        set goal.slot_5 to 'busy'
+        set goal.answer to ?rem
+        set goal.remainder to 1
         recall `addFact( ?ten1 ?ten2 ? )`
     }
 }
@@ -78,8 +78,8 @@ noCarry {
         memory `_status( error )`
     }
     do {
-        set slot_4 of goal to 'busy'
-        set answer of goal to 0
+        set goal.slot_4 to 'busy'
+        set goal.answer to 0
         recall `addFact( ?ten1 ?ten2 ? )`
     }
 }
@@ -91,7 +91,7 @@ addTensDone {
     }
     do {
         print ?sum, ?oneAns
-        set slot_5 of goal to ?sum
+        set goal.slot_5 to ?sum
     }
 }
 
@@ -101,7 +101,7 @@ addTensCarry {
         retrieval `addFact( ? ? ?sum )`
     }
     do {
-        set remainder of goal to 0
+        set goal.remainder to 0
         recall `addFact( 1 ?sum ? )`
     }
 }

@@ -91,7 +91,6 @@ var keywords []string = []string{
 	"match",
 	"memory",
 	"name",
-	"of",
 	"print",
 	"recall",
 	"set",

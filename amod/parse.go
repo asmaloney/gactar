@@ -173,8 +173,8 @@ type setValue struct {
 
 type setStatement struct {
 	Set        string  `parser:"'set'"` // not used, but must be visible for parse to work
-	Slot       *string `parser:"(@Ident 'of')?"`
 	BufferName string  `parser:"@Ident"`
+	Slot       *string `parser:"('.' @Ident)?"`
 
 	Value   *setValue `parser:"'to' (@@"`
 	Pattern *pattern  `parser:"| @@)"`

@@ -205,7 +205,7 @@ func TestProductionSetStatement(t *testing.T) {
 	==productions==
 	start {
 		match { goal ` + "`foo( ?blat )`" + ` }
-		do { set thing of goal to ?blat }
+		do { set goal.thing to ?blat }
 	}`
 
 	_, err = GenerateModel(src)
@@ -222,7 +222,7 @@ func TestProductionSetStatement(t *testing.T) {
 	==productions==
 	start {
 		match { goal ` + "`foo( ?blat )`" + ` }
-		do { set thing of goal to ?ding }
+		do { set goal.thing to ?ding }
 	}`
 
 	_, err = GenerateModel(src)
@@ -255,7 +255,7 @@ func TestProductionSetStatement(t *testing.T) {
 	==productions==
 	start {
 		match { goal ` + "`foo( blat )`" + ` }
-		do { set thing of goal to ` + "`foo( ding )`" + ` }
+		do { set goal.thing to ` + "`foo( ding )`" + ` }
 	}`
 
 	_, err = GenerateModel(src)

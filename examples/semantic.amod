@@ -45,11 +45,11 @@ memory {
 initialRetrieval {
     // Buffers to match
     match {
-        goal `isMember( ?obj ?cat None )`
+        goal `isMember( ?obj ? None )`
     }
     // Steps to execute
     do {
-        set judgment of goal to 'pending'
+        set goal.judgment to 'pending'
         recall `property( ?obj category ? )`
     }
 }
@@ -60,7 +60,7 @@ directVerify {
         retrieval `property( ?obj category ?cat )`
     }
     do {
-        set judgment of goal to 'yes'
+        set goal.judgment to 'yes'
         write 'Yes' to text
     }
 }
@@ -71,18 +71,18 @@ chainCategory {
         retrieval `property( ?obj1 category ?obj2!?cat )`
     }
     do {
-        set object of goal to ?obj2
+        set goal.object to ?obj2
         recall `property( ?obj2 category ? )`
     }
 }
 
 fail {
     match {
-        goal `isMember( ?obj1 ?cat pending )`
+        goal `isMember( ? ? pending )`
         memory `_status( error )`
     }
     do {
-        set judgment of goal to 'no'
+        set goal.judgment to 'no'
         write 'No' to text
     }
 }
