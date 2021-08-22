@@ -206,7 +206,7 @@ func validatePrintStatement(print *printStatement, model *actr.Model, production
 	errs := errorListWithContext{}
 
 	if print.Args != nil {
-		for _, v := range print.Args.Values {
+		for _, v := range print.Args {
 			if v.ID != nil {
 				errs.Addc(&print.Pos, "cannot use ID '%s' in print statement", *v.ID)
 			} else if v.Var != nil {
@@ -232,7 +232,7 @@ func validateWriteStatement(write *writeStatement, model *actr.Model, production
 	}
 
 	if write.Args != nil {
-		for _, v := range write.Args.Values {
+		for _, v := range write.Args {
 			if v.ID != nil {
 				errs.Addc(&write.Pos, "cannot use ID '%s' in write statement", *v.ID)
 			} else if v.Var != nil {

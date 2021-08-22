@@ -8,8 +8,20 @@ import (
 	"github.com/alecthomas/participle/v2/lexer"
 )
 
-// Use participle to parse the lexemes.
-// https://github.com/alecthomas/participle
+// Uses participle to parse the lexemes.
+// 	https://github.com/alecthomas/participle
+
+// Railroad Diagrams
+// ------
+// First output the EBNF grammar to stdout with the command "gactar -ebnf".
+//
+// There are two ways to generate railroad diagrams:
+// 	1. Use the "railroad" tool from participle like this:
+//		./railroad -o amod-grammar.html -w
+//		paste in the generated EBNF above & hit control-D
+//	2. Use this page to convert the ebnf and generate a diagram:
+//		https://bottlecaps.de/convert/
+//		paste in the generated EBNF above, click "Convert" and then click "View Diagram"
 
 type amodFile struct {
 	Model       *modelSection      `parser:"'==model==' @@"`
@@ -28,23 +40,11 @@ type modelSection struct {
 	Pos lexer.Position
 }
 
-type identList struct {
-	Identifiers []string `parser:"( @Ident ','? )+"`
-
-	Pos lexer.Position
-}
-
-type value struct {
+type arg struct {
 	Var    *string `parser:"( @PatternVar"`
 	ID     *string `parser:"| @Ident"`
 	Str    *string `parser:"| @String"`
 	Number *string `parser:"| @Number)"`
-
-	Pos lexer.Position
-}
-
-type argList struct {
-	Values []*value `parser:"( @@ ','? )+"`
 
 	Pos lexer.Position
 }
@@ -64,31 +64,18 @@ type field struct {
 	Pos lexer.Position
 }
 
-type fieldList struct {
-	Fields []*field `parser:"'{' @@+ '}'"`
-
-	Pos lexer.Position
-}
-
 type chunkDecl struct {
 	Name      string   `parser:"@Ident"`
-	SlotNames []string `parser:"'(' @Ident+ ')'"`
-
-	Pos lexer.Position
-}
-
-type memoryDecl struct {
-	Fields fieldList `parser:"@@+"`
+	SlotNames []string `parser:"'(' ( @Ident ','? )+ ')'"`
 
 	Pos lexer.Position
 }
 
 type configSection struct {
-	ACTR            *fieldList   `parser:"('actr' @@)?"`
+	ACTR            []*field     `parser:"('actr' '{' @@+ '}')?"`
 	ChunkDecls      []*chunkDecl `parser:"('chunks' '{' @@+ '}')?"`
-	BufferDecls     *identList   `parser:"('buffers' '{' @@ '}')?"`
-	MemoryDecl      *memoryDecl  `parser:"('memory' @@)?"`
-	TextOutputDecls *identList   `parser:"('text_outputs' '{' @@ '}')?"`
+	MemoryDecl      []*field     `parser:"('memory' '{' @@+ '}')?"`
+	TextOutputDecls []string     `parser:"('text_outputs' '{' ( @Ident ','? )+ '}')?"`
 
 	Pos lexer.Position
 }
@@ -145,7 +132,7 @@ type clearStatement struct {
 }
 
 type printStatement struct {
-	Args *argList `parser:"'print' @@?"`
+	Args []*arg `parser:"'print' ( @@ ','? )*"`
 
 	Pos lexer.Position
 }
@@ -157,8 +144,8 @@ type recallStatement struct {
 }
 
 type writeStatement struct {
-	Args           *argList `parser:"'write' @@"`
-	TextOutputName string   `parser:"'to' @Ident"`
+	Args           []*arg `parser:"'write' ( @@ ','? )+"`
+	TextOutputName string `parser:"'to' @Ident"`
 
 	Pos lexer.Position
 }

@@ -97,12 +97,12 @@ func addConfig(model *actr.Model, config *configSection) (err error) {
 	return errs.ErrorOrNil()
 }
 
-func addACTR(model *actr.Model, list *fieldList, errs *errorListWithContext) {
+func addACTR(model *actr.Model, list []*field, errs *errorListWithContext) {
 	if list == nil {
 		return
 	}
 
-	for _, field := range list.Fields {
+	for _, field := range list {
 		switch field.Key {
 		case "log":
 			if field.Value.Number != nil {
@@ -140,7 +140,7 @@ func addChunks(model *actr.Model, chunks []*chunkDecl, errs *errorListWithContex
 	}
 }
 
-func addMemory(model *actr.Model, mem *memoryDecl, errs *errorListWithContext) {
+func addMemory(model *actr.Model, mem []*field, errs *errorListWithContext) {
 	if mem == nil {
 		return
 	}
@@ -151,7 +151,7 @@ func addMemory(model *actr.Model, mem *memoryDecl, errs *errorListWithContext) {
 		return
 	}
 
-	for _, field := range mem.Fields.Fields {
+	for _, field := range mem {
 		switch field.Key {
 		case "latency":
 			if field.Value.Str != nil {
@@ -200,12 +200,12 @@ func addMemory(model *actr.Model, mem *memoryDecl, errs *errorListWithContext) {
 	}
 }
 
-func addTextOutputs(model *actr.Model, list *identList, errs *errorListWithContext) {
+func addTextOutputs(model *actr.Model, list []string, errs *errorListWithContext) {
 	if list == nil {
 		return
 	}
 
-	for _, name := range list.Identifiers {
+	for _, name := range list {
 		textOutput := actr.TextOutput{
 			Name: name,
 		}
@@ -479,7 +479,7 @@ func addPrintStatement(model *actr.Model, print *printStatement, production *act
 
 	p := actr.PrintStatement{}
 	if print.Args != nil {
-		p.Values = convertArgs(print.Args.Values)
+		p.Values = convertArgs(print.Args)
 	}
 
 	s := actr.Statement{Print: &p}
@@ -495,17 +495,17 @@ func addWriteStatement(model *actr.Model, write *writeStatement, production *act
 
 	s := actr.Statement{
 		Write: &actr.WriteStatement{
-			Values:         convertArgs(write.Args.Values),
+			Values:         convertArgs(write.Args),
 			TextOutputName: write.TextOutputName},
 	}
 
 	return &s, nil
 }
 
-func convertArgs(values []*value) *[]*actr.Value {
+func convertArgs(args []*arg) *[]*actr.Value {
 	actrValues := []*actr.Value{}
 
-	for _, v := range values {
+	for _, v := range args {
 		newValue := actr.Value{}
 
 		if v.Var != nil {
