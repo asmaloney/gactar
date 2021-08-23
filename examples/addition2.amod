@@ -4,11 +4,11 @@
 name: addition2
 
 // Description of the model (currently output as a comment in the generated code)
-description: "This model is based on the u1_addition2.py tutorial."
+description: "This model is based on the textual description in 'unit1.pdf' of the vanilla ACT-R tutorials (pp. 40-42)."
 
 // Examples of starting goals to use when running the model
 examples {
-    `add( 3 6 4 7 None None None )`
+    `add_pair( 3 6 4 7 None None 0 )`
 }
 
 ==config==
@@ -18,18 +18,18 @@ actr { log: true }
 
 // Declare chunks and their layouts
 chunks {
-    add( slot_1 slot_2 slot_3 slot_4 slot_5 answer remainder )
-    addFact( first second sum )
+    addition_fact( addend1 addend2 sum )
+    add_pair( ten1 one1 ten2 one2 ten_ans one_ans carry )
 }
 
 ==init==
 
 // Initialize the memory
 memory {
-    `addFact( 3 4 7 )`
-    `addFact( 6 7 13 )`
-    `addFact( 10 3 13 )`
-    `addFact( 1 7 8 )`
+    `addition_fact( 3 4 7 )`
+    `addition_fact( 6 7 13 )`
+    `addition_fact( 10 3 13 )`
+    `addition_fact( 1 7 8 )`
 }
 
 ==productions==
@@ -38,70 +38,70 @@ memory {
 startPair {
     // Buffers to match
     match {
-        goal `add( ? ?one1 ? ?one2 ? None?ans ? )`
+        goal `add_pair( ? ?one1 ? ?one2 ? None ? )`
     }
     // Steps to execute
     do {
-        set goal.answer to 'busy'
-        recall `addFact( ?one1 ?one2 ? )`
+        set goal.one_ans to 'busy'
+        recall `addition_fact( ?one1 ?one2 ? )`
     }
 }
 
 addOnes {
     match {
-        goal `add( ? ? ? ? ? busy?ans ?carry )`
-        retrieval `addFact( ? ? ?sum )`
+        goal `add_pair( ? ?one1 ? ?one2 ? busy ? )`
+        retrieval `addition_fact( ?one1 ?one2 ?sum )`
     }
     do {
-        set goal.answer to ?sum
-        set goal.remainder to 'busy'
-        recall `addFact( 10 ? ?sum )`
+        set goal.one_ans to ?sum
+        set goal.carry to 'busy'
+        recall `addition_fact( 10 ? ?sum )`
     }
 }
 
 processCarry {
     match {
-        goal `add( ?ten1 ? ?ten2 ? None?tenAns ?oneAns busy?carry )`
-        retrieval `addFact( 10 ?rem ?sum )`
+        goal `add_pair( ?ten1 ? ?ten2 ? None ? busy )`
+        retrieval `addition_fact( 10 ?remainder ? )`
     }
     do {
-        set goal.slot_5 to 'busy'
-        set goal.answer to ?rem
-        set goal.remainder to 1
-        recall `addFact( ?ten1 ?ten2 ? )`
+        set goal.carry to 1
+        set goal.one_ans to ?remainder
+        set goal.ten_ans to 'busy'
+        recall `addition_fact( ?ten1 ?ten2 ? )`
     }
 }
 
 noCarry {
     match {
-        goal `add( ?ten1 ? ?ten2 None?tenAns ?oneAns busy?carry )`
+        goal `add_pair( ?ten1 ? ?ten2 ? ? ? busy )`
         memory `_status( error )`
     }
     do {
-        set goal.slot_4 to 'busy'
-        set goal.answer to 0
-        recall `addFact( ?ten1 ?ten2 ? )`
+        set goal.ten_ans to 'busy'
+        set goal.carry to 0
+        recall `addition_fact( ?ten1 ?ten2 ? )`
     }
 }
 
 addTensDone {
     match {
-        goal `add( ? ? ? ? busy?tenAns ?oneAns 0 )`
-        retrieval `addFact( ? ? ?sum )`
+        goal `add_pair( ? ? ? ? busy ?ones 0 )`
+        retrieval `addition_fact( ? ? ?sum )`
     }
     do {
-        print ?sum, ?oneAns
-        set goal.slot_5 to ?sum
+        print ?sum, ?ones
+        set goal.ten_ans to ?sum
     }
 }
 
 addTensCarry {
     match {
-        goal `add( ? ? ? ? busy?tenAns ? 1?carry )`
-        retrieval `addFact( ? ? ?sum )`
+        goal `add_pair( ? ? ? ? busy ? 1 )`
+        retrieval `addition_fact( ? ? ?sum )`
     }
     do {
-        set goal.remainder to 0
-        recall `addFact( 1 ?sum ? )`
+        set goal.carry to 0
+        recall `addition_fact( 1 ?sum ? )`
     }
 }
