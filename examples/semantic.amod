@@ -24,9 +24,6 @@ chunks {
     property( object attribute value )
 }
 
-// List of text outputs to create (by name)
-text_outputs { text }
-
 ==init==
 
 // Initialize the memory
@@ -61,7 +58,7 @@ directVerify {
     }
     do {
         set goal.judgment to 'yes'
-        write 'Yes' to text
+        print 'Yes'
     }
 }
 
@@ -83,6 +80,6 @@ fail {
     }
     do {
         set goal.judgment to 'no'
-        write 'No' to text
+        print 'No'
     }
 }
