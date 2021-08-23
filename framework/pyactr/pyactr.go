@@ -166,6 +166,8 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 		p.Writeln("if __name__ == '__main__':")
 		p.Writeln("\tsim = %s.simulation()", p.className)
 		p.Writeln("\tsim.run()")
+		p.Writeln("\tprint( 'final goal: ' + str(goal.pop()) )")
+
 	}
 
 	return
