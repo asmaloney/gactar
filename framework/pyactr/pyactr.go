@@ -166,7 +166,8 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 		p.Writeln("if __name__ == '__main__':")
 		p.Writeln("\tsim = %s.simulation()", p.className)
 		p.Writeln("\tsim.run()")
-		p.Writeln("\tprint( 'final goal: ' + str(goal.pop()) )")
+		p.Writeln("\tif goal.test_buffer('full') == True:")
+		p.Writeln("\t\tprint( 'final goal: ' + str(goal.pop()) )")
 
 	}
 
