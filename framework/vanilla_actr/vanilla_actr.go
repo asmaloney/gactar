@@ -132,7 +132,7 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 
 		pattern := init.Pattern
 
-		v.Write(" (chunk_%d isa %s", i, pattern.Chunk.Name)
+		v.Write(" (fact_%d isa %s", i, pattern.Chunk.Name)
 
 		for i, slotName := range pattern.Chunk.SlotNames {
 			slot := pattern.Slots[i]
@@ -144,8 +144,8 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 
 	// with vanilla act-r, the goal is included with the initializations
 	if goal != nil {
-		v.Write(" (chunk_goal")
-		v.outputPattern(goal, 1)
+		v.Writeln(" (goal")
+		v.outputPattern(goal, 1, true)
 		v.Writeln(")")
 	}
 
@@ -170,7 +170,7 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 		v.Writeln(")\n")
 	}
 
-	v.Writeln("(goal-focus chunk_goal)")
+	v.Writeln("(goal-focus goal)")
 
 	v.Writeln(")")
 
@@ -188,9 +188,12 @@ func (v *VanillaACTR) writeSlot(slot, value string) {
 	}
 }
 
-func (v *VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int) {
+func (v *VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int, includeISA bool) {
 	tabbedItems := framework.KeyValueList{}
-	tabbedItems.Add("ISA", pattern.Chunk.Name)
+
+	if includeISA {
+		tabbedItems.Add("ISA", pattern.Chunk.Name)
+	}
 
 	for i, slot := range pattern.Slots {
 		slotName := pattern.Chunk.SlotNames[i]
@@ -213,7 +216,7 @@ func (v *VanillaACTR) outputMatch(match *actr.Match) {
 			}
 		} else {
 			v.Writeln("\t=%s>", bufferName)
-			v.outputPattern(match.Pattern, 2)
+			v.outputPattern(match.Pattern, 2, true)
 		}
 	} else if match.Memory != nil {
 		text := "retrieval"
@@ -271,8 +274,6 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 		v.Writeln("\t=%s>", buffer.Name)
 
 		if s.Set.Slots != nil {
-			v.Writeln("\t\tISA\t%s", s.Set.Chunk.Name)
-
 			for _, slot := range *s.Set.Slots {
 				slotName := slot.Name
 
@@ -285,14 +286,14 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 				}
 			}
 		} else if s.Set.Pattern != nil {
-			v.outputPattern(s.Set.Pattern, 2)
+			v.outputPattern(s.Set.Pattern, 2, false)
 		} else {
 			v.Writeln(";;; writing text not yet handled")
 		}
 	} else if s.Recall != nil {
 		v.Writeln("\t+retrieval>")
 
-		v.outputPattern(s.Recall.Pattern, 2)
+		v.outputPattern(s.Recall.Pattern, 2, true)
 	} else if s.Print != nil {
 		values := valuesToStrings(s.Print.Values)
 		v.Write("\t!output!\t(%s)\n", strings.Join(values, " "))
