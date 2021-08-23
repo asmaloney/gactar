@@ -361,7 +361,6 @@ The _do_ section in the productions uses a small language which currently unders
 | recall _(pattern)_                                               | recall \`car( ?colour )\`       |
 | set _(buffer name)_._(slot name)_ to _(string or var or number)_ | set goal.wall_colour to ?colour |
 | set _(buffer name)_ to _(pattern)_                               | set goal to \`start( 6 None )\` |
-| write _(string or var or number)+_ to _(text output name)_       | write 'text', ?var to text      |
 
 ## Processing
 

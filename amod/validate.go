@@ -220,29 +220,3 @@ func validatePrintStatement(print *printStatement, model *actr.Model, production
 
 	return errs.ErrorOrNil()
 }
-
-// validateWriteStatement checks a "write" statement to verify the text output name.
-func validateWriteStatement(write *writeStatement, model *actr.Model, production *actr.Production) (err error) {
-	errs := errorListWithContext{}
-
-	name := write.TextOutputName
-	textOutput := model.LookupTextOutput(name)
-	if textOutput == nil {
-		errs.Addc(&write.Pos, "text output '%s' not found in production '%s'", name, production.Name)
-	}
-
-	if write.Args != nil {
-		for _, v := range write.Args {
-			if v.ID != nil {
-				errs.Addc(&write.Pos, "cannot use ID '%s' in write statement", *v.ID)
-			} else if v.Var != nil {
-				match := production.LookupMatchByVariable(*v.Var)
-				if match == nil {
-					errs.Addc(&write.Pos, "write statement variable '%s' not found in matches for production '%s'", *v.Var, production.Name)
-				}
-			}
-		}
-	}
-
-	return errs.ErrorOrNil()
-}

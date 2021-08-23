@@ -124,7 +124,6 @@ func addConfig(model *actr.Model, config *configSection) (err error) {
 	addACTR(model, config.ACTR, &errs)
 	addChunks(model, config.ChunkDecls, &errs)
 	addMemory(model, config.MemoryDecl, &errs)
-	addTextOutputs(model, config.TextOutputDecls, &errs)
 
 	return errs.ErrorOrNil()
 }
@@ -255,20 +254,6 @@ func addMemory(model *actr.Model, mem []*field, errs *errorListWithContext) {
 		default:
 			errs.Addc(&field.Pos, "unrecognized field '%s' in memory", field.Key)
 		}
-	}
-}
-
-func addTextOutputs(model *actr.Model, list []string, errs *errorListWithContext) {
-	if list == nil {
-		return
-	}
-
-	for _, name := range list {
-		textOutput := actr.TextOutput{
-			Name: name,
-		}
-
-		model.TextOutputs = append(model.TextOutputs, &textOutput)
 	}
 }
 
@@ -404,8 +389,6 @@ func addStatement(model *actr.Model, statement *statement, production *actr.Prod
 		s, err = addClearStatement(model, statement.Clear, production)
 	} else if statement.Print != nil {
 		s, err = addPrintStatement(model, statement.Print, production)
-	} else if statement.Write != nil {
-		s, err = addWriteStatement(model, statement.Write, production)
 	} else {
 		err = fmt.Errorf("statement type not handled: %T", statement)
 		return err
@@ -541,21 +524,6 @@ func addPrintStatement(model *actr.Model, print *printStatement, production *act
 	}
 
 	s := actr.Statement{Print: &p}
-
-	return &s, nil
-}
-
-func addWriteStatement(model *actr.Model, write *writeStatement, production *actr.Production) (*actr.Statement, error) {
-	err := validateWriteStatement(write, model, production)
-	if err != nil {
-		return nil, err
-	}
-
-	s := actr.Statement{
-		Write: &actr.WriteStatement{
-			Values:         convertArgs(write.Args),
-			TextOutputName: write.TextOutputName},
-	}
 
 	return &s, nil
 }

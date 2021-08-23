@@ -23,7 +23,6 @@ type Model struct {
 	Chunks       []*Chunk
 	Buffers      []*Buffer
 	Memories     []*Memory // we only have one memory now, but leave as slice until we determine if we can have multiple memories
-	TextOutputs  []*TextOutput
 	Initializers []*Initializer
 	Productions  []*Production
 	Logging      bool
@@ -132,17 +131,6 @@ func (model Model) LookupMemory(memoryName string) *Memory {
 	for _, mem := range model.Memories {
 		if mem.Name == memoryName {
 			return mem
-		}
-	}
-
-	return nil
-}
-
-// LookupTextOutput looks up the named text output in the model and returns it (or nil if it does not exist).
-func (model Model) LookupTextOutput(textOutputName string) *TextOutput {
-	for _, textOutput := range model.TextOutputs {
-		if textOutput.Name == textOutputName {
-			return textOutput
 		}
 	}
 

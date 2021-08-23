@@ -72,10 +72,9 @@ type chunkDecl struct {
 }
 
 type configSection struct {
-	ACTR            []*field     `parser:"('actr' '{' @@+ '}')?"`
-	ChunkDecls      []*chunkDecl `parser:"('chunks' '{' @@+ '}')?"`
-	MemoryDecl      []*field     `parser:"('memory' '{' @@+ '}')?"`
-	TextOutputDecls []string     `parser:"('text_outputs' '{' ( @Ident ','? )+ '}')?"`
+	ACTR       []*field     `parser:"('actr' '{' @@+ '}')?"`
+	ChunkDecls []*chunkDecl `parser:"('chunks' '{' @@+ '}')?"`
+	MemoryDecl []*field     `parser:"('memory' '{' @@+ '}')?"`
 
 	Pos lexer.Position
 }
@@ -143,13 +142,6 @@ type recallStatement struct {
 	Pos lexer.Position
 }
 
-type writeStatement struct {
-	Args           []*arg `parser:"'write' ( @@ ','? )+"`
-	TextOutputName string `parser:"'to' @Ident"`
-
-	Pos lexer.Position
-}
-
 type setValue struct {
 	Var    *string `parser:"( @PatternVar"`
 	Str    *string `parser:"| @String"`
@@ -174,7 +166,6 @@ type statement struct {
 	Print  *printStatement  `parser:"| @@"`
 	Recall *recallStatement `parser:"| @@"`
 	Set    *setStatement    `parser:"| @@"`
-	Write  *writeStatement  `parser:"| @@"`
 
 	Pos lexer.Position
 }

@@ -21,7 +21,6 @@ type Statement struct {
 	Print  *PrintStatement
 	Recall *RecallStatement
 	Set    *SetStatement
-	Write  *WriteStatement
 }
 
 // ClearStatement clears a list of buffers.
@@ -46,12 +45,6 @@ type PrintStatement struct {
 type RecallStatement struct {
 	Pattern *Pattern
 	Memory  *Memory
-}
-
-// WriteStatement will send the list of strings, ids, and numbers to the text output.
-type WriteStatement struct {
-	Values         *[]*Value
-	TextOutputName string
 }
 
 type SetValue struct {

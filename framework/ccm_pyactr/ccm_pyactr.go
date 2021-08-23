@@ -121,10 +121,6 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		imports = append(imports, "Memory")
 	}
 
-	if len(c.model.TextOutputs) > 0 {
-		imports = append(imports, "TextOutput")
-	}
-
 	c.Write("from ccm.lib.actr import %s\n\n\n", strings.Join(imports, ", "))
 
 	c.Writeln("class %s(ACTR):", c.className)
@@ -161,10 +157,6 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		} else {
 			c.Writeln("\t%s = Memory(%s)", memory.Name, memory.Buffer.Name)
 		}
-	}
-
-	for _, textOutput := range c.model.TextOutputs {
-		c.Writeln("\t%s = TextOutput()", textOutput.Name)
 	}
 
 	c.Writeln("")
@@ -285,9 +277,6 @@ func (c *CCMPyACTR) outputStatement(s *actr.Statement) {
 	} else if s.Print != nil {
 		values := framework.PythonValuesToStrings(s.Print.Values, true)
 		c.Writeln("\t\tprint(%s)", strings.Join(values, ", "))
-	} else if s.Write != nil {
-		values := framework.PythonValuesToStrings(s.Write.Values, false)
-		c.Writeln("\t\t%s.write('%s')", s.Write.TextOutputName, strings.Join(values, ", "))
 	}
 }
 
