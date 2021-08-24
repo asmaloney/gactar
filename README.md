@@ -31,7 +31,7 @@ Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate c
 
    ```
     match {
-        goal `isMember( ?obj ? None )`
+        goal `isMember( ?obj ? nil )`
     }
     do {
         recall `property( ?ojb category ? )`
@@ -48,7 +48,7 @@ Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate c
 
    ```
     match {
-        goal `isMember( ?obj ? None )`
+        goal `isMember( ?obj ? nil )`
     }
     do {
         set goal.resutl to 'pending'
@@ -360,7 +360,7 @@ The _do_ section in the productions uses a small language which currently unders
 | print _(string or var or number)+_                               | print 'text', ?var, 42          |
 | recall _(pattern)_                                               | recall \`car( ?colour )\`       |
 | set _(buffer name)_._(slot name)_ to _(string or var or number)_ | set goal.wall_colour to ?colour |
-| set _(buffer name)_ to _(pattern)_                               | set goal to \`start( 6 None )\` |
+| set _(buffer name)_ to _(pattern)_                               | set goal to \`start( 6 nil )\`  |
 
 ## Processing
 
