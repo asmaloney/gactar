@@ -181,8 +181,6 @@ func (v *VanillaACTR) writeSlot(slot, value string) {
 	intValue, conversionErr := strconv.Atoi(value)
 	if conversionErr == nil {
 		v.Write(" %s %d", slot, intValue)
-	} else if value == "None" {
-		v.Write(" %s nil", slot)
 	} else {
 		v.Write(` %s "%s"`, slot, value)
 	}
@@ -239,13 +237,11 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patter
 	for _, item := range patternSlot.Items {
 		value := ""
 		slot := ""
-		if item.ID != nil {
-			value = *item.ID
-			if value == "None" {
-				value = "nil"
-			} else {
-				value = fmt.Sprintf(`"%s"`, value)
-			}
+
+		if item.Nil {
+			value = "nil"
+		} else if item.ID != nil {
+			value = fmt.Sprintf(`"%s"`, *item.ID)
 		} else if item.Num != nil {
 			value = *item.Num
 		} else if item.Var != nil {
@@ -277,7 +273,9 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 			for _, slot := range *s.Set.Slots {
 				slotName := slot.Name
 
-				if slot.Value.Var != nil {
+				if slot.Value.Nil {
+					v.Writeln("\t\t%s\tnil", slotName)
+				} else if slot.Value.Var != nil {
 					v.Writeln("\t\t%s\t=%s", slotName, *slot.Value.Var)
 				} else if slot.Value.Number != nil {
 					v.Writeln("\t\t%s\t%s", slotName, *slot.Value.Number)

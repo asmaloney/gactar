@@ -8,7 +8,7 @@ description: "This model is based on the textual description in 'unit1.pdf' of t
 
 // Examples of starting goals to use when running the model
 examples {
-    `add_pair( 3 6 4 7 None None 0 )`
+    `add_pair( 3 6 4 7 nil nil nil )`
 }
 
 ==config==
@@ -38,7 +38,7 @@ memory {
 startPair {
     // Buffers to match
     match {
-        goal `add_pair( ? ?one1 ? ?one2 ? None ? )`
+        goal `add_pair( ? ?one1 ? ?one2 ? nil ? )`
     }
     // Steps to execute
     do {
@@ -61,7 +61,7 @@ addOnes {
 
 processCarry {
     match {
-        goal `add_pair( ?ten1 ? ?ten2 ? None ? busy )`
+        goal `add_pair( ?ten1 ? ?ten2 ? nil ? busy )`
         retrieval `addition_fact( 10 ?remainder ? )`
     }
     do {
@@ -79,14 +79,14 @@ noCarry {
     }
     do {
         set goal.ten_ans to 'busy'
-        set goal.carry to 0
+        set goal.carry to nil
         recall `addition_fact( ?ten1 ?ten2 ? )`
     }
 }
 
 addTensDone {
     match {
-        goal `add_pair( ? ? ? ? busy ?ones 0 )`
+        goal `add_pair( ? ? ? ? busy ?ones nil )`
         retrieval `addition_fact( ? ? ?sum )`
     }
     do {
@@ -101,7 +101,7 @@ addTensCarry {
         retrieval `addition_fact( ? ? ?sum )`
     }
     do {
-        set goal.carry to 0
+        set goal.carry to nil
         recall `addition_fact( 1 ?sum ? )`
     }
 }

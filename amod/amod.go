@@ -362,7 +362,9 @@ func createChunkPattern(model *actr.Model, cp *pattern) (*actr.Pattern, error) {
 		slot := actr.PatternSlot{}
 
 		for _, item := range s.Items {
-			if item.ID != nil {
+			if item.Nil != nil {
+				slot.AddItem(&actr.PatternSlotItem{Nil: true})
+			} else if item.ID != nil {
 				slot.AddItem(&actr.PatternSlotItem{ID: item.ID})
 			} else if item.Num != nil {
 				slot.AddItem(&actr.PatternSlotItem{Num: item.Num})
@@ -446,6 +448,8 @@ func addSetStatement(model *actr.Model, set *setStatement, production *actr.Prod
 		if set.Value.Var != nil {
 			varName := strings.TrimPrefix(*set.Value.Var, "?")
 			value.Var = &varName
+		} else if set.Value.Nil != nil {
+			value.Nil = *set.Value.Nil
 		} else if set.Value.Number != nil {
 			value.Number = set.Value.Number
 		} else if set.Value.Str != nil {

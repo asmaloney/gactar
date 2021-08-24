@@ -221,7 +221,9 @@ func (p *PyACTR) outputMatch(match *actr.Match) {
 func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patternSlot *actr.PatternSlot) {
 	for _, item := range patternSlot.Items {
 		value := ""
-		if item.ID != nil {
+		if item.Nil {
+			value = "nil"
+		} else if item.ID != nil {
 			value = *item.ID
 		} else if item.Num != nil {
 			value = *item.Num
@@ -255,7 +257,9 @@ func (p *PyACTR) outputStatement(s *actr.Statement) {
 			for _, slot := range *s.Set.Slots {
 				slotName := slot.Name
 
-				if slot.Value.Var != nil {
+				if slot.Value.Nil {
+					tabbedItems.Add(slotName, "nil")
+				} else if slot.Value.Var != nil {
 					tabbedItems.Add(slotName, fmt.Sprintf("=%s", *slot.Value.Var))
 				} else if slot.Value.Number != nil {
 					tabbedItems.Add(slotName, *slot.Value.Number)

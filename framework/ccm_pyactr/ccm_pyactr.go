@@ -221,7 +221,14 @@ func (c *CCMPyACTR) outputPattern(pattern *actr.Pattern) {
 	str := fmt.Sprintf("'%s ", pattern.Chunk.Name)
 
 	for i, slot := range pattern.Slots {
-		str += slot.String()
+		slotStr := slot.String()
+
+		if slotStr == "nil" {
+			str += "None"
+		} else {
+			str += slot.String()
+
+		}
 
 		if i != len(pattern.Slots)-1 {
 			str += " "
@@ -258,7 +265,8 @@ func (c *CCMPyACTR) outputStatement(s *actr.Statement) {
 		if s.Set.Slots != nil {
 			slotAssignments := []string{}
 			for _, slot := range *s.Set.Slots {
-				slotAssignments = append(slotAssignments, fmt.Sprintf("_%d=%s", slot.SlotIndex, slot.Value))
+				value := convertSetValue(slot.Value)
+				slotAssignments = append(slotAssignments, fmt.Sprintf("_%d=%s", slot.SlotIndex, value))
 			}
 			c.Writeln("\t\t%s.modify(%s)", s.Set.Buffer.Name, strings.Join(slotAssignments, ", "))
 		} else {
@@ -280,11 +288,26 @@ func (c *CCMPyACTR) outputStatement(s *actr.Statement) {
 	}
 }
 
+func convertSetValue(s *actr.SetValue) string {
+	if s.Nil {
+		return "None"
+	} else if s.Var != nil {
+		return *s.Var
+	} else if s.Number != nil {
+		return *s.Number
+	} else if s.Str != nil {
+		return "'" + *s.Str + "'"
+	}
+
+	return ""
+}
+
 // convertGoal strips out the parentheses for output.
 func convertGoal(g *actr.Pattern) string {
 	goal := g.String()
 
 	goal = strings.Replace(goal, "(", "", 1)
+	goal = strings.ReplaceAll(goal, " nil", " None")
 	goal = strings.TrimSuffix(goal, " )")
 
 	return goal

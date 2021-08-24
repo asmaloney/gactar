@@ -86,7 +86,8 @@ type initSection struct {
 }
 
 type patternSlotItem struct {
-	ID     *string `parser:"( @Ident"`
+	Nil    *bool   `parser:"( @('nil':Keyword)"`
+	ID     *string `parser:"| @Ident"`
 	Num    *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
 	Var    *string `parser:"| @PatternVar"`
 	NotVar *string `parser:"| '!' @PatternVar)"`
@@ -143,7 +144,8 @@ type recallStatement struct {
 }
 
 type setValue struct {
-	Var    *string `parser:"( @PatternVar"`
+	Nil    *bool   `parser:"( @('nil':Keyword)"`
+	Var    *string `parser:"| @PatternVar"`
 	Str    *string `parser:"| @String"`
 	Number *string `parser:"| @Number)"`
 

@@ -91,12 +91,11 @@ var keywords []string = []string{
 	"match",
 	"memory",
 	"name",
+	"nil",
 	"print",
 	"recall",
 	"set",
-	"text_outputs",
 	"to",
-	"write",
 }
 
 // Symbols provides a mapping from participle strings to our lexemes
@@ -454,7 +453,12 @@ func lexIdentifier(l *lexer_amod) stateFn {
 		if l.input[l.start] == '?' {
 			l.emit(lexemePatternVar)
 		} else {
-			l.emit(lexemeIdentifier)
+			// hack(ish) since we only allow 'nil' keyword
+			if l.input[l.start:l.pos] == "nil" {
+				l.emit(lexemeKeyword)
+			} else {
+				l.emit(lexemeIdentifier)
+			}
 		}
 	}
 

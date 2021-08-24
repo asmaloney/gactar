@@ -8,9 +8,9 @@ description: 'This model is based on the u1_semantic.py tutorial.'
 
 // Examples of starting goals to use when running the model
 examples {
-    `isMember( shark fish None )`
-    `isMember( shark animal None )`
-    `isMember( canary fish None )`
+    `isMember( shark fish nil )`
+    `isMember( shark animal nil )`
+    `isMember( canary fish nil )`
 }
 
 ==config==
@@ -42,7 +42,7 @@ memory {
 initialRetrieval {
     // Buffers to match
     match {
-        goal `isMember( ?obj ? None )`
+        goal `isMember( ?obj ? nil )`
     }
     // Steps to execute
     do {

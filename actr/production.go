@@ -48,21 +48,10 @@ type RecallStatement struct {
 }
 
 type SetValue struct {
-	Var    *string // set to this Var OR
+	Nil    bool    // set this to nil
+	Var    *string // OR Var
 	Number *string // OR this number (no need to store as actual number at the moment)
 	Str    *string // OR this string
-}
-
-func (s SetValue) String() string {
-	if s.Var != nil {
-		return *s.Var
-	} else if s.Number != nil {
-		return *s.Number
-	} else if s.Str != nil {
-		return "'" + *s.Str + "'"
-	}
-
-	return ""
 }
 
 type SetSlot struct {

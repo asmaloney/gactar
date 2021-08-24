@@ -239,6 +239,23 @@ func TestProductionSetStatement(t *testing.T) {
 		t.Errorf("Unexpected error: %s", err)
 	}
 
+	// Check setting to nil
+	src = `
+	==model==
+	name: Test
+	==config==
+	chunks { foo( thing ) }
+	==productions==
+	start {
+		match { goal ` + "`foo( ?blat )`" + ` }
+		do { set goal.thing to nil }
+	}`
+
+	_, err = GenerateModel(src)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
 	// Check setting to non-existent var
 	src = `
 	==model==
