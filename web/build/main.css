@@ -26,7 +26,7 @@ row.wrapper {
 }
 
 column.amod {
-  flex: 2;
+  flex: 1;
   margin-right: 0.5em;
 }
 
