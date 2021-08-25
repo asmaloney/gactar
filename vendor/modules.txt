@@ -1,4 +1,4 @@
-# github.com/alecthomas/participle/v2 v2.0.0-alpha6.0.20210726061620-d0f908f9532e
+# github.com/alecthomas/participle/v2 v2.0.0-alpha7
 ## explicit
 github.com/alecthomas/participle/v2
 github.com/alecthomas/participle/v2/lexer

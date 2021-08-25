@@ -1,7 +1,7 @@
 # A dead simple parser package for Go
 <a id="markdown-a-dead-simple-parser-package-for-go" name="a-dead-simple-parser-package-for-go"></a>
 
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/alecthomas/participle/v2)](https://pkg.go.dev/github.com/alecthomas/participle/v2) [![CircleCI](https://img.shields.io/circleci/project/github/alecthomas/participle.svg)](https://circleci.com/gh/alecthomas/participle)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/alecthomas/participle/v2)](https://pkg.go.dev/github.com/alecthomas/participle/v2) [![GHA Build](https://github.com/alecthomas/participle/actions/workflows/ci.yml/badge.svg)](https://github.com/alecthomas/participle/actions)
  [![Go Report Card](https://goreportcard.com/badge/github.com/alecthomas/participle/v2)](https://goreportcard.com/report/github.com/alecthomas/participle/v2) [![Slack chat](https://img.shields.io/static/v1?logo=slack&style=flat&label=slack&color=green&message=gophers)](https://gophers.slack.com/messages/CN9DS8YF3)
 
 <!-- TOC depthfrom:2 insertanchor:true updateonsave:true -->
@@ -34,7 +34,9 @@
 ## V2
 <a id="markdown-v2" name="v2"></a>
 
-This is version 2 of Participle. See the [Change Log](CHANGES.md) for details.
+This is an alpha of version 2 of Participle. It is still subject to change but should be mostly stable at this point.
+
+See the [Change Log](CHANGES.md) for details.
 
 > **Note:** semantic versioning API guarantees do not apply to the [experimental](https://pkg.go.dev/github.com/alecthomas/participle/v2/experimental) packages - the API may break between minor point releases.
 
