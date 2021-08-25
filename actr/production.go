@@ -5,7 +5,6 @@ package actr
 type Production struct {
 	Name         string
 	Matches      []*Match
-	DoPython     []string
 	DoStatements []*Statement
 }
 

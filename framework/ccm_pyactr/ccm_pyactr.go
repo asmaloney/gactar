@@ -193,11 +193,7 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 
 		c.Writeln("):")
 
-		if production.DoPython != nil {
-			for _, doItem := range production.DoPython {
-				c.Write("\t\t%s", doItem)
-			}
-		} else if production.DoStatements != nil {
+		if production.DoStatements != nil {
 			for _, statement := range production.DoStatements {
 				c.outputStatement(statement)
 			}

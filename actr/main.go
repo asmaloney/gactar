@@ -170,12 +170,3 @@ func (chunk Chunk) GetSlotIndex(slot string) int {
 
 	return -1
 }
-
-// SplitStringForChunk takes a string such as "add 1 2" and splits it into name and slots.
-func SplitStringForChunk(str string) (name string, slots []string) {
-	slots = strings.Split(str, " ")
-	name = slots[0]
-	slots = slots[1:]
-
-	return
-}
