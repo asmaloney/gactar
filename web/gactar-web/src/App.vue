@@ -30,14 +30,15 @@
               v-model="goal"
               placeholder="(initial goal here)"
               expanded
-            ></b-input>
+            />
             <p class="control">
               <b-button
                 class="button is-primary"
                 :loading="running"
                 @click="run"
-                >Run</b-button
               >
+                Run
+              </b-button>
             </p>
           </b-field>
         </div>
