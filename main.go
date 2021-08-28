@@ -18,7 +18,7 @@ import (
 )
 
 // "embed" cannot use relative paths, so we must declare this at the top level and pass into web.
-//go:embed examples/*
+//go:embed examples/*.amod
 var amodExamples embed.FS
 
 func main() {
