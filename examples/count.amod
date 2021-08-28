@@ -43,6 +43,9 @@ memory {
 
 // Name of the production
 start {
+    // Optional description
+    description: 'Starting point - first production to match'
+    
     // Buffers to match
     match {
         goal `countFrom( ?start ?end starting )`

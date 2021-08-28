@@ -36,6 +36,9 @@ memory {
 
 // Name of the production
 startPair {
+    // Optional description
+    description: 'Starting point - first production to match'
+    
     // Buffers to match
     match {
         goal `add_pair( ? ?one1 ? ?one2 ? nil ? )`

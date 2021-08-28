@@ -3,7 +3,9 @@ package actr
 // Production stores information on how to match buffers and perform some operations.
 // It uses a small language to modify buffers and memories upon successful matches.
 type Production struct {
-	Name         string
+	Name        string
+	Description *string // optional description to output as a comment in the generated code
+
 	Matches      []*Match
 	DoStatements []*Statement
 }

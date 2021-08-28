@@ -145,6 +145,9 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 
 	// productions
 	for _, production := range v.model.Productions {
+		if production.Description != nil {
+			v.Writeln(";; %s", *production.Description)
+		}
 
 		v.Writeln("(P %s", production.Name)
 		for _, match := range production.Matches {

@@ -306,7 +306,8 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 
 	for _, production := range productions.Productions {
 		prod := actr.Production{
-			Name: production.Name,
+			Name:        production.Name,
+			Description: production.Description,
 		}
 
 		err := validateMatch(production.Match, model, &prod)

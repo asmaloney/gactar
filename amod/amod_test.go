@@ -213,6 +213,7 @@ func TestProductionSetStatement(t *testing.T) {
 	chunks { foo( thing ) }
 	==productions==
 	start {
+		description: "This is a description"
 		match { goal ` + "`foo( blat )`" + ` }
 		do { set goal to ` + "`foo( ding )`" + ` }
 	}`

@@ -35,7 +35,7 @@ type amodFile struct {
 
 type modelSection struct {
 	Name        string     `parser:"'name' ':' (@String|@Ident)"`
-	Description string     `parser:"('description' ':' (@String|@Ident))?"`
+	Description string     `parser:"('description' ':' @String)?"`
 	Examples    []*pattern `parser:"('examples' '{' @@+ '}')?"`
 
 	Pos lexer.Position
@@ -195,10 +195,11 @@ type do struct {
 }
 
 type production struct {
-	Name  string `parser:"@Ident '{'"`
-	Match *match `parser:"@@"`
-	Do    *do    `parser:"@@"`
-	End   string `parser:"'}'"` // not used, but must be visible for parse to work
+	Name        string  `parser:"@Ident '{'"`
+	Description *string `parser:"('description' ':' @String)?"`
+	Match       *match  `parser:"@@"`
+	Do          *do     `parser:"@@"`
+	End         string  `parser:"'}'"` // not used, but must be visible for parse to work
 
 	Pos lexer.Position
 }

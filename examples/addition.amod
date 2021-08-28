@@ -41,6 +41,9 @@ memory {
 
 // Name of the production
 initializeAddition {
+    // Optional description
+    description: 'Starting point - first production to match'
+    
     // Buffers to match
     match {
         goal `add( ?num1 ? nil nil )`

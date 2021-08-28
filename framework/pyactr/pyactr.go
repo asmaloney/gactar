@@ -133,6 +133,10 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 
 	// productions
 	for _, production := range p.model.Productions {
+		if production.Description != nil {
+			p.Writeln("# %s", *production.Description)
+		}
+
 		p.Writeln("%s.productionstring(name='%s', string='''", p.className, production.Name)
 		for _, match := range production.Matches {
 			p.outputMatch(match)

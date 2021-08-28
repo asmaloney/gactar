@@ -40,6 +40,9 @@ memory {
 
 // Name of the production
 initialRetrieval {
+    // Optional description
+    description: 'Starting point - first production to match'
+    
     // Buffers to match
     match {
         goal `isMember( ?obj ? nil )`

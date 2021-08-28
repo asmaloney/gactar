@@ -180,6 +180,9 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 	}
 
 	for _, production := range c.model.Productions {
+		if production.Description != nil {
+			c.Writeln("\t# %s", *production.Description)
+		}
 		c.Write("\tdef %s(", production.Name)
 
 		numMatches := len(production.Matches)
