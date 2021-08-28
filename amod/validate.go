@@ -168,8 +168,7 @@ func validateRecallStatement(recall *recallStatement, model *actr.Model, product
 
 	for _, slot := range recall.Pattern.Slots {
 		for _, item := range slot.Items {
-
-			varName := item.getVar()
+			varName := item.Var
 			if (varName == nil) || (*varName == "?") {
 				continue
 			}

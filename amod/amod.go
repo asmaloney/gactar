@@ -362,17 +362,21 @@ func createChunkPattern(model *actr.Model, cp *pattern) (*actr.Pattern, error) {
 		slot := actr.PatternSlot{}
 
 		for _, item := range s.Items {
-			if item.Nil != nil {
-				slot.AddItem(&actr.PatternSlotItem{Nil: true})
-			} else if item.ID != nil {
-				slot.AddItem(&actr.PatternSlotItem{ID: item.ID})
-			} else if item.Num != nil {
-				slot.AddItem(&actr.PatternSlotItem{Num: item.Num})
-			} else if item.Var != nil {
-				slot.AddItem(&actr.PatternSlotItem{Var: item.Var})
-			} else if item.NotVar != nil {
-				slot.AddItem(&actr.PatternSlotItem{Var: item.NotVar, Negated: true})
+			newItem := &actr.PatternSlotItem{
+				Negated: item.Not,
 			}
+
+			if item.Nil != nil {
+				newItem.Nil = true
+			} else if item.ID != nil {
+				newItem.ID = item.ID
+			} else if item.Num != nil {
+				newItem.Num = item.Num
+			} else if item.Var != nil {
+				newItem.Var = item.Var
+			}
+
+			slot.AddItem(newItem)
 		}
 		pattern.AddSlot(&slot)
 	}

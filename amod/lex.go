@@ -107,6 +107,7 @@ func (lexer_def) Symbols() map[string]lexer.TokenType {
 		"Ident":        lexer.TokenType(lexemeIdentifier),
 		"Number":       lexer.TokenType(lexemeNumber),
 		"String":       lexer.TokenType(lexemeString),
+		"Char":         lexer.TokenType(lexemeChar),
 		"PatternDelim": lexer.TokenType(lexemePatternDelim),
 		"PatternSpace": lexer.TokenType(lexemePatternSpace),
 		"PatternVar":   lexer.TokenType(lexemePatternVar),

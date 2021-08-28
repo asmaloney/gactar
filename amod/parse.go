@@ -1,6 +1,7 @@
 package amod
 
 import (
+	"fmt"
 	"io"
 	"os"
 
@@ -99,11 +100,11 @@ type initSection struct {
 }
 
 type patternSlotItem struct {
-	Nil    *bool   `parser:"( @('nil':Keyword)"`
-	ID     *string `parser:"| @Ident"`
-	Num    *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
-	Var    *string `parser:"| @PatternVar"`
-	NotVar *string `parser:"| '!' @PatternVar)"`
+	Not bool    `parser:"(@('!':Char))?"`
+	Nil *bool   `parser:"( @('nil':Keyword)"`
+	ID  *string `parser:"| @Ident"`
+	Num *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
+	Var *string `parser:"| @PatternVar )"`
 
 	Pos lexer.Position
 }
@@ -170,7 +171,8 @@ type setStatement struct {
 	BufferName string  `parser:"@Ident"`
 	Slot       *string `parser:"('.' @Ident)?"`
 
-	Value   *setValue `parser:"'to' (@@"`
+	To      string    `parser:"'to'"` // not used, but must be visible for parse to work
+	Value   *setValue `parser:"( @@"`
 	Pattern *pattern  `parser:"| @@)"`
 
 	Pos lexer.Position
@@ -239,14 +241,4 @@ func parseFile(filename string) (*amodFile, error) {
 	defer file.Close()
 
 	return parse(file)
-}
-
-func (p patternSlotItem) getVar() *string {
-	if p.Var != nil {
-		return p.Var
-	} else if p.NotVar != nil {
-		return p.NotVar
-	}
-
-	return nil
 }
