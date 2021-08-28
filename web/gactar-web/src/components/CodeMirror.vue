@@ -1,6 +1,6 @@
 <template>
   <div>
-    <textarea id="codemirror" v-model="amodCode"></textarea>
+    <textarea id="codemirror" v-model="code"></textarea>
   </div>
 </template>
 
@@ -22,6 +22,7 @@ export default {
   data() {
     return {
       editor: null,
+      code: this.amodCode,
     }
   },
 
