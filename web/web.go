@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strings"
 	"sync"
 
 	"github.com/urfave/cli/v2"
@@ -193,6 +194,8 @@ func (w *Web) run(model *actr.Model, initialGoal string, framework framework.Fra
 	if err != nil {
 		return
 	}
+
+	initialGoal = strings.TrimSpace(initialGoal)
 
 	output, err = framework.Run(initialGoal)
 	if err != nil {
