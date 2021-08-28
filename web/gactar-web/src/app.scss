@@ -1,0 +1,34 @@
+@import '~buefy/dist/buefy.css';
+
+@import '~codemirror/lib/codemirror.css';
+@import './codemirror/amod.css';
+
+html,
+body {
+  background-color: azure;
+  height: 98%;
+  padding: 0.25%;
+  width: 99%;
+}
+
+h1 {
+  font-size: 1.2em;
+}
+
+textarea#results {
+  border: 1px solid cornflowerblue;
+  height: 90vh;
+  margin: 0.1em;
+  padding: 1%;
+  width: 98%;
+}
+
+.CodeMirror {
+  border: 1px solid cornflowerblue;
+  height: 90vh;
+}
+
+.CodeMirror * {
+  font-family: monospace;
+  font-size: 14px;
+}
