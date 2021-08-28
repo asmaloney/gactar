@@ -1,6 +1,9 @@
 <template>
   <div>
-    <h1>Andy's Fancy ACT-R Thingamabob (a.k.a. gactar)</h1>
+    <h1>
+      Andy's Fancy ACT-R Thingamabob (a.k.a.
+      <a href="https://github.com/asmaloney/gactar" target="_">gactar</a>)
+    </h1>
     <section class="section p-0 pt-4">
       <div class="columns">
         <div class="column is-three-fifths">
@@ -29,7 +32,12 @@
               expanded
             ></b-input>
             <p class="control">
-              <b-button class="button is-primary" @click="run">Run</b-button>
+              <b-button
+                class="button is-primary"
+                :loading="running"
+                @click="run"
+                >Run</b-button
+              >
             </p>
           </b-field>
         </div>
@@ -58,6 +66,7 @@ export default {
       amodCode: '',
       exampleFiles: [],
       goal: '',
+      running: false,
       results: '',
       selectedExample: '',
 
@@ -98,6 +107,7 @@ export default {
     },
 
     async run() {
+      this.running = true
       try {
         const { data } = await this.$http.post('/run', {
           amod: this.amodCode,
@@ -113,6 +123,7 @@ export default {
       } catch (err) {
         this.showError(err)
       }
+      this.running = false
     },
 
     setResults(results) {

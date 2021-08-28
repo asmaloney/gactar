@@ -6,9 +6,7 @@
 html,
 body {
   background-color: azure;
-  height: 98%;
   padding: 0.25%;
-  width: 99%;
 }
 
 h1 {
@@ -17,15 +15,14 @@ h1 {
 
 textarea#results {
   border: 1px solid cornflowerblue;
-  height: 90vh;
-  margin: 0.1em;
-  padding: 1%;
-  width: 98%;
+  height: 87vh;
+  padding: 0.5em;
+  width: 100%;
 }
 
 .CodeMirror {
   border: 1px solid cornflowerblue;
-  height: 90vh;
+  height: 87vh;
 }
 
 .CodeMirror * {

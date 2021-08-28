@@ -6,7 +6,12 @@
 
 <script>
 import CodeMirror from 'codemirror'
-import 'codemirror/mode/htmlmixed/htmlmixed.js'
+
+// Add-ons
+import 'codemirror/addon/edit/closebrackets'
+import 'codemirror/addon/edit/matchbrackets'
+import 'codemirror/addon/selection/active-line'
+
 require('../codemirror/amod')
 
 export default {
@@ -33,6 +38,10 @@ export default {
         lineNumbers: true,
         mode: 'amod',
         theme: 'amod',
+
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        styleActiveLine: true,
       }
     )
     this.editor.on('change', this.onCmCodeChange)

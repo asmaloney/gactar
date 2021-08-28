@@ -35,13 +35,16 @@
   background: #c3d5fd;
 }
 
-.cm-s-amod .CodeMirror-activeline-background {
-  background: #fafbfc;
+.cm-s-amod .CodeMirror-focused .CodeMirror-activeline-background {
+  background: #e8f2ff;
+}
+.CodeMirror:not(.CodeMirror-focused) .CodeMirror-activeline-background {
+  background: unset;
 }
 
 .cm-s-amod .CodeMirror-matchingbracket {
-  text-decoration: underline;
   color: #24292e !important;
+  background-color: #24292e2d !important;
 }
 
 .cm-s-amod .CodeMirror-lines {
