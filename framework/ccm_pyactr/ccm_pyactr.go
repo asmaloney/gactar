@@ -126,7 +126,7 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 	c.Writeln("class %s(ACTR):", c.className)
 
 	for _, buf := range c.model.Buffers {
-		c.Writeln("\t%s = Buffer()", buf.Name)
+		c.Writeln("\t%s = Buffer()", buf.GetName())
 	}
 
 	for _, memory := range c.model.Memories {
@@ -153,9 +153,9 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		}
 
 		if len(additionalInit) > 0 {
-			c.Writeln("\t%s = Memory(%s, %s)", memory.Name, memory.Buffer.Name, strings.Join(additionalInit, ", "))
+			c.Writeln("\t%s = Memory(%s, %s)", memory.Name, memory.Buffer.GetName(), strings.Join(additionalInit, ", "))
 		} else {
-			c.Writeln("\t%s = Memory(%s)", memory.Name, memory.Buffer.Name)
+			c.Writeln("\t%s = Memory(%s)", memory.Name, memory.Buffer.GetName())
 		}
 	}
 
@@ -239,7 +239,7 @@ func (c *CCMPyACTR) outputPattern(pattern *actr.Pattern) {
 func (c *CCMPyACTR) outputMatch(match *actr.Match) {
 	var name string
 	if match.Buffer != nil {
-		name = match.Buffer.Name
+		name = match.Buffer.GetName()
 	} else if match.Memory != nil {
 		name = match.Memory.Name
 	}
@@ -264,9 +264,9 @@ func (c *CCMPyACTR) outputStatement(s *actr.Statement) {
 				value := convertSetValue(slot.Value)
 				slotAssignments = append(slotAssignments, fmt.Sprintf("_%d=%s", slot.SlotIndex, value))
 			}
-			c.Writeln("\t\t%s.modify(%s)", s.Set.Buffer.Name, strings.Join(slotAssignments, ", "))
+			c.Writeln("\t\t%s.modify(%s)", s.Set.Buffer.GetName(), strings.Join(slotAssignments, ", "))
 		} else {
-			c.Write("\t\t%s.set(", s.Set.Buffer.Name)
+			c.Write("\t\t%s.set(", s.Set.Buffer.GetName())
 			c.outputPattern(s.Set.Pattern)
 			c.Writeln(")")
 		}

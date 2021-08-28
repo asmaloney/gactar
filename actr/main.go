@@ -21,7 +21,7 @@ type Model struct {
 	Description  string
 	Examples     []*Pattern
 	Chunks       []*Chunk
-	Buffers      []*Buffer
+	Buffers      []BufferInterface
 	Memories     []*Memory // we only have one memory now, but leave as slice until we determine if we can have multiple memories
 	Initializers []*Initializer
 	Productions  []*Production
@@ -34,8 +34,16 @@ type Chunk struct {
 	NumSlots  int
 }
 
+type BufferInterface interface {
+	GetName() string
+}
+
 type Buffer struct {
 	Name string
+}
+
+func (b Buffer) GetName() string {
+	return b.Name
 }
 
 func (b Buffer) String() string {
@@ -44,7 +52,7 @@ func (b Buffer) String() string {
 
 type Memory struct {
 	Name   string
-	Buffer *Buffer // required
+	Buffer BufferInterface
 
 	// The following optional fields came from the ccm framework.
 	// TODO: determine if they apply to others.
@@ -91,15 +99,16 @@ func (model *Model) Initialize() {
 		},
 	}
 
-	model.Buffers = []*Buffer{
-		{Name: "goal"},
-		{Name: "retrieval"},
+	retrieval := &Buffer{Name: "retrieval"}
+	model.Buffers = []BufferInterface{
+		retrieval,
+		&Buffer{Name: "goal"},
 	}
 
 	model.Memories = []*Memory{
 		{
 			Name:   "memory",
-			Buffer: model.Buffers[1], // "retrieval"
+			Buffer: retrieval,
 		},
 	}
 }
@@ -116,9 +125,9 @@ func (model Model) LookupChunk(chunkName string) *Chunk {
 }
 
 // LookupBuffer looks up the named buffer in the model and returns it (or nil if it does not exist).
-func (model Model) LookupBuffer(bufferName string) *Buffer {
+func (model Model) LookupBuffer(bufferName string) BufferInterface {
 	for _, buf := range model.Buffers {
-		if buf.Name == bufferName {
+		if buf.GetName() == bufferName {
 			return buf
 		}
 	}

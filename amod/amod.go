@@ -431,10 +431,12 @@ func addSetStatement(model *actr.Model, set *setStatement, production *actr.Prod
 	}
 
 	if set.Slot != nil {
+		bufferName := buffer.GetName()
+
 		// find slot index in chunk
-		match := production.LookupMatchByBuffer(buffer.Name)
+		match := production.LookupMatchByBuffer(bufferName)
 		if match == nil {
-			err = fmt.Errorf("could not find buffer match '%s' in production '%s'", buffer.Name, production.Name)
+			err = fmt.Errorf("could not find buffer match '%s' in production '%s'", bufferName, production.Name)
 			return nil, err
 		}
 
@@ -443,7 +445,7 @@ func addSetStatement(model *actr.Model, set *setStatement, production *actr.Prod
 		slotName := *set.Slot
 		index := match.Pattern.Chunk.GetSlotIndex(slotName)
 		if index == -1 {
-			err = fmt.Errorf("could not find slot named '%s' in buffer match '%s' in production '%s'", slotName, buffer.Name, production.Name)
+			err = fmt.Errorf("could not find slot named '%s' in buffer match '%s' in production '%s'", slotName, bufferName, production.Name)
 			return nil, err
 		}
 

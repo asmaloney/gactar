@@ -9,8 +9,8 @@ type Production struct {
 }
 
 type Match struct {
-	Buffer *Buffer // buffer
-	Memory *Memory // OR memory
+	Buffer BufferInterface // buffer
+	Memory *Memory         // OR memory
 
 	Pattern *Pattern
 }
@@ -67,14 +67,14 @@ type SetStatement struct {
 	Slots *[]SetSlot // (1) set this slot (optional)
 	Chunk *Chunk     // (1) if we are setting slots, point at the chunk they reference for easy lookup
 
-	Buffer *Buffer // (1 & 2) buffer we are manipulating
+	Buffer BufferInterface // (1 & 2) buffer we are manipulating
 
 	Pattern *Pattern // (2) pattern if we are setting the whole buffer
 }
 
 func (p Production) LookupMatchByBuffer(bufferName string) *Match {
 	for _, m := range p.Matches {
-		if m.Buffer.Name == bufferName {
+		if m.Buffer.GetName() == bufferName {
 			return m
 		}
 	}
@@ -84,8 +84,8 @@ func (p Production) LookupMatchByBuffer(bufferName string) *Match {
 
 // LookupSetStatementByBuffer is used when combining several set consecutive statements on one buffer.
 // So this:
-//		set foo on goal to 1
-//		set bar on goal to 10
+//		set goal.foo to 1
+//		set goal.bar to 10
 // is treated like this:
 //		set foo, bar on goal to 1, 10
 func (p Production) LookupSetStatementByBuffer(bufferName string) *SetStatement {
@@ -99,7 +99,7 @@ func (p Production) LookupSetStatementByBuffer(bufferName string) *SetStatement 
 		return nil
 	}
 
-	if last.Set.Buffer.Name == bufferName {
+	if last.Set.Buffer.GetName() == bufferName {
 		return last.Set
 	}
 

@@ -195,7 +195,7 @@ func (v *VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int, includeISA 
 
 func (v *VanillaACTR) outputMatch(match *actr.Match) {
 	if match.Buffer != nil {
-		bufferName := match.Buffer.Name
+		bufferName := match.Buffer.GetName()
 		chunkName := match.Pattern.Chunk.Name
 
 		if actr.IsInternalChunkName(chunkName) {
@@ -259,7 +259,7 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 	if s.Set != nil {
 		buffer := s.Set.Buffer
 
-		v.Writeln("\t=%s>", buffer.Name)
+		v.Writeln("\t=%s>", buffer.GetName())
 
 		if s.Set.Slots != nil {
 			tabbedItems := framework.KeyValueList{}

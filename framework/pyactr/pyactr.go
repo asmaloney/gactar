@@ -188,7 +188,7 @@ func (p *PyACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 
 func (p *PyACTR) outputMatch(match *actr.Match) {
 	if match.Buffer != nil {
-		bufferName := match.Buffer.Name
+		bufferName := match.Buffer.GetName()
 		chunkName := match.Pattern.Chunk.Name
 
 		if actr.IsInternalChunkName(chunkName) {
@@ -246,7 +246,7 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patter
 func (p *PyACTR) outputStatement(s *actr.Statement) {
 	if s.Set != nil {
 		buffer := s.Set.Buffer
-		bufferName := buffer.Name
+		bufferName := buffer.GetName()
 
 		p.Write("\t=%s>\n", bufferName)
 
