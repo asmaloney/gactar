@@ -2,10 +2,18 @@
 
 version: 2
 updates:
-  - package-ecosystem: "gomod"
-    directory: "/"
+  - package-ecosystem: 'gomod'
+    directory: '/'
     schedule:
-      interval: "daily"
+      interval: 'daily'
     commit-message:
-      prefix: "{gomod}"
-      include: "scope"
+      prefix: '{gomod}'
+      include: 'scope'
+  - package-ecosystem: 'npm'
+    directory: '/web/gactar-web/'
+    schedule:
+      interval: 'daily'
+    commit-message:
+      prefix: '{npm}'
+      prefix-development: '{npm-dev}'
+      include: 'scope'
