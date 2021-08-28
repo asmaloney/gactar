@@ -250,6 +250,10 @@ Serving gactar on http://localhost:8181
 
 Open `http://localhost:8181` in your browser, select an example from the menu, modify the amod description &amp; the goal, and click **Run**.
 
+![gactar Web Interface](doc/gactar-web.png)
+
+**Important Note:** This web server is only intended to be run locally. It should not be used to expose gactar to the internet. A lot more checking and validation of inputs would be required before doing so.
+
 ## amod File Format
 
 Here is an example of the file format:
