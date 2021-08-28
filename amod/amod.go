@@ -211,32 +211,32 @@ func addMemory(model *actr.Model, mem []*field, errs *errorListWithContext) {
 	for _, field := range mem {
 		switch field.Key {
 		case "latency":
-			if field.Value.Str != nil {
-				errs.Addc(&field.Pos, "memory latency '%s' should not be a string", *field.Value.Str)
+			if field.Value.Number == nil {
+				errs.Addc(&field.Pos, "memory latency '%s' must be a number", field.Value.String())
 				continue
 			}
 
 			memory.Latency = field.Value.Number
 
 		case "threshold":
-			if field.Value.Str != nil {
-				errs.Addc(&field.Pos, "memory threshold '%s' should not be a string", *field.Value.Str)
+			if field.Value.Number == nil {
+				errs.Addc(&field.Pos, "memory threshold '%s' must be a number", field.Value.String())
 				continue
 			}
 
 			memory.Threshold = field.Value.Number
 
 		case "max_time":
-			if field.Value.Str != nil {
-				errs.Addc(&field.Pos, "memory max_time '%s' should not be a string", *field.Value.Str)
+			if field.Value.Number == nil {
+				errs.Addc(&field.Pos, "memory max_time '%s' must be a number", field.Value.String())
 				continue
 			}
 
 			memory.MaxTime = field.Value.Number
 
 		case "finst_size":
-			if field.Value.Str != nil {
-				errs.Addc(&field.Pos, "memory finst_size '%s' should not be a string", *field.Value.Str)
+			if field.Value.Number == nil {
+				errs.Addc(&field.Pos, "memory finst_size '%s' must be a number", field.Value.String())
 				continue
 			}
 
@@ -244,8 +244,8 @@ func addMemory(model *actr.Model, mem []*field, errs *errorListWithContext) {
 			memory.FinstSize = &size
 
 		case "finst_time":
-			if field.Value.Str != nil {
-				errs.Addc(&field.Pos, "memory finst_time '%s' should not be a string", *field.Value.Str)
+			if field.Value.Number == nil {
+				errs.Addc(&field.Pos, "memory finst_time '%s' must be a number", field.Value.String())
 				continue
 			}
 

@@ -57,6 +57,19 @@ type fieldValue struct {
 	Pos lexer.Position
 }
 
+// Used for outputting errors
+func (f fieldValue) String() string {
+	if f.ID != nil {
+		return *f.ID
+	} else if f.Str != nil {
+		return *f.Str
+	} else if f.Number != nil {
+		return fmt.Sprintf("%f", *f.Number)
+	}
+
+	return "<error>"
+}
+
 type field struct {
 	Key   string     `parser:"@Ident ':'"`
 	Value fieldValue `parser:"@@ (',')?"`
