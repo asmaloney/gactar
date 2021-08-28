@@ -138,7 +138,7 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 			p.outputMatch(match)
 		}
 
-		p.Write("\t==>\n")
+		p.Writeln("\t==>")
 
 		if production.DoStatements != nil {
 			for _, statement := range production.DoStatements {
@@ -146,7 +146,7 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 			}
 		}
 
-		p.Writeln("''')")
+		p.Write("''')\n\n")
 	}
 
 	p.Writeln("")
@@ -224,7 +224,7 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patter
 		if item.Nil {
 			value = "nil"
 		} else if item.ID != nil {
-			value = *item.ID
+			value = fmt.Sprintf(`"%s"`, *item.ID)
 		} else if item.Num != nil {
 			value = *item.Num
 		} else if item.Var != nil {
@@ -264,7 +264,7 @@ func (p *PyACTR) outputStatement(s *actr.Statement) {
 				} else if slot.Value.Number != nil {
 					tabbedItems.Add(slotName, *slot.Value.Number)
 				} else if slot.Value.Str != nil {
-					tabbedItems.Add(slotName, *slot.Value.Str)
+					tabbedItems.Add(slotName, fmt.Sprintf(`"%s"`, *slot.Value.Str))
 				}
 			}
 			p.TabWrite(2, tabbedItems)

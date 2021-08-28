@@ -129,24 +129,16 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 
 	v.Writeln("(add-dm")
 	for i, init := range v.model.Initializers {
-
-		pattern := init.Pattern
-
-		v.Write(" (fact_%d isa %s", i, pattern.Chunk.Name)
-
-		for i, slotName := range pattern.Chunk.SlotNames {
-			slot := pattern.Slots[i]
-			v.writeSlot(slotName, slot.String())
-		}
-
-		v.Writeln(")")
+		v.Writeln(" (fact_%d", i)
+		v.outputPattern(init.Pattern, 1, true)
+		v.Writeln(" )")
 	}
 
 	// with vanilla act-r, the goal is included with the initializations
 	if goal != nil {
 		v.Writeln(" (goal")
 		v.outputPattern(goal, 1, true)
-		v.Writeln(")")
+		v.Writeln(" )")
 	}
 
 	v.Writeln(")\n")
@@ -270,23 +262,25 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 		v.Writeln("\t=%s>", buffer.Name)
 
 		if s.Set.Slots != nil {
+			tabbedItems := framework.KeyValueList{}
+			tabbedItems.Add("ISA", s.Set.Chunk.Name)
+
 			for _, slot := range *s.Set.Slots {
 				slotName := slot.Name
 
 				if slot.Value.Nil {
-					v.Writeln("\t\t%s\tnil", slotName)
+					tabbedItems.Add(slotName, "nil")
 				} else if slot.Value.Var != nil {
-					v.Writeln("\t\t%s\t=%s", slotName, *slot.Value.Var)
+					tabbedItems.Add(slotName, fmt.Sprintf("=%s", *slot.Value.Var))
 				} else if slot.Value.Number != nil {
-					v.Writeln("\t\t%s\t%s", slotName, *slot.Value.Number)
+					tabbedItems.Add(slotName, *slot.Value.Number)
 				} else if slot.Value.Str != nil {
-					v.Writeln("\t\t%s\t\"%s\"", slotName, *slot.Value.Str)
+					tabbedItems.Add(slotName, fmt.Sprintf(`"%s"`, *slot.Value.Str))
 				}
 			}
+			v.TabWrite(2, tabbedItems)
 		} else if s.Set.Pattern != nil {
 			v.outputPattern(s.Set.Pattern, 2, false)
-		} else {
-			v.Writeln(";;; writing text not yet handled")
 		}
 	} else if s.Recall != nil {
 		v.Writeln("\t+retrieval>")
