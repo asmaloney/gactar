@@ -124,7 +124,6 @@ export default {
       } catch (err) {
         this.showError(err)
       }
-      this.running = false
     },
 
     setResults(results) {
@@ -135,10 +134,12 @@ export default {
         text += '\n\n'
       }
       this.results = text
+      this.running = false
     },
 
     showError(err) {
       this.results = err
+      this.running = false
     },
   },
 }
