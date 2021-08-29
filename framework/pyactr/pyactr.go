@@ -224,21 +224,22 @@ func (p *PyACTR) outputMatch(match *actr.Match) {
 
 func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patternSlot *actr.PatternSlot) {
 	for _, item := range patternSlot.Items {
-		value := ""
+		var value string
+		if item.Negated {
+			value = "~"
+		}
+
 		if item.Nil {
-			value = "nil"
+			value += "nil"
 		} else if item.ID != nil {
-			value = fmt.Sprintf(`"%s"`, *item.ID)
+			value += fmt.Sprintf(`"%s"`, *item.ID)
 		} else if item.Num != nil {
-			value = *item.Num
+			value += *item.Num
 		} else if item.Var != nil {
 			if *item.Var == "?" {
 				return
 			}
 
-			if item.Negated {
-				value += "~"
-			}
 			value += "="
 			value += strings.TrimPrefix(*item.Var, "?")
 		}
