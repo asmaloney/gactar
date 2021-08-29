@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -172,20 +171,11 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 	return
 }
 
-func (v *VanillaACTR) writeSlot(slot, value string) {
-	intValue, conversionErr := strconv.Atoi(value)
-	if conversionErr == nil {
-		v.Write(" %s %d", slot, intValue)
-	} else {
-		v.Write(` %s "%s"`, slot, value)
-	}
-}
-
 func (v *VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int, includeISA bool) {
 	tabbedItems := framework.KeyValueList{}
 
 	if includeISA {
-		tabbedItems.Add("ISA", pattern.Chunk.Name)
+		tabbedItems.Add("isa", pattern.Chunk.Name)
 	}
 
 	for i, slot := range pattern.Slots {
@@ -223,7 +213,7 @@ func (v *VanillaACTR) outputMatch(match *actr.Match) {
 			}
 		} else {
 			v.Writeln("\t=%s>", text)
-			v.Writeln("\t\tISA\t%s", chunkName)
+			v.Writeln("\t\tisa\t%s", chunkName)
 		}
 	}
 }
@@ -266,7 +256,7 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 
 		if s.Set.Slots != nil {
 			tabbedItems := framework.KeyValueList{}
-			tabbedItems.Add("ISA", s.Set.Chunk.Name)
+			tabbedItems.Add("isa", s.Set.Chunk.Name)
 
 			for _, slot := range *s.Set.Slots {
 				slotName := slot.Name
