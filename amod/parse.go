@@ -85,10 +85,20 @@ type chunkDecl struct {
 	Pos lexer.Position
 }
 
+type module struct {
+	Name       string   `parser:"@Ident"`
+	InitFields []*field `parser:"'{' @@* '}'"`
+
+	Pos lexer.Position
+}
+
 type configSection struct {
 	ACTR       []*field     `parser:"('actr' '{' @@+ '}')?"`
-	ChunkDecls []*chunkDecl `parser:"('chunks' '{' @@+ '}')?"`
+	Modules    []*module    `parser:"('modules' '{' @@* '}')?"`
 	MemoryDecl []*field     `parser:"('memory' '{' @@+ '}')?"`
+	ChunkDecls []*chunkDecl `parser:"('chunks' '{' @@+ '}')?"`
+
+	Pos lexer.Position
 }
 
 type initialization struct {

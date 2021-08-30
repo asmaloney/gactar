@@ -122,6 +122,7 @@ func addConfig(model *actr.Model, config *configSection) (err error) {
 	errs := errorListWithContext{}
 
 	addACTR(model, config.ACTR, &errs)
+	addModules(model, config.Modules, &errs)
 	addChunks(model, config.ChunkDecls, &errs)
 	addMemory(model, config.MemoryDecl, &errs)
 
@@ -171,6 +172,47 @@ func addACTR(model *actr.Model, list []*field, errs *errorListWithContext) {
 			}
 		default:
 			errs.Addc(&field.Pos, "unrecognized field in actr section: '%s'", field.Key)
+		}
+	}
+}
+
+func addModules(model *actr.Model, modules []*module, errs *errorListWithContext) {
+	for _, module := range modules {
+		if !actr.ValidModule(module.Name) {
+			errs.Addc(&module.Pos, "unrecognized module in config: '%s'", module.Name)
+		}
+
+		switch module.Name {
+		case "imaginal":
+			addImaginal(model, module.InitFields, errs)
+		}
+	}
+}
+
+func addImaginal(model *actr.Model, fields []*field, errs *errorListWithContext) {
+	imaginal := model.CreateImaginal()
+	if imaginal == nil {
+		errs.Add("could not create imaginal buffer on model")
+		return
+	}
+
+	for _, field := range fields {
+		switch field.Key {
+		case "delay":
+			if field.Value.Number == nil {
+				errs.Addc(&field.Pos, "imaginal delay '%s' must be a number", field.Value.String())
+				continue
+			}
+
+			if *field.Value.Number < 0 {
+				errs.Addc(&field.Pos, "imaginal delay '%s' must be a positive number", field.Value.String())
+				continue
+			}
+
+			imaginal.Delay = *field.Value.Number
+
+		default:
+			errs.Addc(&field.Pos, "unrecognized field '%s' in imaginal config", field.Key)
 		}
 	}
 }

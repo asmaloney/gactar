@@ -9,8 +9,14 @@ import (
 var reservedChunkNames = map[string]bool{
 	"_status":   true,
 	"goal":      true,
+	"imaginal":  true,
 	"memory":    true,
 	"retrieval": true,
+}
+
+// These are the only valid modules.
+var moduleNames = map[string]bool{
+	"imaginal": true,
 }
 
 // Model represents a basic ACT-R model.
@@ -26,6 +32,7 @@ type Model struct {
 	Initializers []*Initializer
 	Productions  []*Production
 	Logging      bool
+	HasImaginal  bool
 }
 
 type Chunk struct {
@@ -48,6 +55,12 @@ func (b Buffer) GetName() string {
 
 func (b Buffer) String() string {
 	return b.Name
+}
+
+type Imaginal struct {
+	Buffer
+
+	Delay float64 // non-negative time (in seconds) and defaults to .2
 }
 
 type Memory struct {
@@ -87,6 +100,11 @@ func ReservedChunkNameExists(name string) bool {
 	return v && ok
 }
 
+func ValidModule(name string) bool {
+	v, ok := moduleNames[name]
+	return v && ok
+}
+
 func (c Chunk) String() (str string) {
 	return fmt.Sprintf("%s( %s )", c.Name, strings.Join(c.SlotNames, " "))
 }
@@ -113,6 +131,37 @@ func (model *Model) Initialize() {
 			Buffer: retrieval,
 		},
 	}
+}
+
+func (model *Model) CreateImaginal() *Imaginal {
+	// This uses the defaults as per ACT-R docs:
+	// 	http://act-r.psy.cmu.edu/actr7.x/reference-manual.pdf page 276
+
+	imaginal := &Imaginal{
+		Buffer: Buffer{Name: "imaginal"},
+
+		Delay: 0.2,
+	}
+
+	model.Buffers = append(model.Buffers, imaginal)
+	model.HasImaginal = true
+
+	return imaginal
+}
+
+// GetImaginal gets the imaginal buffer (or returns nil if it does not exist).
+func (model Model) GetImaginal() *Imaginal {
+	buffer := model.LookupBuffer("imaginal")
+	if buffer == nil {
+		return nil
+	}
+
+	imaginal, ok := buffer.(*Imaginal)
+	if !ok {
+		return nil
+	}
+
+	return imaginal
 }
 
 // LookupChunk looks up the named chunk in the model and returns it (or nil if it does not exist).

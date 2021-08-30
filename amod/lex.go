@@ -89,6 +89,7 @@ var keywords []string = []string{
 	"do",
 	"examples",
 	"match",
+	"modules",
 	"name",
 	"nil",
 	"print",

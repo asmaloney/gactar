@@ -1,0 +1,145 @@
+==model==
+
+// The name of the model
+name: topdown
+
+// Description of the model
+description: "This is translation of pyactr's ch3_topdown_parser -  a simple top-down parser."
+
+examples {
+    `parsing_goal( S nil nil parsing )`
+}
+
+==config==
+
+// Turn on logging by setting 'log' to 'true' or 1
+actr { log: true }
+
+modules {
+    // Initialize the imaginal buffer and set its delay
+	imaginal {
+		delay: 0.2
+	}
+}
+
+// Declare chunks and their layouts
+chunks {
+    parsing_goal( stack_top stack_bottom parsed_word task )
+    sentence( word1 word2 word3 )
+    word( form cat )
+}
+
+==init==
+
+// Initialize the memory
+memory {
+    `word( Mary ProperN )`
+    `word( Bill ProperN )`
+    `word( likes V )`
+}
+
+// Set our default goal
+goal `parsing_goal( S nil nil parsing )`
+
+// Set our default imaginal buffer
+imaginal `sentence( Mary likes Bill )`
+
+==productions==
+
+// Name of the production
+expandS {
+    // An optional description
+    description: 'expand: S ==> NP VP'
+
+    // Buffers to match
+    match {
+        goal `parsing_goal( S ? ? parsing )`
+    }
+    // Steps to execute
+    do {
+        set goal.stack_top to 'NP'
+        set goal.stack_bottom to 'VP'
+    }
+}
+
+expandNP {
+    description: 'expand: NP ==> ProperN'
+
+    match {
+        goal `parsing_goal( NP ? ? parsing )`
+    }
+    do {
+        set goal.stack_top to 'ProperN'
+    }
+}
+
+expandVP {
+    description: 'expand: VP ==> V NP'
+
+    match {
+        goal `parsing_goal( VP ? ? parsing )`
+    }
+    do {
+        set goal.stack_top to 'V'
+        set goal.stack_bottom to 'NP'
+    }
+}
+
+retrieveProperN {
+    match {
+        goal `parsing_goal( ProperN ? ? parsing )`
+        imaginal `sentence( ?word1 ? ? )`
+    }
+    do {
+        set goal.task to 'retrieving'
+        recall `word( ?word1 ? )`
+    }
+}
+
+retrieveV {
+    match {
+        goal `parsing_goal( V ? ? parsing )`
+        imaginal `sentence( ?word1 ? ? )`
+    }
+    do {
+        set goal.task to 'retrieving'
+        recall `word( ?word1 ? )`
+    }
+}
+
+scanWord {
+    match {
+        goal `parsing_goal( ?top ?bottom ? retrieving )`
+        retrieval `word( ?word1 ?top )`
+        imaginal `sentence( ?word1 ?word2 ?word3 )`
+    }
+    do {
+        set goal to `parsing_goal( ?bottom nil ?word1 printing )`
+        set imaginal to `sentence( ?word2 ?word3 nil )`
+        clear retrieval
+    }
+}
+
+printParsedWord {
+    match {
+        goal `parsing_goal( ? ? ?parsed printing )`
+        imaginal `sentence( !nil ? ? )`
+    }
+    do {
+        print ?parsed
+        set goal.task to 'parsing'
+        set goal.parsed_word to nil
+    }
+}
+
+done {
+    match {
+        goal `parsing_goal( ? ? ?parsed printing )`
+        imaginal `sentence( nil ? ? )`
+    }
+    do {
+        print ?parsed
+        set goal.task to 'done'
+        clear imaginal, goal
+    }
+}

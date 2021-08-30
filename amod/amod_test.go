@@ -89,6 +89,94 @@ func TestChunkDuplicateName(t *testing.T) {
 	checkExpectedError(err, expected, t)
 }
 
+func TestModules(t *testing.T) {
+	src := `
+	==model==
+	name: Test
+	==config==
+	modules {
+		imaginal { delay: 0.2 }
+	}
+	==productions==`
+
+	_, err := GenerateModel(src)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	modules {
+		foo { delay: 0.2 }
+	}
+	==productions==`
+
+	_, err = GenerateModel(src)
+
+	expected := "unrecognized module in config: 'foo' (line 6)"
+	checkExpectedError(err, expected, t)
+}
+
+func TestImaginalFields(t *testing.T) {
+	src := `
+	==model==
+	name: Test
+	==config==
+	modules {
+		imaginal { delay: 0.2 }
+	}
+	==productions==`
+
+	_, err := GenerateModel(src)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	modules {
+		imaginal { delay: "gack" }
+	}
+	==productions==`
+
+	_, err = GenerateModel(src)
+
+	expected := "imaginal delay 'gack' must be a number (line 6)"
+	checkExpectedError(err, expected, t)
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	modules {
+		imaginal { delay: -0.5 }
+	}
+	==productions==`
+
+	_, err = GenerateModel(src)
+
+	expected = "imaginal delay '-0.500000' must be a positive number (line 6)"
+	checkExpectedError(err, expected, t)
+
+	src = `
+	==model==
+	name: Test
+	==config==
+	modules {
+		imaginal { foo: bar }
+	}
+	==productions==`
+
+	_, err = GenerateModel(src)
+
+	expected = "unrecognized field 'foo' in imaginal config (line 6)"
+	checkExpectedError(err, expected, t)
+}
+
 func TestMemoryUnrecognizedField(t *testing.T) {
 	src := `
 	==model==
@@ -316,11 +404,23 @@ func TestProductionSetStatement(t *testing.T) {
 	==model==
 	name: Test
 	==config==
-	chunks { foo( thing ) }
+	modules {
+		imaginal { delay: 0.2 }
+	}
+	chunks {
+		foo( thing )
+		ack( knowledge )
+	}
 	==productions==
 	start {
-		match { goal ` + "`foo( ?blat )`" + ` }
-		do { set goal.thing to nil }
+		match {
+			goal ` + "`foo( ?blat )`" + `
+			imaginal ` + "`ack( ?bar )`" + `
+		}
+		do {
+			set goal.thing to nil
+			set imaginal.knowledge to nil
+		}
 	}`
 
 	_, err = GenerateModel(src)

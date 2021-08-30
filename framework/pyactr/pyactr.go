@@ -134,6 +134,12 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 		p.Writeln("")
 	}
 
+	if p.model.HasImaginal {
+		imaginal := p.model.GetImaginal()
+		p.Writeln(`imaginal = %s.set_goal(name="imaginal", delay=%f)`, p.className, imaginal.Delay)
+		p.Writeln("")
+	}
+
 	// initialize
 	for _, init := range p.model.Initializers {
 		initializer := "dm"

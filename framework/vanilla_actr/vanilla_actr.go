@@ -114,7 +114,15 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 	v.Write("(clear-all)\n\n")
 
 	v.Writeln("(define-model %s\n", v.modelName)
-	v.Writeln("(sgp :esc t :lf .05)\n")
+
+	v.Writeln("(sgp :esc t :lf .05")
+
+	if v.model.HasImaginal {
+		imaginal := v.model.GetImaginal()
+		v.Writeln("\t:do-not-harvest imaginal")
+		v.Writeln("\t:imaginal-delay %f", imaginal.Delay)
+	}
+	v.Writeln(")\n")
 
 	// chunks
 	for _, chunk := range v.model.Chunks {
@@ -135,6 +143,11 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 			if initializer == "goal" && (goal != nil) {
 				continue
 			}
+
+			if initializer == "imaginal" {
+				continue
+			}
+
 			v.Writeln(" (%s", initializer)
 		} else {
 			v.Writeln(" (fact_%d", i)
@@ -173,6 +186,32 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 
 		v.Writeln(")\n")
 	}
+
+	if v.model.HasImaginal {
+		v.Writeln(";; initialize our imaginal buffer")
+		v.Writeln("(define-chunks (imaginal-init")
+
+		// find our imaginal initializer and output it
+		for _, init := range v.model.Initializers {
+			if init.Buffer != nil {
+				initializer := init.Buffer.GetName()
+
+				if initializer != "imaginal" {
+					continue
+				}
+
+				v.outputPattern(init.Pattern, 1)
+			}
+		}
+		v.Writeln("))")
+
+		v.Writeln(`(set-buffer-chunk 'imaginal 'imaginal-init )`)
+		v.Writeln("")
+	}
+
+	// Useful for debugging - output the contents of the imaginal buffer and the dm
+	// v.Writeln("(buffer-chunk imaginal)")
+	// v.Writeln("(dm)")
 
 	v.Writeln("(goal-focus goal)")
 
