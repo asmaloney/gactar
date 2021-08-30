@@ -27,6 +27,45 @@ func validateChunk(model *actr.Model, chunk *chunkDecl) (err error) {
 	return errs.ErrorOrNil()
 }
 
+func validateInitialization(model *actr.Model, init *initialization) (err error) {
+	errs := errorListWithContext{}
+
+	name := init.Name
+
+	if init.InitPattern != nil {
+		err = validatePattern(model, init.InitPattern)
+		if err != nil {
+			errs.AddErrorIfNotNil(err)
+		}
+	}
+
+	buffer := model.LookupBuffer(name)
+	if buffer != nil {
+		if init.InitPatterns != nil {
+			errs.Addc(&init.Pos, "buffer '%s' should only have one pattern in initialization", name)
+		} else if init.InitPattern == nil {
+			errs.Addc(&init.Pos, "buffer '%s' requires a pattern in initialization", name)
+		}
+
+		return errs.ErrorOrNil()
+	}
+
+	memory := model.LookupMemory(name)
+	if memory == nil {
+		errs.Addc(&init.Pos, "buffer or memory '%s' not found in initialization ", name)
+	}
+
+	for _, init := range init.InitPatterns {
+		err = validatePattern(model, init)
+		if err != nil {
+			errs.AddErrorIfNotNil(err)
+			continue
+		}
+	}
+
+	return errs.ErrorOrNil()
+}
+
 // validatePattern ensures that the pattern's chunk exists and that its number of slots match.
 func validatePattern(model *actr.Model, pattern *pattern) (err error) {
 	errs := errorListWithContext{}

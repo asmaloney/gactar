@@ -89,12 +89,18 @@ type configSection struct {
 	ACTR       []*field     `parser:"('actr' '{' @@+ '}')?"`
 	ChunkDecls []*chunkDecl `parser:"('chunks' '{' @@+ '}')?"`
 	MemoryDecl []*field     `parser:"('memory' '{' @@+ '}')?"`
+}
+
+type initialization struct {
+	Name         string     `parser:"@Ident"`
+	InitPattern  *pattern   `parser:"( @@ "`
+	InitPatterns []*pattern `parser:"| '{' @@+ '}')"`
 
 	Pos lexer.Position
 }
 
 type initSection struct {
-	Patterns []*pattern `parser:"'memory' '{' @@+ '}'"`
+	Initializations []*initialization `parser:"@@*"`
 
 	Pos lexer.Position
 }
@@ -127,8 +133,8 @@ type pattern struct {
 }
 
 type matchItem struct {
-	Name    string   `parser:"(@Ident|@('memory':Keyword))"`
-	Pattern *pattern `parser:" @@ "`
+	Name    string   `parser:"@Ident"`
+	Pattern *pattern `parser:"@@"`
 
 	Pos lexer.Position
 }

@@ -39,6 +39,9 @@ memory {
     `count( 9 10 )`
 }
 
+// Default goal
+goal `countFrom( 2 5 starting )`
+
 ==productions==
 
 // Name of the production

@@ -264,34 +264,46 @@ func addInit(model *actr.Model, init *initSection) (err error) {
 
 	errs := errorListWithContext{}
 
-	memory := model.LookupMemory("memory")
-	if memory == nil {
-		errs.Addc(&init.Pos, "memory not found")
-	}
+	for _, initialization := range init.Initializations {
+		name := initialization.Name
+		buffer := model.LookupBuffer(name)
+		memory := model.LookupMemory(name)
 
-	if init.Patterns == nil {
-		errs.Addc(&init.Pos, "no memory initializers found")
-	}
-
-	for _, init := range init.Patterns {
-		err = validatePattern(model, init)
+		err := validateInitialization(model, initialization)
 		if err != nil {
 			errs.AddErrorIfNotNil(err)
 			continue
 		}
 
-		pattern, err := createChunkPattern(model, init)
-		if err != nil {
-			errs.AddErrorIfNotNil(err)
-			continue
-		}
+		if buffer != nil {
+			pattern, err := createChunkPattern(model, initialization.InitPattern)
+			if err != nil {
+				errs.AddErrorIfNotNil(err)
+				continue
+			}
 
-		init := actr.Initializer{
-			Memory:  memory,
-			Pattern: pattern,
-		}
+			init := actr.Initializer{
+				Buffer:  buffer,
+				Pattern: pattern,
+			}
 
-		model.Initializers = append(model.Initializers, &init)
+			model.Initializers = append(model.Initializers, &init)
+		} else { // memory
+			for _, init := range initialization.InitPatterns {
+				pattern, err := createChunkPattern(model, init)
+				if err != nil {
+					errs.AddErrorIfNotNil(err)
+					continue
+				}
+
+				init := actr.Initializer{
+					Memory:  memory,
+					Pattern: pattern,
+				}
+
+				model.Initializers = append(model.Initializers, &init)
+			}
+		}
 	}
 
 	return errs.ErrorOrNil()

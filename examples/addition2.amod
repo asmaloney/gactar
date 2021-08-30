@@ -32,6 +32,9 @@ memory {
     `addition_fact( 1 7 8 )`
 }
 
+// Default goal
+goal `add_pair( 3 6 4 7 nil nil nil )`
+
 ==productions==
 
 // Name of the production

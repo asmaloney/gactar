@@ -68,7 +68,9 @@ type TextOutput struct {
 }
 
 type Initializer struct {
-	Memory  *Memory
+	Buffer BufferInterface // buffer...
+	Memory *Memory         // ... OR memory
+
 	Pattern *Pattern
 }
 
@@ -146,16 +148,19 @@ func (model Model) LookupMemory(memoryName string) *Memory {
 	return nil
 }
 
-// BufferOrMemoryExists looks up the named buffer or memory in the model and returns it (or nil if it does not exist).
-func (model Model) BufferOrMemoryExists(name string) bool {
-	buffer := model.LookupBuffer(name)
-	if buffer != nil {
-		return true
+// HasInitializer checks if the model has an initialization for the buffer.
+func (model Model) HasInitializer(buffer string) bool {
+	for _, init := range model.Initializers {
+		if init.Memory != nil {
+			continue
+		}
+
+		if init.Buffer.GetName() == buffer {
+			return true
+		}
 	}
 
-	memory := model.LookupMemory(name)
-
-	return memory != nil
+	return false
 }
 
 // HasSlot checks if the slot name exists on this chunk.

@@ -171,7 +171,19 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		c.Writeln("\tdef init():")
 
 		for _, init := range c.model.Initializers {
-			c.Write("\t\t%s.add(", init.Memory.Name)
+			if init.Buffer != nil {
+				initializer := init.Buffer.GetName()
+
+				// allow the user-set goal to override the initializer
+				if initializer == "goal" && (goal != nil) {
+					continue
+				}
+				c.Write("\t\t%s.set(", initializer)
+
+			} else { // memory
+				c.Write("\t\t%s.add(", init.Memory.Name)
+			}
+
 			c.outputPattern(init.Pattern)
 			c.Writeln(")")
 		}
@@ -205,13 +217,13 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		c.Write("\n")
 	}
 
+	c.Writeln("")
+	c.Writeln("if __name__ == \"__main__\":")
+	c.Writeln(fmt.Sprintf("\tmodel = %s()", c.className))
 	if goal != nil {
-		c.Writeln("")
-		c.Writeln("if __name__ == \"__main__\":")
-		c.Writeln(fmt.Sprintf("\tmodel = %s()", c.className))
 		c.Writeln(fmt.Sprintf("\tmodel.goal.set('%s')", convertGoal(goal)))
-		c.Writeln("\tmodel.run()")
 	}
+	c.Writeln("\tmodel.run()")
 
 	return
 }

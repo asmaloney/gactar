@@ -120,11 +120,32 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	}
 	p.Writeln("")
 
-	p.Write("dm = %s.decmem\n\n", p.className)
+	p.Writeln("dm = %s.decmem", p.className)
+	p.Writeln("goal = %s.set_goal('goal')", p.className)
+	p.Writeln("")
+
+	if goal != nil {
+		// add our goal...
+		p.Writeln("initial_goal = actr.chunkstring(string='''")
+		p.outputPattern(goal, 1)
+		p.Writeln("''')")
+
+		p.Writeln("goal.add(initial_goal)")
+		p.Writeln("")
+	}
 
 	// initialize
 	for _, init := range p.model.Initializers {
-		p.Writeln("dm.add(actr.chunkstring(string='''")
+		initializer := "dm"
+		if init.Buffer != nil {
+			initializer = init.Buffer.GetName()
+
+			// allow the user-set goal to override the initializer
+			if initializer == "goal" && (goal != nil) {
+				continue
+			}
+		}
+		p.Writeln("%s.add(actr.chunkstring(string='''", initializer)
 		p.outputPattern(init.Pattern, 1)
 		p.Writeln("'''))")
 	}
@@ -155,25 +176,12 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 
 	p.Writeln("")
 
-	if goal != nil {
-		// add our goal...
-		p.Writeln("initial_goal = actr.chunkstring(string='''")
-		p.outputPattern(goal, 1)
-		p.Writeln("''')")
-
-		p.Writeln("")
-		p.Writeln("goal = %s.set_goal('goal')", p.className)
-		p.Writeln("goal.add(initial_goal)")
-		p.Writeln("")
-
-		// ...and our code to run
-		p.Writeln("if __name__ == '__main__':")
-		p.Writeln("\tsim = %s.simulation()", p.className)
-		p.Writeln("\tsim.run()")
-		p.Writeln("\tif goal.test_buffer('full') == True:")
-		p.Writeln("\t\tprint( 'final goal: ' + str(goal.pop()) )")
-
-	}
+	// ...add our code to run
+	p.Writeln("if __name__ == '__main__':")
+	p.Writeln("\tsim = %s.simulation()", p.className)
+	p.Writeln("\tsim.run()")
+	p.Writeln("\tif goal.test_buffer('full') == True:")
+	p.Writeln("\t\tprint( 'final goal: ' + str(goal.pop()) )")
 
 	return
 }

@@ -36,6 +36,9 @@ memory {
     `property( canary category bird )`
 }
 
+// Default goal
+goal `isMember( shark animal nil )`
+
 ==productions==
 
 // Name of the production

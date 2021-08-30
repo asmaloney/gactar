@@ -130,6 +130,21 @@ func TestInitializers(t *testing.T) {
 	==config==
 	chunks { author( person object year ) }
 	==init==
+	goal ` + "`author( Fred Book 1972 )`" + `
+	==productions==`
+
+	_, err = GenerateModel(src)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
+	// Check invalid number of slots in init
+	src = `
+	==model==
+	name: Test
+	==config==
+	chunks { author( person object year ) }
+	==init==
 	memory { ` + "`author( me software )`" + ` }
 	==productions==`
 
@@ -138,6 +153,7 @@ func TestInitializers(t *testing.T) {
 	expected := "invalid chunk - 'author' expects 3 slots (line 7)"
 	checkExpectedError(err, expected, t)
 
+	// Check memory with invalid chunk
 	src = `
 	==model==
 	name: Test
@@ -150,6 +166,61 @@ func TestInitializers(t *testing.T) {
 
 	expected = "could not find chunk named 'author' (line 6)"
 	checkExpectedError(err, expected, t)
+
+	// Check buffer with invalid chunk
+	src = `
+	==model==
+	name: Test
+	==config==
+	==init==
+	goal ` + "`author( Fred Book 1972 )`" + `
+	==productions==`
+
+	_, err = GenerateModel(src)
+	checkExpectedError(err, expected, t)
+
+	// Check unknown buffer
+	src = `
+	==model==
+	name: Test
+	==config==
+	chunks { author( person object year ) }
+	==init==
+	something ` + "`author( Fred Book 1972 )`" + `
+	==productions==`
+
+	_, err = GenerateModel(src)
+	expected = "buffer or memory 'something' not found in initialization  (line 7)"
+	checkExpectedError(err, expected, t)
+
+	// Check buffer with multiple inits
+	src = `
+	==model==
+	name: Test
+	==config==
+	chunks { author( person object year ) }
+	==init==
+	goal { ` + "`author( Fred Book 1972 )`" + " `author( Jane Book 1984 )`" + ` }
+	==productions==`
+
+	_, err = GenerateModel(src)
+	expected = "buffer 'goal' should only have one pattern in initialization (line 7)"
+	checkExpectedError(err, expected, t)
+
+	// memory with one init is allowed
+	src = `
+	==model==
+	name: Test
+	==config==
+	chunks { author( person object year ) }
+	==init==
+	memory ` + "`author( Jane Book 1984 )`" + `
+	==productions==`
+
+	_, err = GenerateModel(src)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
 }
 
 func TestProductionInvalidMemory(t *testing.T) {

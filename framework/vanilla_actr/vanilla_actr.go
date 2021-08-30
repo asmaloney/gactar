@@ -128,12 +128,21 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 
 	v.Writeln("(add-dm")
 	for i, init := range v.model.Initializers {
-		v.Writeln(" (fact_%d", i)
+		if init.Buffer != nil {
+			initializer := init.Buffer.GetName()
+
+			// allow the user-set goal to override the initializer
+			if initializer == "goal" && (goal != nil) {
+				continue
+			}
+			v.Writeln(" (%s", initializer)
+		} else {
+			v.Writeln(" (fact_%d", i)
+		}
 		v.outputPattern(init.Pattern, 1, true)
 		v.Writeln(" )")
 	}
 
-	// with vanilla act-r, the goal is included with the initializations
 	if goal != nil {
 		v.Writeln(" (goal")
 		v.outputPattern(goal, 1, true)
