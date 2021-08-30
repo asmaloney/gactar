@@ -127,7 +127,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, production *actr
 				if chunk == nil {
 					errs.Addc(&set.Pos, "chunk does not exist in match buffer '%s' in production '%s'", bufferName, production.Name)
 				} else {
-					if !chunk.SlotExists(slotName) {
+					if !chunk.HasSlot(slotName) {
 						errs.Addc(&set.Pos, "slot '%s' does not exist in chunk '%s' for match buffer '%s' in production '%s'", slotName, chunk.Name, bufferName, production.Name)
 					}
 

@@ -158,8 +158,8 @@ func (model Model) BufferOrMemoryExists(name string) bool {
 	return memory != nil
 }
 
-// SlotExists checks if the slot name exists on this chunk.
-func (chunk Chunk) SlotExists(slot string) bool {
+// HasSlot checks if the slot name exists on this chunk.
+func (chunk Chunk) HasSlot(slot string) bool {
 	for _, name := range chunk.SlotNames {
 		if name == slot {
 			return true
