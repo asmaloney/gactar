@@ -230,8 +230,12 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patter
 		value := ""
 		slot := ""
 
+		if item.Negated {
+			slot = "- "
+		}
+
 		if item.Nil {
-			value = "nil"
+			value = "empty"
 		} else if item.ID != nil {
 			value = fmt.Sprintf(`"%s"`, *item.ID)
 		} else if item.Num != nil {
@@ -239,10 +243,6 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patter
 		} else if item.Var != nil {
 			if *item.Var == "?" {
 				return
-			}
-
-			if item.Negated {
-				slot = "- "
 			}
 
 			varName := strings.TrimPrefix(*item.Var, "?")
@@ -269,7 +269,7 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 				slotName := slot.Name
 
 				if slot.Value.Nil {
-					tabbedItems.Add(slotName, "nil")
+					tabbedItems.Add(slotName, "empty")
 				} else if slot.Value.Var != nil {
 					tabbedItems.Add(slotName, fmt.Sprintf("=%s", *slot.Value.Var))
 				} else if slot.Value.Number != nil {
