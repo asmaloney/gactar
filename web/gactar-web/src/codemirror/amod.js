@@ -7,25 +7,27 @@ CodeMirror.defineMode('amod', function () {
   const variable_regex = /[a-zA-Z0-9_]+/
 
   const keywords = {
-    name: true,
-    description: true,
-    examples: true,
     actr: true,
     chunks: true,
-    text_outputs: true,
-    match: true,
-    do: true,
     clear: true,
+    description: true,
+    do: true,
+    examples: true,
+    match: true,
+    modules: true,
+    name: true,
     print: true,
+    recall: true,
     set: true,
     to: true,
-    recall: true,
     write: true,
   }
 
   const builtIns = {
     goal: true,
+    imaginal: true,
     memory: true,
+    nil: true,
     retrieval: true,
   }
 
