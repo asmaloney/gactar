@@ -5,14 +5,14 @@ updates:
   - package-ecosystem: 'gomod'
     directory: '/'
     schedule:
-      interval: 'daily'
+      interval: 'monthly'
     commit-message:
       prefix: '{gomod}'
       include: 'scope'
   - package-ecosystem: 'npm'
     directory: '/web/gactar-web/'
     schedule:
-      interval: 'daily'
+      interval: 'monthly'
     commit-message:
       prefix: '{npm}'
       prefix-development: '{npm-dev}'
