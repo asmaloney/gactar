@@ -139,13 +139,13 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 		} else {
 			v.Writeln(" (fact_%d", i)
 		}
-		v.outputPattern(init.Pattern, 1, true)
+		v.outputPattern(init.Pattern, 1)
 		v.Writeln(" )")
 	}
 
 	if goal != nil {
 		v.Writeln(" (goal")
-		v.outputPattern(goal, 1, true)
+		v.outputPattern(goal, 1)
 		v.Writeln(" )")
 	}
 
@@ -181,12 +181,9 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 	return
 }
 
-func (v *VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int, includeISA bool) {
+func (v *VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 	tabbedItems := framework.KeyValueList{}
-
-	if includeISA {
-		tabbedItems.Add("isa", pattern.Chunk.Name)
-	}
+	tabbedItems.Add("isa", pattern.Chunk.Name)
 
 	for i, slot := range pattern.Slots {
 		slotName := pattern.Chunk.SlotNames[i]
@@ -209,7 +206,7 @@ func (v *VanillaACTR) outputMatch(match *actr.Match) {
 			}
 		} else {
 			v.Writeln("\t=%s>", bufferName)
-			v.outputPattern(match.Pattern, 2, true)
+			v.outputPattern(match.Pattern, 2)
 		}
 	} else if match.Memory != nil {
 		text := "retrieval"
@@ -283,12 +280,11 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 			}
 			v.TabWrite(2, tabbedItems)
 		} else if s.Set.Pattern != nil {
-			v.outputPattern(s.Set.Pattern, 2, false)
+			v.outputPattern(s.Set.Pattern, 2)
 		}
 	} else if s.Recall != nil {
 		v.Writeln("\t+retrieval>")
-
-		v.outputPattern(s.Recall.Pattern, 2, true)
+		v.outputPattern(s.Recall.Pattern, 2)
 	} else if s.Print != nil {
 		values := valuesToStrings(s.Print.Values)
 		v.Write("\t!output!\t(%s)\n", strings.Join(values, " "))
