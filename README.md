@@ -31,10 +31,10 @@ Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate c
 
    ```
     match {
-        goal `isMember( ?obj ? nil )`
+        goal [isMember: ?obj ? nil]
     }
     do {
-        recall `property( ?ojb category ? )`
+        recall [property: ?ojb category ?]
     }
    ```
 
@@ -48,7 +48,7 @@ Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate c
 
    ```
     match {
-        goal `isMember( ?obj ? nil )`
+        goal [isMember: ?obj ? nil]
     }
     do {
         set goal.resutl to 'pending'
@@ -269,8 +269,8 @@ description: 'This is a model which adds numbers. Based on the u1_count.py tutor
 
 // Examples of starting goals to use when running the model
 examples {
-    `countFrom( 2 5 starting )`
-    `countFrom( 1 3 starting )`
+    [countFrom: 2 5 starting]
+    [countFrom: 1 3 starting]
 }
 
 ==config==
@@ -280,20 +280,23 @@ actr { log: true }
 
 // Declare chunks and their layouts
 chunks {
-    count( first second )
-    countFrom( start end status )
+    [count: first second]
+    [countFrom: start end status]
 }
 
 ==init==
 
 // Initialize the memory
 memory {
-    `count( 0 1 )`
-    `count( 1 2 )`
-    `count( 2 3 )`
-    `count( 3 4 )`
-    `count( 4 5 )`
+    [count: 0 1]
+    [count: 1 2]
+    [count: 2 3]
+    [count: 3 4]
+    [count: 4 5]
 }
+
+// Default goal
+goal [countFrom: 2 5 starting]
 
 ==productions==
 
@@ -304,30 +307,30 @@ start {
 
     // Buffers to match
     match {
-        goal `countFrom( ?start ?end starting )`
+        goal [countFrom: ?start ?end starting]
     }
     // Steps to execute
     do {
-        recall `count( ?start ?)`
-        set goal to `countFrom( ?start ?end counting )`
+        recall [count: ?start ?]
+        set goal to [countFrom: ?start ?end counting]
     }
 }
 
 increment {
     match {
-        goal `countFrom( ?x !?x counting )`
-        retrieval `count( ?x ?next )`
+        goal [countFrom: ?x !?x counting]
+        retrieval [count: ?x ?next]
     }
     do {
         print ?x
-        recall `count( ?next ? )`
+        recall [count: ?next ?]
         set goal.start to ?next
     }
 }
 
 stop {
     match {
-        goal `countFrom( ?x ?x counting )`
+        goal [countFrom: ?x ?x counting]
     }
     do {
         print ?x
@@ -346,8 +349,8 @@ It is used in a `match` as follows:
 
 ```
 match {
-    goal `_status( full )`
-    memory `_status( error )`
+    goal [_status: full]
+    memory [_status: error]
 }
 ```
 
@@ -357,7 +360,7 @@ For memory, valid statuses are `busy`, `free`, `error`.
 
 ### Pattern Syntax
 
-The _match_ section matches _patterns_ to buffers. Patterns are delineated by backticks - e.g. `` `property( ?obj category ?cat )` ``. The first item is the chunk name and the items between the parentheses are the slots. These are parsed to ensure their format is consistent with _chunks_ which are declared in the _config_ section.
+The _match_ section matches _patterns_ to buffers. Patterns are delineated by square brackets - e.g. `[property: ?obj category ?cat]`. The first item is the chunk name and the items after the colon are the slots. These are parsed to ensure their format is consistent with _chunks_ which are declared in the _config_ section.
 
 The _do_ section in the productions uses a small language which currently understands the following commands:
 
@@ -365,9 +368,9 @@ The _do_ section in the productions uses a small language which currently unders
 | ---------------------------------------------------------------- | ------------------------------- |
 | clear _(buffer name)+_                                           | clear goal, retrieval           |
 | print _(string or var or number)+_                               | print 'text', ?var, 42          |
-| recall _(pattern)_                                               | recall \`car( ?colour )\`       |
+| recall _(pattern)_                                               | recall [car: ?colour]           |
 | set _(buffer name)_._(slot name)_ to _(string or var or number)_ | set goal.wall_colour to ?colour |
-| set _(buffer name)_ to _(pattern)_                               | set goal to \`start( 6 nil )\`  |
+| set _(buffer name)_ to _(pattern)_                               | set goal to [start: 6 nil]      |
 
 ## Processing
 

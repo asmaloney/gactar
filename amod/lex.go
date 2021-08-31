@@ -41,7 +41,7 @@ type lexer_amod struct {
 	width          int             // width of last rune read from input
 	lexemes        chan lexeme     // channel of scanned lexemes
 	keywords       map[string]bool // used to lookup identifier to see if they are keywords
-	inPattern      bool            // state: a pattern - delimited by `` is lexed specially
+	inPattern      bool            // state: a pattern - delimited by [] is lexed specially
 }
 
 // stateFn is used to move through the lexing states
@@ -340,9 +340,13 @@ func lexStart(l *lexer_amod) stateFn {
 		l.backup()
 		return lexQuotedString
 
-	case r == '`':
-		l.inPattern = !l.inPattern
+	case r == '[':
+		l.inPattern = true
 		l.emit(lexemePatternDelim)
+
+	case r == ']':
+		l.emit(lexemePatternDelim)
+		l.inPattern = false
 
 	case r == '?':
 		return lexIdentifier

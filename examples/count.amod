@@ -8,8 +8,8 @@ description: 'This is a model which adds numbers. Based on the u1_count.py tutor
 
 // Examples of starting goals to use when running the model
 examples {
-    `countFrom( 2 5 starting )`
-    `countFrom( 1 7 starting )`
+    [countFrom: 2 5 starting]
+    [countFrom: 1 7 starting]
 }
 
 ==config==
@@ -19,28 +19,28 @@ actr { log: true }
 
 // Declare chunks and their layouts
 chunks {
-    count( first second )
-    countFrom( start end status )
+    [count: first second]
+    [countFrom: start end status]
 }
 
 ==init==
 
 // Initialize the memory
 memory {
-    `count( 0 1 )`
-    `count( 1 2 )`
-    `count( 2 3 )`
-    `count( 3 4 )`
-    `count( 4 5 )`
-    `count( 5 6 )`
-    `count( 6 7 )`
-    `count( 7 8 )`
-    `count( 8 9 )`
-    `count( 9 10 )`
+    [count: 0 1]
+    [count: 1 2]
+    [count: 2 3]
+    [count: 3 4]
+    [count: 4 5]
+    [count: 5 6]
+    [count: 6 7]
+    [count: 7 8]
+    [count: 8 9]
+    [count: 9 10]
 }
 
 // Default goal
-goal `countFrom( 2 5 starting )`
+goal [countFrom: 2 5 starting]
 
 ==productions==
 
@@ -51,30 +51,30 @@ start {
     
     // Buffers to match
     match {
-        goal `countFrom( ?start ?end starting )`
+        goal [countFrom: ?start ?end starting]
     }
     // Steps to execute
     do {
-        recall `count( ?start ?)`
-        set goal to `countFrom( ?start ?end counting )`
+        recall [count: ?start ?]
+        set goal to [countFrom: ?start ?end counting]
     }
 }
 
 increment {
     match {
-        goal `countFrom( ?x !?x counting )`
-        retrieval `count( ?x ?next )`
+        goal [countFrom: ?x !?x counting]
+        retrieval [count: ?x ?next]
     }
     do {
         print ?x
-        recall `count( ?next ? )`
+        recall [count: ?next ?]
         set goal.start to ?next
     }
 }
 
 stop {
     match {
-        goal `countFrom( ?x ?x counting )`
+        goal [countFrom: ?x ?x counting]
     }
     do {
         print ?x

@@ -8,9 +8,9 @@ description: 'This model is based on the u1_semantic.py tutorial.'
 
 // Examples of starting goals to use when running the model
 examples {
-    `isMember( shark fish nil )`
-    `isMember( shark animal nil )`
-    `isMember( canary fish nil )`
+    [isMember: shark fish nil]
+    [isMember: shark animal nil]
+    [isMember: canary fish nil]
 }
 
 ==config==
@@ -20,24 +20,24 @@ actr { log: true }
 
 // Declare chunks and their layouts
 chunks {
-    isMember( object category judgment )
-    property( object attribute value )
+    [isMember: object category judgment]
+    [property: object attribute value]
 }
 
 ==init==
 
 // Initialize the memory
 memory {
-    `property( shark dangerous true )`
-    `property( shark locomotion swimming)`
-    `property( shark category fish )`
-    `property( fish category animal )`
-    `property( bird category animal )`
-    `property( canary category bird )`
+    [property: shark dangerous true]
+    [property: shark locomotion swimming]
+    [property: shark category fish]
+    [property: fish category animal]
+    [property: bird category animal]
+    [property: canary category bird]
 }
 
 // Default goal
-goal `isMember( shark animal nil )`
+goal [isMember: shark animal nil]
 
 ==productions==
 
@@ -48,19 +48,19 @@ initialRetrieval {
     
     // Buffers to match
     match {
-        goal `isMember( ?obj ? nil )`
+        goal [isMember: ?obj ? nil]
     }
     // Steps to execute
     do {
         set goal.judgment to 'pending'
-        recall `property( ?obj category ? )`
+        recall [property: ?obj category ?]
     }
 }
 
 directVerify {
     match {
-        goal `isMember( ?obj ?cat pending )`
-        retrieval `property( ?obj category ?cat )`
+        goal [isMember: ?obj ?cat pending]
+        retrieval [property: ?obj category ?cat]
     }
     do {
         set goal.judgment to 'yes'
@@ -70,19 +70,19 @@ directVerify {
 
 chainCategory {
     match {
-        goal `isMember( ?obj1 ?cat pending )`
-        retrieval `property( ?obj1 category ?obj2!?cat )`
+        goal [isMember: ?obj1 ?cat pending]
+        retrieval [property: ?obj1 category ?obj2!?cat]
     }
     do {
         set goal.object to ?obj2
-        recall `property( ?obj2 category ? )`
+        recall [property: ?obj2 category ?]
     }
 }
 
 fail {
     match {
-        goal `isMember( ? ? pending )`
-        memory `_status( error )`
+        goal [isMember: ? ? pending]
+        memory [_status: error]
     }
     do {
         set goal.judgment to 'no'

@@ -78,9 +78,19 @@ type field struct {
 	Pos lexer.Position
 }
 
+type chunkSlot struct {
+	Space1 string `parser:"@PatternSpace?"`
+	Slot   string `parser:"@Ident"`
+	Space2 string `parser:"@PatternSpace?"`
+
+	Pos lexer.Position
+}
+
 type chunkDecl struct {
-	Name      string   `parser:"@Ident"`
-	SlotNames []string `parser:"'(' ( @Ident ','? )+ ')'"`
+	StartBracket string       `parser:"'['"` // not used - must be set for parse
+	Name         string       `parser:"@Ident ':'"`
+	Slots        []*chunkSlot `parser:"@@+"`
+	EndBracket   string       `parser:"']'"` // not used - must be set for parse
 
 	Pos lexer.Position
 }
@@ -126,18 +136,18 @@ type patternSlotItem struct {
 }
 
 type patternSlot struct {
-	Space1 string             `parser:" @PatternSpace? "`
+	Space1 string             `parser:"@PatternSpace?"`
 	Items  []*patternSlotItem `parser:"@@+"`
-	Space2 string             `parser:" @PatternSpace? "`
+	Space2 string             `parser:"@PatternSpace?"`
 
 	Pos lexer.Position
 }
 
 type pattern struct {
-	StartTick string         "parser:\"'`'\"" // not used - must be set for parse
-	ChunkName string         `parser:" @Ident '('"`
-	Slots     []*patternSlot `parser:" @@+ ')'"`
-	EndTick   string         "parser:\"'`'\"" // not used - must be set for parse
+	StartBracket string         `parser:"'['"` // not used - must be set for parse
+	ChunkName    string         `parser:"@Ident ':'"`
+	Slots        []*patternSlot `parser:"@@+"`
+	EndBracket   string         `parser:"']'"` // not used - must be set for parse
 
 	Pos lexer.Position
 }

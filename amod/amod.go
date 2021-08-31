@@ -60,9 +60,12 @@ func ParseChunk(model *actr.Model, chunk string) (*actr.Pattern, error) {
 		return nil, nil
 	}
 
-	// "chunk" needs backticks in order to parse properly.
-	if !strings.HasPrefix(chunk, "`") {
-		chunk = "`" + chunk + "`"
+	// "chunk" needs square brackets in order to parse properly.
+	if !strings.HasPrefix(chunk, "[") {
+		chunk = "[" + chunk
+	}
+	if !strings.HasSuffix(chunk, "]") {
+		chunk += "]"
 	}
 
 	var p pattern
@@ -229,10 +232,15 @@ func addChunks(model *actr.Model, chunks []*chunkDecl, errs *errorListWithContex
 			continue
 		}
 
+		slotNames := []string{}
+		for _, slot := range chunk.Slots {
+			slotNames = append(slotNames, slot.Slot)
+		}
+
 		aChunk := actr.Chunk{
 			Name:      chunk.Name,
-			SlotNames: chunk.SlotNames,
-			NumSlots:  len(chunk.SlotNames),
+			SlotNames: slotNames,
+			NumSlots:  len(chunk.Slots),
 		}
 
 		model.Chunks = append(model.Chunks, &aChunk)
