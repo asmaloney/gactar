@@ -18,9 +18,6 @@ export default {
   props: {
     amodCode: {
       type: String,
-      default() {
-        return '(amod file here)'
-      },
     },
   },
 
@@ -52,6 +49,11 @@ export default {
       if (this.editor.getValue().length != 0) {
         this.$emit('update:amodCode', this.editor.getValue())
       }
+    },
+
+    // Called by the parent to set the code directly
+    setCode(code) {
+      this.editor.setValue(code)
     },
   },
 }

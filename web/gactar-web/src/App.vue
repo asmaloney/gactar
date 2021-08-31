@@ -7,10 +7,10 @@
     <section class="section p-0 pt-4">
       <div class="columns">
         <div class="column is-three-fifths">
-          <b-field label="Example" label-position="on-border">
+          <b-field label="Load Example" label-position="on-border">
             <b-select
               v-model="selectedExample"
-              placeholder="Select an example"
+              placeholder="Select Example"
               :loading="!exampleFiles.length"
               @input="handleSelectExample"
             >
@@ -46,7 +46,11 @@
 
       <div class="columns">
         <div class="column is-three-fifths">
-          <code-mirror :key="count" :amod-code.sync="amodCode"></code-mirror>
+          <code-mirror
+            :key="count"
+            :amod-code.sync="amodCode"
+            ref="code-editor"
+          />
         </div>
         <div class="column">
           <textarea id="results" v-model="results"></textarea>
@@ -59,6 +63,8 @@
 <script>
 import CodeMirror from './components/CodeMirror'
 
+const localStorageName = 'gactar-code-editor'
+
 export default {
   components: { CodeMirror },
 
@@ -67,9 +73,10 @@ export default {
       amodCode: '',
       exampleFiles: [],
       goal: '',
+      loadedFromLocal: false,
       running: false,
       results: '',
-      selectedExample: '',
+      selectedExample: null,
 
       // This is used to prevent caching of the code-mirror data.
       // See https://stackoverflow.com/questions/48400302/vue-js-not-updating-props-in-child-when-parent-component-is-changing-the-propert
@@ -77,12 +84,28 @@ export default {
     }
   },
 
+  created() {
+    window.addEventListener('beforeunload', this.beforeWindowUnload)
+    window.addEventListener('load', this.onWindowLoad)
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('load', this.onWindowLoad)
+    window.removeEventListener('beforeunload', this.beforeWindowUnload)
+  },
+
   async mounted() {
     await this.getExamples()
-    this.handleSelectExample(this.selectedExample)
+    if (!this.loadedFromLocal) {
+      this.handleSelectExample(this.selectedExample)
+    }
   },
 
   methods: {
+    beforeWindowUnload() {
+      localStorage.setItem(localStorageName, this.amodCode)
+    },
+
     async getExample(example) {
       try {
         const { data } = await this.$http.get('/examples/' + example)
@@ -97,7 +120,9 @@ export default {
       try {
         const { data } = await this.$http.get('/examples/list')
         this.exampleFiles = data.example_list
-        this.selectedExample = this.exampleFiles[0]
+        if (!this.loadedFromLocal) {
+          this.selectedExample = this.exampleFiles[0]
+        }
       } catch (err) {
         this.showError(err)
       }
@@ -105,6 +130,16 @@ export default {
 
     async handleSelectExample(example) {
       await this.getExample(example)
+      this.selectedExample = null
+    },
+
+    onWindowLoad() {
+      // check for a local save and use it instead of loading an example
+      var code = localStorage.getItem(localStorageName)
+      if (code !== null) {
+        this.loadedFromLocal = true
+        this.$refs['code-editor'].setCode(code)
+      }
     },
 
     async run() {
