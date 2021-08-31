@@ -4,7 +4,7 @@ import CodeMirror from 'codemirror'
 
 CodeMirror.defineMode('amod', function () {
   const section_regex = /^={2}(model|config|init|productions)={2}/
-  const variable_regex = /[a-zA-Z0-9_]+/
+  const variable_regex = /[?][a-zA-Z0-9_]*/
 
   const keywords = {
     actr: true,
@@ -28,6 +28,7 @@ CodeMirror.defineMode('amod', function () {
     imaginal: true,
     memory: true,
     nil: true,
+    '!nil': true,
     retrieval: true,
   }
 
@@ -50,15 +51,16 @@ CodeMirror.defineMode('amod', function () {
       }
     }
 
-    if (ch === '`') {
-      var current = stream.next()
-      while (!stream.eol() && current != state.pending) {
-        current = stream.next()
-      }
-      return 'pattern'
+    if (ch === '[') {
+      state.startPattern = true // next id is the chunk name
+      return 'bracket'
     }
 
-    if (ch == '{' || ch == '}') {
+    if (ch === ']') {
+      return 'bracket'
+    }
+
+    if (ch === '{' || ch === '}') {
       return 'bracket'
     }
 
@@ -68,6 +70,7 @@ CodeMirror.defineMode('amod', function () {
     }
 
     if (ch === '?') {
+      stream.backUp(1)
       if (stream.match(variable_regex)) {
         return 'variable'
       }
@@ -88,13 +91,18 @@ CodeMirror.defineMode('amod', function () {
       return 'keyword'
     } else if (cur in builtIns) {
       return 'built-in'
+    } else if (state.startPattern) {
+      state.startPattern = false
+      return 'chunk-name'
     }
   }
 
   return {
     startState: function () {
       var state = {}
+
       state.pending = false
+      state.startPattern = false
 
       return state
     },

@@ -86,16 +86,16 @@
   color: #50a14f;
 }
 
-.cm-s-amod .cm-pattern {
+.cm-s-amod .cm-chunk-name {
   font-weight: normal;
   font-style: normal;
   text-decoration: none;
-  color: #e45649;
+  color: #0184bc;
 }
 
 .cm-s-amod .cm-variable {
   font-weight: normal;
   font-style: normal;
   text-decoration: none;
-  color: #3347b8;
+  color: #e45649;
 }
