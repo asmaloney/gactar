@@ -7,7 +7,7 @@
     <section class="section p-0 pt-4">
       <div class="columns">
         <div class="column is-three-fifths">
-          <b-field label="Load Example" label-position="on-border">
+          <b-field grouped label="Load Example" label-position="on-border">
             <b-select
               v-model="selectedExample"
               placeholder="Select Example"
@@ -22,8 +22,21 @@
                 {{ option }}
               </option>
             </b-select>
+            <b-button type="is-primary" @click="saveCode">
+              Save To File
+            </b-button>
+            <b-field class="file is-primary ml-2">
+              <b-upload
+                v-model="fileToLoad"
+                class="file-label"
+                accept=".amod,text/plain"
+              >
+                <span class="file-cta file-label"> Load From File </span>
+              </b-upload>
+            </b-field>
           </b-field>
         </div>
+
         <div class="column">
           <b-field label="Goal" label-position="on-border">
             <b-input
@@ -48,8 +61,8 @@
         <div class="column is-three-fifths">
           <code-mirror
             :key="count"
-            :amod-code.sync="amodCode"
             ref="code-editor"
+            :amod-code.sync="amodCode"
           />
         </div>
         <div class="column">
@@ -72,6 +85,7 @@ export default {
     return {
       amodCode: '',
       exampleFiles: [],
+      fileToLoad: null,
       goal: '',
       loadedFromLocal: false,
       running: false,
@@ -82,6 +96,21 @@ export default {
       // See https://stackoverflow.com/questions/48400302/vue-js-not-updating-props-in-child-when-parent-component-is-changing-the-propert
       count: 0,
     }
+  },
+
+  watch: {
+    // watch for a change in fileToLoad, then load it
+    fileToLoad(val) {
+      if (val == null) {
+        return
+      }
+
+      var reader = new FileReader()
+      reader.onload = (e) => {
+        this.$refs['code-editor'].setCode(e.target.result)
+      }
+      reader.readAsText(this.fileToLoad)
+    },
   },
 
   created() {
@@ -159,6 +188,32 @@ export default {
       } catch (err) {
         this.showError(err)
       }
+    },
+
+    saveCode() {
+      // Adapted from: https://stackoverflow.com/a/51315312
+      var codeAsBlob = new Blob([this.amodCode], {
+        type: 'text/plain;charset=utf-8',
+      })
+
+      var downloadLink = document.createElement('a')
+      downloadLink.download = 'model.amod'
+      downloadLink.innerHTML = 'Save File'
+
+      if (window.webkitURL != null) {
+        // Chrome allows the link to be clicked without actually adding it to the DOM.
+        downloadLink.href = window.webkitURL.createObjectURL(codeAsBlob)
+      } else {
+        // Firefox requires the link to be added to the DOM before it can be clicked.
+        downloadLink.href = window.URL.createObjectURL(codeAsBlob)
+        downloadLink.style.display = 'none'
+        downloadLink.onclick = (e) => {
+          document.body.removeChild(e.target)
+        }
+        document.body.appendChild(downloadLink)
+      }
+
+      downloadLink.click()
     },
 
     setResults(results) {

@@ -18,6 +18,9 @@ export default {
   props: {
     amodCode: {
       type: String,
+      default() {
+        return '(amod file here)'
+      },
     },
   },
 
