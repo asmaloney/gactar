@@ -31,17 +31,17 @@ func TestModelExamples(t *testing.T) {
 	}
 }
 
-func TestACTRUnrecognizedField(t *testing.T) {
+func TestGACATRUnrecognizedField(t *testing.T) {
 	src := `
 	==model==
 	name: Test
 	==config==
-	actr { foo: bar }
+	gactar { foo: bar }
 	==productions==`
 
 	_, err := GenerateModel(src)
 
-	expected := "unrecognized field in actr section: 'foo' (line 5)"
+	expected := "unrecognized field in gactar section: 'foo' (line 5)"
 	checkExpectedError(err, expected, t)
 }
 

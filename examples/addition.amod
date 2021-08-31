@@ -4,7 +4,7 @@
 name: addition
 
 // Description of the model (currently output as a comment in the generated code)
-description: 'This is a model which adds numbers. From the u1_addition.py tutorial.'
+description: 'This is a model which adds numbers. From the ccm u1_addition.py tutorial.'
 
 // Examples of starting goals to use when running the model
 examples {
@@ -14,8 +14,8 @@ examples {
 
 ==config==
 
-// Turn on logging by setting 'log' to 'true' or 1
-actr { log: true }
+// Turn on logging by setting 'log_level' to 'min', 'info' (default), or 'detail'
+gactar { log_level: 'detail' }
 
 // Declare chunks and their layouts
 chunks {

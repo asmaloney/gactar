@@ -124,7 +124,7 @@ func addConfig(model *actr.Model, config *configSection) (err error) {
 
 	errs := errorListWithContext{}
 
-	addACTR(model, config.ACTR, &errs)
+	addGACTAR(model, config.GACTAR, &errs)
 	addModules(model, config.Modules, &errs)
 	addChunks(model, config.ChunkDecls, &errs)
 	addMemory(model, config.MemoryDecl, &errs)
@@ -158,23 +158,23 @@ func addExamples(model *actr.Model, examples []*pattern) (err error) {
 	return errs.ErrorOrNil()
 }
 
-func addACTR(model *actr.Model, list []*field, errs *errorListWithContext) {
+func addGACTAR(model *actr.Model, list []*field, errs *errorListWithContext) {
 	if list == nil {
 		return
 	}
 
 	for _, field := range list {
 		switch field.Key {
-		case "log":
-			if field.Value.Number != nil {
-				model.Logging = (*field.Value.Number != 0)
-			} else if field.Value.ID != nil {
-				model.Logging = (strings.ToLower(*field.Value.ID) == "true")
-			} else if field.Value.Str != nil {
-				model.Logging = (strings.ToLower(*field.Value.Str) == "true")
+		case "log_level":
+			if (field.Value.Str == nil) || !actr.ValidLogLevel(*field.Value.Str) {
+				errs.Addc(&field.Pos, "log_level '%s' must be 'min', 'info', 'or 'detail'", field.Value.String())
+				continue
 			}
+
+			model.LogLevel = actr.ACTRLogLevel(*field.Value.Str)
+
 		default:
-			errs.Addc(&field.Pos, "unrecognized field in actr section: '%s'", field.Key)
+			errs.Addc(&field.Pos, "unrecognized field in gactar section: '%s'", field.Key)
 		}
 	}
 }

@@ -117,6 +117,15 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 
 	v.Writeln("(sgp :esc t :lf .05")
 
+	switch v.model.LogLevel {
+	case "min":
+		v.Writeln("\t:trace-detail low")
+	case "info":
+		v.Writeln("\t:trace-detail medium")
+	case "detail":
+		v.Writeln("\t:trace-detail high")
+	}
+
 	if v.model.HasImaginal {
 		imaginal := v.model.GetImaginal()
 		v.Writeln("\t:do-not-harvest imaginal")

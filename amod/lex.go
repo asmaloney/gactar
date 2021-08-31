@@ -82,12 +82,12 @@ const (
 )
 
 var keywords []string = []string{
-	"actr",
 	"chunks",
 	"clear",
 	"description",
 	"do",
 	"examples",
+	"gactar",
 	"match",
 	"modules",
 	"name",

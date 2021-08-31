@@ -13,8 +13,8 @@ examples {
 
 ==config==
 
-// Turn on logging by setting 'log' to 'true' or 1
-actr { log: true }
+// Turn on logging by setting 'log_level' to 'min', 'info' (default), or 'detail'
+gactar { log_level: 'detail' }
 
 // Declare chunks and their layouts
 chunks {

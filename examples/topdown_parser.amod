@@ -4,12 +4,12 @@
 name: topdown
 
 // Description of the model
-description: "This is translation of pyactr's ch3_topdown_parser -  a simple top-down parser."
+description: "This model is based on pyactr's ch3_topdown_parser."
 
 ==config==
 
-// Turn on logging by setting 'log' to 'true' or 1
-actr { log: true }
+// Turn on logging by setting 'log_level' to 'min', 'info' (default), or 'detail'
+gactar { log_level: 'info' }
 
 modules {
     // Initialize the imaginal buffer and set its delay

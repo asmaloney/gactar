@@ -121,7 +121,13 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		imports = append(imports, "Memory")
 	}
 
-	c.Write("from ccm.lib.actr import %s\n\n\n", strings.Join(imports, ", "))
+	c.Write("from ccm.lib.actr import %s\n", strings.Join(imports, ", "))
+
+	if c.model.LogLevel == "detail" {
+		c.Writeln("from ccm import log, log_everything")
+	}
+
+	c.Write("\n\n")
 
 	c.Writeln("class %s(ACTR):", c.className)
 
@@ -161,7 +167,8 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 
 	c.Writeln("")
 
-	if c.model.Logging {
+	if c.model.LogLevel == "info" {
+		// this turns on some logging at the high level
 		c.Writeln("\tdef __init__(self):")
 		c.Writeln("\t\tsuper().__init__(log=True)")
 		c.Writeln("")
@@ -223,6 +230,12 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 	if goal != nil {
 		c.Writeln(fmt.Sprintf("\tmodel.goal.set('%s')", convertGoal(goal)))
 	}
+
+	if c.model.LogLevel == "detail" {
+		c.Writeln("\tlog(summary=1)")
+		c.Writeln("\tlog_everything(model)")
+	}
+
 	c.Writeln("\tmodel.run()")
 
 	return

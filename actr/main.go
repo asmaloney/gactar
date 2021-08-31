@@ -19,6 +19,14 @@ var moduleNames = map[string]bool{
 	"imaginal": true,
 }
 
+type ACTRLogLevel string
+
+var ACTRLoggingLevels = []string{
+	"min",
+	"info",
+	"detail",
+}
+
 // Model represents a basic ACT-R model.
 // This is used as input to a Framework where it can be run or output to a file.
 // (This is incomplete w.r.t. all of ACT-R's capabilities.)
@@ -31,7 +39,7 @@ type Model struct {
 	Memories     []*Memory // we only have one memory now, but leave as slice until we determine if we can have multiple memories
 	Initializers []*Initializer
 	Productions  []*Production
-	Logging      bool
+	LogLevel     ACTRLogLevel
 	HasImaginal  bool
 }
 
@@ -100,6 +108,16 @@ func ReservedChunkNameExists(name string) bool {
 	return v && ok
 }
 
+func ValidLogLevel(e string) bool {
+	for _, a := range ACTRLoggingLevels {
+		if a == e {
+			return true
+		}
+	}
+
+	return false
+}
+
 func ValidModule(name string) bool {
 	v, ok := moduleNames[name]
 	return v && ok
@@ -131,6 +149,8 @@ func (model *Model) Initialize() {
 			Buffer: retrieval,
 		},
 	}
+
+	model.LogLevel = "info"
 }
 
 func (model *Model) CreateImaginal() *Imaginal {

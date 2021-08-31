@@ -4,7 +4,7 @@
 name: semantic
 
 // Description of the model (currently output as a comment in the generated code)
-description: 'This model is based on the u1_semantic.py tutorial.'
+description: 'This model is based on the ccm u1_semantic.py tutorial.'
 
 // Examples of starting goals to use when running the model
 examples {
@@ -15,8 +15,8 @@ examples {
 
 ==config==
 
-// Turn on logging by setting 'log' to 'true' or 1
-actr { log: true }
+// Turn on logging by setting 'log_level' to 'min', 'info' (default), or 'detail'
+gactar { log_level: 'detail' }
 
 // Declare chunks and their layouts
 chunks {

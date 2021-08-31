@@ -103,7 +103,7 @@ type module struct {
 }
 
 type configSection struct {
-	ACTR       []*field     `parser:"('actr' '{' @@+ '}')?"`
+	GACTAR     []*field     `parser:"('gactar' '{' @@+ '}')?"`
 	Modules    []*module    `parser:"('modules' '{' @@* '}')?"`
 	MemoryDecl []*field     `parser:"('memory' '{' @@+ '}')?"`
 	ChunkDecls []*chunkDecl `parser:"('chunks' '{' @@+ '}')?"`
