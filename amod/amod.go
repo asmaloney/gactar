@@ -127,7 +127,6 @@ func addConfig(model *actr.Model, config *configSection) (err error) {
 	addGACTAR(model, config.GACTAR, &errs)
 	addModules(model, config.Modules, &errs)
 	addChunks(model, config.ChunkDecls, &errs)
-	addMemory(model, config.MemoryDecl, &errs)
 
 	return errs.ErrorOrNil()
 }
@@ -180,14 +179,18 @@ func addGACTAR(model *actr.Model, list []*field, errs *errorListWithContext) {
 }
 
 func addModules(model *actr.Model, modules []*module, errs *errorListWithContext) {
-	for _, module := range modules {
-		if !actr.ValidModule(module.Name) {
-			errs.Addc(&module.Pos, "unrecognized module in config: '%s'", module.Name)
-		}
+	if modules == nil {
+		return
+	}
 
+	for _, module := range modules {
 		switch module.Name {
 		case "imaginal":
 			addImaginal(model, module.InitFields, errs)
+		case "memory":
+			addMemory(model, module.InitFields, errs)
+		default:
+			errs.Addc(&module.Pos, "unrecognized module in config: '%s'", module.Name)
 		}
 	}
 }
@@ -217,33 +220,6 @@ func addImaginal(model *actr.Model, fields []*field, errs *errorListWithContext)
 		default:
 			errs.Addc(&field.Pos, "unrecognized field '%s' in imaginal config", field.Key)
 		}
-	}
-}
-
-func addChunks(model *actr.Model, chunks []*chunkDecl, errs *errorListWithContext) {
-	if chunks == nil {
-		return
-	}
-
-	for _, chunk := range chunks {
-		err := validateChunk(model, chunk)
-		if err != nil {
-			errs.AddErrorIfNotNil(err)
-			continue
-		}
-
-		slotNames := []string{}
-		for _, slot := range chunk.Slots {
-			slotNames = append(slotNames, slot.Slot)
-		}
-
-		aChunk := actr.Chunk{
-			Name:      chunk.Name,
-			SlotNames: slotNames,
-			NumSlots:  len(chunk.Slots),
-		}
-
-		model.Chunks = append(model.Chunks, &aChunk)
 	}
 }
 
@@ -307,6 +283,32 @@ func addMemory(model *actr.Model, mem []*field, errs *errorListWithContext) {
 	}
 }
 
+func addChunks(model *actr.Model, chunks []*chunkDecl, errs *errorListWithContext) {
+	if chunks == nil {
+		return
+	}
+
+	for _, chunk := range chunks {
+		err := validateChunk(model, chunk)
+		if err != nil {
+			errs.AddErrorIfNotNil(err)
+			continue
+		}
+
+		slotNames := []string{}
+		for _, slot := range chunk.Slots {
+			slotNames = append(slotNames, slot.Slot)
+		}
+
+		aChunk := actr.Chunk{
+			Name:      chunk.Name,
+			SlotNames: slotNames,
+			NumSlots:  len(chunk.Slots),
+		}
+
+		model.Chunks = append(model.Chunks, &aChunk)
+	}
+}
 func addInit(model *actr.Model, init *initSection) (err error) {
 	if init == nil {
 		return

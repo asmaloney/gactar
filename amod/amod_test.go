@@ -126,6 +126,7 @@ func TestImaginalFields(t *testing.T) {
 	==config==
 	modules {
 		imaginal { delay: 0.2 }
+		memory { latency: 0.5 }
 	}
 	==productions==`
 
@@ -182,12 +183,14 @@ func TestMemoryUnrecognizedField(t *testing.T) {
 	==model==
 	name: Test
 	==config==
-	memory { foo: bar }
+	modules {
+		memory { foo: bar }
+	}
 	==productions==`
 
 	_, err := GenerateModel(src)
 
-	expected := "unrecognized field 'foo' in memory (line 5)"
+	expected := "unrecognized field 'foo' in memory (line 6)"
 	checkExpectedError(err, expected, t)
 }
 

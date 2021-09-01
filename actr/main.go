@@ -1,10 +1,5 @@
 package actr
 
-// These are the only valid modules.
-var moduleNames = map[string]bool{
-	"imaginal": true,
-}
-
 // Model represents a basic ACT-R model.
 // This is used as input to a Framework where it can be run or output to a file.
 // (This is incomplete w.r.t. all of ACT-R's capabilities.)
@@ -52,11 +47,6 @@ func (model *Model) Initialize() {
 	}
 
 	model.LogLevel = "info"
-}
-
-func ValidModule(name string) bool {
-	v, ok := moduleNames[name]
-	return v && ok
 }
 
 // HasInitializer checks if the model has an initialization for the buffer.

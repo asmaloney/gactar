@@ -105,7 +105,6 @@ type module struct {
 type configSection struct {
 	GACTAR     []*field     `parser:"('gactar' '{' @@+ '}')?"`
 	Modules    []*module    `parser:"('modules' '{' @@* '}')?"`
-	MemoryDecl []*field     `parser:"('memory' '{' @@+ '}')?"`
 	ChunkDecls []*chunkDecl `parser:"('chunks' '{' @@+ '}')?"`
 
 	Pos lexer.Position
