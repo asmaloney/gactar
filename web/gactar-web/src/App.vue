@@ -7,34 +7,51 @@
     <section class="section p-0 pt-4">
       <div class="columns">
         <div class="column is-three-fifths">
-          <b-field grouped label="Load Example" label-position="on-border">
-            <b-select
-              v-model="selectedExample"
-              placeholder="Select Example"
-              :loading="!exampleFiles.length"
-              @input="handleSelectExample"
-            >
-              <option
-                v-for="option in exampleFiles"
-                :key="option"
-                :value="option"
-              >
-                {{ option }}
-              </option>
-            </b-select>
-            <b-button type="is-primary" @click="saveCode">
-              Save To File
-            </b-button>
-            <b-field class="file is-primary ml-2">
-              <b-upload
-                v-model="fileToLoad"
-                class="file-label"
-                accept=".amod,text/plain"
-              >
-                <span class="file-cta file-label"> Load From File </span>
-              </b-upload>
-            </b-field>
-          </b-field>
+          <div class="columns">
+            <div class="column">
+              <b-dropdown aria-role="list">
+                <template #trigger="{}">
+                  <b-button
+                    label="Load Example"
+                    type="is-info"
+                    :icon-right="'caret-square-down'"
+                  />
+                </template>
+
+                <b-dropdown-item
+                  v-for="option in exampleFiles"
+                  :key="option"
+                  :value="option"
+                  aria-role="listitem"
+                  :focusable="false"
+                  @click="getExample(option)"
+                >
+                  {{ option }}
+                </b-dropdown-item>
+              </b-dropdown>
+            </div>
+
+            <div class="column">
+              <b-field class="is-pulled-right" grouped>
+                <b-button type="is-info ml-2" @click="saveCode">
+                  <span class="fa fa-file-download icon-space" /> Save To File
+                </b-button>
+
+                <b-field class="file is-info ml-2">
+                  <b-upload
+                    v-model="fileToLoad"
+                    class="file-label"
+                    accept=".amod,text/plain"
+                  >
+                    <span class="file-cta">
+                      <span class="fa fa-file-upload icon-space" />
+                      <span class="file-label">Load From File</span>
+                    </span>
+                  </b-upload>
+                </b-field>
+              </b-field>
+            </div>
+          </div>
         </div>
 
         <div class="column">
@@ -45,12 +62,8 @@
               expanded
             />
             <p class="control">
-              <b-button
-                class="button is-primary"
-                :loading="running"
-                @click="run"
-              >
-                Run
+              <b-button class="button is-info" :loading="running" @click="run">
+                <span class="fa fa-running icon-space" />Run
               </b-button>
             </p>
           </b-field>
@@ -90,7 +103,6 @@ export default {
       loadedFromLocal: false,
       running: false,
       results: '',
-      selectedExample: null,
 
       // This is used to prevent caching of the code-mirror data.
       // See https://stackoverflow.com/questions/48400302/vue-js-not-updating-props-in-child-when-parent-component-is-changing-the-propert
@@ -126,7 +138,7 @@ export default {
   async mounted() {
     await this.getExamples()
     if (!this.loadedFromLocal) {
-      this.handleSelectExample(this.selectedExample)
+      this.getExample(this.exampleFiles[0])
     }
   },
 
@@ -149,17 +161,9 @@ export default {
       try {
         const { data } = await this.$http.get('/examples/list')
         this.exampleFiles = data.example_list
-        if (!this.loadedFromLocal) {
-          this.selectedExample = this.exampleFiles[0]
-        }
       } catch (err) {
         this.showError(err)
       }
-    },
-
-    async handleSelectExample(example) {
-      await this.getExample(example)
-      this.selectedExample = null
     },
 
     onWindowLoad() {
@@ -234,3 +238,9 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.icon-space {
+  margin-right: 0.5em;
+}
+</style>

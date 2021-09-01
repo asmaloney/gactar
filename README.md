@@ -265,7 +265,7 @@ Here is an example of the file format:
 name: count
 
 // Description of the model (currently output as a comment in the generated code)
-description: 'This is a model which adds numbers. Based on the u1_count.py tutorial.'
+description: 'This is a model which adds numbers. Based on the ccm u1_count.py tutorial.'
 
 // Examples of starting goals to use when running the model
 examples {
@@ -275,8 +275,8 @@ examples {
 
 ==config==
 
-// Turn on logging by setting 'log' to 'true' or 1
-actr { log: true }
+// Turn on logging by setting 'log_level' to 'min', 'info' (default), or 'detail'
+gactar { log_level: 'detail' }
 
 // Declare chunks and their layouts
 chunks {

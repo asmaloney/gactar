@@ -1,20 +1,52 @@
 import Vue from 'vue'
 import App from './App.vue'
 
+// axios
 import axios from 'axios'
-import { Button, Field, Input, Select, Upload } from 'buefy'
 import VueAxios from 'vue-axios'
 
-require('./app.scss')
-
-Vue.config.productionTip = false
-
 Vue.use(VueAxios, axios)
+
+// Buefy
+import {
+  ConfigProgrammatic,
+  Button,
+  Dropdown,
+  Field,
+  Input,
+  Select,
+  Upload,
+} from 'buefy'
+
 Vue.use(Button)
+Vue.use(Dropdown)
 Vue.use(Field)
 Vue.use(Input)
 Vue.use(Select)
 Vue.use(Upload)
+ConfigProgrammatic.setOptions({
+  defaultIconPack: 'far',
+})
+
+// Fontawesome icons
+// Icons are found here: https://fontawesome.com/v5.15/icons?d=gallery&p=2
+import { dom, library } from '@fortawesome/fontawesome-svg-core'
+import { faCaretSquareDown } from '@fortawesome/free-regular-svg-icons'
+import {
+  faFileDownload,
+  faFileUpload,
+  faRunning,
+} from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+library.add(faCaretSquareDown, faFileDownload, faFileUpload, faRunning)
+dom.watch()
+
+Vue.component('FontAwesomeIcon', FontAwesomeIcon)
+
+Vue.config.productionTip = false
+
+require('./app.scss')
 
 new Vue({
   render: (h) => h(App),
