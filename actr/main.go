@@ -1,30 +1,8 @@
 package actr
 
-import (
-	"fmt"
-	"strings"
-)
-
-// User cannot create chunks with these names. Perhaps needs to be expanded with other keywords?
-var reservedChunkNames = map[string]bool{
-	"_status":   true,
-	"goal":      true,
-	"imaginal":  true,
-	"memory":    true,
-	"retrieval": true,
-}
-
 // These are the only valid modules.
 var moduleNames = map[string]bool{
 	"imaginal": true,
-}
-
-type ACTRLogLevel string
-
-var ACTRLoggingLevels = []string{
-	"min",
-	"info",
-	"detail",
 }
 
 // Model represents a basic ACT-R model.
@@ -43,88 +21,11 @@ type Model struct {
 	HasImaginal  bool
 }
 
-type Chunk struct {
-	Name      string
-	SlotNames []string
-	NumSlots  int
-}
-
-type BufferInterface interface {
-	GetName() string
-}
-
-type Buffer struct {
-	Name string
-}
-
-func (b Buffer) GetName() string {
-	return b.Name
-}
-
-func (b Buffer) String() string {
-	return b.Name
-}
-
-type Imaginal struct {
-	Buffer
-
-	Delay float64 // non-negative time (in seconds) and defaults to .2
-}
-
-type Memory struct {
-	Name   string
-	Buffer BufferInterface
-
-	// The following optional fields came from the ccm framework.
-	// TODO: determine if they apply to others.
-	Latency   *float64
-	Threshold *float64
-	MaxTime   *float64
-	FinstSize *int     // not sure what the 'f' is in finst?
-	FinstTime *float64 // not sure what the 'f' is in finst?
-}
-
-type TextOutput struct {
-	Name string
-}
-
 type Initializer struct {
 	Buffer BufferInterface // buffer...
 	Memory *Memory         // ... OR memory
 
 	Pattern *Pattern
-}
-
-func (c Chunk) IsInternal() bool {
-	return c.Name[0] == '_'
-}
-
-func IsInternalChunkName(name string) bool {
-	return name[0] == '_'
-}
-
-func ReservedChunkNameExists(name string) bool {
-	v, ok := reservedChunkNames[name]
-	return v && ok
-}
-
-func ValidLogLevel(e string) bool {
-	for _, a := range ACTRLoggingLevels {
-		if a == e {
-			return true
-		}
-	}
-
-	return false
-}
-
-func ValidModule(name string) bool {
-	v, ok := moduleNames[name]
-	return v && ok
-}
-
-func (c Chunk) String() (str string) {
-	return fmt.Sprintf("%s( %s )", c.Name, strings.Join(c.SlotNames, " "))
 }
 
 func (model *Model) Initialize() {
@@ -153,68 +54,9 @@ func (model *Model) Initialize() {
 	model.LogLevel = "info"
 }
 
-func (model *Model) CreateImaginal() *Imaginal {
-	// This uses the defaults as per ACT-R docs:
-	// 	http://act-r.psy.cmu.edu/actr7.x/reference-manual.pdf page 276
-
-	imaginal := &Imaginal{
-		Buffer: Buffer{Name: "imaginal"},
-
-		Delay: 0.2,
-	}
-
-	model.Buffers = append(model.Buffers, imaginal)
-	model.HasImaginal = true
-
-	return imaginal
-}
-
-// GetImaginal gets the imaginal buffer (or returns nil if it does not exist).
-func (model Model) GetImaginal() *Imaginal {
-	buffer := model.LookupBuffer("imaginal")
-	if buffer == nil {
-		return nil
-	}
-
-	imaginal, ok := buffer.(*Imaginal)
-	if !ok {
-		return nil
-	}
-
-	return imaginal
-}
-
-// LookupChunk looks up the named chunk in the model and returns it (or nil if it does not exist).
-func (model Model) LookupChunk(chunkName string) *Chunk {
-	for _, chunk := range model.Chunks {
-		if chunk.Name == chunkName {
-			return chunk
-		}
-	}
-
-	return nil
-}
-
-// LookupBuffer looks up the named buffer in the model and returns it (or nil if it does not exist).
-func (model Model) LookupBuffer(bufferName string) BufferInterface {
-	for _, buf := range model.Buffers {
-		if buf.GetName() == bufferName {
-			return buf
-		}
-	}
-
-	return nil
-}
-
-// LookupMemory looks up the named memory in the model and returns it (or nil if it does not exist).
-func (model Model) LookupMemory(memoryName string) *Memory {
-	for _, mem := range model.Memories {
-		if mem.Name == memoryName {
-			return mem
-		}
-	}
-
-	return nil
+func ValidModule(name string) bool {
+	v, ok := moduleNames[name]
+	return v && ok
 }
 
 // HasInitializer checks if the model has an initialization for the buffer.
@@ -232,24 +74,18 @@ func (model Model) HasInitializer(buffer string) bool {
 	return false
 }
 
-// HasSlot checks if the slot name exists on this chunk.
-func (chunk Chunk) HasSlot(slot string) bool {
-	for _, name := range chunk.SlotNames {
-		if name == slot {
-			return true
+// HasPrintStatement checks if this model uses the print statement.
+// This is used to include extra code to handle printing in some frameworks.
+func (model Model) HasPrintStatement() bool {
+	for _, production := range model.Productions {
+		if production.DoStatements != nil {
+			for _, statement := range production.DoStatements {
+				if statement.Print != nil {
+					return true
+				}
+			}
 		}
 	}
 
 	return false
-}
-
-// GetSlotIndex returns the slot index (indexed from 1) of the slot name or -1 if not found.
-func (chunk Chunk) GetSlotIndex(slot string) int {
-	for i, name := range chunk.SlotNames {
-		if name == slot {
-			return i + 1
-		}
-	}
-
-	return -1
 }

@@ -1,6 +1,6 @@
 package actr
 
-// We need to take apart patterns such as 'add ?num1 ?num2 count:?count!?num2 sum:?sum'
+// We need to take apart patterns such as [add: ?num1 ?num2 ?count!?num2 ?sum]
 // so we can verify variable use.
 
 type Pattern struct {
@@ -18,7 +18,7 @@ type PatternSlotItem struct {
 	Var *string
 	Num *string // we don't need to treat this as a number anywhere, so keep as a string
 
-	Negated bool // !
+	Negated bool
 }
 
 func (p PatternSlot) String() (str string) {
