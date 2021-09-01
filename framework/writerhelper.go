@@ -49,7 +49,12 @@ func (w WriterHelper) Writeln(e string, a ...interface{}) {
 }
 
 func (w WriterHelper) TabWrite(level int, list KeyValueList) {
-	tabs := strings.Repeat("\t", level)
+	tabs := "\t"
+	if level == 2 {
+		tabs = "\t\t"
+	} else if level > 2 {
+		tabs = strings.Repeat("\t", level)
+	}
 	for _, item := range list.list {
 		fmt.Fprintf(w.TabWriter, "%s%s\t%s\n", tabs, item.key, item.value)
 	}
