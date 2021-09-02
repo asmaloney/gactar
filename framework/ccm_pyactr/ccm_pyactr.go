@@ -111,15 +111,7 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 	c.Writeln("")
 	c.Write("# %s\n\n", c.model.Description)
 
-	imports := []string{"ACTR"}
-
-	if len(c.model.Buffers) > 0 {
-		imports = append(imports, "Buffer")
-	}
-
-	if len(c.model.Memories) > 0 {
-		imports = append(imports, "Memory")
-	}
+	imports := []string{"ACTR", "Buffer", "Memory"}
 
 	c.Write("from ccm.lib.actr import %s\n", strings.Join(imports, ", "))
 
@@ -135,34 +127,33 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		c.Writeln("\t%s = Buffer()", buf.GetName())
 	}
 
-	for _, memory := range c.model.Memories {
-		additionalInit := []string{}
+	memory := c.model.Memory
+	additionalInit := []string{}
 
-		if memory.Latency != nil {
-			additionalInit = append(additionalInit, fmt.Sprintf("latency=%v", *memory.Latency))
-		}
+	if memory.Latency != nil {
+		additionalInit = append(additionalInit, fmt.Sprintf("latency=%v", *memory.Latency))
+	}
 
-		if memory.Threshold != nil {
-			additionalInit = append(additionalInit, fmt.Sprintf("threshold=%v", *memory.Threshold))
-		}
+	if memory.Threshold != nil {
+		additionalInit = append(additionalInit, fmt.Sprintf("threshold=%v", *memory.Threshold))
+	}
 
-		if memory.MaxTime != nil {
-			additionalInit = append(additionalInit, fmt.Sprintf("maximum_time=%v", *memory.MaxTime))
-		}
+	if memory.MaxTime != nil {
+		additionalInit = append(additionalInit, fmt.Sprintf("maximum_time=%v", *memory.MaxTime))
+	}
 
-		if memory.FinstSize != nil {
-			additionalInit = append(additionalInit, fmt.Sprintf("finst_size=%v", *memory.FinstSize))
-		}
+	if memory.FinstSize != nil {
+		additionalInit = append(additionalInit, fmt.Sprintf("finst_size=%v", *memory.FinstSize))
+	}
 
-		if memory.FinstTime != nil {
-			additionalInit = append(additionalInit, fmt.Sprintf("finst_time=%v", *memory.FinstTime))
-		}
+	if memory.FinstTime != nil {
+		additionalInit = append(additionalInit, fmt.Sprintf("finst_time=%v", *memory.FinstTime))
+	}
 
-		if len(additionalInit) > 0 {
-			c.Writeln("\t%s = Memory(%s, %s)", memory.Name, memory.Buffer.GetName(), strings.Join(additionalInit, ", "))
-		} else {
-			c.Writeln("\t%s = Memory(%s)", memory.Name, memory.Buffer.GetName())
-		}
+	if len(additionalInit) > 0 {
+		c.Writeln("\t%s = Memory(%s, %s)", memory.Name, memory.Buffer.GetName(), strings.Join(additionalInit, ", "))
+	} else {
+		c.Writeln("\t%s = Memory(%s)", memory.Name, memory.Buffer.GetName())
 	}
 
 	c.Writeln("")

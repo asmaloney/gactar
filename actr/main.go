@@ -9,7 +9,7 @@ type Model struct {
 	Examples     []*Pattern
 	Chunks       []*Chunk
 	Buffers      []BufferInterface
-	Memories     []*Memory // we only have one memory now, but leave as slice until we determine if we can have multiple memories
+	Memory       *Memory
 	Initializers []*Initializer
 	Productions  []*Production
 	LogLevel     ACTRLogLevel
@@ -39,11 +39,9 @@ func (model *Model) Initialize() {
 		&Buffer{Name: "goal"},
 	}
 
-	model.Memories = []*Memory{
-		{
-			Name:   "memory",
-			Buffer: retrieval,
-		},
+	model.Memory = &Memory{
+		Name:   "memory",
+		Buffer: retrieval,
 	}
 
 	model.LogLevel = "info"

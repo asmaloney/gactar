@@ -30,8 +30,6 @@ func validateChunk(model *actr.Model, chunk *chunkDecl) (err error) {
 func validateInitialization(model *actr.Model, init *initialization) (err error) {
 	errs := errorListWithContext{}
 
-	name := init.Name
-
 	if init.InitPattern != nil {
 		err = validatePattern(model, init.InitPattern)
 		if err != nil {
@@ -39,6 +37,7 @@ func validateInitialization(model *actr.Model, init *initialization) (err error)
 		}
 	}
 
+	name := init.Name
 	buffer := model.LookupBuffer(name)
 	if buffer != nil {
 		if init.InitPatterns != nil {
@@ -50,8 +49,7 @@ func validateInitialization(model *actr.Model, init *initialization) (err error)
 		return errs.ErrorOrNil()
 	}
 
-	memory := model.LookupMemory(name)
-	if memory == nil {
+	if name != "memory" {
 		errs.Addc(&init.Pos, "buffer or memory '%s' not found in initialization ", name)
 	}
 
@@ -96,9 +94,8 @@ func validateMatch(match *match, model *actr.Model, production *actr.Production)
 		name := item.Name
 
 		buffer := model.LookupBuffer(name)
-		memory := model.LookupMemory(name)
 
-		if (buffer == nil) && (memory == nil) {
+		if (buffer == nil) && (name != "memory") {
 			errs.Addc(&item.Pos, "buffer or memory '%s' not found in production '%s'", name, production.Name)
 			continue
 		}
@@ -122,7 +119,7 @@ func validateMatch(match *match, model *actr.Model, production *actr.Production)
 					errs.Addc(&item.Pos, "invalid _status '%s' for '%s' in production '%s' (should be 'full' or 'empty')", slot, name, production.Name)
 				}
 			}
-		} else if memory != nil {
+		} else { // it's memory
 			if pattern.ChunkName == "_status" {
 				if len(pattern.Slots) != 1 {
 					errs.Addc(&item.Pos, "_status should only have one slot for '%s' in production '%s' (should be 'busy', 'free', or 'error')", name, production.Name)
@@ -198,12 +195,6 @@ func validateSetStatement(set *setStatement, model *actr.Model, production *actr
 // validateRecallStatement checks a "recall" statement to verify the memory name.
 func validateRecallStatement(recall *recallStatement, model *actr.Model, production *actr.Production) (err error) {
 	errs := errorListWithContext{}
-
-	name := "memory"
-	memory := model.LookupMemory(name)
-	if memory == nil {
-		errs.Addc(&recall.Pos, "recall statement memory '%s' not found in production '%s'", name, production.Name)
-	}
 
 	for _, slot := range recall.Pattern.Slots {
 		for _, item := range slot.Items {

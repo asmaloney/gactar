@@ -228,12 +228,6 @@ func addMemory(model *actr.Model, mem []*field, errs *errorListWithContext) {
 		return
 	}
 
-	memory := model.LookupMemory("memory")
-	if memory == nil {
-		errs.Add("could not find memory on model")
-		return
-	}
-
 	for _, field := range mem {
 		switch field.Key {
 		case "latency":
@@ -242,7 +236,7 @@ func addMemory(model *actr.Model, mem []*field, errs *errorListWithContext) {
 				continue
 			}
 
-			memory.Latency = field.Value.Number
+			model.Memory.Latency = field.Value.Number
 
 		case "threshold":
 			if field.Value.Number == nil {
@@ -250,7 +244,7 @@ func addMemory(model *actr.Model, mem []*field, errs *errorListWithContext) {
 				continue
 			}
 
-			memory.Threshold = field.Value.Number
+			model.Memory.Threshold = field.Value.Number
 
 		case "max_time":
 			if field.Value.Number == nil {
@@ -258,7 +252,7 @@ func addMemory(model *actr.Model, mem []*field, errs *errorListWithContext) {
 				continue
 			}
 
-			memory.MaxTime = field.Value.Number
+			model.Memory.MaxTime = field.Value.Number
 
 		case "finst_size":
 			if field.Value.Number == nil {
@@ -267,7 +261,7 @@ func addMemory(model *actr.Model, mem []*field, errs *errorListWithContext) {
 			}
 
 			size := int(*field.Value.Number)
-			memory.FinstSize = &size
+			model.Memory.FinstSize = &size
 
 		case "finst_time":
 			if field.Value.Number == nil {
@@ -275,7 +269,7 @@ func addMemory(model *actr.Model, mem []*field, errs *errorListWithContext) {
 				continue
 			}
 
-			memory.FinstTime = field.Value.Number
+			model.Memory.FinstTime = field.Value.Number
 
 		default:
 			errs.Addc(&field.Pos, "unrecognized field '%s' in memory", field.Key)
@@ -309,6 +303,7 @@ func addChunks(model *actr.Model, chunks []*chunkDecl, errs *errorListWithContex
 		model.Chunks = append(model.Chunks, &aChunk)
 	}
 }
+
 func addInit(model *actr.Model, init *initSection) (err error) {
 	if init == nil {
 		return
@@ -317,15 +312,15 @@ func addInit(model *actr.Model, init *initSection) (err error) {
 	errs := errorListWithContext{}
 
 	for _, initialization := range init.Initializations {
-		name := initialization.Name
-		buffer := model.LookupBuffer(name)
-		memory := model.LookupMemory(name)
 
 		err := validateInitialization(model, initialization)
 		if err != nil {
 			errs.AddErrorIfNotNil(err)
 			continue
 		}
+
+		name := initialization.Name
+		buffer := model.LookupBuffer(name)
 
 		if buffer != nil {
 			pattern, err := createChunkPattern(model, initialization.InitPattern)
@@ -349,7 +344,7 @@ func addInit(model *actr.Model, init *initSection) (err error) {
 				}
 
 				init := actr.Initializer{
-					Memory:  memory,
+					Memory:  model.Memory,
 					Pattern: pattern,
 				}
 
@@ -391,7 +386,7 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 
 			prod.Matches = append(prod.Matches, &actr.Match{
 				Buffer:  model.LookupBuffer(name),
-				Memory:  model.LookupMemory(name),
+				Memory:  model.Memory,
 				Pattern: pattern,
 			})
 
@@ -565,7 +560,7 @@ func addRecallStatement(model *actr.Model, recall *recallStatement, production *
 	s := actr.Statement{
 		Recall: &actr.RecallStatement{
 			Pattern: pattern,
-			Memory:  model.LookupMemory("memory"),
+			Memory:  model.Memory,
 		},
 	}
 
