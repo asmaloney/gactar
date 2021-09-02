@@ -1,19 +1,21 @@
 # https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
-version: 2
-updates:
-  - package-ecosystem: 'gomod'
-    directory: '/'
-    schedule:
-      interval: 'monthly'
-    commit-message:
-      prefix: '{gomod}'
-      include: 'scope'
-  - package-ecosystem: 'npm'
-    directory: '/web/gactar-web/'
-    schedule:
-      interval: 'monthly'
-    commit-message:
-      prefix: '{npm}'
-      prefix-development: '{npm-dev}'
-      include: 'scope'
+# disable for now because it uses up all the resources...
+
+# version: 2
+# updates:
+#   - package-ecosystem: 'gomod'
+#     directory: '/'
+#     schedule:
+#       interval: 'monthly'
+#     commit-message:
+#       prefix: '{gomod}'
+#       include: 'scope'
+#   - package-ecosystem: 'npm'
+#     directory: '/web/gactar-web/'
+#     schedule:
+#       interval: 'monthly'
+#     commit-message:
+#       prefix: '{npm}'
+#       prefix-development: '{npm-dev}'
+#       include: 'scope'
