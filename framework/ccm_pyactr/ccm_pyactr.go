@@ -131,23 +131,23 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 	additionalInit := []string{}
 
 	if memory.Latency != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("latency=%v", *memory.Latency))
+		additionalInit = append(additionalInit, fmt.Sprintf("latency=%s", framework.Float64Str(*memory.Latency)))
 	}
 
 	if memory.Threshold != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("threshold=%v", *memory.Threshold))
+		additionalInit = append(additionalInit, fmt.Sprintf("threshold=%s", framework.Float64Str(*memory.Threshold)))
 	}
 
 	if memory.MaxTime != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("maximum_time=%v", *memory.MaxTime))
+		additionalInit = append(additionalInit, fmt.Sprintf("maximum_time=%s", framework.Float64Str(*memory.MaxTime)))
 	}
 
 	if memory.FinstSize != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("finst_size=%v", *memory.FinstSize))
+		additionalInit = append(additionalInit, fmt.Sprintf("finst_size=%d", *memory.FinstSize))
 	}
 
 	if memory.FinstTime != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("finst_time=%v", *memory.FinstTime))
+		additionalInit = append(additionalInit, fmt.Sprintf("finst_time=%s", framework.Float64Str(*memory.FinstTime)))
 	}
 
 	if len(additionalInit) > 0 {

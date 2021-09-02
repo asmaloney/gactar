@@ -115,7 +115,16 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 
 	v.Writeln("(define-model %s\n", v.modelName)
 
-	v.Writeln("(sgp :esc t :lf .05")
+	v.Writeln("(sgp :esc t")
+
+	memory := v.model.Memory
+	if memory.Latency != nil {
+		v.Writeln("\t:lf %s", framework.Float64Str(*memory.Latency))
+	}
+
+	if memory.Threshold != nil {
+		v.Writeln("\t:rt %s", framework.Float64Str(*memory.Threshold))
+	}
 
 	switch v.model.LogLevel {
 	case "min":
@@ -128,8 +137,9 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 
 	if v.model.HasImaginal {
 		imaginal := v.model.GetImaginal()
+
 		v.Writeln("\t:do-not-harvest imaginal")
-		v.Writeln("\t:imaginal-delay %f", imaginal.Delay)
+		v.Writeln("\t:imaginal-delay %s", framework.Float64Str(imaginal.Delay))
 	}
 	v.Writeln(")\n")
 

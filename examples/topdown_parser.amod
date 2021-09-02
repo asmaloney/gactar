@@ -12,10 +12,8 @@ description: "This model is based on pyactr's ch3_topdown_parser."
 gactar { log_level: 'info' }
 
 modules {
-    // Initialize the imaginal buffer and set its delay
-	imaginal {
-		delay: 0.2
-	}
+    // Require the imaginal buffer and set its delay
+	imaginal { delay: 0.2 }
 }
 
 // Declare chunks and their layouts

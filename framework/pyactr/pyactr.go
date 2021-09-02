@@ -108,7 +108,19 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	p.Write("# %s\n\n", p.model.Description)
 
 	p.Write("import pyactr as actr\n\n")
-	p.Write("%s = actr.ACTRModel()\n\n", p.className)
+
+	memory := p.model.Memory
+	additionalInit := []string{"subsymbolic=True"}
+
+	if memory.Latency != nil {
+		additionalInit = append(additionalInit, fmt.Sprintf("latency_factor=%s", framework.Float64Str(*memory.Latency)))
+	}
+
+	if memory.Threshold != nil {
+		additionalInit = append(additionalInit, fmt.Sprintf("retrieval_threshold=%s", framework.Float64Str(*memory.Threshold)))
+	}
+
+	p.Write("%s = actr.ACTRModel(%s)\n\n", p.className, strings.Join(additionalInit, ", "))
 
 	// chunks
 	for _, chunk := range p.model.Chunks {
@@ -136,7 +148,7 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 
 	if p.model.HasImaginal {
 		imaginal := p.model.GetImaginal()
-		p.Writeln(`imaginal = %s.set_goal(name="imaginal", delay=%f)`, p.className, imaginal.Delay)
+		p.Writeln(`imaginal = %s.set_goal(name="imaginal", delay=%s)`, p.className, framework.Float64Str(imaginal.Delay))
 		p.Writeln("")
 	}
 

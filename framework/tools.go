@@ -3,6 +3,7 @@ package framework
 import (
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"gitlab.com/asmaloney/gactar/actr"
@@ -21,6 +22,12 @@ func IdentifyYourself(frameworkName, exeName string) {
 	output, _ = cmd.CombinedOutput()
 
 	fmt.Printf("%s: Using %s from %s", frameworkName, version, string(output))
+}
+
+// Float64Str takes a float and returns a string of the minimal representation.
+// e.g. 2.5000 becomes "2.5"
+func Float64Str(f float64) string {
+	return strconv.FormatFloat(f, 'f', -1, 64)
 }
 
 // PythonCheckForPackage checks for the proper installation of the named package.
