@@ -58,7 +58,7 @@ func (p *PyACTR) SetModel(model *actr.Model) (err error) {
 	}
 
 	p.model = model
-	p.className = fmt.Sprintf("gactar_pyactr_%s", strings.Title(p.model.Name))
+	p.className = fmt.Sprintf("pyactr_%s", p.model.Name)
 
 	return
 }
@@ -177,6 +177,8 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 		if production.Description != nil {
 			p.Writeln("# %s", *production.Description)
 		}
+
+		p.Writeln("# amod line %d", production.AMODLineNumber)
 
 		p.Writeln("%s.productionstring(name='%s', string='''", p.className, production.Name)
 		for _, match := range production.Matches {

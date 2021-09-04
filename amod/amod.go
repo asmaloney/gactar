@@ -365,8 +365,9 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 
 	for _, production := range productions.Productions {
 		prod := actr.Production{
-			Name:        production.Name,
-			Description: production.Description,
+			Name:           production.Name,
+			Description:    production.Description,
+			AMODLineNumber: production.Pos.Line,
 		}
 
 		err := validateMatch(production.Match, model, &prod)

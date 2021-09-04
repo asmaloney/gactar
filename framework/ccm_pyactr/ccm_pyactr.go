@@ -61,7 +61,7 @@ func (c *CCMPyACTR) SetModel(model *actr.Model) (err error) {
 	}
 
 	c.model = model
-	c.className = fmt.Sprintf("gactar_ccm_%s", strings.Title(c.model.Name))
+	c.className = fmt.Sprintf("ccm_%s", c.model.Name)
 
 	return
 }
@@ -195,6 +195,9 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		if production.Description != nil {
 			c.Writeln("\t# %s", *production.Description)
 		}
+
+		c.Writeln("\t# amod line %d", production.AMODLineNumber)
+
 		c.Write("\tdef %s(", production.Name)
 
 		numMatches := len(production.Matches)

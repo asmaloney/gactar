@@ -8,6 +8,8 @@ type Production struct {
 
 	Matches      []*Match
 	DoStatements []*Statement
+
+	AMODLineNumber int
 }
 
 type Match struct {

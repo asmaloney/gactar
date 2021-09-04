@@ -51,7 +51,7 @@ func (v *VanillaACTR) SetModel(model *actr.Model) (err error) {
 	}
 
 	v.model = model
-	v.modelName = fmt.Sprintf("gactar_vactr_%s", strings.Title(v.model.Name))
+	v.modelName = fmt.Sprintf("vanilla_%s", v.model.Name)
 
 	return
 }
@@ -187,6 +187,7 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 
 	// productions
 	for _, production := range v.model.Productions {
+		v.Writeln(";; amod line %d", production.AMODLineNumber)
 
 		v.Writeln("(P %s", production.Name)
 		if production.Description != nil {
