@@ -56,11 +56,13 @@ func (v *VanillaACTR) SetModel(model *actr.Model) (err error) {
 	return
 }
 
-func (v *VanillaACTR) Run(initialGoal string) (output []byte, err error) {
+func (v *VanillaACTR) Run(initialGoal string) (generatedCode, output []byte, err error) {
 	modelFile, err := v.WriteModel(v.tmpPath, initialGoal)
 	if err != nil {
 		return
 	}
+
+	generatedCode = v.GetContents()
 
 	runFile, err := v.createRunFile(modelFile)
 	if err != nil {

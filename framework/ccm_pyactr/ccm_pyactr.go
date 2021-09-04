@@ -68,7 +68,7 @@ func (c *CCMPyACTR) SetModel(model *actr.Model) (err error) {
 
 // Run generates the python code from the amod file, writes it to disk, creates a "run" file
 // to actually run the model, and returns the output (stdout and stderr combined).
-func (c *CCMPyACTR) Run(initialGoal string) (output []byte, err error) {
+func (c *CCMPyACTR) Run(initialGoal string) (generatedCode, output []byte, err error) {
 	runFile, err := c.WriteModel(c.tmpPath, initialGoal)
 	if err != nil {
 		return
@@ -81,6 +81,8 @@ func (c *CCMPyACTR) Run(initialGoal string) (output []byte, err error) {
 		err = fmt.Errorf("%s", string(output))
 		return
 	}
+
+	generatedCode = c.GetContents()
 
 	return
 }

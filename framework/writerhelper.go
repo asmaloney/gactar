@@ -1,6 +1,7 @@
 package framework
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"strings"
@@ -9,6 +10,7 @@ import (
 
 type WriterHelper struct {
 	File      *os.File
+	Contents  *bytes.Buffer
 	TabWriter *tabwriter.Writer
 }
 
@@ -28,20 +30,26 @@ func (w *WriterHelper) InitWriterHelper(outputFileName string) (err error) {
 		return
 	}
 
-	w.TabWriter = tabwriter.NewWriter(w.File, 0, 4, 1, '\t', 0)
+	w.Contents = new(bytes.Buffer)
+	w.TabWriter = tabwriter.NewWriter(w.Contents, 0, 4, 1, '\t', 0)
 
 	return
 }
 
 func (w *WriterHelper) CloseWriterHelper() {
+	w.File.Write(w.Contents.Bytes())
 	w.File.Close()
 	w.File = nil
 	w.TabWriter = nil
 }
 
+func (w WriterHelper) GetContents() []byte {
+	return w.Contents.Bytes()
+}
+
 func (w WriterHelper) Write(e string, a ...interface{}) {
 	str := fmt.Sprintf(e, a...)
-	w.File.WriteString(str)
+	w.Contents.WriteString(str)
 }
 
 func (w WriterHelper) Writeln(e string, a ...interface{}) {

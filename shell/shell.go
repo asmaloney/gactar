@@ -181,7 +181,7 @@ func (s *Shell) cmdRun(initialGoal string) (err error) {
 		return err
 	}
 
-	output, err := s.actrFramework.Run(initialGoal)
+	_, output, err := s.actrFramework.Run(initialGoal)
 	if err != nil {
 		return err
 	}

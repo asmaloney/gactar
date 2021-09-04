@@ -86,6 +86,11 @@ func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
 		RunStr     string   `json:"run"`
 		Frameworks []string `json:"frameworks"`
 	}
+	type result struct {
+		ModelName string `json:"modelName"`
+		Code      string `json:"code"`
+		Output    string `json:"output"`
+	}
 
 	type response struct {
 		Results json.RawMessage `json:"results"`
@@ -106,7 +111,7 @@ func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	outputs := make(map[string]string, len(w.actrFrameworks))
+	resultMap := make(map[string]result, len(w.actrFrameworks))
 
 	var wg sync.WaitGroup
 	for name, f := range w.actrFrameworks {
@@ -115,17 +120,21 @@ func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
 		go func(wg *sync.WaitGroup, name string, f framework.Framework) {
 			defer wg.Done()
 
-			output, err := w.run(model, data.RunStr, f)
+			code, output, err := w.run(model, data.RunStr, f)
 			if err != nil {
-				outputs[name] = err.Error()
+				resultMap[name] = result{Output: err.Error()}
 			} else {
-				outputs[name] = string(output)
+				resultMap[name] = result{
+					ModelName: model.Name,
+					Code:      string(code),
+					Output:    string(output),
+				}
 			}
 		}(&wg, name, f)
 	}
 	wg.Wait()
 
-	results, err := json.Marshal(outputs)
+	results, err := json.Marshal(resultMap)
 	if err != nil {
 		errorResponse(rw, err)
 		return
@@ -184,7 +193,7 @@ func (w *Web) listExamples(rw http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(rw).Encode(r)
 }
 
-func (w *Web) run(model *actr.Model, initialGoal string, framework framework.Framework) (output []byte, err error) {
+func (w *Web) run(model *actr.Model, initialGoal string, framework framework.Framework) (generatedCode, output []byte, err error) {
 	if model == nil {
 		err = fmt.Errorf("no model loaded")
 		return
@@ -197,7 +206,7 @@ func (w *Web) run(model *actr.Model, initialGoal string, framework framework.Fra
 
 	initialGoal = strings.TrimSpace(initialGoal)
 
-	output, err = framework.Run(initialGoal)
+	generatedCode, output, err = framework.Run(initialGoal)
 	if err != nil {
 		return
 	}

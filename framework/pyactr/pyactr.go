@@ -63,7 +63,7 @@ func (p *PyACTR) SetModel(model *actr.Model) (err error) {
 	return
 }
 
-func (p *PyACTR) Run(initialGoal string) (output []byte, err error) {
+func (p *PyACTR) Run(initialGoal string) (generatedCode, output []byte, err error) {
 	outputFile, err := p.WriteModel(p.tmpPath, initialGoal)
 	if err != nil {
 		return
@@ -78,6 +78,8 @@ func (p *PyACTR) Run(initialGoal string) (output []byte, err error) {
 		err = fmt.Errorf("%s", string(output))
 		return
 	}
+
+	generatedCode = p.GetContents()
 
 	return
 }

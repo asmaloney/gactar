@@ -11,7 +11,7 @@ type Framework interface {
 	Initialize() (err error)
 	SetModel(model *actr.Model) (err error)
 
-	Run(initialGoal string) (output []byte, err error)
+	Run(initialGoal string) (generatedCode, output []byte, err error)
 	WriteModel(path, initialGoal string) (outputFileName string, err error)
 }
 
