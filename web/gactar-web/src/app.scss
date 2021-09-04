@@ -1,31 +1,97 @@
-@import '~buefy/dist/buefy.css';
+@import '~bulma';
+
+// Instead of this larger import, just import what we use
+// @import '~buefy/src/scss/buefy';
+@import '~buefy/src/scss/utils/_all';
+@import '~buefy/src/scss/components/_checkbox';
+@import '~buefy/src/scss/components/_dropdown';
+@import '~buefy/src/scss/components/_form';
+@import '~buefy/src/scss/components/_icon';
+@import '~buefy/src/scss/components/_loading';
+@import '~buefy/src/scss/components/_select';
+@import '~buefy/src/scss/components/_tabs';
+@import '~buefy/src/scss/components/_upload';
 
 @import '~codemirror/lib/codemirror.css';
 @import './codemirror/amod.css';
 
+$tab-border-color: #dbdbdb;
+
 html,
 body {
   background-color: azure;
+  height: 100%;
   padding: 0.25%;
+  width: 100%;
 }
 
 h1 {
   font-size: 1.2em;
+  padding-bottom: 0.5rem;
+}
+
+textarea {
+  resize: none;
 }
 
 textarea#results {
   border: 1px solid cornflowerblue;
-  height: 87vh;
+  height: 100%;
   padding: 0.5em;
   width: 100%;
 }
 
 .CodeMirror {
-  border: 1px solid cornflowerblue;
+  border-top: 1px solid $tab-border-color;
   height: 87vh;
 }
 
 .CodeMirror * {
   font-family: monospace;
   font-size: 14px;
+}
+
+.icon-space {
+  margin-right: 0.5em;
+}
+
+.buttons {
+  margin-bottom: 0 !important;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+
+  .column {
+    padding-bottom: 0.5rem;
+
+    & :not(.has-addons .control) > {
+      button {
+        font-size: 0.75em;
+        margin: 0;
+      }
+    }
+    button.is-light {
+      border-color: $button-border-color;
+    }
+  }
+}
+
+.columns {
+  .result {
+    height: 98%; // can't figure out why this column isn't contained properly, so hack it
+  }
+}
+
+.code-column {
+  padding-right: 0 !important;
+}
+
+.b-tabs.custom {
+  height: 100%;
+
+  .tab-content {
+    background-color: white;
+    border: 1px solid $tab-border-color;
+    border-top-color: transparent !important;
+    padding: 0.5rem 0 0 0;
+  }
 }

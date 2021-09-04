@@ -15,6 +15,7 @@ import {
   Field,
   Input,
   Select,
+  Tabs,
   Upload,
 } from 'buefy'
 
@@ -23,6 +24,7 @@ Vue.use(Dropdown)
 Vue.use(Field)
 Vue.use(Input)
 Vue.use(Select)
+Vue.use(Tabs)
 Vue.use(Upload)
 ConfigProgrammatic.setOptions({
   defaultIconPack: 'far',
