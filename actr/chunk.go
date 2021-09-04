@@ -18,6 +18,8 @@ type Chunk struct {
 	Name      string
 	SlotNames []string
 	NumSlots  int
+
+	AMODLineNumber int // line number in the amod file of the this chunk declaration
 }
 
 func IsInternalChunkName(name string) bool {

@@ -1,7 +1,7 @@
 package actr
 
 // Production stores information on how to match buffers and perform some operations.
-// It uses a small language to modify buffers and memories upon successful matches.
+// It uses a small language to modify states upon successful matches.
 type Production struct {
 	Name        string
 	Description *string // optional description to output as a comment in the generated code
@@ -9,7 +9,7 @@ type Production struct {
 	Matches      []*Match
 	DoStatements []*Statement
 
-	AMODLineNumber int
+	AMODLineNumber int // line number in the amod file of the this production
 }
 
 type Match struct {
@@ -44,7 +44,7 @@ type PrintStatement struct {
 	Values *[]*Value
 }
 
-// RecallStatement is used to pull information from a memory.
+// RecallStatement is used to pull information from memory.
 type RecallStatement struct {
 	Pattern *Pattern
 	Memory  *Memory

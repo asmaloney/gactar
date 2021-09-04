@@ -295,9 +295,10 @@ func addChunks(model *actr.Model, chunks []*chunkDecl, errs *errorListWithContex
 		}
 
 		aChunk := actr.Chunk{
-			Name:      chunk.Name,
-			SlotNames: slotNames,
-			NumSlots:  len(chunk.Slots),
+			Name:           chunk.Name,
+			SlotNames:      slotNames,
+			NumSlots:       len(chunk.Slots),
+			AMODLineNumber: chunk.Pos.Line,
 		}
 
 		model.Chunks = append(model.Chunks, &aChunk)
@@ -330,8 +331,9 @@ func addInit(model *actr.Model, init *initSection) (err error) {
 			}
 
 			init := actr.Initializer{
-				Buffer:  buffer,
-				Pattern: pattern,
+				Buffer:         buffer,
+				Pattern:        pattern,
+				AMODLineNumber: init.Pos.Line,
 			}
 
 			model.Initializers = append(model.Initializers, &init)
@@ -344,8 +346,9 @@ func addInit(model *actr.Model, init *initSection) (err error) {
 				}
 
 				init := actr.Initializer{
-					Memory:  model.Memory,
-					Pattern: pattern,
+					Memory:         model.Memory,
+					Pattern:        pattern,
+					AMODLineNumber: init.Pos.Line,
 				}
 
 				model.Initializers = append(model.Initializers, &init)

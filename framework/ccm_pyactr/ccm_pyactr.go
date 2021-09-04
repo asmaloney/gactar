@@ -178,9 +178,11 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 				if initializer == "goal" && (goal != nil) {
 					continue
 				}
+				c.Writeln("\t\t# amod line %d", init.AMODLineNumber)
 				c.Write("\t\t%s.set(", initializer)
 
 			} else { // memory
+				c.Writeln("\t\t# amod line %d", init.AMODLineNumber)
 				c.Write("\t\t%s.add(", init.Memory.Name)
 			}
 

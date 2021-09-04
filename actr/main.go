@@ -21,6 +21,8 @@ type Initializer struct {
 	Memory *Memory         // ... OR memory
 
 	Pattern *Pattern
+
+	AMODLineNumber int // line number in the amod file of this initializations
 }
 
 func (model *Model) Initialize() {

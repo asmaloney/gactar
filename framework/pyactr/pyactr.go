@@ -130,6 +130,7 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 			continue
 		}
 
+		p.Writeln("# amod line %d", chunk.AMODLineNumber)
 		p.Writeln("actr.chunktype('%s', '%s')", chunk.Name, strings.Join(chunk.SlotNames, ", "))
 	}
 	p.Writeln("")
@@ -165,6 +166,7 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 				continue
 			}
 		}
+		p.Writeln("# amod line %d", init.AMODLineNumber)
 		p.Writeln("%s.add(actr.chunkstring(string='''", initializer)
 		p.outputPattern(init.Pattern, 1)
 		p.Writeln("'''))")

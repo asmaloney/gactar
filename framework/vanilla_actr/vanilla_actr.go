@@ -151,6 +151,7 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 			continue
 		}
 
+		v.Writeln(";; amod line %d", chunk.AMODLineNumber)
 		v.Writeln("(chunk-type %s %s)", chunk.Name, strings.Join(chunk.SlotNames, " "))
 	}
 	v.Writeln("")
@@ -169,8 +170,10 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, e
 				continue
 			}
 
+			v.Writeln(" ;; amod line %d", init.AMODLineNumber)
 			v.Writeln(" (%s", initializer)
 		} else {
+			v.Writeln(" ;; amod line %d", init.AMODLineNumber)
 			v.Writeln(" (fact_%d", i)
 		}
 		v.outputPattern(init.Pattern, 1)
