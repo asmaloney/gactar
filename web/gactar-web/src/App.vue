@@ -42,7 +42,7 @@
               />
               <p class="control">
                 <b-button
-                  class="button is-info is-light"
+                  class="button is-info"
                   :loading="running"
                   @click="run"
                 >
