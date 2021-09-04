@@ -252,6 +252,8 @@ Open `http://localhost:8181` in your browser, select an example from the menu, m
 
 ![gactar Web Interface](doc/gactar-web.png)
 
+The results will be shown on the right and the generated code that was used to run the model on each framework is shown in the tabs.
+
 **Important Note:** This web server is only intended to be run locally. It should not be used to expose gactar to the internet. A lot more checking and validation of inputs would be required before doing so.
 
 ## amod File Format
