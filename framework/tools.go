@@ -1,7 +1,9 @@
 package framework
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -28,6 +30,20 @@ func IdentifyYourself(frameworkName, exeName string) {
 // e.g. 2.5000 becomes "2.5"
 func Float64Str(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
+}
+
+// RemoveTempFile removes the given file if it exists.
+func RemoveTempFile(filePath string) error {
+	_, err := os.Stat(filePath)
+	if err == nil {
+		return os.Remove(filePath)
+	}
+
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+
+	return err
 }
 
 // PythonCheckForPackage checks for the proper installation of the named package.
