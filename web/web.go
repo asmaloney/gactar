@@ -114,6 +114,8 @@ func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
 	resultMap := make(map[string]result, len(w.actrFrameworks))
 
 	var wg sync.WaitGroup
+	var mutex = &sync.Mutex{}
+
 	for name, f := range w.actrFrameworks {
 		wg.Add(1)
 
@@ -121,6 +123,8 @@ func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
 			defer wg.Done()
 
 			code, output, err := w.run(model, data.RunStr, f)
+
+			mutex.Lock()
 			if err != nil {
 				resultMap[name] = result{Output: err.Error()}
 			} else {
@@ -130,6 +134,8 @@ func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
 					Output:    string(output),
 				}
 			}
+			mutex.Unlock()
+
 		}(&wg, name, f)
 	}
 	wg.Wait()
