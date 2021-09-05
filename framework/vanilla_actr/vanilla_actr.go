@@ -88,19 +88,24 @@ func (v *VanillaACTR) Run(initialGoal string) (generatedCode, output []byte, err
 	return
 }
 
-func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFile string, err error) {
+func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFileName string, err error) {
 	goal, err := amod.ParseChunk(v.model, initialGoal)
 	if err != nil {
 		err = fmt.Errorf("error in initial goal - %s", err)
 		return
 	}
 
-	outputFile = fmt.Sprintf("%s.lisp", v.modelName)
+	outputFileName = fmt.Sprintf("%s.lisp", v.modelName)
 	if path != "" {
-		outputFile = fmt.Sprintf("%s/%s", path, outputFile)
+		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
 	}
 
-	err = v.InitWriterHelper(outputFile)
+	err = os.Remove(outputFileName)
+	if err != nil {
+		return "", err
+	}
+
+	err = v.InitWriterHelper(outputFileName)
 	if err != nil {
 		return
 	}

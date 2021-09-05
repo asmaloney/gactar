@@ -96,6 +96,11 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
 	}
 
+	err = os.Remove(outputFileName)
+	if err != nil {
+		return "", err
+	}
+
 	err = p.InitWriterHelper(outputFileName)
 	if err != nil {
 		return

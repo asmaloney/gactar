@@ -100,6 +100,11 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
 	}
 
+	err = os.Remove(outputFileName)
+	if err != nil {
+		return "", err
+	}
+
 	err = c.InitWriterHelper(outputFileName)
 	if err != nil {
 		return
