@@ -2,11 +2,11 @@
   <b-tab-item class="code-tab" :label="framework">
     <div class="columns buttons">
       <div class="column">
-        <strong>{{ modelName }}.{{ fileExtension }}</strong> (generated code)
+        <strong>{{ defaultFileName }}</strong> (generated code)
         <b-field class="is-pulled-right">
           <save-button
             :code="code"
-            :default-name="modelName"
+            :default-name="defaultFileName"
             :file-extension="fileExtension"
           />
         </b-field>
@@ -57,6 +57,8 @@ export default {
   data() {
     return {
       fileToLoad: null,
+      defaultFileName:
+        this.framework + '_' + this.modelName + '.' + this.fileExtension,
 
       accept: '.' + this.mode + ',text/plain',
       refName: 'code-editor-' + this.mode,
