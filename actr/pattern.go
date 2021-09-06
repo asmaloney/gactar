@@ -46,14 +46,18 @@ func (p *PatternSlot) AddItem(item *PatternSlotItem) {
 }
 
 func (p Pattern) String() (str string) {
-	str = p.Chunk.Name + "( "
+	str = "[" + p.Chunk.Name + ": "
 
-	for _, slot := range p.Slots {
+	numSlots := len(p.Slots)
+
+	for i, slot := range p.Slots {
 		str += slot.String()
-		str += " "
+		if i < numSlots-1 {
+			str += " "
+		}
 	}
 
-	str += ")"
+	str += "]"
 
 	return
 }
