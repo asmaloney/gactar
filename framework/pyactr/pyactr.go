@@ -114,7 +114,13 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	p.Writeln("")
 	p.Write("# %s\n\n", p.model.Description)
 
-	p.Write("import pyactr as actr\n\n")
+	p.Writeln("import pyactr as actr")
+
+	if p.model.HasPrintStatement() {
+		p.Writeln("from pyactr.buffers import Buffer")
+	}
+
+	p.Writeln("")
 
 	memory := p.model.Memory
 	additionalInit := []string{"subsymbolic=True"}
@@ -128,6 +134,20 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	}
 
 	p.Write("%s = actr.ACTRModel(%s)\n\n", p.className, strings.Join(additionalInit, ", "))
+
+	if p.model.HasPrintStatement() {
+		p.Writeln(`
+# Monkey patch Buffer to add a new method.
+# Currently we can only output simple strings.
+def print_text(*args):
+    text = ''.join(args[1:])
+    text = text.strip("'")
+    print(text)
+
+
+Buffer.print_text = print_text
+`)
+	}
 
 	// chunks
 	for _, chunk := range p.model.Chunks {
@@ -191,13 +211,37 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 
 		p.Writeln("\t==>")
 
+		numPrintStatements := 0
+		warnings := []string{}
 		if production.DoStatements != nil {
 			for _, statement := range production.DoStatements {
+				if statement.Print != nil {
+					if !onlyStrings(statement.Print.Values) {
+						warning := fmt.Sprintf("Warning: ('%s') pyactr currently cannot print variables from productions", production.Name)
+						warnings = append(warnings, warning)
+
+						continue
+					}
+
+					numPrintStatements++
+					if numPrintStatements > 1 {
+						warning := fmt.Sprintf("Warning: ('%s') pyactr currently only supports one print statement per production", production.Name)
+						warnings = append(warnings, warning)
+						continue
+					}
+				}
+
 				p.outputStatement(statement)
 			}
 		}
 
 		p.Write("''')\n\n")
+
+		if len(warnings) > 0 {
+			for _, warning := range warnings {
+				p.Writeln(`print("%s")`, warning)
+			}
+		}
 	}
 
 	p.Writeln("")
@@ -310,17 +354,30 @@ func (p *PyACTR) outputStatement(s *actr.Statement) {
 			p.TabWrite(2, tabbedItems)
 		} else if s.Set.Pattern != nil {
 			p.outputPattern(s.Set.Pattern, 2)
-		} else {
-			p.Writeln("# writing text not yet handled")
 		}
 	} else if s.Recall != nil {
 		p.Writeln("\t+retrieval>")
 		p.outputPattern(s.Recall.Pattern, 2)
+	} else if s.Print != nil {
+		p.Writeln("\t!goal>")
+		values := framework.PythonValuesToStrings(s.Print.Values, true)
+		p.Writeln("\t\tprint_text %s", strings.Join(values, " "))
 	} else if s.Clear != nil {
 		for _, name := range s.Clear.BufferNames {
 			p.Writeln("\t~%s>", name)
 		}
 	}
+}
+
+func onlyStrings(values *[]*actr.Value) bool {
+	for _, v := range *values {
+		if v.Var != nil {
+			return false
+		}
+		// v.ID should not be possible because of validation
+	}
+
+	return true
 }
 
 // removeWarning will remove the long warning whenever pyactr is run without tkinter.
