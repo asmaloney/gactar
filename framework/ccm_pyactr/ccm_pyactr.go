@@ -315,7 +315,7 @@ func (c *CCMPyACTR) outputStatement(s *actr.Statement) {
 		}
 	} else if s.Print != nil {
 		values := framework.PythonValuesToStrings(s.Print.Values, true)
-		c.Writeln("\t\tprint(%s)", strings.Join(values, ", "))
+		c.Writeln("\t\tprint(%s, sep='')", strings.Join(values, ", "))
 	}
 }
 
