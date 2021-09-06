@@ -7,6 +7,10 @@ import (
 	"gitlab.com/asmaloney/gactar/actr"
 )
 
+// ValidFrameworks lists the valid options for choosing frameworks on the command line and in the
+// interactive case.
+var ValidFrameworks = []string{"all", "ccm", "pyactr", "vanilla"}
+
 type Framework interface {
 	Initialize() (err error)
 	SetModel(model *actr.Model) (err error)
@@ -25,4 +29,14 @@ func CheckForExecutable(exe string) (path string, err error) {
 	}
 
 	return
+}
+
+func IsValidFramework(framework string) bool {
+	for _, f := range ValidFrameworks {
+		if f == framework {
+			return true
+		}
+	}
+
+	return false
 }
