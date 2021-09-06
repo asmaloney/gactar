@@ -169,9 +169,11 @@ gactar [OPTIONS] [FILES...]
 
 ### Command Line Options
 
-**--debug, -d**: turn on debugging output (mainly output tokens from lexer)
+**--debug, -d**: turn on debugging output
 
 **--ebnf**: output amod EBNF to stdout and quit
+
+**--framework, -f** [string]: add framework - valid frameworks: all, ccm, pyactr, vanilla (default: [all])
 
 **--interactive, -i**: run an interactive shell
 
@@ -183,78 +185,156 @@ gactar [OPTIONS] [FILES...]
 
 These examples assume you have set up your virtual environment properly. See [setup](#setup) above.
 
-### Generate a Python File
+### Write Generated Code To Files
 
 ```
 (env)$ ./gactar examples/count.amod
-gactar version v0.0.2
-ccm: Using Python 3.9.6 from /path/to/gactar/env/bin/python3
--- Generating code for examples/count.amod
-   Written to gactar_ccm_Count.py.py
+gactar version v0.1.0
+ccm: Using Python 3.9.7 from /Users/maloney/dev/CogSci/gactar/env/bin/python3
+	- Generating code for examples/count.amod
+	- written to ccm_count.py
+pyactr: Using Python 3.9.7 from /Users/maloney/dev/CogSci/gactar/env/bin/python3
+	- Generating code for examples/count.amod
+	- written to pyactr_count.py
+vanilla: Using SBCL 1.2.11 from /Users/maloney/dev/CogSci/gactar/env/bin/sbcl
+	- Generating code for examples/count.amod
+	- written to vanilla_count.lisp
 ```
 
-This will generate a python file called `gactar_ccm_Count.py.py` in the directory you are running from. It doesn't contain the run command, so in order to use it you would need to create another python file like this:
+This will generate code for all active frameworks in the directory you are running from.
 
-```py
-from gactar_Count import gactar_Count
+You can choose which frameworks to use with `-f` like this:
 
-
-model = gactar_Count()
-model.goal.set('countFrom 2 5 starting')
-model.run()
 ```
-
-**Note:** Currently this form only generates the `ccm` version. This will be [fixed in the future](https://github.com/asmaloney/gactar/issues/15).
+./gactar -f ccm -f vanilla examples/count.amod
+gactar version v0.1.0
+ccm: Using Python 3.9.7 from /Users/maloney/dev/CogSci/gactar/env/bin/python3
+	- Generating code for examples/count.amod
+	- written to ccm_count.py
+vanilla: Using SBCL 1.2.11 from /Users/maloney/dev/CogSci/gactar/env/bin/sbcl
+	- Generating code for examples/count.amod
+	- written to vanilla_count.lisp
+```
 
 ### Run Interactively
 
 ```
 (env)$ ./gactar -i
-gactar version v0.0.2
+gactar version v0.1.0
 Type 'help' for a list of commands.
 To exit, type 'exit' or 'quit'.
-ccm: Using Python 3.9.6 from /path/to/gactar/env/bin/python3
+pyactr: Using Python 3.9.7 from /Users/maloney/dev/CogSci/gactar/env/bin/python3
+vanilla: Using SBCL 1.2.11 from /Users/maloney/dev/CogSci/gactar/env/bin/sbcl
+ccm: Using Python 3.9.7 from /Users/maloney/dev/CogSci/gactar/env/bin/python3
 > help
-  exit:     exits the program
-  history:  outputs your command history
-  load:     loads a model: load [FILENAME]
-  quit:     exits the program
-  reset:    resets the current model
-  run:      runs the current model: run [INITIAL STATE]
-  version:  outputs version info
+  exit:        exits the program
+  frameworks:  choose frameworks to run (e.g. "ccm pyactr", "all")
+  help:        exits the program
+  history:     outputs your command history
+  load:        loads a model: load [FILENAME]
+  quit:        exits the program
+  reset:       resets the current model
+  run:         runs the current model: run [INITIAL STATE]
+  version:     outputs version info
 > load examples/count.amod
  model loaded
  examples:
-           run countFrom 2 5 starting
-           run countFrom 1 7 starting
-> run countFrom 2 5 starting
+       run [countFrom: 2 5 starting]
+       run [countFrom: 1 7 starting]
+> frameworks ccm
+active frameworks: ccm
+> run [countFrom: 2 5 starting]
+   0.000 production_match_delay 0
+   0.000 production_threshold None
+   0.000 production_time 0.05
+   0.000 production_time_sd None
+   0.000 memory.error False
+   0.000 memory.busy False
+   0.000 memory.latency 0.05
+   0.000 memory.threshold 0
+   0.000 memory.maximum_time 10.0
+   0.000 memory.record_all_chunks False
+   0.000 retrieval.chunk None
+   0.050 production None
+   0.050 memory.busy True
+   0.050 goal.chunk countFrom 2 5 counting
+   0.100 retrieval.chunk count 2 3
+   0.100 memory.busy False
+   0.100 production increment
+   0.150 production None
 2
+   0.150 memory.busy True
+   0.150 goal.chunk countFrom 3 5 counting
+   0.200 retrieval.chunk count 3 4
+   0.200 memory.busy False
+   0.200 production increment
+   0.250 production None
 3
+   0.250 memory.busy True
+   0.250 goal.chunk countFrom 4 5 counting
+   0.300 retrieval.chunk count 4 5
+   0.300 memory.busy False
+   0.300 production increment
+   0.350 production None
 4
+   0.350 memory.busy True
+   0.350 goal.chunk countFrom 5 5 counting
+   0.350 production stop
+   0.400 retrieval.chunk count 5 6
+   0.400 memory.busy False
+   0.400 production None
 5
+   0.400 goal.chunk None
+Total time:    3.350
+ goal.chunk None
+ memory.busy False
+ memory.error False
+ memory.latency 0.05
+ memory.maximum_time 10.0
+ memory.record_all_chunks False
+ memory.threshold 0
+ production None
+ production_match_delay 0
+ production_threshold None
+ production_time 0.05
+ production_time_sd None
+ retrieval.chunk count 5 6
 end...
-> quit
+> exit
 ```
 
-**Note:** Currently only runs the `ccm` version. This will be [fixed in the future](https://github.com/asmaloney/gactar/issues/15).
+You may choose which of the frameworks to run using the `frameworks` command.
+
+Specifying frameworks on the command line will limit you to selecting those frameworks. For example this will make only `ccm` available in interactive mode:
+
+```
+./gactar -f ccm -i
+```
 
 ### Run As Web Server
 
 ```
 (env)$ ./gactar -w
-ccm: Using Python 3.9.6 from /path/to/gactar/env/bin/python3
-pyactr: Using Python 3.9.6 from /path/to/gactar/env/bin/python3
+ccm: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
+pyactr: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
 vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
 Serving gactar on http://localhost:8181
 ```
 
-Open `http://localhost:8181` in your browser, select an example from the menu, modify the amod description &amp; the goal, and click **Run**.
+Open `http://localhost:8181` in your browser. You can run the default example simply by clicking **Run**. You can also:
+
+- select another example using the **Load Example** button
+- modify the amod code in the editor
+- **Save** the amod code to a file
+- **Load** the amod code from a file
+- set a **Goal** to override the default goal in the examples
+- once it's been run, browse the generated code using the tabs at the top of the code editor
 
 ![gactar Web Interface](doc/gactar-web.png)
 
-The results will be shown on the right and the generated code that was used to run the model on each framework is shown in the tabs.
+The results (and any errors) will be shown on the right and the generated code that was used to run the model on each framework is shown in the editor tabs.
 
-**Important Note:** This web server is only intended to be run locally. It should not be used to expose gactar to the internet. A lot more checking and validation of inputs would be required before doing so.
+**Important Note:** This web server is only intended to be run locally. It should not be used to expose gactar to the internet. Because we are running code, a lot more checking and validation of inputs would be required before doing so.
 
 ## amod File Format
 

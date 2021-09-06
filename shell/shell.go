@@ -21,32 +21,39 @@ type command struct {
 }
 
 type Shell struct {
-	context       *cli.Context
-	history       []string
-	currentModel  *actr.Model
-	actrFramework framework.Framework
-	cmds          map[string]command
+	context          *cli.Context
+	history          []string
+	currentModel     *actr.Model
+	actrFrameworks   *framework.List
+	activeFrameworks map[string]bool
+	commands         map[string]command
 }
 
-func Initialize(cli *cli.Context, framework framework.Framework) (s *Shell, err error) {
+func Initialize(cli *cli.Context, frameworks *framework.List) (s *Shell, err error) {
 	s = &Shell{
-		context:       cli,
-		actrFramework: framework,
+		context:          cli,
+		actrFrameworks:   frameworks,
+		activeFrameworks: map[string]bool{},
 	}
 
 	s.preamble()
 
-	err = framework.Initialize()
-	if err != nil {
-		return nil, err
+	for name, framework := range *frameworks {
+		err = framework.Initialize()
+		if err != nil {
+			return nil, err
+		}
+
+		s.activeFrameworks[name] = true
 	}
 
-	s.cmds = map[string]command{
-		"history": {"outputs your command history", s.cmdHistory},
-		"load":    {"loads a model: load [FILENAME]", s.cmdLoad},
-		"run":     {"runs the current model: run [INITIAL STATE]", s.cmdRun},
-		"reset":   {"resets the current model", s.cmdReset},
-		"version": {"outputs version info", s.cmdVersion},
+	s.commands = map[string]command{
+		"frameworks": {`choose frameworks to run (e.g. "ccm pyactr", "all")`, s.cmdFramework},
+		"history":    {"outputs your command history", s.cmdHistory},
+		"load":       {"loads a model: load [FILENAME]", s.cmdLoad},
+		"reset":      {"resets the current model", s.cmdReset},
+		"run":        {"runs the current model: run [INITIAL STATE]", s.cmdRun},
+		"version":    {"outputs version info", s.cmdVersion},
 
 		"help": {"exits the program", s.cmdHelp},
 		"exit": {"exits the program", s.cmdExit},
@@ -102,7 +109,7 @@ func (s *Shell) runCommand(c string) (err error) {
 		args = strings.TrimSpace(c[space+1:])
 	}
 
-	if command, ok := s.cmds[cmd]; ok {
+	if command, ok := s.commands[cmd]; ok {
 		err = command.method(args)
 		return
 	}
@@ -112,30 +119,36 @@ func (s *Shell) runCommand(c string) (err error) {
 	return
 }
 
-func (s *Shell) cmdExit(string) (err error) {
-	os.Exit(0)
-	return
-}
+func (s *Shell) cmdFramework(fNames string) (err error) {
+	names := strings.Split(fNames, " ")
+	sort.Strings(names)
 
-func (s *Shell) cmdReset(string) (err error) {
-	s.currentModel = nil
-	fmt.Println(" model reset")
-	return
-}
-
-func (s *Shell) cmdHelp(string) (err error) {
-	// sort keys so commands may be output alphabetically
-	keys := make([]string, 0, len(s.cmds))
-	for k := range s.cmds {
-		keys = append(keys, k)
+	if names[0] == "all" {
+		names = s.actrFrameworks.Names()
+		sort.Strings(names)
 	}
-	sort.Strings(keys)
 
-	w := tabwriter.NewWriter(os.Stdout, 2, 2, 2, ' ', 0)
-	for _, k := range keys {
-		fmt.Fprintf(w, "  %v:\t%v\n", k, s.cmds[k].description)
+	s.activeFrameworks = map[string]bool{}
+
+	for _, name := range names {
+		if !s.actrFrameworks.Exists(name) {
+			err = fmt.Errorf("'%s' is not a valid framework. Valid values: %v", name, s.actrFrameworks.Names())
+			return
+		}
+
+		s.activeFrameworks[name] = true
 	}
-	w.Flush()
+
+	if len(s.activeFrameworks) == 0 {
+		err = fmt.Errorf("no frameworks selected. Valid values: %v", framework.ValidFrameworks)
+		return
+	}
+
+	fmt.Print("active frameworks: ")
+	for name := range s.activeFrameworks {
+		fmt.Printf("%s ", name)
+	}
+	fmt.Println()
 
 	return
 }
@@ -170,26 +183,38 @@ func (s *Shell) cmdLoad(fileName string) (err error) {
 	return
 }
 
+func (s *Shell) cmdReset(string) (err error) {
+	s.currentModel = nil
+	fmt.Println(" model reset")
+	return
+}
+
 func (s *Shell) cmdRun(initialGoal string) (err error) {
 	if s.currentModel == nil {
 		err = fmt.Errorf("no model loaded")
 		return
 	}
 
-	err = s.actrFramework.SetModel(s.currentModel)
-	if err != nil {
-		return err
-	}
+	for name, framework := range *s.actrFrameworks {
+		if !s.activeFrameworks[name] {
+			continue
+		}
 
-	_, output, err := s.actrFramework.Run(initialGoal)
-	if err != nil {
-		return err
-	}
+		err = framework.SetModel(s.currentModel)
+		if err != nil {
+			return err
+		}
 
-	fmt.Print(string(output))
+		_, output, err := framework.Run(initialGoal)
+		if err != nil {
+			return err
+		}
 
-	if output[len(output)-1] != '\n' {
-		fmt.Println()
+		fmt.Print(string(output))
+
+		if output[len(output)-1] != '\n' {
+			fmt.Println()
+		}
 	}
 
 	return
@@ -197,5 +222,27 @@ func (s *Shell) cmdRun(initialGoal string) (err error) {
 
 func (s *Shell) cmdVersion(string) (err error) {
 	cli.ShowVersion(s.context)
+	return
+}
+
+func (s *Shell) cmdHelp(string) (err error) {
+	// sort keys so commands may be output alphabetically
+	keys := make([]string, 0, len(s.commands))
+	for k := range s.commands {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	w := tabwriter.NewWriter(os.Stdout, 2, 2, 2, ' ', 0)
+	for _, k := range keys {
+		fmt.Fprintf(w, "  %v:\t%v\n", k, s.commands[k].description)
+	}
+	w.Flush()
+
+	return
+}
+
+func (s *Shell) cmdExit(string) (err error) {
+	os.Exit(0)
 	return
 }

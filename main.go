@@ -4,6 +4,8 @@ import (
 	"embed"
 	"fmt"
 	"os"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/urfave/cli/v2"
@@ -23,12 +25,13 @@ var amodExamples embed.FS
 
 func main() {
 	defaultPort := 8181
+	defaultFramework := cli.NewStringSlice("all")
 
 	app := &cli.App{
 		Name:        "gactar",
 		Usage:       "A command-line tool for working with ACT-R models",
 		Description: "A proof-of-concept tool for creating ACT-R models using a declarative file format.",
-		Version:     "v0.0.2",
+		Version:     "v0.1.0",
 		Compiled:    time.Now(),
 		Authors: []*cli.Author{
 			{
@@ -45,6 +48,13 @@ func main() {
 			&cli.BoolFlag{Name: "debug", Aliases: []string{"d"}, Usage: "turn on debugging output"},
 			&cli.BoolFlag{Name: "ebnf", Usage: "output amod EBNF to stdout and quit"},
 
+			&cli.StringSliceFlag{
+				Name:    "framework",
+				Aliases: []string{"f"},
+				Value:   defaultFramework,
+				Usage:   fmt.Sprintf("add framework - valid frameworks: %s", strings.Join(framework.ValidFrameworks, ", ")),
+			},
+
 			&cli.BoolFlag{Name: "interactive", Aliases: []string{"i"}, Usage: "run an interactive shell"},
 
 			&cli.BoolFlag{Name: "web", Aliases: []string{"w"}, Usage: "start a webserver to run in a browser"},
@@ -60,9 +70,9 @@ func main() {
 				return nil
 			}
 
-			frameworks := createFrameworks(c)
-			if len(frameworks) == 0 {
-				err := fmt.Errorf("could not create any frameworks - please check your installation")
+			frameworks, err := createFrameworks(c)
+			if err != nil {
+				fmt.Println(err.Error())
 				return err
 			}
 
@@ -85,7 +95,7 @@ func main() {
 			}
 
 			if c.Bool("interactive") {
-				s, err := shell.Initialize(c, frameworks["ccm"])
+				s, err := shell.Initialize(c, &frameworks)
 				if err != nil {
 					fmt.Println(err.Error())
 					return err
@@ -96,39 +106,18 @@ func main() {
 					fmt.Println(err.Error())
 					return err
 				}
+
+				return nil
 			}
 
 			// We are not interactive or web, so simply generate the output files.
 
 			cli.ShowVersion(c)
 
-			framework := frameworks["ccm"]
-			err := framework.Initialize()
+			generateCode(&frameworks, c.Args().Slice())
 			if err != nil {
 				fmt.Println(err.Error())
 				return err
-			}
-
-			for _, arg := range c.Args().Slice() {
-				fmt.Printf("-- Generating code for %s\n", arg)
-				model, err := amod.GenerateModelFromFile(arg)
-				if err != nil {
-					fmt.Println(err.Error())
-					return err
-				}
-
-				err = framework.SetModel(model)
-				if err != nil {
-					fmt.Println(err.Error())
-					return err
-				}
-
-				fileName, err := framework.WriteModel("", "")
-				if err != nil {
-					fmt.Println(err.Error())
-					return err
-				}
-				fmt.Printf("   Written to %s\n", fileName)
 			}
 
 			return nil
@@ -141,29 +130,102 @@ func main() {
 	app.Run(os.Args)
 }
 
-func createFrameworks(cli *cli.Context) framework.List {
-	frameworks := framework.List{}
-
-	ccm_framework, err := ccm_pyactr.New(cli)
-	if err != nil {
-		fmt.Println(err.Error())
-	} else {
-		frameworks["ccm"] = ccm_framework
+func createFrameworks(cli *cli.Context) (frameworks framework.List, err error) {
+	list := cli.StringSlice("framework")
+	if len(list) == 0 {
+		err = fmt.Errorf("no frameworks specified on command line")
+		return
 	}
 
-	pyactr_framework, err := pyactr.New(cli)
-	if err != nil {
-		fmt.Println(err.Error())
-	} else {
-		frameworks["pyactr"] = pyactr_framework
+	list = deduplicate(list)
+	sort.Strings(list)
+
+	if list[0] == "all" {
+		list = framework.ValidFrameworks[1:]
 	}
 
-	vanilla_framework, err := vanilla_actr.New(cli)
-	if err != nil {
-		fmt.Println(err.Error())
-	} else {
-		frameworks["vanilla"] = vanilla_framework
+	frameworks = make(framework.List, len(list))
+
+	for _, f := range list {
+		var createErr error
+		switch f {
+		case "ccm":
+			frameworks["ccm"], createErr = ccm_pyactr.New(cli)
+		case "pyactr":
+			frameworks["pyactr"], createErr = pyactr.New(cli)
+		case "vanilla":
+			frameworks["vanilla"], createErr = vanilla_actr.New(cli)
+		default:
+			err = fmt.Errorf("unknown framework: %s", f)
+			return framework.List{}, err
+		}
+
+		if createErr != nil {
+			fmt.Println(err.Error())
+		}
 	}
 
-	return frameworks
+	if len(frameworks) == 0 {
+		err = fmt.Errorf("could not create any frameworks - please check your installation")
+		return framework.List{}, err
+	}
+
+	return
+}
+
+func generateCode(frameworks *framework.List, files []string) {
+	var err error
+
+	if len(files) == 0 {
+		err = fmt.Errorf("no input files specified on command line")
+		fmt.Println(err.Error())
+		return
+	}
+
+	for _, framework := range *frameworks {
+		err = framework.Initialize()
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+
+		for _, file := range files {
+			fmt.Printf("\t- Generating code for %s\n", file)
+			model, err := amod.GenerateModelFromFile(file)
+			if err != nil {
+				fmt.Println(err.Error())
+				continue
+			}
+
+			err = framework.SetModel(model)
+			if err != nil {
+				fmt.Println(err.Error())
+				continue
+			}
+
+			fileName, err := framework.WriteModel("", "")
+			if err != nil {
+				fmt.Println(err.Error())
+				continue
+			}
+			fmt.Printf("\t- written to %s\n", fileName)
+		}
+	}
+}
+
+func deduplicate(s []string) []string {
+	if len(s) <= 1 {
+		return s
+	}
+
+	result := []string{}
+	seen := make(map[string]struct{})
+	for _, val := range s {
+		if _, ok := seen[val]; !ok {
+			result = append(result, val)
+			seen[val] = struct{}{}
+		}
+	}
+
+	return result
 }
