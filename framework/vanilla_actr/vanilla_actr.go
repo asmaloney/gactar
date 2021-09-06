@@ -355,8 +355,8 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 		v.Writeln("\t+retrieval>")
 		v.outputPattern(s.Recall.Pattern, 2)
 	} else if s.Print != nil {
-		values := valuesToStrings(s.Print.Values)
-		v.Write("\t!output!\t(%s)\n", strings.Join(values, " "))
+		outputArgs := createOutputArgs(s.Print.Values)
+		v.Write("\t!output!\t(%s)\n", outputArgs)
 	} else if s.Clear != nil {
 		for _, name := range s.Clear.BufferNames {
 			v.Writeln("\t-%s>", name)
@@ -364,22 +364,44 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 	}
 }
 
-func valuesToStrings(values *[]*actr.Value) []string {
-	str := make([]string, len(*values))
+// createOutputArgs creates a string suitable for use in an !output! statement
+// !output! is explained in:
+//   ACT-R 7.21+ Reference Manual pg. 235
+func createOutputArgs(values *[]*actr.Value) string {
+	formatStr := `"`
+	args := []string{}
+
+	numValues := len(*values)
 	for i, v := range *values {
 		if v.Var != nil {
+			formatStr += "~a"
 			varName := strings.TrimPrefix(*v.Var, "?")
-			str[i] = fmt.Sprintf("=%s", varName)
+			args = append(args, fmt.Sprintf("=%s", varName))
 		} else if v.Str != nil {
-			// quote the string to preserve case and allow non-alphanumeric characters
-			str[i] = fmt.Sprintf(`"%s"`, *v.Str)
+			formatStr += *v.Str
 		} else if v.Number != nil {
-			str[i] = *v.Number
+			formatStr += *v.Number
 		}
 		// v.ID should not be possible because of validation
+
+		if i < numValues-1 {
+			formatStr += " "
+		}
 	}
 
-	return str
+	formatStr += `"`
+
+	var argStr string
+	if len(args) > 0 {
+		argStr += " "
+
+		for _, arg := range args {
+			formatStr += " "
+			formatStr += arg
+		}
+	}
+
+	return formatStr + argStr
 }
 
 // createRunFile creates a lisp program to load ACTR and our model and then run them.
