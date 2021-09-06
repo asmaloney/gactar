@@ -144,16 +144,6 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	p.Writeln("goal = %s.set_goal('goal')", p.className)
 	p.Writeln("")
 
-	if goal != nil {
-		// add our goal...
-		p.Writeln("initial_goal = actr.chunkstring(string='''")
-		p.outputPattern(goal, 1)
-		p.Writeln("''')")
-
-		p.Writeln("goal.add(initial_goal)")
-		p.Writeln("")
-	}
-
 	if p.model.HasImaginal {
 		imaginal := p.model.GetImaginal()
 		p.Writeln(`imaginal = %s.set_goal(name="imaginal", delay=%s)`, p.className, framework.Float64Str(imaginal.Delay))
@@ -174,6 +164,13 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 		p.Writeln("# amod line %d", init.AMODLineNumber)
 		p.Writeln("%s.add(actr.chunkstring(string='''", initializer)
 		p.outputPattern(init.Pattern, 1)
+		p.Writeln("'''))")
+	}
+
+	// Add user-set goal if any
+	if goal != nil {
+		p.Writeln("goal.add(actr.chunkstring(string='''")
+		p.outputPattern(goal, 1)
 		p.Writeln("'''))")
 	}
 
@@ -211,7 +208,7 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	p.Writeln("\tsim.run()")
 	// TODO: Add some intelligent output when logging level is info or detail
 	p.Writeln("\tif goal.test_buffer('full') == True:")
-	p.Writeln("\t\tprint( 'final goal: ' + str(goal.pop()) )")
+	p.Writeln("\t\tprint('final goal: ' + str(goal.pop()))")
 
 	return
 }
