@@ -58,7 +58,6 @@ export default {
   data() {
     return {
       fileToLoad: null,
-      defaultFileName: this.framework + '_' + this.modelName,
 
       accept: '.' + this.mode + ',text/plain',
       refName: 'code-editor-' + this.mode,
@@ -67,6 +66,12 @@ export default {
       // See https://stackoverflow.com/questions/48400302/vue-js-not-updating-props-in-child-when-parent-component-is-changing-the-propert
       count: 0,
     }
+  },
+
+  computed: {
+    defaultFileName() {
+      return this.framework + '_' + this.modelName
+    },
   },
 
   watch: {
