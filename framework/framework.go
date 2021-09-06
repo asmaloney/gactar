@@ -21,6 +21,30 @@ type Framework interface {
 
 type List map[string]Framework
 
+// Names returns all the names of the frameworks in the list.
+func (l List) Names() (names []string) {
+	names = make([]string, len(l))
+
+	i := 0
+	for k := range l {
+		names[i] = k
+		i++
+	}
+
+	return
+}
+
+// Exists checks if the framework is in the list.
+func (l List) Exists(framework string) bool {
+	for name := range l {
+		if name == framework {
+			return true
+		}
+	}
+
+	return false
+}
+
 func CheckForExecutable(exe string) (path string, err error) {
 	path, err = exec.LookPath(exe)
 	if err != nil {
