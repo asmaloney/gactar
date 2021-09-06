@@ -198,6 +198,13 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		c.Writeln("")
 	}
 
+	// Add user-set goal if any
+	if goal != nil {
+		c.Write("\t\tgoal.set(")
+		c.outputPattern(goal)
+		c.Write(")\n\n")
+	}
+
 	for _, production := range c.model.Productions {
 		if production.Description != nil {
 			c.Writeln("\t# %s", *production.Description)
@@ -230,9 +237,6 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 	c.Writeln("")
 	c.Writeln("if __name__ == \"__main__\":")
 	c.Writeln(fmt.Sprintf("\tmodel = %s()", c.className))
-	if goal != nil {
-		c.Writeln(fmt.Sprintf("\tmodel.goal.set('%s')", convertGoal(goal)))
-	}
 
 	if c.model.LogLevel == "detail" {
 		c.Writeln("\tlog(summary=1)")
@@ -329,13 +333,20 @@ func convertSetValue(s *actr.SetValue) string {
 	return ""
 }
 
-// convertGoal strips out the parentheses for output.
-func convertGoal(g *actr.Pattern) string {
-	goal := g.String()
+// convertPattern converts amod-style patterns to ccm-style.
+func convertPattern(g *actr.Pattern) string {
+	str := g.Chunk.Name + " "
 
-	goal = strings.Replace(goal, "(", "", 1)
-	goal = strings.ReplaceAll(goal, " nil", " None")
-	goal = strings.TrimSuffix(goal, " )")
+	numSlots := len(g.Slots)
 
-	return goal
+	for i, slot := range g.Slots {
+		str += slot.String()
+		if i < numSlots-1 {
+			str += " "
+		}
+	}
+
+	str = strings.ReplaceAll(str, " nil", " None")
+
+	return str
 }
