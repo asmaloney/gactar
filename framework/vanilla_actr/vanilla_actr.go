@@ -371,8 +371,7 @@ func createOutputArgs(values *[]*actr.Value) string {
 	formatStr := `"`
 	args := []string{}
 
-	numValues := len(*values)
-	for i, v := range *values {
+	for _, v := range *values {
 		if v.Var != nil {
 			formatStr += "~a"
 			varName := strings.TrimPrefix(*v.Var, "?")
@@ -383,10 +382,6 @@ func createOutputArgs(values *[]*actr.Value) string {
 			formatStr += *v.Number
 		}
 		// v.ID should not be possible because of validation
-
-		if i < numValues-1 {
-			formatStr += " "
-		}
 	}
 
 	formatStr += `"`
