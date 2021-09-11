@@ -6,7 +6,7 @@
 
 ## Proof-of-Concept
 
-**This is just a proof-of-concept.**
+**This is a proof-of-concept.**
 
 Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate code to run it on three different ACT-R implementations:
 
@@ -14,18 +14,27 @@ Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate c
 - [pyactr](https://github.com/jakdot/pyactr) (python)
 - [ACT-R](https://github.com/asmaloney/ACT-R) (lisp) - a.k.a. _"vanilla"_
 
-`gactar` will work with the short tutorial models included in the _examples_ directory. It doesn't handle a lot beyond what's in there - it only works with memory modules, not perceptual-motor ones - so _it's limited at the moment_.
+`gactar` will work with the tutorial models included in the _examples_ directory. It doesn't handle a lot beyond what's in there - it only works with memory modules, not perceptual-motor ones, and does not yet work with environments - so _it's limited at the moment_.
+
+Given that gactar in its early stages, the amod syntax may change dramatically based on use and feedback.
+
+### What isn't implemented?
+
+A lot! The big, obvious one is environments (and therefore the visual & motor modules). That's a big challenge and probably not worth tackling if there isn't sufficient interest in this initial proof of concept. Environments may even prove impossible given the way they are implemented in the three frameworks, but I haven't yet explored this too deeply.
+
+If there is sufficient interest in this project, my strategy going forward would be to continue implementing examples included with the three implementations, adding capabilities as necessary and, when the implementations differ, raising issues for discussion. Once all the non-environment capabilities are implemented, then I would turn to the environment issue.
 
 ## Why?
 
 1. Provides a human-readable, easy-to-understand, standard format to define basic ACT-R models.
-2. Allows the easy exchange of models with other researchers.
-3. Abstracts away the "programming" to focus on writing and understanding models.
-4. Restricts the model to a small language to prevent programming "outside the model".
-5. Provides a very simple setup for teaching environments.
-6. Runs the same model on multiple ACT-R implementations.
-7. Generates human-readable code (for now!) which is useful for learning the implementations and comparing them.
-8. Parses chunks (including the `examples` section) to catch and report errors in a user-friendly manner.
+1. Allows the easy exchange of models with other researchers
+1. Opens the possibility of a library of models which will run on multiple implementation frameworks.
+1. Abstracts away the "programming" to focus on writing and understanding models.
+1. Restricts the model to a small language to prevent programming "outside the model" (no sneaking in extra calculations or control-flow!).
+1. Runs the same model on multiple ACT-R implementation frameworks.
+1. Provides a very simple setup for teaching environments - gactar is self-contained in one executable and uses a setup script to download the implementation frameworks.
+1. Generates human-readable code with comments linking back to the amod file which is useful for learning the implementations and comparing them.
+1. Parses chunks (including the `examples` in an amod file) to catch and report errors in a user-friendly manner.
 
    **Example #1 (invalid variable name)**
 
@@ -85,6 +94,16 @@ Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate c
    ```
    slot 'resutl' does not exist in chunk 'isMember' for match buffer 'goal' in production 'initialRetrieval' (line 52)
    ```
+
+## Design Goals
+
+1. amod syntax & semantics should be designed for humans to read & understand (i.e. should not require a programming background to grok).
+1. Only provide one way to do something in the amod language - this helps when reading someone else's code and keep the parser simple.
+1. gactar should be as simple as possible to set up, use, and understand.
+
+## Contributing
+
+For information on how to contribute (code, bug reports, ideas, or other resources), please see the [CONTRIBUTING](doc/CONTRIBUTING.md) doc.
 
 ## Setup
 
@@ -330,7 +349,7 @@ Open `http://localhost:8181` in your browser. You can run the default example si
 - set a **Goal** to override the default goal in the examples
 - once it's been run, browse the generated code using the tabs at the top of the code editor
 
-![gactar Web Interface](doc/gactar-web.png)
+![gactar Web Interface](doc/images/gactar-web.png)
 
 The results (and any errors) will be shown on the right and the generated code that was used to run the model on each framework is shown in the editor tabs.
 
@@ -446,16 +465,16 @@ The _match_ section matches _patterns_ to buffers. Patterns are delineated by sq
 
 The _do_ section in the productions uses a small language which currently understands the following commands:
 
-| command                                                          | example                         |
-| ---------------------------------------------------------------- | ------------------------------- |
-| clear _(buffer name)+_                                           | clear goal, retrieval           |
-| print _(string or var or number)+_                               | print 'text', ?var, 42          |
-| recall _(pattern)_                                               | recall [car: ?colour]           |
-| set _(buffer name)_._(slot name)_ to _(string or var or number)_ | set goal.wall_colour to ?colour |
-| set _(buffer name)_ to _(pattern)_                               | set goal to [start: 6 nil]      |
+| command                                                                  | example                                 |
+| ------------------------------------------------------------------------ | --------------------------------------- |
+| **clear** _(buffer name)+_                                               | **clear** goal, retrieval               |
+| **print** _(string or var or number)+_                                   | **print** 'text', ?var, 42              |
+| **recall** _(pattern)_                                                   | **recall** [car: ?colour]               |
+| **set** _(buffer name)_._(slot name)_ **to** _(string or var or number)_ | **set** goal.wall_colour **to** ?colour |
+| **set** _(buffer name)_ **to** _(pattern)_                               | **set** goal **to** [start: 6 nil]      |
 
 ## Processing
 
 This diagram shows how an amod file is processed by gactar. The partial paths at the bottom of the items is the path to the source code responsible for that part of the processing.
 
-![How gactar processes an amod file](doc/gactar.svg)
+![How gactar processes an amod file](doc/images/gactar.svg)
