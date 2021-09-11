@@ -1,8 +1,13 @@
 <template>
   <span>
     <h1>
-      Andy's Fancy ACT-R Thingamabob (a.k.a.
-      <a href="https://github.com/asmaloney/gactar" target="_">gactar</a>)
+      gactar-web
+      <span v-if="version" class="version-number">
+        (<a href="https://github.com/asmaloney/gactar" target="_">{{
+          version
+        }}</a>
+        )
+      </span>
     </h1>
     <div class="columns">
       <div class="column is-three-fifths code-column">
@@ -101,6 +106,7 @@ export default {
       goal: '',
       running: false,
       results: '',
+      version: null,
     }
   },
 
@@ -108,6 +114,10 @@ export default {
     tabs() {
       return this.baseTabs
     },
+  },
+
+  async mounted() {
+    this.version = this.getVersion()
   },
 
   methods: {
@@ -129,6 +139,16 @@ export default {
         }
 
         this.setResults(data.results)
+      } catch (err) {
+        this.showError(err)
+      }
+    },
+
+    async getVersion() {
+      try {
+        const { data } = await this.$http.get('/version')
+
+        this.version = data.version
       } catch (err) {
         this.showError(err)
       }

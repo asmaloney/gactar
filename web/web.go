@@ -16,6 +16,7 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
+	"github.com/asmaloney/gactar/version"
 )
 
 //go:embed build/*
@@ -61,6 +62,7 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 }
 
 func (w *Web) Start() (err error) {
+	http.HandleFunc("/version", w.getVersion)
 	http.HandleFunc("/run", w.runModel)
 
 	exampleHandler := assetHandler(w.examples, "")
@@ -78,6 +80,19 @@ func (w *Web) Start() (err error) {
 	}
 
 	return
+}
+
+func (w *Web) getVersion(rw http.ResponseWriter, req *http.Request) {
+	type response struct {
+		Version string `json:"version"`
+	}
+
+	r := response{
+		Version: version.BuildVersion,
+	}
+
+	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(rw).Encode(r)
 }
 
 func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
