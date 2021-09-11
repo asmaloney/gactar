@@ -155,7 +155,7 @@ For now this is only automated on macOS because the required files are not easy 
 
 ## Build
 
-If you want to build `gactar`, you will need [git](https://git-scm.com/) and the [go compiler](https://golang.org/) installed.
+If you want to build `gactar`, you will need [git](https://git-scm.com/), [make](https://www.gnu.org/software/make/), and the [go compiler](https://golang.org/) installed for your platform.
 
 Then you just need to clone this repo:
 
@@ -164,13 +164,15 @@ git clone https://github.com/asmaloney/gactar
 cd gactar
 ```
 
-...and run the build command:
+...and run make:
 
 ```
-go build
+make
 ```
 
 This will create the `gactar` executable.
+
+**Note for Windows:** I haven't actually built this on Windows directly (the GitHub CI builds it for me). If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues).
 
 ## Test
 

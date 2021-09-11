@@ -16,6 +16,7 @@ import (
 	"github.com/asmaloney/gactar/framework/pyactr"
 	"github.com/asmaloney/gactar/framework/vanilla_actr"
 	"github.com/asmaloney/gactar/shell"
+	"github.com/asmaloney/gactar/version"
 	"github.com/asmaloney/gactar/web"
 )
 
@@ -31,7 +32,7 @@ func main() {
 		Name:        "gactar",
 		Usage:       "A command-line tool for working with ACT-R models",
 		Description: "A proof-of-concept tool for creating ACT-R models using a declarative file format.",
-		Version:     "v0.1.0",
+		Version:     version.BuildVersion,
 		Compiled:    time.Now(),
 		Authors: []*cli.Author{
 			{
