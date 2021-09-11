@@ -10,9 +10,9 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"gitlab.com/asmaloney/gactar/actr"
-	"gitlab.com/asmaloney/gactar/amod"
-	"gitlab.com/asmaloney/gactar/framework"
+	"github.com/asmaloney/gactar/actr"
+	"github.com/asmaloney/gactar/amod"
+	"github.com/asmaloney/gactar/framework"
 )
 
 type command struct {

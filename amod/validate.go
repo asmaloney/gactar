@@ -1,7 +1,7 @@
 package amod
 
 import (
-	"gitlab.com/asmaloney/gactar/actr"
+	"github.com/asmaloney/gactar/actr"
 )
 
 // validateChunk checks the chunk name to ensure uniqueness and that it isn't using

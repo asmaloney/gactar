@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"gitlab.com/asmaloney/gactar/actr"
+	"github.com/asmaloney/gactar/actr"
 )
 
 // Some tools for working with our frameworks

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 
-	"gitlab.com/asmaloney/gactar/actr"
+	"github.com/asmaloney/gactar/actr"
 )
 
 // ValidFrameworks lists the valid options for choosing frameworks on the command line and in the

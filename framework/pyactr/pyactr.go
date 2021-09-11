@@ -10,9 +10,9 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"gitlab.com/asmaloney/gactar/actr"
-	"gitlab.com/asmaloney/gactar/amod"
-	"gitlab.com/asmaloney/gactar/framework"
+	"github.com/asmaloney/gactar/actr"
+	"github.com/asmaloney/gactar/amod"
+	"github.com/asmaloney/gactar/framework"
 )
 
 type PyACTR struct {
@@ -241,6 +241,8 @@ Buffer.print_text = print_text
 			for _, warning := range warnings {
 				p.Writeln(`print("%s")`, warning)
 			}
+
+			p.Writeln("")
 		}
 	}
 

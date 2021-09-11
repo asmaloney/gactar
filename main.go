@@ -10,13 +10,13 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"gitlab.com/asmaloney/gactar/amod"
-	"gitlab.com/asmaloney/gactar/framework"
-	"gitlab.com/asmaloney/gactar/framework/ccm_pyactr"
-	"gitlab.com/asmaloney/gactar/framework/pyactr"
-	"gitlab.com/asmaloney/gactar/framework/vanilla_actr"
-	"gitlab.com/asmaloney/gactar/shell"
-	"gitlab.com/asmaloney/gactar/web"
+	"github.com/asmaloney/gactar/amod"
+	"github.com/asmaloney/gactar/framework"
+	"github.com/asmaloney/gactar/framework/ccm_pyactr"
+	"github.com/asmaloney/gactar/framework/pyactr"
+	"github.com/asmaloney/gactar/framework/vanilla_actr"
+	"github.com/asmaloney/gactar/shell"
+	"github.com/asmaloney/gactar/web"
 )
 
 // "embed" cannot use relative paths, so we must declare this at the top level and pass into web.

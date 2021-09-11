@@ -6,8 +6,8 @@ import (
 
 	"github.com/alecthomas/participle/v2/lexer"
 
-	"gitlab.com/asmaloney/gactar/actr"
-	"gitlab.com/asmaloney/gactar/errorlist"
+	"github.com/asmaloney/gactar/actr"
+	"github.com/asmaloney/gactar/errorlist"
 )
 
 var debugging bool = false

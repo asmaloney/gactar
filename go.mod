@@ -1,4 +1,4 @@
-module gitlab.com/asmaloney/gactar
+module github.com/asmaloney/gactar
 
 go 1.17
 
