@@ -1,9 +1,10 @@
 <template>
   <span>
     <h1>
+      <img src="/images/gactar.svg" />
       gactar-web
       <span v-if="version" class="version-number">
-        (<a href="https://github.com/asmaloney/gactar" target="_">{{
+        &nbsp;(<a href="https://github.com/asmaloney/gactar" target="_">{{
           version
         }}</a>
         )

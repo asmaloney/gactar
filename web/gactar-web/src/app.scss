@@ -26,8 +26,14 @@ body {
 }
 
 h1 {
+  align-items: center;
+  display: flex;
   font-size: 1.2em;
   padding-bottom: 0.5rem;
+
+  img {
+    padding-right: 0.4rem;
+  }
 }
 
 .version-number {

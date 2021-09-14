@@ -1,6 +1,6 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/asmaloney/gactar)](https://github.com/asmaloney/gactar/releases/latest) ![Build](https://github.com/asmaloney/gactar/actions/workflows/build.yaml/badge.svg) [![GitHub](https://img.shields.io/github/license/asmaloney/gactar)](LICENSE)
 
-# gactar
+# ![gactar logo](doc/images/logo/gactar.svg) gactar
 
 `gactar` is a tool for creating and running [ACT-R](https://en.wikipedia.org/wiki/ACT-R) models using a declarative file format called _amod_.
 
@@ -97,8 +97,9 @@ If there is sufficient interest in this project, my strategy going forward would
 
 ## Design Goals
 
-1. amod syntax & semantics should be designed for humans to read & understand (i.e. should not require a programming background to grok).
-1. Only provide one way to do something in the amod language - this helps when reading someone else's code and keep the parser simple.
+1. amod syntax & semantics should be designed for humans to read & understand (i.e. it should not require a programming background to grok).
+1. amod should only provide one way to do something - this helps when reading someone else's code and keeps the parser as simple as possible.
+1. amod should only include functionality which is available on all implementation frameworks.
 1. gactar should be as simple as possible to set up, use, and understand.
 
 ## Contributing
