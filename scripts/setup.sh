@@ -19,9 +19,10 @@ python3 --version
 # update pip
 pip install --upgrade pip
 
-# should we use requirements.txt?
-pip install autopep8 pyactr pylint requests
+# install required packages
+pip install -r scripts/requirements.txt
 
+# run our own script to download and install non-pip-compatible things
 cd ./env
 python3 ../scripts/getImplementations.py
 if [ $? -eq 0 ]; then

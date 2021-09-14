@@ -5,7 +5,6 @@ import requests
 import shutil
 import subprocess
 import sys
-import zipfile
 
 # I am not a python person! I'm using python rather than shell script for portability
 # and so we don't require more tools to be installed.
