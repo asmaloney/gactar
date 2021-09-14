@@ -76,22 +76,25 @@ def downloadCCM():
 def downloadVanilla():
     print('Downloading and installing Vanilla ACT-R...')
 
-    url = 'https://github.com/asmaloney/ACT-R/archive/refs/tags/v7.21.6.tar.gz'
-    unpackedDir = 'ACT-R-7.21.6'
+    url = 'https://github.com/asmaloney/ACT-R/releases/download/v7.21.6/actr-super-slim-v7.21.6.zip'
+    unpackedDir = 'actr-super-slim-v7.21.6'
     targetDir = 'actr'
 
     # remove old files if they exists for some reason
     removeDir(unpackedDir)
     removeDir(targetDir)
 
+    # create dir and change to it
+    os.mkdir(targetDir)
+    os.chdir(targetDir)
+
     # get the ACT-R files
     zipFile = download_url(url)
     unpackFile(zipFile)
 
-    os.rename(unpackedDir, targetDir)
-
     # clean up
     removeFile(zipFile)
+    os.chdir('..')
 
 
 def downloadSBCL():
