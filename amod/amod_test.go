@@ -10,6 +10,7 @@ func TestModelExamples(t *testing.T) {
 	name: Test
 	examples { [foo: bar] }
 	==config==
+	==init==
 	==productions==`
 
 	_, err := GenerateModel(src)
@@ -23,6 +24,7 @@ func TestModelExamples(t *testing.T) {
 	examples { [foo: bar] }
 	==config==
 	chunks { [foo: thing] }
+	==init==
 	==productions==`
 
 	_, err = GenerateModel(src)
@@ -37,6 +39,7 @@ func TestGACATRUnrecognizedField(t *testing.T) {
 	name: Test
 	==config==
 	gactar { foo: bar }
+	==init==
 	==productions==`
 
 	_, err := GenerateModel(src)
@@ -51,6 +54,7 @@ func TestChunkReservedName(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [_internal: foo bar] }
+	==init==
 	==productions==`
 
 	_, err := GenerateModel(src)
@@ -64,6 +68,7 @@ func TestChunkReservedName(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [goal: foo bar] }
+	==init==
 	==productions==`
 
 	_, err = GenerateModel(src)
@@ -81,6 +86,7 @@ func TestChunkDuplicateName(t *testing.T) {
     	[something: foo bar]
     	[something: foo bar]
 	}
+	==init==
 	==productions==`
 
 	_, err := GenerateModel(src)
@@ -97,6 +103,7 @@ func TestModules(t *testing.T) {
 	modules {
 		imaginal { delay: 0.2 }
 	}
+	==init==
 	==productions==`
 
 	_, err := GenerateModel(src)
@@ -111,6 +118,7 @@ func TestModules(t *testing.T) {
 	modules {
 		foo { delay: 0.2 }
 	}
+	==init==
 	==productions==`
 
 	_, err = GenerateModel(src)
@@ -128,6 +136,7 @@ func TestImaginalFields(t *testing.T) {
 		imaginal { delay: 0.2 }
 		memory { latency: 0.5 }
 	}
+	==init==
 	==productions==`
 
 	_, err := GenerateModel(src)
@@ -142,6 +151,7 @@ func TestImaginalFields(t *testing.T) {
 	modules {
 		imaginal { delay: "gack" }
 	}
+	==init==
 	==productions==`
 
 	_, err = GenerateModel(src)
@@ -156,6 +166,7 @@ func TestImaginalFields(t *testing.T) {
 	modules {
 		imaginal { delay: -0.5 }
 	}
+	==init==
 	==productions==`
 
 	_, err = GenerateModel(src)
@@ -170,6 +181,7 @@ func TestImaginalFields(t *testing.T) {
 	modules {
 		imaginal { foo: bar }
 	}
+	==init==
 	==productions==`
 
 	_, err = GenerateModel(src)
@@ -186,6 +198,7 @@ func TestMemoryUnrecognizedField(t *testing.T) {
 	modules {
 		memory { foo: bar }
 	}
+	==init==
 	==productions==`
 
 	_, err := GenerateModel(src)
@@ -338,6 +351,7 @@ func TestProductionClearStatement(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [foo: thing] }
+	==init==
 	==productions==
 	start {
 		match { goal [foo: blat] }
@@ -346,7 +360,7 @@ func TestProductionClearStatement(t *testing.T) {
 
 	_, err := GenerateModel(src)
 
-	expected := "buffer 'some_buffer' not found in production 'start' (line 9)"
+	expected := "buffer 'some_buffer' not found in production 'start' (line 10)"
 	checkExpectedError(err, expected, t)
 
 	src = `
@@ -354,6 +368,7 @@ func TestProductionClearStatement(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [foo: thing] }
+	==init==
 	==productions==
 	start {
 		match { goal [foo: blat] }
@@ -373,6 +388,7 @@ func TestProductionSetStatement(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [foo: thing] }
+	==init==
 	==productions==
 	start {
 		description: "This is a description"
@@ -391,6 +407,7 @@ func TestProductionSetStatement(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [foo: thing] }
+	==init==
 	==productions==
 	start {
 		match { goal [foo: ?blat] }
@@ -414,6 +431,7 @@ func TestProductionSetStatement(t *testing.T) {
 		[foo: thing]
 		[ack: knowledge]
 	}
+	==init==
 	==productions==
 	start {
 		match {
@@ -437,6 +455,7 @@ func TestProductionSetStatement(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [foo: thing] }
+	==init==
 	==productions==
 	start {
 		match { goal [foo: ?blat] }
@@ -444,7 +463,7 @@ func TestProductionSetStatement(t *testing.T) {
 	}`
 
 	_, err = GenerateModel(src)
-	expected := "set statement variable '?ding' not found in matches for production 'start' (line 9)"
+	expected := "set statement variable '?ding' not found in matches for production 'start' (line 10)"
 	checkExpectedError(err, expected, t)
 
 	// https://github.com/asmaloney/gactar/issues/28
@@ -453,6 +472,7 @@ func TestProductionSetStatement(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [foo: thing] }
+	==init==
 	==productions==
 	start {
 		match { goal [foo: blat] }
@@ -461,7 +481,7 @@ func TestProductionSetStatement(t *testing.T) {
 
 	_, err = GenerateModel(src)
 
-	expected = "buffer 'goal' must be set to a pattern in production 'start' (line 9)"
+	expected = "buffer 'goal' must be set to a pattern in production 'start' (line 10)"
 	checkExpectedError(err, expected, t)
 
 	// https://github.com/asmaloney/gactar/issues/17
@@ -470,6 +490,7 @@ func TestProductionSetStatement(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [foo: thing] }
+	==init==
 	==productions==
 	start {
 		match { goal [foo: blat] }
@@ -478,7 +499,7 @@ func TestProductionSetStatement(t *testing.T) {
 
 	_, err = GenerateModel(src)
 
-	expected = "cannot set a slot ('thing') to a pattern in match buffer 'goal' in production 'start' (line 9)"
+	expected = "cannot set a slot ('thing') to a pattern in match buffer 'goal' in production 'start' (line 10)"
 	checkExpectedError(err, expected, t)
 
 	src = `
@@ -486,6 +507,7 @@ func TestProductionSetStatement(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [foo: thing] }
+	==init==
 	==productions==
 	start {
 		match { goal [foo: blat] }
@@ -494,7 +516,7 @@ func TestProductionSetStatement(t *testing.T) {
 
 	_, err = GenerateModel(src)
 
-	expected = `9:22: unexpected token "blat" (expected (SetValue | Pattern))`
+	expected = `10:22: unexpected token "blat" (expected (SetValue | Pattern))`
 	checkExpectedError(err, expected, t)
 }
 
@@ -504,6 +526,7 @@ func TestProductionRecallStatement(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [foo: thing] }
+	==init==
 	==productions==
 	start {
 		match { goal [foo: blat] }
@@ -512,7 +535,7 @@ func TestProductionRecallStatement(t *testing.T) {
 
 	_, err := GenerateModel(src)
 
-	expected := "recall statement variable '?next' not found in matches for production 'start' (line 9)"
+	expected := "recall statement variable '?next' not found in matches for production 'start' (line 10)"
 	checkExpectedError(err, expected, t)
 
 	src = `
@@ -520,6 +543,7 @@ func TestProductionRecallStatement(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [foo: thing1 thing2] }
+	==init==
 	==productions==
 	start {
 		match { goal [foo: ?next ?other] }
@@ -538,6 +562,7 @@ func TestProductionMultipleStatement(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [foo: thing1 thing2] }
+	==init==
 	==productions==
 	start {
 		match { goal [foo: ?next ?other] }
@@ -558,6 +583,7 @@ func TestProductionChunkNotFound(t *testing.T) {
 	==model==
 	name: Test
 	==config==
+	==init==
 	==productions==
 	start {
 		match { goal [foo: error] }
@@ -566,7 +592,7 @@ func TestProductionChunkNotFound(t *testing.T) {
 
 	_, err := GenerateModel(src)
 
-	expected := "could not find chunk named 'foo' (line 7)"
+	expected := "could not find chunk named 'foo' (line 8)"
 	checkExpectedError(err, expected, t)
 }
 
@@ -576,6 +602,7 @@ func TestProductionPrintStatement(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [foo: thing1 thing2] }
+	==init==
 	==productions==
 	start {
 		match { goal [foo: ?next ?other] }
@@ -593,6 +620,7 @@ func TestProductionPrintStatement(t *testing.T) {
 	name: Test
 	==config==
 	chunks { [foo: thing1 thing2] }
+	==init==
 	==productions==
 	start {
 		match {
@@ -612,6 +640,7 @@ func TestProductionPrintStatement(t *testing.T) {
 	==model==
 	name: Test
 	==config==
+	==init==
 	==productions==
 	start {
 		match { memory [_status: error] }
@@ -627,6 +656,7 @@ func TestProductionPrintStatement(t *testing.T) {
 	==model==
 	name: Test
 	==config==
+	==init==
 	==productions==
 	start {
 		match { memory [_status: error] }
@@ -634,13 +664,14 @@ func TestProductionPrintStatement(t *testing.T) {
 	}`
 
 	_, err = GenerateModel(src)
-	expected := "cannot use ID 'fooID' in print statement (line 8)"
+	expected := "cannot use ID 'fooID' in print statement (line 9)"
 	checkExpectedError(err, expected, t)
 
 	src = `
 	==model==
 	name: Test
 	==config==
+	==init==
 	==productions==
 	start {
 		match { memory [_status: error] }
@@ -648,7 +679,7 @@ func TestProductionPrintStatement(t *testing.T) {
 	}`
 
 	_, err = GenerateModel(src)
-	expected = "print statement variable '?fooVar' not found in matches for production 'start' (line 8)"
+	expected = "print statement variable '?fooVar' not found in matches for production 'start' (line 9)"
 	checkExpectedError(err, expected, t)
 }
 
@@ -657,6 +688,7 @@ func TestProductionMatchInternal(t *testing.T) {
 	==model==
 	name: Test
 	==config==
+	==init==
 	==productions==
 	start {
 		match { memory [_status: error] }
@@ -672,6 +704,7 @@ func TestProductionMatchInternal(t *testing.T) {
 	==model==
 	name: Test
 	==config==
+	==init==
 	==productions==
 	start {
 		match { memory [_status: busy error] }
@@ -679,13 +712,14 @@ func TestProductionMatchInternal(t *testing.T) {
 	}`
 
 	_, err = GenerateModel(src)
-	expected := "_status should only have one slot for 'memory' in production 'start' (should be 'busy', 'free', or 'error') (line 7)"
+	expected := "_status should only have one slot for 'memory' in production 'start' (should be 'busy', 'free', or 'error') (line 8)"
 	checkExpectedError(err, expected, t)
 
 	src = `
 	==model==
 	name: Test
 	==config==
+	==init==
 	==productions==
 	start {
 		match { goal [_status: something] }
@@ -693,13 +727,14 @@ func TestProductionMatchInternal(t *testing.T) {
 	}`
 
 	_, err = GenerateModel(src)
-	expected = "invalid _status 'something' for 'goal' in production 'start' (should be 'full' or 'empty') (line 7)"
+	expected = "invalid _status 'something' for 'goal' in production 'start' (should be 'full' or 'empty') (line 8)"
 	checkExpectedError(err, expected, t)
 
 	src = `
 	==model==
 	name: Test
 	==config==
+	==init==
 	==productions==
 	start {
 		match { memory [_status: something] }
@@ -707,7 +742,7 @@ func TestProductionMatchInternal(t *testing.T) {
 	}`
 
 	_, err = GenerateModel(src)
-	expected = "invalid _status 'something' for 'memory' in production 'start' (should be 'busy', 'free', or 'error') (line 7)"
+	expected = "invalid _status 'something' for 'memory' in production 'start' (should be 'busy', 'free', or 'error') (line 8)"
 	checkExpectedError(err, expected, t)
 }
 

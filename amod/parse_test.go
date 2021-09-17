@@ -10,6 +10,7 @@ func TestMinimumModel(t *testing.T) {
 	==model==
 	name: Test
 	==config==
+	==init==
 	==productions==`
 
 	_, err := parse(strings.NewReader(src))

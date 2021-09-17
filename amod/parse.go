@@ -27,7 +27,7 @@ import (
 type amodFile struct {
 	Model       *modelSection      `parser:"'==model==' @@"`
 	Config      *configSection     `parser:"'==config==' (@@)?"`
-	Init        *initSection       `parser:"('==init==' (@@)?)?"`
+	Init        *initSection       `parser:"'==init==' (@@)?"`
 	Productions *productionSection `parser:"'==productions==' (@@)?"`
 
 	Pos lexer.Position
@@ -36,7 +36,7 @@ type amodFile struct {
 type modelSection struct {
 	Name        string     `parser:"'name' ':' (@String|@Ident)"`
 	Description string     `parser:"('description' ':' @String)?"`
-	Examples    []*pattern `parser:"('examples' '{' @@+ '}')?"`
+	Examples    []*pattern `parser:"('examples' '{' @@* '}')?"`
 
 	Pos lexer.Position
 }
@@ -103,9 +103,9 @@ type module struct {
 }
 
 type configSection struct {
-	GACTAR     []*field     `parser:"('gactar' '{' @@+ '}')?"`
+	GACTAR     []*field     `parser:"('gactar' '{' @@* '}')?"`
 	Modules    []*module    `parser:"('modules' '{' @@* '}')?"`
-	ChunkDecls []*chunkDecl `parser:"('chunks' '{' @@+ '}')?"`
+	ChunkDecls []*chunkDecl `parser:"('chunks' '{' @@* '}')?"`
 
 	Pos lexer.Position
 }

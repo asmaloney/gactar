@@ -360,6 +360,71 @@ The results (and any errors) will be shown on the right and the generated code t
 
 ## amod File Format
 
+This is the EBNF ([Extended Backus–Naur form](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form)) grammar for the amod file format:
+
+```
+AmodFile ::= '==model==' ModelSection '==config==' ConfigSection? '==init==' InitSection? '==productions==' ProductionSection?
+
+ModelSection ::= 'name' ':' ( string | ident ) ( 'description' ':' string )? ( 'examples' '{' Pattern* '}' )?
+
+Pattern ::= '[' ident ':' PatternSlot+ ']'
+
+PatternSlot ::= patternspace? PatternSlotItem+ patternspace?
+
+PatternSlotItem ::= '!'? ( 'nil' | ident | number | patternvar )
+
+ConfigSection ::= ( 'gactar' '{' Field* '}' )? ( 'modules' '{' Module* '}' )? ( 'chunks' '{' ChunkDecl* '}' )?
+
+Field ::= ident ':' FieldValue ','?
+
+FieldValue ::= ident
+            | string
+            | number
+
+Module ::= ident '{' Field* '}'
+
+ChunkDecl ::= '[' ident ':' ChunkSlot+ ']'
+
+ChunkSlot ::= patternspace? ident patternspace?
+
+InitSection ::= Initialization*
+
+Initialization ::= ident ( Pattern | '{' Pattern+ '}' )
+
+ProductionSection ::= Production+
+
+Production ::= ident '{' ( 'description' ':' string )? Match Do '}'
+
+Match ::= 'match' '{' MatchItem+ '}'
+
+MatchItem ::= ident Pattern
+
+Do ::= 'do' '{' Statement+ '}'
+
+Statement ::= ClearStatement
+            | PrintStatement
+            | RecallStatement
+            | SetStatement
+
+ClearStatement ::= 'clear' ( ident ','? )+
+
+PrintStatement ::= 'print' ( Arg ','? )*
+
+Arg ::= patternvar
+        | ident
+        | string
+        | number
+
+RecallStatement ::= 'recall' Pattern
+
+SetStatement ::= 'set' ident ( '.' ident )? 'to' ( SetValue | Pattern )
+
+SetValue ::= 'nil'
+            | patternvar
+            | string
+            | number
+```
+
 Here is an example of the file format:
 
 ```
