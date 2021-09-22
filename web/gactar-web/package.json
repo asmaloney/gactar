@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "buefy": "~0.9.10",
-    "core-js": "^3.17.3",
-    "codemirror": "^5.62.3",
+    "core-js": "^3.18.0",
+    "codemirror": "^5.63.0",
     "vue": "^2.6.11"
   },
   "devDependencies": {
@@ -28,13 +28,13 @@
     "axios": "^0.21.4",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.8.0",
-    "eslint-plugin-html": "~6.1.2",
+    "eslint-plugin-html": "^6.2.0",
     "eslint-plugin-prettier": "^3.3.1",
-    "eslint-plugin-vue": "^7.17.0",
-    "prettier": "^2.4.0",
-    "sass": "^1.39.2",
+    "eslint-plugin-vue": "^7.18.0",
+    "prettier": "^2.4.1",
+    "sass": "^1.42.0",
     "sass-loader": "^10.2.0",
-    "vue-axios": "^3.3.6",
+    "vue-axios": "^3.3.7",
     "vue-template-compiler": "^2.6.11"
   },
   "prettier": {
