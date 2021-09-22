@@ -1,6 +1,6 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/asmaloney/gactar)](https://github.com/asmaloney/gactar/releases/latest) ![Build](https://github.com/asmaloney/gactar/actions/workflows/build.yaml/badge.svg) [![GitHub](https://img.shields.io/github/license/asmaloney/gactar)](LICENSE)
 
-# ![gactar logo](doc/images/logo/gactar.svg) gactar
+# ![gactar logo](images/logo/gactar-logo.svg) gactar
 
 `gactar` is a tool for creating and running [ACT-R](https://en.wikipedia.org/wiki/ACT-R) models using a declarative file format called _amod_.
 
@@ -98,7 +98,7 @@ If there is sufficient interest in this project, my strategy going forward would
 ## Design Goals
 
 1. amod syntax & semantics should be designed for humans to read & understand (i.e. it should not require a programming background to grok).
-1. amod should only provide one way to do something - this helps when reading someone else's code and keeps the parser as simple as possible.
+1. amod should only provide one way to perform each action - this helps when reading someone else's code and keeps the parser as simple as possible.
 1. amod should only include functionality which is available on all implementation frameworks.
 1. gactar should be as simple as possible to set up, use, and understand.
 
@@ -209,45 +209,47 @@ These examples assume you have set up your virtual environment properly. See [se
 
 ### Write Generated Code To Files
 
+This will generate code for all active frameworks in the directory you are running from. It does not run the models.
+
 ```
 (env)$ ./gactar examples/count.amod
 gactar version v0.1.0
-ccm: Using Python 3.9.7 from /Users/maloney/dev/CogSci/gactar/env/bin/python3
+ccm: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
 	- Generating code for examples/count.amod
 	- written to ccm_count.py
-pyactr: Using Python 3.9.7 from /Users/maloney/dev/CogSci/gactar/env/bin/python3
+pyactr: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
 	- Generating code for examples/count.amod
 	- written to pyactr_count.py
-vanilla: Using SBCL 1.2.11 from /Users/maloney/dev/CogSci/gactar/env/bin/sbcl
+vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
 	- Generating code for examples/count.amod
 	- written to vanilla_count.lisp
 ```
-
-This will generate code for all active frameworks in the directory you are running from.
 
 You can choose which frameworks to use with `-f` like this:
 
 ```
 ./gactar -f ccm -f vanilla examples/count.amod
 gactar version v0.1.0
-ccm: Using Python 3.9.7 from /Users/maloney/dev/CogSci/gactar/env/bin/python3
+ccm: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
 	- Generating code for examples/count.amod
 	- written to ccm_count.py
-vanilla: Using SBCL 1.2.11 from /Users/maloney/dev/CogSci/gactar/env/bin/sbcl
+vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
 	- Generating code for examples/count.amod
 	- written to vanilla_count.lisp
 ```
 
 ### Run Interactively
 
+gactar provides a simple interactive command-line mode to load and run models.
+
 ```
 (env)$ ./gactar -i
 gactar version v0.1.0
 Type 'help' for a list of commands.
 To exit, type 'exit' or 'quit'.
-pyactr: Using Python 3.9.7 from /Users/maloney/dev/CogSci/gactar/env/bin/python3
-vanilla: Using SBCL 1.2.11 from /Users/maloney/dev/CogSci/gactar/env/bin/sbcl
-ccm: Using Python 3.9.7 from /Users/maloney/dev/CogSci/gactar/env/bin/python3
+pyactr: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
+vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
+ccm: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
 > help
   exit:        exits the program
   frameworks:  choose frameworks to run (e.g. "ccm pyactr", "all")
@@ -265,7 +267,7 @@ ccm: Using Python 3.9.7 from /Users/maloney/dev/CogSci/gactar/env/bin/python3
        run [countFrom: 1 7 starting]
 > frameworks ccm
 active frameworks: ccm
-> run [countFrom: 2 5 starting]
+> run [countFrom: 2 4 starting]
    0.000 production_match_delay 0
    0.000 production_threshold None
    0.000 production_time 0.05
@@ -279,35 +281,28 @@ active frameworks: ccm
    0.000 retrieval.chunk None
    0.050 production None
    0.050 memory.busy True
-   0.050 goal.chunk countFrom 2 5 counting
+   0.050 goal.chunk countFrom 2 4 counting
    0.100 retrieval.chunk count 2 3
    0.100 memory.busy False
    0.100 production increment
    0.150 production None
 2
    0.150 memory.busy True
-   0.150 goal.chunk countFrom 3 5 counting
+   0.150 goal.chunk countFrom 3 4 counting
    0.200 retrieval.chunk count 3 4
    0.200 memory.busy False
    0.200 production increment
    0.250 production None
 3
    0.250 memory.busy True
-   0.250 goal.chunk countFrom 4 5 counting
+   0.250 goal.chunk countFrom 4 4 counting
+   0.250 production stop
    0.300 retrieval.chunk count 4 5
    0.300 memory.busy False
-   0.300 production increment
-   0.350 production None
+   0.300 production None
 4
-   0.350 memory.busy True
-   0.350 goal.chunk countFrom 5 5 counting
-   0.350 production stop
-   0.400 retrieval.chunk count 5 6
-   0.400 memory.busy False
-   0.400 production None
-5
-   0.400 goal.chunk None
-Total time:    3.350
+   0.300 goal.chunk None
+Total time:    3.250
  goal.chunk None
  memory.busy False
  memory.error False
@@ -320,7 +315,7 @@ Total time:    3.350
  production_threshold None
  production_time 0.05
  production_time_sd None
- retrieval.chunk count 5 6
+ retrieval.chunk count 4 5
 end...
 > exit
 ```
@@ -335,6 +330,8 @@ Specifying frameworks on the command line will limit you to selecting those fram
 
 ### Run As Web Server
 
+gactar includes a web server and will use your browser as a user interface.
+
 ```
 (env)$ ./gactar -w
 ccm: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
@@ -343,16 +340,16 @@ vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
 Serving gactar on http://localhost:8181
 ```
 
-Open `http://localhost:8181` in your browser. You can run the default example simply by clicking **Run**. You can also:
+Opening `http://localhost:8181` in your browser will let you load, edit, and save amod files, and run them on the implementation frameworks. The initial page already has an example model loaded, so you can run it by clicking **Run**. You can also:
 
 - select another example using the **Load Example** button
 - modify the amod code in the editor
 - **Save** the amod code to a file
 - **Load** the amod code from a file
-- set a **Goal** to override the default goal in the examples
+- set a **Goal** to override the default goal in the _amod_ file
 - once it's been run, browse the generated code using the tabs at the top of the code editor
 
-![gactar Web Interface](doc/images/gactar-web.png)
+![gactar Web Interface](images/gactar-web.png)
 
 The results (and any errors) will be shown on the right and the generated code that was used to run the model on each framework is shown in the editor tabs.
 
@@ -425,7 +422,7 @@ SetValue ::= 'nil'
             | number
 ```
 
-Here is an example of the file format:
+Here is an example of the amod file format:
 
 ```
 ==model==
@@ -510,9 +507,27 @@ stop {
 
 You can find other examples of `amod` files in the [examples folder](examples).
 
-### Special Chunks
+### Chunks
 
-User-defined chunks must not begin with '\_' or be named `goal`, `retrieval`, or `memory` - these are reserved for internal use. Currently there is one internal chunk - _\_status_ - which is used to check the status of buffers and memory.
+Each chunk is declared in the _config_ section. Chunks are delineated by square brackets. The first item is the chunk name and the items after the colon are the slot names:
+
+```
+[chunk_name: slot_name1 slot_name2 ...]
+```
+
+<div class="page"></div>
+
+Examples:
+
+```
+[count: first second]
+[word: form category]
+[property: object attribute value]
+```
+
+#### Special Chunks
+
+User-defined chunks must not begin with '\_' or be named `goal`, `retrieval`, or `memory` - these are reserved for internal use. Currently there is one internal chunk - `_status` - which is used to check the status of buffers and memory.
 
 It is used in a `match` as follows:
 
@@ -527,11 +542,41 @@ For buffers, the valid statuses are `full` and `empty`.
 
 For memory, valid statuses are `busy`, `free`, `error`.
 
-### Pattern Syntax
+### Productions
 
-The _match_ section matches _patterns_ to buffers. Patterns are delineated by square brackets - e.g. `[property: ?obj category ?cat]`. The first item is the chunk name and the items after the colon are the slots. These are parsed to ensure their format is consistent with _chunks_ which are declared in the _config_ section.
+#### match
 
-The _do_ section in the productions uses a small language which currently understands the following commands:
+The _match_ section matches buffers by _pattern_. These patterns match the chunks previously declared in the _config_ section and are parsed to ensure their format is consistent. The syntax of these patterns is inspired by&mdash;but not the same as&mdash;the _ccm_ implementation of ACT-R.
+
+Variables in production matches are preceded by `?` (e.g. `?object`). On its own `?` denotes a wildcard (i.e. "match anything"). Using `!` negates the logic.
+
+#### Example #1:
+
+```
+retrieval [count: ?x ?next]
+```
+
+This matches the `retrieval` buffer if it contains a `count` chunk, and assigns the contents to the two variables `?x` and `?next`.
+
+#### Example #2:
+
+```
+goal [countFrom: ?x !?x counting]
+```
+
+This matches the `goal` buffer if it contains a `countFrom` chunk, the first two slots do not contain the same value, and the third slot contains `counting`. It assigns `?x` the contents of the first slot.
+
+#### Example #3:
+
+```
+goal [add: ? ?num2 ?count!?num2 ?sum]
+```
+
+This matches the `goal` buffer if it contains an `add` chunk, the first slot is any value, and the third slot is not the same value as the second. It assigns `?num2` the contents of the second slot, `?count` the value of the third, and `?sum` the value of the fourth.
+
+#### do
+
+The _do_ section in the productions tells the system what actions to take if the buffers match. It uses a small language which currently understands the following commands:
 
 | command                                                                  | example                                 |
 | ------------------------------------------------------------------------ | --------------------------------------- |
@@ -541,8 +586,44 @@ The _do_ section in the productions uses a small language which currently unders
 | **set** _(buffer name)_._(slot name)_ **to** _(string or var or number)_ | **set** goal.wall_colour **to** ?colour |
 | **set** _(buffer name)_ **to** _(pattern)_                               | **set** goal **to** [start: 6 nil]      |
 
-## Processing
+### Example Production #1
 
-This diagram shows how an amod file is processed by gactar. The partial paths at the bottom of the items is the path to the source code responsible for that part of the processing.
+```
+increment {
+    match {
+        goal [countFrom: ?x !?x counting]
+        retrieval [count: ?x ?next]
+    }
+    do {
+        print ?x
+        recall [count: ?next ?]
+        set goal.start to ?next
+    }
+}
+```
 
-![How gactar processes an amod file](doc/images/gactar.svg)
+This production is called `increment`. It attempts to match the `goal` buffer to a `countFrom` chunk, and the `retrieval` buffer to a `count` chunk. If they match, then it will `print` the contents of the `?x` variable, lookup a `count` chunk in memory and set the `retrieval` buffer to it, and `set` the `start` slot of the `goal` buffer to the contents of the variable `?next`.
+
+### Example Production #2
+
+```
+done {
+    match {
+        goal [parsing_goal: ? ? ?parsed printing]
+        imaginal [sentence: nil ? ?]
+    }
+    do {
+        print ?parsed
+        set goal.task to 'done'
+        clear imaginal, goal
+    }
+}
+```
+
+This production is called `done`. It attempts to match the `goal` buffer to a `parsing_goal` chunk, and the `imaginal` buffer to a `sentence` chunk. If they match, then it will `print` the contents of the `?parsed` variable, `set` the `task` slot of the `goal` buffer to `'done'`, and clear both the `imaginal` and `goal` buffers.
+
+## amod Processing
+
+The following diagram shows how an _amod_ file is processed by gactar. The partial paths at the bottom of the items is the path to the source code responsible for that part of the processing.
+
+![How gactar processes an amod file](images/gactar-processing.svg)
