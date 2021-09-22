@@ -30,17 +30,13 @@
             file-extension="amod"
           />
 
-          <b-field class="file is-info">
-            <b-upload
-              v-model="fileToLoad"
-              class="file-label is-outlined"
-              accept=".amod,text/plain"
-            >
-              <b-button type="is-info is-light ml-2">
-                <span class="fa fa-file-upload icon-space" />
+          <b-field class="file">
+            <b-button type="upload is-info is-light is-outlined ml-2">
+              <span class="fa fa-file-upload icon-space" />
+              <b-upload v-model="fileToLoad" accept=".amod,text/plain">
                 Load
-              </b-button>
-            </b-upload>
+              </b-upload>
+            </b-button>
           </b-field>
         </b-field>
       </div>

@@ -82,6 +82,11 @@ textarea#results {
     button.is-light {
       border-color: $button-border-color;
     }
+    // b-upload creates a bunch of things which means we need to target the label specifically
+    label.upload.control {
+      font-size: inherit;
+      margin: 0;
+    }
   }
 }
 
