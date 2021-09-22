@@ -1,7 +1,7 @@
 <template>
   <span>
     <h1>
-      <img src="/images/gactar.svg" />
+      <img src="/images/gactar-logo.svg" />
       gactar-web
       <span v-if="version" class="version-number">
         &nbsp;(<a href="https://github.com/asmaloney/gactar" target="_">{{
