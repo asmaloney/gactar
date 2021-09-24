@@ -61,20 +61,6 @@ func TestChunkReservedName(t *testing.T) {
 
 	expected := "cannot use reserved chunk name '_internal' (chunks begining with '_' are reserved) (line 5)"
 	checkExpectedError(err, expected, t)
-
-	// https://github.com/asmaloney/gactar/issues/23
-	src = `
-	==model==
-	name: Test
-	==config==
-	chunks { [goal: foo bar] }
-	==init==
-	==productions==`
-
-	_, err = GenerateModel(src)
-
-	expected = "cannot use reserved chunk name 'goal' (line 5)"
-	checkExpectedError(err, expected, t)
 }
 
 func TestChunkDuplicateName(t *testing.T) {

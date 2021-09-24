@@ -5,15 +5,6 @@ import (
 	"strings"
 )
 
-// User cannot create chunks with these names. Perhaps needs to be expanded with other keywords?
-var reservedChunkNames = map[string]bool{
-	"_status":   true,
-	"goal":      true,
-	"imaginal":  true,
-	"memory":    true,
-	"retrieval": true,
-}
-
 type Chunk struct {
 	Name      string
 	SlotNames []string
@@ -24,11 +15,6 @@ type Chunk struct {
 
 func IsInternalChunkName(name string) bool {
 	return name[0] == '_'
-}
-
-func ReservedChunkNameExists(name string) bool {
-	v, ok := reservedChunkNames[name]
-	return v && ok
 }
 
 // LookupChunk looks up the named chunk in the model and returns it (or nil if it does not exist).

@@ -14,11 +14,6 @@ func validateChunk(model *actr.Model, chunk *chunkDecl) (err error) {
 		return errs
 	}
 
-	if actr.ReservedChunkNameExists(chunk.Name) {
-		errs.Addc(&chunk.Pos, "cannot use reserved chunk name '%s'", chunk.Name)
-		return errs
-	}
-
 	c := model.LookupChunk(chunk.Name)
 	if c != nil {
 		errs.Addc(&chunk.Pos, "duplicate chunk name: '%s'", chunk.Name)
