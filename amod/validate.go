@@ -90,8 +90,8 @@ func validateMatch(match *match, model *actr.Model, production *actr.Production)
 
 		buffer := model.LookupBuffer(name)
 
-		if (buffer == nil) && (name != "memory") {
-			errs.Addc(&item.Pos, "buffer or memory '%s' not found in production '%s'", name, production.Name)
+		if buffer == nil {
+			errs.Addc(&item.Pos, "buffer '%s' not found in production '%s'", name, production.Name)
 			continue
 		}
 

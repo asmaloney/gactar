@@ -327,7 +327,7 @@ func TestProductionInvalidMemory(t *testing.T) {
 
 	_, err := GenerateModel(src)
 
-	expected := "buffer or memory 'another_goal' not found in production 'start' (line 8)"
+	expected := "buffer 'another_goal' not found in production 'start' (line 8)"
 	checkExpectedError(err, expected, t)
 }
 
@@ -611,7 +611,7 @@ func TestProductionPrintStatement(t *testing.T) {
 	start {
 		match {
 			goal [foo: ?next ?other]
-			memory [foo: ?next1 ?other1]
+			retrieval [foo: ?next1 ?other1]
 		}
 		do { print 42, ?other, ?other1, "blat" }
 	}`
@@ -629,7 +629,7 @@ func TestProductionPrintStatement(t *testing.T) {
 	==init==
 	==productions==
 	start {
-		match { memory [_status: error] }
+		match { retrieval [_status: error] }
 		do { print }
 	}`
 
@@ -645,7 +645,7 @@ func TestProductionPrintStatement(t *testing.T) {
 	==init==
 	==productions==
 	start {
-		match { memory [_status: error] }
+		match { retrieval [_status: error] }
 		do { print fooID }
 	}`
 
@@ -660,7 +660,7 @@ func TestProductionPrintStatement(t *testing.T) {
 	==init==
 	==productions==
 	start {
-		match { memory [_status: error] }
+		match { retrieval [_status: error] }
 		do { print ?fooVar }
 	}`
 
@@ -677,7 +677,7 @@ func TestProductionMatchInternal(t *testing.T) {
 	==init==
 	==productions==
 	start {
-		match { memory [_status: error] }
+		match { retrieval [_status: error] }
 		do { print 42 }
 	}`
 
@@ -693,12 +693,12 @@ func TestProductionMatchInternal(t *testing.T) {
 	==init==
 	==productions==
 	start {
-		match { memory [_status: busy error] }
+		match { retrieval [_status: busy error] }
 		do { print 42 }
 	}`
 
 	_, err = GenerateModel(src)
-	expected := "_status should only have one slot for 'memory' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8)"
+	expected := "_status should only have one slot for 'retrieval' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8)"
 	checkExpectedError(err, expected, t)
 
 	src = `
@@ -723,12 +723,12 @@ func TestProductionMatchInternal(t *testing.T) {
 	==init==
 	==productions==
 	start {
-		match { memory [_status: something] }
+		match { retrieval [_status: something] }
 		do { print 42 }
 	}`
 
 	_, err = GenerateModel(src)
-	expected = "invalid _status 'something' for 'memory' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8)"
+	expected = "invalid _status 'something' for 'retrieval' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8)"
 	checkExpectedError(err, expected, t)
 }
 
