@@ -550,7 +550,7 @@ It is used in a `match` as follows:
 ```
 match {
     goal [_status: full]
-    memory [_status: error]
+    retrieval [_status: error]
 }
 ```
 
