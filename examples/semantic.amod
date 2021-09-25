@@ -82,7 +82,7 @@ chainCategory {
 fail {
     match {
         goal [isMember: ? ? pending]
-        memory [_status: error]
+        retrieval [_status: error]
     }
     do {
         set goal.judgment to 'no'

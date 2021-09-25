@@ -275,14 +275,15 @@ func (c *CCMPyACTR) outputMatch(match *actr.Match) {
 	var name string
 	if match.Buffer != nil {
 		name = match.Buffer.GetName()
-	} else if match.Memory != nil {
-		name = match.Memory.Name
 	}
 
 	chunkName := match.Pattern.Chunk.Name
 	if actr.IsInternalChunkName(chunkName) {
 		if chunkName == "_status" {
 			status := match.Pattern.Slots[0]
+			if name == "retrieval" {
+				name = "memory"
+			}
 			c.Write("%s='%s:True'", name, status)
 		}
 	} else {

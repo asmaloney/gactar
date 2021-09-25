@@ -13,9 +13,7 @@ type Production struct {
 }
 
 type Match struct {
-	Buffer BufferInterface // buffer
-	Memory *Memory         // OR memory
-
+	Buffer  BufferInterface
 	Pattern *Pattern
 }
 

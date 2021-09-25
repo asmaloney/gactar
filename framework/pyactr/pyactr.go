@@ -272,34 +272,24 @@ func (p *PyACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 }
 
 func (p *PyACTR) outputMatch(match *actr.Match) {
-	if match.Buffer != nil {
-		bufferName := match.Buffer.GetName()
-		chunkName := match.Pattern.Chunk.Name
+	bufferName := match.Buffer.GetName()
+	chunkName := match.Pattern.Chunk.Name
 
-		if actr.IsInternalChunkName(chunkName) {
-			if chunkName == "_status" {
-				status := match.Pattern.Slots[0]
-				p.Writeln("\t?%s>", bufferName)
+	if actr.IsInternalChunkName(chunkName) {
+		if chunkName == "_status" {
+			status := match.Pattern.Slots[0]
+			p.Writeln("\t?%s>", bufferName)
+
+			// Table 2.1 page 24 of pyactr book
+			if status.String() == "full" || status.String() == "empty" {
 				p.Writeln("\t\tbuffer %s", status)
-			}
-		} else {
-			p.Writeln("\t=%s>", bufferName)
-			p.outputPattern(match.Pattern, 2)
-		}
-	} else if match.Memory != nil {
-		bufferName := "retrieval"
-
-		chunkName := match.Pattern.Chunk.Name
-		if actr.IsInternalChunkName(chunkName) {
-			if chunkName == "_status" {
-				status := match.Pattern.Slots[0]
-				p.Writeln("\t?%s>", bufferName)
+			} else {
 				p.Writeln("\t\tstate %s", status)
 			}
-		} else {
-			p.Writeln("\t=%s>", bufferName)
-			p.Writeln("\t\tisa\t%s", chunkName)
 		}
+	} else {
+		p.Writeln("\t=%s>", bufferName)
+		p.outputPattern(match.Pattern, 2)
 	}
 }
 

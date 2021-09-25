@@ -263,34 +263,23 @@ func (v *VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 }
 
 func (v *VanillaACTR) outputMatch(match *actr.Match) {
-	if match.Buffer != nil {
-		bufferName := match.Buffer.GetName()
-		chunkName := match.Pattern.Chunk.Name
+	bufferName := match.Buffer.GetName()
+	chunkName := match.Pattern.Chunk.Name
 
-		if actr.IsInternalChunkName(chunkName) {
-			if chunkName == "_status" {
-				status := match.Pattern.Slots[0]
-				v.Writeln("\t?%s>", bufferName)
+	if actr.IsInternalChunkName(chunkName) {
+		if chunkName == "_status" {
+			status := match.Pattern.Slots[0]
+			v.Writeln("\t?%s>", bufferName)
+
+			if status.String() == "full" || status.String() == "empty" {
 				v.Writeln("\t\tbuffer %s", status)
-			}
-		} else {
-			v.Writeln("\t=%s>", bufferName)
-			v.outputPattern(match.Pattern, 2)
-		}
-	} else if match.Memory != nil {
-		text := "retrieval"
-
-		chunkName := match.Pattern.Chunk.Name
-		if actr.IsInternalChunkName(chunkName) {
-			if chunkName == "_status" {
-				status := match.Pattern.Slots[0]
-				v.Writeln("\t?%s>", text)
+			} else {
 				v.Writeln("\t\tstate %s", status)
 			}
-		} else {
-			v.Writeln("\t=%s>", text)
-			v.Writeln("\t\tisa\t%s", chunkName)
 		}
+	} else {
+		v.Writeln("\t=%s>", bufferName)
+		v.outputPattern(match.Pattern, 2)
 	}
 }
 

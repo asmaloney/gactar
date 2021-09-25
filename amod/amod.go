@@ -390,7 +390,6 @@ func addProductions(model *actr.Model, productions *productionSection) (err erro
 
 			prod.Matches = append(prod.Matches, &actr.Match{
 				Buffer:  model.LookupBuffer(name),
-				Memory:  model.Memory,
 				Pattern: pattern,
 			})
 
