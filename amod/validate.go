@@ -102,29 +102,15 @@ func validateMatch(match *match, model *actr.Model, production *actr.Production)
 		}
 
 		// check _status chunks to ensure they have one of the allowed tests
-		if buffer != nil {
-			if pattern.ChunkName == "_status" {
-				if len(pattern.Slots) != 1 {
-					errs.Addc(&item.Pos, "_status should only have one slot for '%s' in production '%s' (should be 'full' or 'empty')", name, production.Name)
-				}
-
-				slot := *pattern.Slots[0].Items[0].ID
-
-				if slot != "full" && slot != "empty" {
-					errs.Addc(&item.Pos, "invalid _status '%s' for '%s' in production '%s' (should be 'full' or 'empty')", slot, name, production.Name)
-				}
+		if pattern.ChunkName == "_status" {
+			if len(pattern.Slots) != 1 {
+				errs.Addc(&item.Pos, "_status should only have one slot for '%s' in production '%s' (should be %s)", name, production.Name, actr.ValidBufferStatesStr())
 			}
-		} else { // it's memory
-			if pattern.ChunkName == "_status" {
-				if len(pattern.Slots) != 1 {
-					errs.Addc(&item.Pos, "_status should only have one slot for '%s' in production '%s' (should be 'busy', 'free', or 'error')", name, production.Name)
-				}
 
-				slot := *pattern.Slots[0].Items[0].ID
+			slot := *pattern.Slots[0].Items[0].ID
 
-				if slot != "busy" && slot != "free" && slot != "error" {
-					errs.Addc(&item.Pos, "invalid _status '%s' for '%s' in production '%s' (should be 'busy', 'free', or 'error')", slot, name, production.Name)
-				}
+			if !actr.IsValidBufferState(slot) {
+				errs.Addc(&item.Pos, "invalid _status '%s' for '%s' in production '%s' (should be %v)", slot, name, production.Name, actr.ValidBufferStatesStr())
 			}
 		}
 	}

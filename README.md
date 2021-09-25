@@ -527,7 +527,7 @@ Examples:
 
 #### Special Chunks
 
-User-defined chunks must not begin with '\_' or be named `goal`, `retrieval`, or `memory` - these are reserved for internal use. Currently there is one internal chunk - `_status` - which is used to check the status of buffers and memory.
+User-defined chunks must not begin with underscore ('\_') - these are reserved for internal use. Currently there is one internal chunk - `_status` - which is used to check the status of buffers.
 
 It is used in a `match` as follows:
 
@@ -538,9 +538,12 @@ match {
 }
 ```
 
-For buffers, the valid statuses are `full` and `empty`.
+Valid statuses include:
 
-For memory, valid statuses are `busy`, `free`, `error`.
+- `full` - the buffer contains a chunk
+- `empty` - the buffer does not contain a chunk
+- `busy` - the buffer is in the process of being filled
+- `error` - the last retrieval failed
 
 ### Productions
 

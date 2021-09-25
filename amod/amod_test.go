@@ -698,7 +698,7 @@ func TestProductionMatchInternal(t *testing.T) {
 	}`
 
 	_, err = GenerateModel(src)
-	expected := "_status should only have one slot for 'memory' in production 'start' (should be 'busy', 'free', or 'error') (line 8)"
+	expected := "_status should only have one slot for 'memory' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8)"
 	checkExpectedError(err, expected, t)
 
 	src = `
@@ -713,7 +713,7 @@ func TestProductionMatchInternal(t *testing.T) {
 	}`
 
 	_, err = GenerateModel(src)
-	expected = "invalid _status 'something' for 'goal' in production 'start' (should be 'full' or 'empty') (line 8)"
+	expected = "invalid _status 'something' for 'goal' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8)"
 	checkExpectedError(err, expected, t)
 
 	src = `
@@ -728,7 +728,7 @@ func TestProductionMatchInternal(t *testing.T) {
 	}`
 
 	_, err = GenerateModel(src)
-	expected = "invalid _status 'something' for 'memory' in production 'start' (should be 'busy', 'free', or 'error') (line 8)"
+	expected = "invalid _status 'something' for 'memory' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8)"
 	checkExpectedError(err, expected, t)
 }
 
