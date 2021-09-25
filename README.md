@@ -8,7 +8,7 @@
 
 **This is a proof-of-concept.**
 
-Currently, `gactar` will take an [_amod_ file](#amod-file-format) and generate code to run it on three different ACT-R implementations:
+Currently, `gactar` will take an [_amod_ file](#gactar-models) and generate code to run it on three different ACT-R implementations:
 
 - [CCM PyACTR](https://github.com/asmaloney/CCM-PyACTR) (python) - a.k.a. _"ccm"_
 - [pyactr](https://github.com/jakdot/pyactr) (python)
@@ -355,74 +355,11 @@ The results (and any errors) will be shown on the right and the generated code t
 
 **Important Note:** This web server is only intended to be run locally. It should not be used to expose gactar to the internet. Because we are running code, a lot more checking and validation of inputs would be required before doing so.
 
-## amod File Format
+## gactar Models
 
-This is the EBNF ([Extended Backus–Naur form](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form)) grammar for the amod file format:
+gactar models are written using the _amod_ format which is designed to be an easy-to-understand description of an ACT-R model.
 
-```
-AmodFile ::= '==model==' ModelSection '==config==' ConfigSection? '==init==' InitSection? '==productions==' ProductionSection?
-
-ModelSection ::= 'name' ':' ( string | ident ) ( 'description' ':' string )? ( 'examples' '{' Pattern* '}' )?
-
-Pattern ::= '[' ident ':' PatternSlot+ ']'
-
-PatternSlot ::= patternspace? PatternSlotItem+ patternspace?
-
-PatternSlotItem ::= '!'? ( 'nil' | ident | number | patternvar )
-
-ConfigSection ::= ( 'gactar' '{' Field* '}' )? ( 'modules' '{' Module* '}' )? ( 'chunks' '{' ChunkDecl* '}' )?
-
-Field ::= ident ':' FieldValue ','?
-
-FieldValue ::= ident
-            | string
-            | number
-
-Module ::= ident '{' Field* '}'
-
-ChunkDecl ::= '[' ident ':' ChunkSlot+ ']'
-
-ChunkSlot ::= patternspace? ident patternspace?
-
-InitSection ::= Initialization*
-
-Initialization ::= ident ( Pattern | '{' Pattern+ '}' )
-
-ProductionSection ::= Production+
-
-Production ::= ident '{' ( 'description' ':' string )? Match Do '}'
-
-Match ::= 'match' '{' MatchItem+ '}'
-
-MatchItem ::= ident Pattern
-
-Do ::= 'do' '{' Statement+ '}'
-
-Statement ::= ClearStatement
-            | PrintStatement
-            | RecallStatement
-            | SetStatement
-
-ClearStatement ::= 'clear' ( ident ','? )+
-
-PrintStatement ::= 'print' ( Arg ','? )*
-
-Arg ::= patternvar
-        | ident
-        | string
-        | number
-
-RecallStatement ::= 'recall' Pattern
-
-SetStatement ::= 'set' ident ( '.' ident )? 'to' ( SetValue | Pattern )
-
-SetValue ::= 'nil'
-            | patternvar
-            | string
-            | number
-```
-
-Here is an example of the amod file format:
+Here is an example of a gactar model:
 
 ```
 ==model==
@@ -507,9 +444,88 @@ stop {
 
 You can find other examples of `amod` files in the [examples folder](examples).
 
+### amod Syntax
+
+This is the EBNF ([Extended Backus–Naur form](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form)) grammar for the amod file format:
+
+```
+AmodFile ::= '==model==' ModelSection '==config==' ConfigSection? '==init==' InitSection? '==productions==' ProductionSection?
+
+ModelSection ::= 'name' ':' ( string | ident ) ( 'description' ':' string )? ( 'examples' '{' Pattern* '}' )?
+
+Pattern ::= '[' ident ':' PatternSlot+ ']'
+
+PatternSlot ::= patternspace? PatternSlotItem+ patternspace?
+
+PatternSlotItem ::= '!'? ( 'nil' | ident | number | patternvar )
+
+ConfigSection ::= ( 'gactar' '{' Field* '}' )? ( 'modules' '{' Module* '}' )? ( 'chunks' '{' ChunkDecl* '}' )?
+
+Field ::= ident ':' FieldValue ','?
+
+FieldValue ::= ident
+            | string
+            | number
+
+Module ::= ident '{' Field* '}'
+
+ChunkDecl ::= '[' ident ':' ChunkSlot+ ']'
+
+ChunkSlot ::= patternspace? ident patternspace?
+
+InitSection ::= Initialization*
+
+Initialization ::= ident ( Pattern | '{' Pattern+ '}' )
+
+ProductionSection ::= Production+
+
+Production ::= ident '{' ( 'description' ':' string )? Match Do '}'
+
+Match ::= 'match' '{' MatchItem+ '}'
+
+MatchItem ::= ident Pattern
+
+Do ::= 'do' '{' Statement+ '}'
+
+Statement ::= ClearStatement
+            | PrintStatement
+            | RecallStatement
+            | SetStatement
+
+ClearStatement ::= 'clear' ( ident ','? )+
+
+PrintStatement ::= 'print' ( Arg ','? )*
+
+Arg ::= patternvar
+        | ident
+        | string
+        | number
+
+RecallStatement ::= 'recall' Pattern
+
+SetStatement ::= 'set' ident ( '.' ident )? 'to' ( SetValue | Pattern )
+
+SetValue ::= 'nil'
+            | patternvar
+            | string
+            | number
+```
+
+### Buffers
+
+In ACT-R, a buffer is the interface between modules, such as the goal & declarative memory modules, and the production system. At any point in time, each buffer either stores one instance of a _chunk_ (see next section) or it is empty.
+
+gactar uses several built-in buffers:
+
+- `goal` stores the current goal
+- `retrieval` stores a chunk retrieved from declarative memory using a `recall` statement (see below)
+- `imaginal` stores context related to the current task
+
 ### Chunks
 
-Each chunk is declared in the _config_ section. Chunks are delineated by square brackets. The first item is the chunk name and the items after the colon are the slot names:
+A _chunk_ is a piece of data that adheres to a user-defined structure. These chunks are stored as facts in the declarative memory and are placed in _buffers_ where they may be matched, read, and modified.
+
+The structure of each chunk type is declared in the _config_ section. Chunks are delineated by square brackets. The first item is the chunk name and the items after the colon are the slot names:
 
 ```
 [chunk_name: slot_name1 slot_name2 ...]
@@ -546,6 +562,23 @@ Valid statuses include:
 - `error` - the last retrieval failed
 
 ### Productions
+
+A production is essentially a fancy _if-then_ statement which checks some conditions and modifies state. In gactar, they take the form:
+
+```
+(production_name) {
+    match {
+        (some buffer conditions)
+    }
+    do {
+        (some actions)
+    }
+}
+```
+
+This may be read as **if** _(all buffer conditions match)_ **then** _(do all the specified actions)_.
+
+The production name is used to trace the output when running a model.
 
 #### match
 
@@ -630,3 +663,11 @@ This production is called `done`. It attempts to match the `goal` buffer to a `p
 The following diagram shows how an _amod_ file is processed by gactar. The partial paths at the bottom of the items is the path to the source code responsible for that part of the processing.
 
 ![How gactar processes an amod file](images/gactar-processing.svg)
+
+## Reference
+
+If you need to reference this project, I wrote up a technical note which may be found on [ResearchGate](https://www.researchgate.net/).
+
+**Title:** gactar: A Tool For Exploring ACT-R Modelling
+
+**DOI:** [10.13140/RG.2.2.25387.36642](https://dx.doi.org/10.13140/RG.2.2.25387.36642)
