@@ -4,6 +4,8 @@
 
 `gactar` is a tool for creating and running [ACT-R](https://en.wikipedia.org/wiki/ACT-R) models using a declarative file format called _amod_.
 
+You can read the tech note **gactar: A Tool For Exploring ACT-R Modelling** [here](https://dx.doi.org/10.13140/RG.2.2.25387.36642).
+
 ## Proof-of-Concept
 
 **This is a proof-of-concept.**
@@ -530,8 +532,6 @@ The structure of each chunk type is declared in the _config_ section. Chunks are
 ```
 [chunk_name: slot_name1 slot_name2 ...]
 ```
-
-<div class="page"></div>
 
 Examples:
 
