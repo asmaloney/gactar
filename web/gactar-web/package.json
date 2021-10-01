@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "buefy": "~0.9.10",
-    "core-js": "^3.18.0",
+    "core-js": "^3.18.1",
     "codemirror": "^5.63.0",
     "vue": "^2.6.11"
   },
