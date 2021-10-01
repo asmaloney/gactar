@@ -90,6 +90,7 @@ func generateModel(amod *amodFile) (model *actr.Model, err error) {
 	model = &actr.Model{
 		Name:        amod.Model.Name,
 		Description: amod.Model.Description,
+		Authors:     amod.Model.Authors,
 	}
 
 	model.Initialize()

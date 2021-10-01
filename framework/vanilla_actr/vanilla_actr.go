@@ -118,6 +118,8 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFileName strin
 	v.Writeln("")
 	v.Write(";;; %s\n\n", v.model.Description)
 
+	v.outputAuthors()
+
 	v.Write("(clear-all)\n\n")
 
 	v.Writeln("(define-model %s\n", v.modelName)
@@ -248,6 +250,20 @@ func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFileName strin
 	v.Writeln(")")
 
 	return
+}
+
+func (v *VanillaACTR) outputAuthors() {
+	if len(v.model.Authors) == 0 {
+		return
+	}
+
+	v.Writeln(";;; Authors:")
+
+	for _, author := range v.model.Authors {
+		v.Write(";;;\t\t%s\n", author)
+	}
+
+	v.Writeln("")
 }
 
 func (v *VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int) {

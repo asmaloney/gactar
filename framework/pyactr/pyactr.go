@@ -114,6 +114,8 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	p.Writeln("")
 	p.Write("# %s\n\n", p.model.Description)
 
+	p.outputAuthors()
+
 	p.Writeln("import pyactr as actr")
 
 	if p.model.HasPrintStatement() {
@@ -257,6 +259,20 @@ Buffer.print_text = print_text
 	p.Writeln("\t\tprint('final goal: ' + str(goal.pop()))")
 
 	return
+}
+
+func (p *PyACTR) outputAuthors() {
+	if len(p.model.Authors) == 0 {
+		return
+	}
+
+	p.Writeln("# Authors:")
+
+	for _, author := range p.model.Authors {
+		p.Write("#\t%s\n", author)
+	}
+
+	p.Writeln("")
 }
 
 func (p *PyACTR) outputPattern(pattern *actr.Pattern, tabs int) {

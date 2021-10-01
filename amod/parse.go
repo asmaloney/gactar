@@ -36,6 +36,7 @@ type amodFile struct {
 type modelSection struct {
 	Name        string     `parser:"'name' ':' (@String|@Ident)"`
 	Description string     `parser:"('description' ':' @String)?"`
+	Authors     []string   `parser:"('authors' '{' @String* '}')?"`
 	Examples    []*pattern `parser:"('examples' '{' @@* '}')?"`
 
 	Pos lexer.Position

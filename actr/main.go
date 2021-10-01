@@ -6,6 +6,7 @@ package actr
 type Model struct {
 	Name         string
 	Description  string
+	Authors      []string
 	Examples     []*Pattern
 	Chunks       []*Chunk
 	Buffers      []BufferInterface
