@@ -13,7 +13,7 @@
   "dependencies": {
     "buefy": "~0.9.10",
     "core-js": "^3.18.0",
-    "codemirror": "^5.63.0",
+    "codemirror": "^5.63.1",
     "vue": "^2.6.11"
   },
   "devDependencies": {
