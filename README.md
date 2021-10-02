@@ -106,7 +106,7 @@ If there is sufficient interest in this project, my strategy going forward would
 
 ## Contributing
 
-For information on how to contribute (code, bug reports, ideas, or other resources), please see the [CONTRIBUTING](doc/CONTRIBUTING.md) doc.
+For information on how to contribute (code, bug reports, ideas, or other resources), please see the [CONTRIBUTING](CONTRIBUTING.md) doc.
 
 ## Setup
 
