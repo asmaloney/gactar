@@ -118,6 +118,8 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 	c.Writeln("")
 	c.Write("# %s\n\n", c.model.Description)
 
+	c.outputAuthors()
+
 	imports := []string{"ACTR", "Buffer", "Memory"}
 
 	c.Write("from ccm.lib.actr import %s\n", strings.Join(imports, ", "))
@@ -246,6 +248,20 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 	c.Writeln("\tmodel.run()")
 
 	return
+}
+
+func (c *CCMPyACTR) outputAuthors() {
+	if len(c.model.Authors) == 0 {
+		return
+	}
+
+	c.Writeln("# Authors:")
+
+	for _, author := range c.model.Authors {
+		c.Write("#\t%s\n", author)
+	}
+
+	c.Writeln("")
 }
 
 func (c *CCMPyACTR) outputPattern(pattern *actr.Pattern) {

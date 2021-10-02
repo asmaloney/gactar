@@ -372,6 +372,11 @@ name: count
 // Description of the model (currently output as a comment in the generated code)
 description: 'This is a model which adds numbers. Based on the ccm u1_count.py tutorial.'
 
+// A list of authors. These are output as comments in the generated code.
+authors {
+    'Andy Maloney <asmaloney@gmail.com>'
+}
+
 // Examples of starting goals to use when running the model
 examples {
     [countFrom: 2 5 starting]

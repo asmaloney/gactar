@@ -7,6 +7,7 @@ CodeMirror.defineMode('amod', function () {
   const variable_regex = /[?][a-zA-Z0-9_]*/
 
   const keywords = {
+    authors: true,
     chunks: true,
     clear: true,
     description: true,

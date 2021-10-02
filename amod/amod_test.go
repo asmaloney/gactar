@@ -4,6 +4,24 @@ import (
 	"testing"
 )
 
+func TestModelAuthors(t *testing.T) {
+	src := `
+	==model==
+	name: Test
+	authors {
+    	'Andy Maloney <andy@example.com>' // did all the work
+    	'Hiro Protagonist <hiro@example.com>' // fixed some things
+	}
+	==config==
+	==init==
+	==productions==`
+
+	_, err := GenerateModel(src)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+}
+
 func TestModelExamples(t *testing.T) {
 	src := `
 	==model==
