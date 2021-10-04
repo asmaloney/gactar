@@ -3,6 +3,7 @@ package web
 import (
 	"embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/fs"
 	"net/http"
@@ -120,13 +121,18 @@ func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	model, err := amod.GenerateModel(data.AMODFile)
+	model, log, err := amod.GenerateModel(data.AMODFile)
 	if err != nil {
+		err = errors.New(log.String())
 		errorResponse(rw, err)
 		return
 	}
 
 	resultMap := make(map[string]result, len(w.actrFrameworks))
+
+	if log.HasInfo() {
+		resultMap["amod"] = result{Output: log.String()}
+	}
 
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}

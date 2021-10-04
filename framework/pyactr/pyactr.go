@@ -87,7 +87,7 @@ func (p *PyACTR) Run(initialGoal string) (generatedCode, output []byte, err erro
 func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, err error) {
 	goal, err := amod.ParseChunk(p.model, initialGoal)
 	if err != nil {
-		err = fmt.Errorf("error in initial goal - %s", err)
+		err = fmt.Errorf("ERROR in initial goal - %s", err)
 		return
 	}
 

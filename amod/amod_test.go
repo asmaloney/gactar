@@ -1,11 +1,16 @@
 package amod
 
 import (
-	"testing"
+	"os"
 )
 
-func TestModelAuthors(t *testing.T) {
-	src := `
+func generateToStdout(str string) {
+	_, log, _ := GenerateModel(str)
+	log.Write(os.Stdout)
+}
+
+func Example_modelAuthors() {
+	generateToStdout(`
 	==model==
 	name: Test
 	authors {
@@ -14,75 +19,65 @@ func TestModelAuthors(t *testing.T) {
 	}
 	==config==
 	==init==
-	==productions==`
+	==productions==`)
 
-	_, err := GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
 }
 
-func TestModelExamples(t *testing.T) {
-	src := `
-	==model==
-	name: Test
-	examples { [foo: bar] }
-	==config==
-	==init==
-	==productions==`
-
-	_, err := GenerateModel(src)
-
-	expected := "could not find chunk named 'foo' (line 4)"
-	checkExpectedError(err, expected, t)
-
-	src = `
+func Example_modelExamples() {
+	generateToStdout(`
 	==model==
 	name: Test
 	examples { [foo: bar] }
 	==config==
 	chunks { [foo: thing] }
 	==init==
-	==productions==`
+	==productions==`)
 
-	_, err = GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
 }
 
-func TestGACATRUnrecognizedField(t *testing.T) {
-	src := `
+func Example_modelExampleBadChunk() {
+	generateToStdout(`
+	==model==
+	name: Test
+	examples { [foo: bar] }
+	==config==
+	==init==
+	==productions==`)
+
+	// Output:
+	// ERROR: could not find chunk named 'foo' (line 4)
+}
+
+func Example_gactarUnrecognizedField() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
 	gactar { foo: bar }
 	==init==
-	==productions==`
+	==productions==`)
 
-	_, err := GenerateModel(src)
-
-	expected := "unrecognized field in gactar section: 'foo' (line 5)"
-	checkExpectedError(err, expected, t)
+	// Output:
+	// ERROR: unrecognized field in gactar section: 'foo' (line 5)
 }
 
-func TestChunkReservedName(t *testing.T) {
-	src := `
+func Example_chunkReservedName() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
 	chunks { [_internal: foo bar] }
 	==init==
-	==productions==`
+	==productions==`)
 
-	_, err := GenerateModel(src)
-
-	expected := "cannot use reserved chunk name '_internal' (chunks begining with '_' are reserved) (line 5)"
-	checkExpectedError(err, expected, t)
+	// Output:
+	// ERROR: cannot use reserved chunk name '_internal' (chunks begining with '_' are reserved) (line 5)
 }
 
-func TestChunkDuplicateName(t *testing.T) {
-	src := `
+func Example_chunkDuplicateName() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -91,16 +86,14 @@ func TestChunkDuplicateName(t *testing.T) {
     	[something: foo bar]
 	}
 	==init==
-	==productions==`
+	==productions==`)
 
-	_, err := GenerateModel(src)
-
-	expected := "duplicate chunk name: 'something' (line 7)"
-	checkExpectedError(err, expected, t)
+	// Output:
+	// ERROR: duplicate chunk name: 'something' (line 7)
 }
 
-func TestModules(t *testing.T) {
-	src := `
+func Example_modules() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -108,14 +101,13 @@ func TestModules(t *testing.T) {
 		imaginal { delay: 0.2 }
 	}
 	==init==
-	==productions==`
+	==productions==`)
 
-	_, err := GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
+}
 
-	src = `
+func Example_modulesUnrecognized() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -123,16 +115,14 @@ func TestModules(t *testing.T) {
 		foo { delay: 0.2 }
 	}
 	==init==
-	==productions==`
+	==productions==`)
 
-	_, err = GenerateModel(src)
-
-	expected := "unrecognized module in config: 'foo' (line 6)"
-	checkExpectedError(err, expected, t)
+	// Output:
+	// ERROR: unrecognized module in config: 'foo' (line 6)
 }
 
-func TestImaginalFields(t *testing.T) {
-	src := `
+func Example_imaginalFields() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -141,14 +131,13 @@ func TestImaginalFields(t *testing.T) {
 		memory { latency: 0.5 }
 	}
 	==init==
-	==productions==`
+	==productions==`)
 
-	_, err := GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
+}
 
-	src = `
+func Example_imaginalFieldType() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -156,14 +145,14 @@ func TestImaginalFields(t *testing.T) {
 		imaginal { delay: "gack" }
 	}
 	==init==
-	==productions==`
+	==productions==`)
 
-	_, err = GenerateModel(src)
+	// Output:
+	// ERROR: imaginal delay 'gack' must be a number (line 6)
+}
 
-	expected := "imaginal delay 'gack' must be a number (line 6)"
-	checkExpectedError(err, expected, t)
-
-	src = `
+func Example_imaginalFieldRange() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -171,14 +160,14 @@ func TestImaginalFields(t *testing.T) {
 		imaginal { delay: -0.5 }
 	}
 	==init==
-	==productions==`
+	==productions==`)
 
-	_, err = GenerateModel(src)
+	// Output:
+	// ERROR: imaginal delay '-0.500000' must be a positive number (line 6)
+}
 
-	expected = "imaginal delay '-0.500000' must be a positive number (line 6)"
-	checkExpectedError(err, expected, t)
-
-	src = `
+func Example_imaginalFieldUnrecognized() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -186,16 +175,14 @@ func TestImaginalFields(t *testing.T) {
 		imaginal { foo: bar }
 	}
 	==init==
-	==productions==`
+	==productions==`)
 
-	_, err = GenerateModel(src)
-
-	expected = "unrecognized field 'foo' in imaginal config (line 6)"
-	checkExpectedError(err, expected, t)
+	// Output:
+	// ERROR: unrecognized field 'foo' in imaginal config (line 6)
 }
 
-func TestMemoryUnrecognizedField(t *testing.T) {
-	src := `
+func Example_memoryFieldUnrecognized() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -203,16 +190,14 @@ func TestMemoryUnrecognizedField(t *testing.T) {
 		memory { foo: bar }
 	}
 	==init==
-	==productions==`
+	==productions==`)
 
-	_, err := GenerateModel(src)
-
-	expected := "unrecognized field 'foo' in memory (line 6)"
-	checkExpectedError(err, expected, t)
+	// Output:
+	// ERROR: unrecognized field 'foo' in memory (line 6)
 }
 
-func TestInitializers(t *testing.T) {
-	src := `
+func Example_initializer1() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -225,114 +210,113 @@ func TestInitializers(t *testing.T) {
 		[remember: me]
 		[author: me software]
 	}
-	==productions==`
+	==productions==`)
 
-	_, err := GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
+}
 
-	src = `
+func Example_initializer2() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
 	chunks { [author: person object year] }
 	==init==
 	goal [author: Fred Book 1972]
-	==productions==`
+	==productions==`)
 
-	_, err = GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
+}
 
-	// Check invalid number of slots in init
-	src = `
-	==model==
-	name: Test
-	==config==
-	chunks { [author: person object year] }
-	==init==
-	memory { [author: me software] }
-	==productions==`
-
-	_, err = GenerateModel(src)
-
-	expected := "invalid chunk - 'author' expects 3 slots (line 7)"
-	checkExpectedError(err, expected, t)
-
-	// Check memory with invalid chunk
-	src = `
-	==model==
-	name: Test
-	==config==
-	==init==
-	memory { [author: me software] }
-	==productions==`
-
-	_, err = GenerateModel(src)
-
-	expected = "could not find chunk named 'author' (line 6)"
-	checkExpectedError(err, expected, t)
-
-	// Check buffer with invalid chunk
-	src = `
-	==model==
-	name: Test
-	==config==
-	==init==
-	goal [author: Fred Book 1972]
-	==productions==`
-
-	_, err = GenerateModel(src)
-	checkExpectedError(err, expected, t)
-
-	// Check unknown buffer
-	src = `
-	==model==
-	name: Test
-	==config==
-	chunks { [author: person object year] }
-	==init==
-	something [author: Fred Book 1972]
-	==productions==`
-
-	_, err = GenerateModel(src)
-	expected = "buffer or memory 'something' not found in initialization  (line 7)"
-	checkExpectedError(err, expected, t)
-
-	// Check buffer with multiple inits
-	src = `
-	==model==
-	name: Test
-	==config==
-	chunks { [author: person object year] }
-	==init==
-	goal { [author: Fred Book 1972] [author: Jane Book 1982] }
-	==productions==`
-
-	_, err = GenerateModel(src)
-	expected = "buffer 'goal' should only have one pattern in initialization (line 7)"
-	checkExpectedError(err, expected, t)
-
+func Example_initializer3() {
 	// memory with one init is allowed
-	src = `
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
 	chunks { [author: person object year] }
 	==init==
 	memory [author: Jane Book 1982]
-	==productions==`
+	==productions==`)
 
-	_, err = GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
 }
 
-func TestProductionInvalidMemory(t *testing.T) {
-	src := `
+func Example_initializerInvalidSlots() {
+	// Check invalid number of slots in init
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [author: person object year] }
+	==init==
+	memory { [author: me software] }
+	==productions==`)
+
+	// Output:
+	// ERROR: invalid chunk - 'author' expects 3 slots (line 7)
+}
+
+func Example_initializerInvalidChunk1() {
+	// Check memory with invalid chunk
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	==init==
+	memory { [author: me software] }
+	==productions==`)
+
+	// Output:
+	// ERROR: could not find chunk named 'author' (line 6)
+}
+
+func Example_initializerInvalidChunk2() {
+	// Check buffer with invalid chunk
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	==init==
+	goal [author: Fred Book 1972]
+	==productions==`)
+
+	// Output:
+	// ERROR: could not find chunk named 'author' (line 6)
+}
+
+func Example_initializerUnknownBuffer() {
+	// Check unknown buffer
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [author: person object year] }
+	==init==
+	something [author: Fred Book 1972]
+	==productions==`)
+
+	// Output:
+	// ERROR: buffer or memory 'something' not found in initialization  (line 7)
+}
+
+func Example_initializerMultipleInits() {
+	// Check buffer with multiple inits
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [author: person object year] }
+	==init==
+	goal { [author: Fred Book 1972] [author: Jane Book 1982] }
+	==productions==`)
+
+	// Output:
+	// ERROR: buffer 'goal' should only have one pattern in initialization (line 7)
+}
+
+func Example_productionInvalidMemory() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -341,33 +325,14 @@ func TestProductionInvalidMemory(t *testing.T) {
 	start {
 		match { another_goal [add: ? ?one1 ? ?one2 ? None?ans ?] }
 		do { print 'foo' }
-	}`
+	}`)
 
-	_, err := GenerateModel(src)
-
-	expected := "buffer 'another_goal' not found in production 'start' (line 8)"
-	checkExpectedError(err, expected, t)
+	// Output:
+	// ERROR: buffer 'another_goal' not found in production 'start' (line 8)
 }
 
-func TestProductionClearStatement(t *testing.T) {
-	src := `
-	==model==
-	name: Test
-	==config==
-	chunks { [foo: thing] }
-	==init==
-	==productions==
-	start {
-		match { goal [foo: blat] }
-		do { clear some_buffer }
-	}`
-
-	_, err := GenerateModel(src)
-
-	expected := "buffer 'some_buffer' not found in production 'start' (line 10)"
-	checkExpectedError(err, expected, t)
-
-	src = `
+func Example_productionClearStatemtent() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -377,17 +342,31 @@ func TestProductionClearStatement(t *testing.T) {
 	start {
 		match { goal [foo: blat] }
 		do { clear goal }
-	}`
+	}`)
 
-	_, err = GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
 }
 
-func TestProductionSetStatement(t *testing.T) {
+func Example_productionClearStatemtentInvalidBuffer() {
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: blat] }
+		do { clear some_buffer }
+	}`)
+
+	// Output:
+	// ERROR: buffer 'some_buffer' not found in production 'start' (line 10)
+}
+
+func Example_productionSetStatemtentPattern() {
 	// Check setting to pattern
-	src := `
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -398,15 +377,14 @@ func TestProductionSetStatement(t *testing.T) {
 		description: "This is a description"
 		match { goal [foo: blat] }
 		do { set goal to [foo: ding] }
-	}`
+	}`)
 
-	_, err := GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
+}
 
+func Example_productionSetStatemtentVar() {
 	// Check setting to var
-	src = `
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -416,15 +394,14 @@ func TestProductionSetStatement(t *testing.T) {
 	start {
 		match { goal [foo: ?blat] }
 		do { set goal.thing to ?blat }
-	}`
+	}`)
 
-	_, err = GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
+}
 
+func Example_productionSetStatemtentNil() {
 	// Check setting to nil
-	src = `
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -446,15 +423,14 @@ func TestProductionSetStatement(t *testing.T) {
 			set goal.thing to nil
 			set imaginal.knowledge to nil
 		}
-	}`
+	}`)
 
-	_, err = GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
+}
 
+func Example_productionSetStatemtentNonVar() {
 	// Check setting to non-existent var
-	src = `
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -464,14 +440,16 @@ func TestProductionSetStatement(t *testing.T) {
 	start {
 		match { goal [foo: ?blat] }
 		do { set goal.thing to ?ding }
-	}`
+	}`)
 
-	_, err = GenerateModel(src)
-	expected := "set statement variable '?ding' not found in matches for production 'start' (line 10)"
-	checkExpectedError(err, expected, t)
+	// Output:
+	// ERROR: set statement variable '?ding' not found in matches for production 'start' (line 10)
+}
 
+func Example_productionSetStatemtentAssignNonPattern() {
+	// Check setting buffer to non-pattern
 	// https://github.com/asmaloney/gactar/issues/28
-	src = `
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -481,32 +459,14 @@ func TestProductionSetStatement(t *testing.T) {
 	start {
 		match { goal [foo: blat] }
 		do { set goal to 6 }
-	}`
+	}`)
 
-	_, err = GenerateModel(src)
+	// Output:
+	// ERROR: buffer 'goal' must be set to a pattern in production 'start' (line 10)
+}
 
-	expected = "buffer 'goal' must be set to a pattern in production 'start' (line 10)"
-	checkExpectedError(err, expected, t)
-
-	// https://github.com/asmaloney/gactar/issues/17
-	src = `
-	==model==
-	name: Test
-	==config==
-	chunks { [foo: thing] }
-	==init==
-	==productions==
-	start {
-		match { goal [foo: blat] }
-		do { set goal.thing to [foo: ding] }
-	}`
-
-	_, err = GenerateModel(src)
-
-	expected = "cannot set a slot ('thing') to a pattern in match buffer 'goal' in production 'start' (line 10)"
-	checkExpectedError(err, expected, t)
-
-	src = `
+func Example_productionSetStatemtentAssignNonsense() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -516,16 +476,16 @@ func TestProductionSetStatement(t *testing.T) {
 	start {
 		match { goal [foo: blat] }
 		do { set goal to blat }
-	}`
+	}`)
 
-	_, err = GenerateModel(src)
-
-	expected = `10:22: unexpected token "blat" (expected (SetValue | Pattern))`
-	checkExpectedError(err, expected, t)
+	// Output:
+	// ERROR: unexpected token "blat" (expected (SetValue | Pattern)) (line 10)
 }
 
-func TestProductionRecallStatement(t *testing.T) {
-	src := `
+func Example_productionSetStatemtentAssignPattern() {
+	// Check assignment of pattern to slot
+	// https://github.com/asmaloney/gactar/issues/17
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -534,15 +494,15 @@ func TestProductionRecallStatement(t *testing.T) {
 	==productions==
 	start {
 		match { goal [foo: blat] }
-		do { recall [count: ?next ?] }
-	}`
+		do { set goal.thing to [foo: ding] }
+	}`)
 
-	_, err := GenerateModel(src)
+	// Output:
+	// ERROR: cannot set a slot ('thing') to a pattern in match buffer 'goal' in production 'start' (line 10)
+}
 
-	expected := "recall statement variable '?next' not found in matches for production 'start' (line 10)"
-	checkExpectedError(err, expected, t)
-
-	src = `
+func Example_productionRecallStatemtent() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -552,16 +512,30 @@ func TestProductionRecallStatement(t *testing.T) {
 	start {
 		match { goal [foo: ?next ?other] }
 		do { recall [foo: ?next ?] }
-	}`
+	}`)
 
-	_, err = GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
 }
 
-func TestProductionMultipleStatement(t *testing.T) {
-	src := `
+func Example_productionRecallStatemtentVarNotFound() {
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: blat] }
+		do { recall [count: ?next ?] }
+	}`)
+
+	// Output:
+	// ERROR: recall statement variable '?next' not found in matches for production 'start' (line 10)
+}
+
+func Example_productionMultipleStatement() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -574,16 +548,13 @@ func TestProductionMultipleStatement(t *testing.T) {
         	recall [foo: ?next ?]
 			set goal to [foo: ?other 42]
 		}
-	}`
+	}`)
 
-	_, err := GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
 }
 
-func TestProductionChunkNotFound(t *testing.T) {
-	src := `
+func Example_productionChunkNotFound() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -592,16 +563,14 @@ func TestProductionChunkNotFound(t *testing.T) {
 	start {
 		match { goal [foo: error] }
 		do { print 42 }
-	}`
+	}`)
 
-	_, err := GenerateModel(src)
-
-	expected := "could not find chunk named 'foo' (line 8)"
-	checkExpectedError(err, expected, t)
+	// Output:
+	// ERROR: could not find chunk named 'foo' (line 8)
 }
 
-func TestProductionPrintStatement(t *testing.T) {
-	src := `
+func Example_productionPrintStatement1() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -611,15 +580,14 @@ func TestProductionPrintStatement(t *testing.T) {
 	start {
 		match { goal [foo: ?next ?other] }
 		do { print 42, ?other, "blat" }
-	}`
+	}`)
 
-	_, err := GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
+}
 
+func Example_productionPrintStatement2() {
 	// Test print with vars from two different buffers
-	src = `
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -632,15 +600,15 @@ func TestProductionPrintStatement(t *testing.T) {
 			retrieval [foo: ?next1 ?other1]
 		}
 		do { print 42, ?other, ?other1, "blat" }
-	}`
+	}`)
 
-	_, err = GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
+}
 
+func Example_productionPrintStatement3() {
+	// print without args
 	// https://github.com/asmaloney/gactar/issues/7
-	src = `
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -649,14 +617,13 @@ func TestProductionPrintStatement(t *testing.T) {
 	start {
 		match { retrieval [_status: error] }
 		do { print }
-	}`
+	}`)
 
-	_, err = GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
+}
 
-	src = `
+func Example_productionPrintStatementInvalidID() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -665,13 +632,14 @@ func TestProductionPrintStatement(t *testing.T) {
 	start {
 		match { retrieval [_status: error] }
 		do { print fooID }
-	}`
+	}`)
 
-	_, err = GenerateModel(src)
-	expected := "cannot use ID 'fooID' in print statement (line 9)"
-	checkExpectedError(err, expected, t)
+	// Output:
+	// ERROR: cannot use ID 'fooID' in print statement (line 9)
+}
 
-	src = `
+func Example_productionPrintStatementInvalidVar() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -680,15 +648,14 @@ func TestProductionPrintStatement(t *testing.T) {
 	start {
 		match { retrieval [_status: error] }
 		do { print ?fooVar }
-	}`
+	}`)
 
-	_, err = GenerateModel(src)
-	expected = "print statement variable '?fooVar' not found in matches for production 'start' (line 9)"
-	checkExpectedError(err, expected, t)
+	// Output:
+	// ERROR: print statement variable '?fooVar' not found in matches for production 'start' (line 9)
 }
 
-func TestProductionMatchInternal(t *testing.T) {
-	src := `
+func Example_productionMatchInternal() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -697,14 +664,13 @@ func TestProductionMatchInternal(t *testing.T) {
 	start {
 		match { retrieval [_status: error] }
 		do { print 42 }
-	}`
+	}`)
 
-	_, err := GenerateModel(src)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	// Output:
+}
 
-	src = `
+func Example_productionMatchInternalSlots() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -713,13 +679,14 @@ func TestProductionMatchInternal(t *testing.T) {
 	start {
 		match { retrieval [_status: busy error] }
 		do { print 42 }
-	}`
+	}`)
 
-	_, err = GenerateModel(src)
-	expected := "_status should only have one slot for 'retrieval' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8)"
-	checkExpectedError(err, expected, t)
+	// Output:
+	// ERROR: _status should only have one slot for 'retrieval' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8)
+}
 
-	src = `
+func Example_productionMatchInternalInvalidStatus1() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -728,13 +695,14 @@ func TestProductionMatchInternal(t *testing.T) {
 	start {
 		match { goal [_status: something] }
 		do { print 42 }
-	}`
+	}`)
 
-	_, err = GenerateModel(src)
-	expected = "invalid _status 'something' for 'goal' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8)"
-	checkExpectedError(err, expected, t)
+	// Output:
+	// ERROR: invalid _status 'something' for 'goal' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8)
+}
 
-	src = `
+func Example_productionMatchInternalInvalidStatus2() {
+	generateToStdout(`
 	==model==
 	name: Test
 	==config==
@@ -743,21 +711,8 @@ func TestProductionMatchInternal(t *testing.T) {
 	start {
 		match { retrieval [_status: something] }
 		do { print 42 }
-	}`
+	}`)
 
-	_, err = GenerateModel(src)
-	expected = "invalid _status 'something' for 'retrieval' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8)"
-	checkExpectedError(err, expected, t)
-}
-
-func checkExpectedError(err error, expected string, t *testing.T) {
-	t.Helper()
-
-	if err == nil {
-		t.Errorf("Expected error: %s", expected)
-	} else {
-		if err.Error() != expected {
-			t.Errorf("Expected '%s' but got '%s'", expected, err.Error())
-		}
-	}
+	// Output:
+	// ERROR: invalid _status 'something' for 'retrieval' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8)
 }

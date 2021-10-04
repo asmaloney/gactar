@@ -192,9 +192,9 @@ func generateCode(frameworks *framework.List, files []string) {
 
 		for _, file := range files {
 			fmt.Printf("\t- Generating code for %s\n", file)
-			model, err := amod.GenerateModelFromFile(file)
+			model, log, err := amod.GenerateModelFromFile(file)
+			fmt.Print(log)
 			if err != nil {
-				fmt.Println(err.Error())
 				continue
 			}
 
