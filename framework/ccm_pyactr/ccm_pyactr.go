@@ -91,7 +91,7 @@ func (c *CCMPyACTR) Run(initialGoal string) (generatedCode, output []byte, err e
 func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string, err error) {
 	goal, err := amod.ParseChunk(c.model, initialGoal)
 	if err != nil {
-		err = fmt.Errorf("error in initial goal - %s", err)
+		err = fmt.Errorf("ERROR in initial goal - %s", err)
 		return
 	}
 

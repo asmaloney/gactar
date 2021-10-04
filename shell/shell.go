@@ -164,10 +164,13 @@ func (s *Shell) cmdLoad(fileName string) (err error) {
 		return
 	}
 
-	s.currentModel, err = amod.GenerateModelFromFile(fileName)
+	model, log, err := amod.GenerateModelFromFile(fileName)
+	fmt.Print(log)
 	if err != nil {
 		return err
 	}
+
+	s.currentModel = model
 
 	fmt.Println(" model loaded")
 
