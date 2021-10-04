@@ -1,4 +1,4 @@
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/asmaloney/gactar)](https://github.com/asmaloney/gactar/releases/latest) ![Build](https://github.com/asmaloney/gactar/actions/workflows/build.yaml/badge.svg) [![GitHub](https://img.shields.io/github/license/asmaloney/gactar)](LICENSE)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/asmaloney/gactar)](https://github.com/asmaloney/gactar/releases/latest) [![PkgGoDev](https://pkg.go.dev/badge/github.com/asmaloney/gactar)](https://pkg.go.dev/github.com/asmaloney/gactar) [![GitHub](https://img.shields.io/github/license/asmaloney/gactar)](LICENSE) ![Build](https://github.com/asmaloney/gactar/actions/workflows/build.yaml/badge.svg)
 
 # ![gactar logo](images/logo/gactar-logo.svg) gactar
 
@@ -458,7 +458,7 @@ This is the EBNF ([Extended Backus–Naur form](https://en.wikipedia.org/wiki/Ex
 ```
 AmodFile ::= '==model==' ModelSection '==config==' ConfigSection? '==init==' InitSection? '==productions==' ProductionSection?
 
-ModelSection ::= 'name' ':' ( string | ident ) ( 'description' ':' string )? ( 'examples' '{' Pattern* '}' )?
+ModelSection ::= 'name' ':' ( string | ident ) ( 'description' ':' string )? ( 'authors' '{' string* '}' )? ( 'examples' '{' Pattern* '}' )?
 
 Pattern ::= '[' ident ':' PatternSlot+ ']'
 
