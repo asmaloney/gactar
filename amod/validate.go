@@ -245,9 +245,14 @@ func validatePrintStatement(print *printStatement, model *actr.Model, log *amodl
 			if v.ID != nil {
 				log.Error(print.Pos.Line, "cannot use ID '%s' in print statement", *v.ID)
 			} else if v.Var != nil {
-				match := production.LookupMatchByVariable(*v.Var)
+				varItem := *v.Var
+				match := production.LookupMatchByVariable(varItem)
 				if match == nil {
-					log.Error(print.Pos.Line, "print statement variable '%s' not found in matches for production '%s'", *v.Var, production.Name)
+					if varItem == "?" {
+						log.Error(print.Pos.Line, "cannot print anonymous var ('?') in production '%s'", production.Name)
+					} else {
+						log.Error(print.Pos.Line, "print statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
+					}
 					err = CompileError{}
 				}
 			}
