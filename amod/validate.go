@@ -233,3 +233,74 @@ func validatePrintStatement(print *printStatement, model *actr.Model, log *amodl
 
 	return
 }
+
+func validateVariableUsage(log *amodlog.Log, match *match, do *do) {
+	type ref struct {
+		firstLine int // keep track of the first case of this variable for our output
+		count     int // ref count
+	}
+	varRefCount := map[string]*ref{}
+
+	// Walks a pattern to add all vars within
+	addPatternRefs := func(p *pattern, insertIfNotFound bool) {
+		for _, slot := range p.Slots {
+			for _, slotItem := range slot.Items {
+				if slotItem.Var != nil {
+					varItem := *slotItem.Var
+					if varItem != "?" {
+						if r, ok := varRefCount[varItem]; ok {
+							r.count++
+						} else if insertIfNotFound {
+							varRefCount[varItem] = &ref{
+								firstLine: slotItem.Pos.Line,
+								count:     1,
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Walk the matches and store var ref counts
+	for _, item := range match.Items {
+		addPatternRefs(item.Pattern, true)
+	}
+
+	// Walk the do statements and add to var ref counts
+	for _, statement := range *do.Statements {
+		if statement.Set != nil {
+			if statement.Set.Value != nil {
+				if statement.Set.Value.Var != nil {
+					varItem := *statement.Set.Value.Var
+					if varItem != "?" {
+						if r, ok := varRefCount[varItem]; ok {
+							r.count++
+						}
+					}
+				}
+			} else { // pattern
+				addPatternRefs(statement.Set.Pattern, false)
+			}
+		} else if statement.Recall != nil {
+			addPatternRefs(statement.Recall.Pattern, false)
+		} else if statement.Print != nil {
+			for _, arg := range statement.Print.Args {
+				if arg.Var != nil {
+					varItem := *arg.Var
+					if r, ok := varRefCount[varItem]; ok {
+						r.count++
+					}
+				}
+			}
+		}
+		// clear statement does not use variables
+	}
+
+	// Any var with only one reference should be anonymous ("?"), so add info to log
+	for k, r := range varRefCount {
+		if r.count == 1 {
+			log.Info(r.firstLine, "variable %s is not used - should be simplified to '?'", k)
+		}
+	}
+}
