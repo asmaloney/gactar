@@ -128,7 +128,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *amodlog.Log
 	}
 
 	if set.Slot != nil {
-		// we should have the form "set <slot name> of <buffer> to <value>"
+		// we have the form "set <buffer>.<slot name> to <value>"
 		slotName := *set.Slot
 		if set.Pattern != nil {
 			log.Error(set.Pos.Line, "cannot set a slot ('%s') to a pattern in match buffer '%s' in production '%s'", slotName, bufferName, production.Name)
@@ -152,9 +152,14 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *amodlog.Log
 
 					if set.Value.Var != nil {
 						// Check set.Value.Var to ensure it exists
-						match := production.LookupMatchByVariable(*set.Value.Var)
+						varItem := *set.Value.Var
+						match := production.LookupMatchByVariable(varItem)
 						if match == nil {
-							log.Error(set.Value.Pos.Line, "set statement variable '%s' not found in matches for production '%s'", *set.Value.Var, production.Name)
+							if varItem == "?" {
+								log.Error(set.Value.Pos.Line, "cannot set '%s.%s' to anonymous var ('?') in production '%s'", bufferName, slotName, production.Name)
+							} else {
+								log.Error(set.Value.Pos.Line, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
+							}
 							err = CompileError{}
 						}
 					}
@@ -162,10 +167,28 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *amodlog.Log
 			}
 		}
 	} else {
-		// we should have the form "set <buffer> to <pattern>"
+		// we have the form "set <buffer> to <pattern>"
 		if set.Value != nil {
 			log.Error(set.Pos.Line, "buffer '%s' must be set to a pattern in production '%s'", bufferName, production.Name)
 			err = CompileError{}
+		} else {
+			for slotIndex, slot := range set.Pattern.Slots {
+				for _, slotItem := range slot.Items {
+					if slotItem.Var == nil {
+						continue
+					}
+
+					varItem := *slotItem.Var
+					if varItem != "?" {
+						continue
+					}
+
+					chunkName := set.Pattern.ChunkName
+					chunk := model.LookupChunk(chunkName)
+
+					log.Error(set.Pattern.Pos.Line, "cannot set '%s.%v' to anonymous var ('?') in production '%s'", bufferName, chunk.SlotNames[slotIndex], production.Name)
+				}
+			}
 		}
 	}
 

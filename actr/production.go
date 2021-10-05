@@ -114,6 +114,10 @@ func (p Production) LookupSetStatementByBuffer(bufferName string) *SetStatement 
 // We could store all the vars used in all the matches on the Match itself
 // and look it up there.
 func (p Production) LookupMatchByVariable(varName string) *Match {
+	if varName == "?" {
+		return nil
+	}
+
 	for _, m := range p.Matches {
 		if m.Pattern == nil {
 			return nil
