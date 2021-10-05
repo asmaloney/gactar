@@ -1,8 +1,6 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 0.2.0 - (in progress)
 
@@ -17,6 +15,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
    	'Andy Maloney <andy@example.com>'
    	'Hiro Protagonist <hiro@example.com>'
   }
+  ```
+
+- Added check for unused variables. Output an info message to suggest changing them to anonymous variables. ([#58](https://github.com/asmaloney/gactar/pull/58))
+  ```
+  INFO: variable ?blat is not used - should be simplified to '?' (line 9)
+  ```
+
+### Changed
+
+- Anonymous variables ("?") in set statements should produce an error. ([#59](https://github.com/asmaloney/gactar/pull/59))
+
+  ```
+  do {
+    set goal.thing to ?
+    set goal to [foo: ?]
+  }
+  ```
+
+  This will now produce an error such as this:
+
+  ```
+  ERROR: cannot set 'goal.thing' to anonymous var ('?') in production 'start' (line 10)
   ```
 
 ## [0.1.0](https://github.com/asmaloney/gactar/releases/tag/v0.1.0) - 2021-09-22
