@@ -396,6 +396,8 @@ func addProductions(model *actr.Model, log *amodlog.Log, productions *production
 			for _, statement := range *production.Do.Statements {
 				addStatement(model, log, statement, &prod)
 			}
+
+			validateVariableUsage(log, production.Match, production.Do)
 		}
 
 		model.Productions = append(model.Productions, &prod)

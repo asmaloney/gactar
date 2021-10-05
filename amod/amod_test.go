@@ -315,6 +315,41 @@ func Example_initializerMultipleInits() {
 	// ERROR: buffer 'goal' should only have one pattern in initialization (line 7)
 }
 
+func Example_productionUnusedVar() {
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: ?blat] }
+		do { set goal to [foo: ding] }
+	}`)
+
+	// Output:
+	// INFO: variable ?blat is not used - should be simplified to '?' (line 9)
+}
+
+func Example_productionUnusedVar2() {
+	// Check that using a var twice in a buffer match does not get
+	// marked as unused.
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing1 thing2] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: ?blat ?blat] }
+		do { set goal to [foo: ding] }
+	}`)
+
+	// Output:
+}
+
 func Example_productionInvalidMemory() {
 	generateToStdout(`
 	==model==
@@ -416,8 +451,8 @@ func Example_productionSetStatemtentNil() {
 	==productions==
 	start {
 		match {
-			goal [foo: ?blat]
-			imaginal [ack: ?bar]
+			goal [foo: blat]
+			imaginal [ack: bar]
 		}
 		do {
 			set goal.thing to nil
@@ -438,7 +473,7 @@ func Example_productionSetStatemtentNonVar() {
 	==init==
 	==productions==
 	start {
-		match { goal [foo: ?blat] }
+		match { goal [foo: blat] }
 		do { set goal.thing to ?ding }
 	}`)
 
@@ -510,7 +545,7 @@ func Example_productionRecallStatemtent() {
 	==init==
 	==productions==
 	start {
-		match { goal [foo: ?next ?other] }
+		match { goal [foo: ?next ?] }
 		do { recall [foo: ?next ?] }
 	}`)
 
@@ -578,7 +613,7 @@ func Example_productionPrintStatement1() {
 	==init==
 	==productions==
 	start {
-		match { goal [foo: ?next ?other] }
+		match { goal [foo: ? ?other] }
 		do { print 42, ?other, "blat" }
 	}`)
 
@@ -596,8 +631,8 @@ func Example_productionPrintStatement2() {
 	==productions==
 	start {
 		match {
-			goal [foo: ?next ?other]
-			retrieval [foo: ?next1 ?other1]
+			goal [foo: ? ?other]
+			retrieval [foo: ? ?other1]
 		}
 		do { print 42, ?other, ?other1, "blat" }
 	}`)
