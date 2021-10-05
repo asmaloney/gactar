@@ -24,7 +24,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Changed
 
-- Anonymous variables ("?") in set statements should produce an error. ([#59](https://github.com/asmaloney/gactar/pull/59))
+- Anonymous variables ("?") in set statements now produce an error. ([#59](https://github.com/asmaloney/gactar/pull/59))
 
   ```
   do {
@@ -33,10 +33,24 @@ All notable changes to this project will be documented in this file. The format 
   }
   ```
 
-  This will now produce an error such as this:
+  This will result in:
 
   ```
   ERROR: cannot set 'goal.thing' to anonymous var ('?') in production 'start' (line 10)
+  ```
+
+- Anonymous variables ("?") in print statements now produce an error. ([#60](https://github.com/asmaloney/gactar/pull/60))
+
+  ```
+  do {
+    print ?
+  }
+  ```
+
+  This will result in:
+
+  ```
+  ERROR: cannot print anonymous var ('?') in production 'start' (line 9)
   ```
 
 ## [0.1.0](https://github.com/asmaloney/gactar/releases/tag/v0.1.0) - 2021-09-22
