@@ -332,6 +332,42 @@ func Example_productionUnusedVar() {
 	// INFO: variable ?blat is not used - should be simplified to '?' (line 9)
 }
 
+func Example_productionInvalidAnonVarInSet1() {
+	// https://github.com/asmaloney/gactar/issues/57
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: ?] }
+		do { set goal.thing to ? }
+	}`)
+
+	// Output:
+	// ERROR: cannot set 'goal.thing' to anonymous var ('?') in production 'start' (line 10)
+}
+
+func Example_productionInvalidAnonVarInSet2() {
+	// https://github.com/asmaloney/gactar/issues/57
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: ?] }
+		do { set goal to [foo: ?] }
+	}`)
+
+	// Output:
+	// ERROR: cannot set 'goal.thing' to anonymous var ('?') in production 'start' (line 10)
+}
+
 func Example_productionUnusedVar2() {
 	// Check that using a var twice in a buffer match does not get
 	// marked as unused.
