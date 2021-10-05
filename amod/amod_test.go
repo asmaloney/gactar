@@ -725,6 +725,22 @@ func Example_productionPrintStatementInvalidVar() {
 	// ERROR: print statement variable '?fooVar' not found in matches for production 'start' (line 9)
 }
 
+func Example_productionPrintStatementAnonymousVar() {
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	==init==
+	==productions==
+	start {
+		match { retrieval [_status: error] }
+		do { print ? }
+	}`)
+
+	// Output:
+	// ERROR: cannot print anonymous var ('?') in production 'start' (line 9)
+}
+
 func Example_productionMatchInternal() {
 	generateToStdout(`
 	==model==
