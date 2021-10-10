@@ -179,14 +179,18 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *amodlog.Log
 					}
 
 					varItem := *slotItem.Var
-					if varItem != "?" {
-						continue
+					match := production.LookupMatchByVariable(varItem)
+					if match == nil {
+						if varItem == "?" {
+							chunkName := set.Pattern.ChunkName
+							chunk := model.LookupChunk(chunkName)
+
+							log.Error(set.Pattern.Pos.Line, "cannot set '%s.%v' to anonymous var ('?') in production '%s'", bufferName, chunk.SlotNames[slotIndex], production.Name)
+						} else {
+							log.Error(set.Pattern.Pos.Line, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
+						}
+						err = CompileError{}
 					}
-
-					chunkName := set.Pattern.ChunkName
-					chunk := model.LookupChunk(chunkName)
-
-					log.Error(set.Pattern.Pos.Line, "cannot set '%s.%v' to anonymous var ('?') in production '%s'", bufferName, chunk.SlotNames[slotIndex], production.Name)
 				}
 			}
 		}
