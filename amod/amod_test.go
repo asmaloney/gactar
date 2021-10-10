@@ -315,7 +315,7 @@ func Example_initializerMultipleInits() {
 	// ERROR: buffer 'goal' should only have one pattern in initialization (line 7)
 }
 
-func Example_productionUnusedVar() {
+func Example_productionUnusedVar1() {
 	generateToStdout(`
 	==model==
 	name: Test
@@ -330,6 +330,24 @@ func Example_productionUnusedVar() {
 
 	// Output:
 	// INFO: variable ?blat is not used - should be simplified to '?' (line 9)
+}
+
+func Example_productionUnusedVar2() {
+	// Check that using a var twice in a buffer match does not get
+	// marked as unused.
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing1 thing2] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: ?blat ?blat] }
+		do { set goal to [foo: ding] }
+	}`)
+
+	// Output:
 }
 
 func Example_productionInvalidAnonVarInSet1() {
@@ -366,24 +384,6 @@ func Example_productionInvalidAnonVarInSet2() {
 
 	// Output:
 	// ERROR: cannot set 'goal.thing' to anonymous var ('?') in production 'start' (line 10)
-}
-
-func Example_productionUnusedVar2() {
-	// Check that using a var twice in a buffer match does not get
-	// marked as unused.
-	generateToStdout(`
-	==model==
-	name: Test
-	==config==
-	chunks { [foo: thing1 thing2] }
-	==init==
-	==productions==
-	start {
-		match { goal [foo: ?blat ?blat] }
-		do { set goal to [foo: ding] }
-	}`)
-
-	// Output:
 }
 
 func Example_productionInvalidMemory() {
@@ -499,7 +499,7 @@ func Example_productionSetStatemtentNil() {
 	// Output:
 }
 
-func Example_productionSetStatemtentNonVar() {
+func Example_productionSetStatemtentNonVar1() {
 	// Check setting to non-existent var
 	generateToStdout(`
 	==model==
@@ -511,6 +511,23 @@ func Example_productionSetStatemtentNonVar() {
 	start {
 		match { goal [foo: blat] }
 		do { set goal.thing to ?ding }
+	}`)
+
+	// Output:
+	// ERROR: set statement variable '?ding' not found in matches for production 'start' (line 10)
+}
+
+func Example_productionSetStatemtentNonVar2() {
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: blat] }
+		do { set goal to [foo: ?ding] }
 	}`)
 
 	// Output:
