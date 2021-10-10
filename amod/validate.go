@@ -207,18 +207,17 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *amodlog.Log
 
 // validateRecallStatement checks a "recall" statement to verify the memory name.
 func validateRecallStatement(recall *recallStatement, model *actr.Model, log *amodlog.Log, production *actr.Production) (err error) {
-	for _, slot := range recall.Pattern.Slots {
-		for _, item := range slot.Items {
-			varName := item.Var
-			if (varName == nil) || (*varName == "?") {
-				continue
-			}
+	vars := varsFromPattern(recall.Pattern)
 
-			match := production.LookupMatchByVariable(*varName)
-			if match == nil {
-				log.Error(recall.Pos.Line, "recall statement variable '%s' not found in matches for production '%s'", *varName, production.Name)
-				err = CompileError{}
-			}
+	for _, varName := range vars {
+		if varName == "?" {
+			continue
+		}
+
+		match := production.LookupMatchByVariable(varName)
+		if match == nil {
+			log.Error(recall.Pos.Line, "recall statement variable '%s' not found in matches for production '%s'", varName, production.Name)
+			err = CompileError{}
 		}
 	}
 
@@ -275,20 +274,19 @@ func validateVariableUsage(log *amodlog.Log, match *match, do *do) {
 
 	// Walks a pattern to add all vars within
 	addPatternRefs := func(p *pattern, insertIfNotFound bool) {
-		for _, slot := range p.Slots {
-			for _, slotItem := range slot.Items {
-				if slotItem.Var != nil {
-					varItem := *slotItem.Var
-					if varItem != "?" {
-						if r, ok := varRefCount[varItem]; ok {
-							r.count++
-						} else if insertIfNotFound {
-							varRefCount[varItem] = &ref{
-								firstLine: slotItem.Pos.Line,
-								count:     1,
-							}
-						}
-					}
+		vars := varsFromPattern(p)
+
+		for _, varName := range vars {
+			if varName == "?" {
+				continue
+			}
+
+			if r, ok := varRefCount[varName]; ok {
+				r.count++
+			} else if insertIfNotFound {
+				varRefCount[varName] = &ref{
+					firstLine: p.Pos.Line,
+					count:     1,
 				}
 			}
 		}
@@ -335,4 +333,17 @@ func validateVariableUsage(log *amodlog.Log, match *match, do *do) {
 			log.Info(r.firstLine, "variable %s is not used - should be simplified to '?'", k)
 		}
 	}
+}
+
+// Get a slice of all the vars referenced in a pattern
+func varsFromPattern(pattern *pattern) (vars []string) {
+	for _, slot := range pattern.Slots {
+		for _, slotItem := range slot.Items {
+			if slotItem.Var != nil {
+				vars = append(vars, *slotItem.Var)
+			}
+		}
+	}
+
+	return
 }
