@@ -53,6 +53,20 @@ All notable changes to this project will be documented in this file. The format 
   ERROR: cannot print anonymous var ('?') in production 'start' (line 9)
   ```
 
+- Compound variables ("?foo!?bar") in set statements now produce an error. ([#63](https://github.com/asmaloney/gactar/pull/63))
+
+  ```
+  do {
+    set goal to [foo: ?foo!?bar]
+  }
+  ```
+
+  This will result in:
+
+  ```
+  ERROR: cannot set 'goal.thing' to compound var in production 'start' (line 10)
+  ```
+
 ## [0.1.0](https://github.com/asmaloney/gactar/releases/tag/v0.1.0) - 2021-09-22
 
 Initial release
