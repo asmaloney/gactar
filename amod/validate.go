@@ -172,25 +172,33 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *amodlog.Log
 			log.Error(set.Pos.Line, "buffer '%s' must be set to a pattern in production '%s'", bufferName, production.Name)
 			err = CompileError{}
 		} else {
+			chunkName := set.Pattern.ChunkName
+			chunk := model.LookupChunk(chunkName)
+
 			for slotIndex, slot := range set.Pattern.Slots {
-				for _, slotItem := range slot.Items {
-					if slotItem.Var == nil {
-						continue
-					}
+				if len(slot.Items) > 1 {
+					log.Error(set.Pattern.Pos.Line, "cannot set '%s.%v' to compound var in production '%s'", bufferName, chunk.SlotNames[slotIndex], production.Name)
+					err = CompileError{}
 
-					varItem := *slotItem.Var
-					match := production.LookupMatchByVariable(varItem)
-					if match == nil {
-						if varItem == "?" {
-							chunkName := set.Pattern.ChunkName
-							chunk := model.LookupChunk(chunkName)
+					continue
+				}
 
-							log.Error(set.Pattern.Pos.Line, "cannot set '%s.%v' to anonymous var ('?') in production '%s'", bufferName, chunk.SlotNames[slotIndex], production.Name)
-						} else {
-							log.Error(set.Pattern.Pos.Line, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
-						}
-						err = CompileError{}
+				// we only have one item
+				item := slot.Items[0]
+				if item.Var == nil {
+					continue
+				}
+
+				varItem := *item.Var
+				match := production.LookupMatchByVariable(varItem)
+				if match == nil {
+					if varItem == "?" {
+
+						log.Error(set.Pattern.Pos.Line, "cannot set '%s.%v' to anonymous var ('?') in production '%s'", bufferName, chunk.SlotNames[slotIndex], production.Name)
+					} else {
+						log.Error(set.Pattern.Pos.Line, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
 					}
+					err = CompileError{}
 				}
 			}
 		}
