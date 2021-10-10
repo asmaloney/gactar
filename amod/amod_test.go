@@ -534,6 +534,23 @@ func Example_productionSetStatemtentNonVar2() {
 	// ERROR: set statement variable '?ding' not found in matches for production 'start' (line 10)
 }
 
+func Example_productionSetStatemtentCompoundVar() {
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: ?ding] }
+		do { set goal to [foo: ?ding!5] }
+	}`)
+
+	// Output:
+	// ERROR: cannot set 'goal.thing' to compound var in production 'start' (line 10)
+}
+
 func Example_productionSetStatemtentAssignNonPattern() {
 	// Check setting buffer to non-pattern
 	// https://github.com/asmaloney/gactar/issues/28
