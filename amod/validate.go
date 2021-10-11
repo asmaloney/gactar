@@ -177,7 +177,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *amodlog.Log
 
 			for slotIndex, slot := range set.Pattern.Slots {
 				if len(slot.Items) > 1 {
-					log.Error(set.Pattern.Pos.Line, "cannot set '%s.%v' to compound var in production '%s'", bufferName, chunk.SlotNames[slotIndex], production.Name)
+					log.Error(set.Pattern.Pos.Line, "cannot set '%s.%v' to compound var in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
 					err = CompileError{}
 
 					continue
@@ -193,8 +193,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *amodlog.Log
 				match := production.LookupMatchByVariable(varItem)
 				if match == nil {
 					if varItem == "?" {
-
-						log.Error(set.Pattern.Pos.Line, "cannot set '%s.%v' to anonymous var ('?') in production '%s'", bufferName, chunk.SlotNames[slotIndex], production.Name)
+						log.Error(set.Pattern.Pos.Line, "cannot set '%s.%v' to anonymous var ('?') in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
 					} else {
 						log.Error(set.Pattern.Pos.Line, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
 					}

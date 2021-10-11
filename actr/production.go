@@ -6,10 +6,19 @@ type Production struct {
 	Name        string
 	Description *string // optional description to output as a comment in the generated code
 
+	VarIndexMap map[string]VarIndex // track the buffer and slot name each variable refers to
+
 	Matches      []*Match
 	DoStatements []*Statement
 
 	AMODLineNumber int // line number in the amod file of the this production
+}
+
+// VarIndex is used to track which buffer slot a variable refers to
+type VarIndex struct {
+	Var      string
+	Buffer   BufferInterface
+	SlotName string
 }
 
 type Match struct {
