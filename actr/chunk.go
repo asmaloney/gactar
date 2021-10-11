@@ -23,6 +23,11 @@ func (model Model) LookupChunk(chunkName string) *Chunk {
 	return nil
 }
 
+// SlotName returns the name of the slot given the index.
+func (c Chunk) SlotName(index int) (str string) {
+	return c.SlotNames[index]
+}
+
 func (c Chunk) IsInternal() bool {
 	return c.Name[0] == '_'
 }

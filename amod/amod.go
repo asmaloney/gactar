@@ -369,6 +369,7 @@ func addProductions(model *actr.Model, log *amodlog.Log, productions *production
 		prod := actr.Production{
 			Name:           production.Name,
 			Description:    production.Description,
+			VarIndexMap:    map[string]actr.VarIndex{},
 			AMODLineNumber: production.Pos.Line,
 		}
 
@@ -384,12 +385,31 @@ func addProductions(model *actr.Model, log *amodlog.Log, productions *production
 			}
 
 			name := item.Name
-
-			prod.Matches = append(prod.Matches, &actr.Match{
+			match := actr.Match{
 				Buffer:  model.LookupBuffer(name),
 				Pattern: pattern,
-			})
+			}
 
+			prod.Matches = append(prod.Matches, &match)
+
+			for index, slot := range pattern.Slots {
+				item := slot.Items[0]
+
+				if item.Var == nil {
+					continue
+				}
+
+				// Track the buffer and slot name the variable refers to
+				varItem := *item.Var
+				if _, ok := prod.VarIndexMap[varItem]; !ok {
+					varIndex := actr.VarIndex{
+						Var:      varItem,
+						Buffer:   match.Buffer,
+						SlotName: pattern.Chunk.SlotName(index),
+					}
+					prod.VarIndexMap[varItem] = varIndex
+				}
+			}
 		}
 
 		if production.Do.Statements != nil {
