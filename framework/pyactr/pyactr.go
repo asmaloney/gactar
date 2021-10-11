@@ -131,7 +131,7 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	p.Writeln("")
 
 	memory := p.model.Memory
-	additionalInit := []string{"subsymbolic=True"}
+	additionalInit := []string{}
 
 	if memory.Latency != nil {
 		additionalInit = append(additionalInit, fmt.Sprintf("latency_factor=%s", framework.Float64Str(*memory.Latency)))
@@ -417,6 +417,7 @@ func (p *PyACTR) outputStatement(production *actr.Production, s *actr.Statement)
 			p.outputPattern(s.Set.Pattern, 2)
 		}
 	} else if s.Recall != nil {
+		p.Writeln("\t~retrieval>")
 		p.Writeln("\t+retrieval>")
 		p.outputPattern(s.Recall.Pattern, 2)
 	} else if s.Print != nil {
