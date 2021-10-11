@@ -1,10 +1,5 @@
 package actr
 
-import (
-	"fmt"
-	"strings"
-)
-
 type Chunk struct {
 	Name      string
 	SlotNames []string
@@ -26,10 +21,6 @@ func (model Model) LookupChunk(chunkName string) *Chunk {
 	}
 
 	return nil
-}
-
-func (c Chunk) String() (str string) {
-	return fmt.Sprintf("%s( %s )", c.Name, strings.Join(c.SlotNames, " "))
 }
 
 func (c Chunk) IsInternal() bool {
