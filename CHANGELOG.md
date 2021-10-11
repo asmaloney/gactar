@@ -67,6 +67,12 @@ All notable changes to this project will be documented in this file. The format 
   ERROR: cannot set 'goal.thing' to compound var in production 'start' (line 10)
   ```
 
+### Fixed
+
+- pyactr generated code now handles printing of numbers and variables. ([#65](https://github.com/asmaloney/gactar/pull/65))
+
+  It is still limited to one `print` per production ([#66](https://github.com/asmaloney/gactar/issues/66))
+
 ## [0.1.0](https://github.com/asmaloney/gactar/releases/tag/v0.1.0) - 2021-09-22
 
 Initial release
