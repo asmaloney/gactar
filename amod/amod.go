@@ -413,6 +413,8 @@ func addProductions(model *actr.Model, log *amodlog.Log, productions *production
 		}
 
 		if production.Do.Statements != nil {
+			validateDo(log, production)
+
 			for _, statement := range *production.Do.Statements {
 				addStatement(model, log, statement, &prod)
 			}

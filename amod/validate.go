@@ -117,6 +117,30 @@ func validateMatch(match *match, model *actr.Model, log *amodlog.Log, production
 	return
 }
 
+// validateDo checks for multiple recall statements.
+func validateDo(log *amodlog.Log, production *production) {
+	type ref struct {
+		lastLine int // keep track of the last case of a recall statement for our output
+		count    int // ref count
+	}
+
+	recallRef := ref{
+		lastLine: 0,
+		count:    0,
+	}
+
+	for _, statement := range *production.Do.Statements {
+		if statement.Recall != nil {
+			recallRef.lastLine = statement.Pos.Line
+			recallRef.count++
+		}
+	}
+
+	if recallRef.count > 1 {
+		log.Error(recallRef.lastLine, "only one recall statement per production is allowed in production '%s'", production.Name)
+	}
+}
+
 // validateSetStatement checks a "set" statement to verify the buffer name & field indexing is correct.
 // The production's matches have been constructed, so that's what we check against.
 func validateSetStatement(set *setStatement, model *actr.Model, log *amodlog.Log, production *actr.Production) (err error) {
@@ -272,6 +296,7 @@ func validatePrintStatement(print *printStatement, model *actr.Model, log *amodl
 	return
 }
 
+// validateVariableUsage verifies variable usage by counting how many times they are referenced.
 func validateVariableUsage(log *amodlog.Log, match *match, do *do) {
 	type ref struct {
 		firstLine int // keep track of the first case of this variable for our output
