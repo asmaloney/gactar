@@ -17,12 +17,13 @@ All notable changes to this project will be documented in this file. The format 
   }
   ```
 
-- Added check for unused variables. Output an info message to suggest changing them to anonymous variables. ([#58](https://github.com/asmaloney/gactar/pull/58))
-  ```
-  INFO: variable ?blat is not used - should be simplified to '?' (line 9)
-  ```
-
 ### Changed
+
+- Unused variables now produce an error. ([#58](https://github.com/asmaloney/gactar/pull/58))
+
+  ```
+  ERROR: variable ?blat is not used - should be simplified to '?' (line 9)
+  ```
 
 - Anonymous variables ("?") in set statements now produce an error. ([#59](https://github.com/asmaloney/gactar/pull/59))
 
@@ -65,6 +66,21 @@ All notable changes to this project will be documented in this file. The format 
 
   ```
   ERROR: cannot set 'goal.thing' to compound var in production 'start' (line 10)
+  ```
+
+- Multiple _recall_ statements in a production now produce an error. ([#69](https://github.com/asmaloney/gactar/pull/69))
+
+  ```
+  do {
+    recall [foo: ?next ?]
+    recall [foo: ? ?next]
+  }
+  ```
+
+  This will result in:
+
+  ```
+  ERROR: only one recall statement per production is allowed in production 'start' (line 12)
   ```
 
 - **pyactr**
