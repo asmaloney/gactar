@@ -362,7 +362,7 @@ func validateVariableUsage(log *amodlog.Log, match *match, do *do) {
 	// Any var with only one reference should be anonymous ("?"), so add info to log
 	for k, r := range varRefCount {
 		if r.count == 1 {
-			log.Info(r.firstLine, "variable %s is not used - should be simplified to '?'", k)
+			log.Error(r.firstLine, "variable %s is not used - should be simplified to '?'", k)
 		}
 	}
 }

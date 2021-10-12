@@ -329,7 +329,7 @@ func Example_productionUnusedVar1() {
 	}`)
 
 	// Output:
-	// INFO: variable ?blat is not used - should be simplified to '?' (line 9)
+	// ERROR: variable ?blat is not used - should be simplified to '?' (line 9)
 }
 
 func Example_productionUnusedVar2() {
