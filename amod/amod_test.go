@@ -606,7 +606,7 @@ func Example_productionSetStatemtentAssignPattern() {
 	// ERROR: cannot set a slot ('thing') to a pattern in match buffer 'goal' in production 'start' (line 10)
 }
 
-func Example_productionRecallStatemtent() {
+func Example_productionRecallStatement() {
 	generateToStdout(`
 	==model==
 	name: Test
@@ -620,6 +620,26 @@ func Example_productionRecallStatemtent() {
 	}`)
 
 	// Output:
+}
+
+func Example_productionRecallStatementMultiple() {
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing1 thing2] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: ?next ?] }
+		do {
+			recall [foo: ?next ?]
+			recall [foo: ? ?next]
+		}
+	}`)
+
+	// Output:
+	// ERROR: only one recall statement per production is allowed in production 'start' (line 12)
 }
 
 func Example_productionRecallStatemtentVarNotFound() {
