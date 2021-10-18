@@ -24,7 +24,7 @@ pip install -r scripts/requirements.txt
 
 # run our own script to download and install non-pip-compatible things
 cd ./env
-python3 ../scripts/getImplementations.py
+python3 ../scripts/get_implementations.py
 if [ $? -eq 0 ]; then
     echo "SUCCESS"
     echo "Your environment is set up."
