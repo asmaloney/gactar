@@ -23,7 +23,7 @@ type Initializer struct {
 
 	Pattern *Pattern
 
-	AMODLineNumber int // line number in the amod file of this initializations
+	AMODLineNumber int // line number in the amod file of this initialization
 }
 
 func (model *Model) Initialize() {
