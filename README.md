@@ -125,7 +125,7 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
    - download the [CCM Suite](https://github.com/asmaloney/CCM-PyACTR) & put its files in the right place
    - install [pyactr](https://github.com/jakdot/pyactr) using pip
    - download "vanilla" [ACT-R](https://github.com/asmaloney/ACT-R)
-   - (macOS-only) download & install the [Steel Bank Common Lisp](https://www.sbcl.org/index.html) (sbcl) compiler
+   - (macOS-only) download & install the [Steel Bank Common Lisp](http://www.sbcl.org/index.html) (sbcl) compiler
    - (macOS-only) compile the ACT-R lisp files
 
 2. You will need to activate the virtual environment by running this in the terminal before you run `gactar`:
@@ -142,7 +142,7 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
 
 For now this is only automated on macOS because the required files are not easy to determine programmatically. It may be possible to improve this in the future for other operating systems.
 
-1. We are using the [Steel Bank Common Lisp](https://www.sbcl.org/index.html) (sbcl) compiler. Download the correct version [from here](https://www.sbcl.org/platform-table.html) by finding your platform (OS and architecture) in the table and clicking its box. Put the file in the `env` directory and unpack it there.
+1. We are using the [Steel Bank Common Lisp](http://www.sbcl.org/index.html) (sbcl) compiler. Download the correct version [from here](http://www.sbcl.org/platform-table.html) by finding your platform (OS and architecture) in the table and clicking its box. Put the file in the `env` directory and unpack it there.
 
 2. To install it in our environment, change to the new directory it created (e.g. `sbcl-1.2.11-x86-64-darwin`) and run this command (setting the path to wherever the env directory is):
 
