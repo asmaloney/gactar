@@ -17,6 +17,8 @@ All notable changes to this project will be documented in this file. The format 
   }
   ```
 
+- Generated source files now include the gactar version which was used to generate them in the comments at the top. ([#78](https://github.com/asmaloney/gactar/pull/78))
+
 ### Changed
 
 - Unused variables now produce an error. ([#58](https://github.com/asmaloney/gactar/pull/58))
