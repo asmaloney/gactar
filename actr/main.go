@@ -9,20 +9,16 @@ type Model struct {
 	Authors      []string
 	Examples     []*Pattern
 	Chunks       []*Chunk
-	Buffers      []BufferInterface
-	Memory       *Memory
+	Modules      []ModuleInterface
+	Memory       *DeclMemory // memory is always present, so keep track of it instead of looking it up
 	Initializers []*Initializer
 	Productions  []*Production
 	LogLevel     ACTRLogLevel
-	HasImaginal  bool
 }
 
 type Initializer struct {
-	Buffer BufferInterface // buffer...
-	Memory *Memory         // ... OR memory
-
-	Pattern *Pattern
-
+	Buffer         BufferInterface
+	Pattern        *Pattern
 	AMODLineNumber int // line number in the amod file of this initialization
 }
 
@@ -36,16 +32,10 @@ func (model *Model) Initialize() {
 		},
 	}
 
-	retrieval := &Buffer{Name: "retrieval"}
-	model.Buffers = []BufferInterface{
-		retrieval,
-		&Buffer{Name: "goal"},
-	}
+	model.Modules = append(model.Modules, NewGoal())
 
-	model.Memory = &Memory{
-		Name:   "memory",
-		Buffer: retrieval,
-	}
+	model.Memory = NewDeclMemory()
+	model.Modules = append(model.Modules, model.Memory)
 
 	model.LogLevel = "info"
 }
@@ -53,11 +43,7 @@ func (model *Model) Initialize() {
 // HasInitializer checks if the model has an initialization for the buffer.
 func (model Model) HasInitializer(buffer string) bool {
 	for _, init := range model.Initializers {
-		if init.Memory != nil {
-			continue
-		}
-
-		if init.Buffer.GetName() == buffer {
+		if init.Buffer.GetBufferName() == buffer {
 			return true
 		}
 	}
@@ -79,4 +65,48 @@ func (model Model) HasPrintStatement() bool {
 	}
 
 	return false
+}
+
+// CreateImaginal creates the imaginal module and adds it to the list.
+func (model *Model) CreateImaginal() *Imaginal {
+	imaginal := NewImaginal()
+	model.Modules = append(model.Modules, imaginal)
+	return imaginal
+}
+
+// GetImaginal gets the imaginal module (or returns nil if it does not exist).
+func (model Model) GetImaginal() *Imaginal {
+	module := model.LookupModule("imaginal")
+	if module == nil {
+		return nil
+	}
+
+	imaginal, ok := module.(*Imaginal)
+	if !ok {
+		return nil
+	}
+
+	return imaginal
+}
+
+// LookupModule looks up the named module in the model and returns it (or nil if it does not exist).
+func (model Model) LookupModule(moduleName string) ModuleInterface {
+	for _, module := range model.Modules {
+		if module.GetModuleName() == moduleName {
+			return module
+		}
+	}
+
+	return nil
+}
+
+// LookupBuffer looks up the named buffer in the model and returns it (or nil if it does not exist).
+func (model Model) LookupBuffer(bufferName string) BufferInterface {
+	for _, module := range model.Modules {
+		if module.GetBufferName() == bufferName {
+			return module
+		}
+	}
+
+	return nil
 }

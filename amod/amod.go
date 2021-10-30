@@ -326,36 +326,29 @@ func addInit(model *actr.Model, log *amodlog.Log, init *initSection) {
 		}
 
 		name := initialization.Name
-		buffer := model.LookupBuffer(name)
+		module := model.LookupModule(name)
 
-		if buffer != nil {
-			pattern, err := createChunkPattern(model, log, initialization.InitPattern)
+		// To simplify later processing, if we only have one init pattern, put it in the list.
+		// This way we can avoid extra checking for InitPattern vs. InitPatterns.
+		if initialization.InitPattern != nil && initialization.InitPatterns == nil {
+			initialization.InitPatterns = make([]*pattern, 1)
+			initialization.InitPatterns[0] = initialization.InitPattern
+			initialization.InitPattern = nil
+		}
+
+		for _, init := range initialization.InitPatterns {
+			pattern, err := createChunkPattern(model, log, init)
 			if err != nil {
 				continue
 			}
 
 			init := actr.Initializer{
-				Buffer:         buffer,
+				Buffer:         module,
 				Pattern:        pattern,
 				AMODLineNumber: init.Pos.Line,
 			}
 
 			model.Initializers = append(model.Initializers, &init)
-		} else { // memory
-			for _, init := range initialization.InitPatterns {
-				pattern, err := createChunkPattern(model, log, init)
-				if err != nil {
-					continue
-				}
-
-				init := actr.Initializer{
-					Memory:         model.Memory,
-					Pattern:        pattern,
-					AMODLineNumber: init.Pos.Line,
-				}
-
-				model.Initializers = append(model.Initializers, &init)
-			}
 		}
 	}
 }
@@ -510,7 +503,7 @@ func addSetStatement(model *actr.Model, log *amodlog.Log, set *setStatement, pro
 	}
 
 	if set.Slot != nil {
-		bufferName := buffer.GetName()
+		bufferName := buffer.GetBufferName()
 
 		// find slot index in chunk
 		match := production.LookupMatchByBuffer(bufferName)
@@ -578,8 +571,8 @@ func addRecallStatement(model *actr.Model, log *amodlog.Log, recall *recallState
 
 	s := actr.Statement{
 		Recall: &actr.RecallStatement{
-			Pattern: pattern,
-			Memory:  model.Memory,
+			Pattern:    pattern,
+			MemoryName: model.Memory.GetModuleName(),
 		},
 	}
 

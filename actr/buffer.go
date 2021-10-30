@@ -15,14 +15,14 @@ var ValidBufferStates = map[string]bool{
 }
 
 type BufferInterface interface {
-	GetName() string
+	GetBufferName() string
 }
 
 type Buffer struct {
 	Name string
 }
 
-func (b Buffer) GetName() string {
+func (b Buffer) GetBufferName() string {
 	return b.Name
 }
 
@@ -45,15 +45,4 @@ func ValidBufferStatesStr() string {
 
 	sort.Strings(keys)
 	return strings.Join(keys, ", ")
-}
-
-// LookupBuffer looks up the named buffer in the model and returns it (or nil if it does not exist).
-func (model Model) LookupBuffer(bufferName string) BufferInterface {
-	for _, buf := range model.Buffers {
-		if buf.GetName() == bufferName {
-			return buf
-		}
-	}
-
-	return nil
 }

@@ -1,8 +1,8 @@
 package actr
 
-type Memory struct {
-	Name   string
-	Buffer BufferInterface
+// DeclMemory is a module which provides declarative memory.
+type DeclMemory struct {
+	BufferInterface
 
 	// Setting these kinds of parameters is going to be tricky.
 	// The way each framework handles timing is different.
@@ -14,4 +14,18 @@ type Memory struct {
 	MaxTime   *float64 // maximum time to run (in sim time, not real-time)
 	FinstSize *int     // finst == "fingers of instantiation"
 	FinstTime *float64
+}
+
+func NewDeclMemory() *DeclMemory {
+	return &DeclMemory{
+		BufferInterface: Buffer{Name: "retrieval"},
+	}
+}
+
+func (d DeclMemory) GetModuleName() string {
+	return "memory"
+}
+
+func (d DeclMemory) AllowsMultipleInit() bool {
+	return true
 }

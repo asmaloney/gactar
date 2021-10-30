@@ -132,8 +132,8 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 
 	c.Writeln("class %s(ACTR):", c.className)
 
-	for _, buf := range c.model.Buffers {
-		c.Writeln("\t%s = Buffer()", buf.GetName())
+	for _, module := range c.model.Modules {
+		c.Writeln("\t%s = Buffer()", module.GetBufferName())
 	}
 
 	memory := c.model.Memory
@@ -160,9 +160,9 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 	}
 
 	if len(additionalInit) > 0 {
-		c.Writeln("\t%s = Memory(%s, %s)", memory.Name, memory.Buffer.GetName(), strings.Join(additionalInit, ", "))
+		c.Writeln("\t%s = Memory(%s, %s)", memory.GetModuleName(), memory.GetBufferName(), strings.Join(additionalInit, ", "))
 	} else {
-		c.Writeln("\t%s = Memory(%s)", memory.Name, memory.Buffer.GetName())
+		c.Writeln("\t%s = Memory(%s)", memory.GetModuleName(), memory.GetBufferName())
 	}
 
 	c.Writeln("")
@@ -178,19 +178,19 @@ func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string,
 		c.Writeln("\tdef init():")
 
 		for _, init := range c.model.Initializers {
-			if init.Buffer != nil {
-				initializer := init.Buffer.GetName()
+			initializer := init.Buffer.GetBufferName()
 
-				// allow the user-set goal to override the initializer
-				if initializer == "goal" && (goal != nil) {
-					continue
-				}
-				c.Writeln("\t\t# amod line %d", init.AMODLineNumber)
+			// allow the user-set goal to override the initializer
+			if initializer == "goal" && (goal != nil) {
+				continue
+			}
+
+			c.Writeln("\t\t# amod line %d", init.AMODLineNumber)
+
+			if initializer == "retrieval" {
+				c.Write("\t\t%s.add(", "memory")
+			} else {
 				c.Write("\t\t%s.set(", initializer)
-
-			} else { // memory
-				c.Writeln("\t\t# amod line %d", init.AMODLineNumber)
-				c.Write("\t\t%s.add(", init.Memory.Name)
 			}
 
 			c.outputPattern(init.Pattern)
@@ -290,7 +290,7 @@ func (c *CCMPyACTR) outputPattern(pattern *actr.Pattern) {
 func (c *CCMPyACTR) outputMatch(match *actr.Match) {
 	var name string
 	if match.Buffer != nil {
-		name = match.Buffer.GetName()
+		name = match.Buffer.GetBufferName()
 	}
 
 	chunkName := match.Pattern.Chunk.Name
@@ -316,14 +316,14 @@ func (c *CCMPyACTR) outputStatement(s *actr.Statement) {
 				value := convertSetValue(slot.Value)
 				slotAssignments = append(slotAssignments, fmt.Sprintf("_%d=%s", slot.SlotIndex, value))
 			}
-			c.Writeln("\t\t%s.modify(%s)", s.Set.Buffer.GetName(), strings.Join(slotAssignments, ", "))
+			c.Writeln("\t\t%s.modify(%s)", s.Set.Buffer.GetBufferName(), strings.Join(slotAssignments, ", "))
 		} else {
-			c.Write("\t\t%s.set(", s.Set.Buffer.GetName())
+			c.Write("\t\t%s.set(", s.Set.Buffer.GetBufferName())
 			c.outputPattern(s.Set.Pattern)
 			c.Writeln(")")
 		}
 	} else if s.Recall != nil {
-		c.Write("\t\t%s.request(", s.Recall.Memory.Name)
+		c.Write("\t\t%s.request(", s.Recall.MemoryName)
 		c.outputPattern(s.Recall.Pattern)
 		c.Writeln(")")
 	} else if s.Clear != nil {
