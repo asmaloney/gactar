@@ -328,14 +328,6 @@ func addInit(model *actr.Model, log *amodlog.Log, init *initSection) {
 		name := initialization.Name
 		module := model.LookupModule(name)
 
-		// To simplify later processing, if we only have one init pattern, put it in the list.
-		// This way we can avoid extra checking for InitPattern vs. InitPatterns.
-		if initialization.InitPattern != nil && initialization.InitPatterns == nil {
-			initialization.InitPatterns = make([]*pattern, 1)
-			initialization.InitPatterns[0] = initialization.InitPattern
-			initialization.InitPattern = nil
-		}
-
 		for _, init := range initialization.InitPatterns {
 			pattern, err := createChunkPattern(model, log, init)
 			if err != nil {
