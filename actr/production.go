@@ -53,8 +53,8 @@ type PrintStatement struct {
 
 // RecallStatement is used to pull information from memory.
 type RecallStatement struct {
-	Pattern *Pattern
-	Memory  *Memory
+	Pattern    *Pattern
+	MemoryName string
 }
 
 type SetValue struct {
@@ -85,7 +85,7 @@ type SetStatement struct {
 
 func (p Production) LookupMatchByBuffer(bufferName string) *Match {
 	for _, m := range p.Matches {
-		if m.Buffer.GetName() == bufferName {
+		if m.Buffer.GetBufferName() == bufferName {
 			return m
 		}
 	}
@@ -110,7 +110,7 @@ func (p Production) LookupSetStatementByBuffer(bufferName string) *SetStatement 
 		return nil
 	}
 
-	if last.Set.Buffer.GetName() == bufferName {
+	if last.Set.Buffer.GetBufferName() == bufferName {
 		return last.Set
 	}
 

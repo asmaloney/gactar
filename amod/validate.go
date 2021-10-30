@@ -28,22 +28,23 @@ func validateInitialization(model *actr.Model, log *amodlog.Log, init *initializ
 	}
 
 	name := init.Name
-	buffer := model.LookupBuffer(name)
-	if buffer != nil {
+	module := model.LookupModule(name)
+
+	if module == nil {
+		log.Error(init.Pos.Line, "module '%s' not found in initialization ", name)
+		return CompileError{}
+	}
+
+	if !module.AllowsMultipleInit() {
 		if init.InitPatterns != nil {
-			log.Error(init.Pos.Line, "buffer '%s' should only have one pattern in initialization", name)
-			return CompileError{}
-		} else if init.InitPattern == nil {
-			log.Error(init.Pos.Line, "buffer '%s' requires a pattern in initialization", name)
+			log.Error(init.Pos.Line, "module '%s' should only have one pattern in initialization", name)
 			return CompileError{}
 		}
 
-		return
-	}
-
-	if name != "memory" {
-		log.Error(init.Pos.Line, "buffer or memory '%s' not found in initialization ", name)
-		err = CompileError{}
+		if init.InitPattern == nil {
+			log.Error(init.Pos.Line, "module '%s' requires a pattern in initialization", name)
+			return CompileError{}
+		}
 	}
 
 	for _, init := range init.InitPatterns {

@@ -297,7 +297,7 @@ func Example_initializerUnknownBuffer() {
 	==productions==`)
 
 	// Output:
-	// ERROR: buffer or memory 'something' not found in initialization  (line 7)
+	// ERROR: module 'something' not found in initialization  (line 7)
 }
 
 func Example_initializerMultipleInits() {
@@ -312,7 +312,7 @@ func Example_initializerMultipleInits() {
 	==productions==`)
 
 	// Output:
-	// ERROR: buffer 'goal' should only have one pattern in initialization (line 7)
+	// ERROR: module 'goal' should only have one pattern in initialization (line 7)
 }
 
 func Example_productionUnusedVar1() {
