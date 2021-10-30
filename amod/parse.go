@@ -113,8 +113,7 @@ type configSection struct {
 
 type initialization struct {
 	Name         string     `parser:"@Ident"`
-	InitPattern  *pattern   `parser:"( @@ "`
-	InitPatterns []*pattern `parser:"| '{' @@+ '}')"`
+	InitPatterns []*pattern `parser:"( '{' @@+ '}' | @@ )"`
 
 	Pos lexer.Position
 }
@@ -231,7 +230,7 @@ type production struct {
 }
 
 type productionSection struct {
-	Productions []*production `parser:"( @@ )+"`
+	Productions []*production `parser:"@@+"`
 
 	Pos lexer.Position
 }

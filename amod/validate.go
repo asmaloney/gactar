@@ -23,10 +23,6 @@ func validateChunk(model *actr.Model, log *amodlog.Log, chunk *chunkDecl) (err e
 }
 
 func validateInitialization(model *actr.Model, log *amodlog.Log, init *initialization) (err error) {
-	if init.InitPattern != nil {
-		err = validatePattern(model, log, init.InitPattern)
-	}
-
 	name := init.Name
 	module := model.LookupModule(name)
 
@@ -35,16 +31,9 @@ func validateInitialization(model *actr.Model, log *amodlog.Log, init *initializ
 		return CompileError{}
 	}
 
-	if !module.AllowsMultipleInit() {
-		if init.InitPatterns != nil {
-			log.Error(init.Pos.Line, "module '%s' should only have one pattern in initialization", name)
-			return CompileError{}
-		}
-
-		if init.InitPattern == nil {
-			log.Error(init.Pos.Line, "module '%s' requires a pattern in initialization", name)
-			return CompileError{}
-		}
+	if !module.AllowsMultipleInit() && len(init.InitPatterns) > 1 {
+		log.Error(init.Pos.Line, "module '%s' should only have one pattern in initialization", name)
+		return CompileError{}
 	}
 
 	for _, init := range init.InitPatterns {
