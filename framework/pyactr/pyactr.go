@@ -1,6 +1,7 @@
 package pyactr
 
 import (
+	_ "embed"
 	"fmt"
 	"os"
 	"os/exec"
@@ -15,6 +16,9 @@ import (
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/version"
 )
+
+//go:embed pyactr_print.py
+var pyactrPrintPython string
 
 type PyACTR struct {
 	framework.WriterHelper
@@ -92,6 +96,22 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 		return
 	}
 
+	// If our model has a print statement, then write out our support file
+	if p.model.HasPrintStatement() {
+		supportFileName := "pyactr_print.py"
+		if path != "" {
+			supportFileName = fmt.Sprintf("%s/%s", path, supportFileName)
+		}
+
+		file, err := os.OpenFile(supportFileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0660)
+		if err != nil {
+			return "", err
+		}
+		defer file.Close()
+
+		file.WriteString(pyactrPrintPython)
+	}
+
 	outputFileName = fmt.Sprintf("%s.py", p.className)
 	if path != "" {
 		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
@@ -118,16 +138,11 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 
 	p.outputAuthors()
 
-	if p.model.HasPrintStatement() {
-		// We use csv to parse the print text we are generating.
-		// This is just simpler than writing it ourselves (i.e. handling "foo, bar ", 66).
-		p.Writeln("import csv")
-	}
-
 	p.Writeln("import pyactr as actr")
 
 	if p.model.HasPrintStatement() {
-		p.Writeln("from pyactr.buffers import Buffer")
+		// Import gactar's print handling
+		p.Writeln("import pyactr_print")
 	}
 
 	p.Writeln("")
@@ -143,7 +158,15 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 		additionalInit = append(additionalInit, fmt.Sprintf("retrieval_threshold=%s", framework.Float64Str(*memory.Threshold)))
 	}
 
-	p.Write("%s = actr.ACTRModel(%s)\n\n", p.className, strings.Join(additionalInit, ", "))
+	p.Writeln("%s = actr.ACTRModel(%s)", p.className, strings.Join(additionalInit, ", "))
+
+	if p.model.HasPrintStatement() {
+		p.Writeln("")
+		p.Writeln("# pyactr doesn't handle general printing, so use gactar to add this capability")
+		p.Writeln("pyactr_print.set_model(%s)", p.className)
+	}
+
+	p.Write("\n")
 
 	// chunks
 	for _, chunk := range p.model.Chunks {
@@ -236,73 +259,6 @@ func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, er
 	}
 
 	p.Writeln("")
-
-	if p.model.HasPrintStatement() {
-		// We add some python code to monkey patch the model and the buffer.
-		// This lets us output strings, numbers, and the contents of buffer slots.
-
-		p.Writeln(`
-# Monkey patch ACTRModel to add a new method.
-def get_buffer(self, buffer_name: str) -> Buffer:
-	if buffer_name == 'goal':
-		return self._ACTRModel__buffers['goal']
-	if buffer_name == 'retrieval':
-		return self._ACTRModel__buffers["retrieval"]
-
-	print('ERROR: Buffer \'' + buffer_name + '\' not found')
-
-
-actr.ACTRModel.get_buffer = get_buffer
-
-
-# Monkey patch Buffer to add a new methods.
-def get_slot_contents(self, buffer_name: str, slot_name: str) -> str:
-	if self._data:
-		chunk = self._data.copy().pop()
-	else:
-		chunk = None
-	try:
-		return str(getattr(chunk, slot_name))
-	except AttributeError:
-		print('ERROR: no slot named \'' + slot_name +
-			  '\' in buffer \'' + buffer_name + '\'')
-
-	return ''
-
-
-def print_text(*args):
-	text = ''.join(args[1:]).strip('"')
-	output = ''  # build up our output in this buffer
-
-	for itemlist in csv.reader([text]):
-		for item in itemlist:
-			item = item.strip(' ')
-
-			# Handle string
-			if item[0] == '\'' or item[0] == '"':
-				output += item[1:-1]
-			else:
-				# Handle number
-				try:
-					float(item)
-					output += item
-				except ValueError:
-					# If we are here, we should have a buffer.slotname
-					ids = item.split('.')
-					if len(ids) != 2:
-						print(
-							'ERROR: expected <buffer>.<slot_name>, found \'' + item + '\'')
-					else:
-						buffer = %s.get_buffer(ids[0])
-						output += buffer.get_slot_contents(ids[0], ids[1])
-
-	print(output)
-
-
-Buffer.get_slot_contents = get_slot_contents
-Buffer.print_text = print_text
-`, p.className)
-	}
 
 	// ...add our code to run
 	p.Writeln("# Main")
