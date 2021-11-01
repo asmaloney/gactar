@@ -19,6 +19,10 @@ All notable changes to this project will be documented in this file. The format 
 
 - Generated source files now include the gactar version which was used to generate them in the comments at the top. ([#78](https://github.com/asmaloney/gactar/pull/78))
 
+- Added new web API endpoints for creating sessions, and compiling &amp; running models. These are intended to be used by other software to compile and run amod models using gactar running as a server. See the [Web API documentation](<doc/Web API.md>) for details.
+
+- Added [documentation](<doc/Web API.md>) for existing web endpoints.
+
 ### Changed
 
 - Unused variables now produce an error. ([#58](https://github.com/asmaloney/gactar/pull/58))

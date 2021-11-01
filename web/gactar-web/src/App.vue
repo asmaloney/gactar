@@ -131,7 +131,7 @@ export default {
       try {
         const { data } = await this.$http.post('/run', {
           amod: this.code['amod'],
-          run: this.goal,
+          goal: this.goal,
         })
 
         if (data.error) {

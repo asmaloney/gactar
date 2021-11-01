@@ -357,6 +357,10 @@ The results (and any errors) will be shown on the right and the generated code t
 
 **Important Note:** This web server is only intended to be run locally. It should not be used to expose gactar to the internet. Because we are running code, a lot more checking and validation of inputs would be required before doing so.
 
+## Web API
+
+gactar provides an HTTP-based API to compile and run amod files. The available endpoints are documented separately in the [Web API documentation](<doc/Web API.md>).
+
 ## gactar Models
 
 gactar models are written using the _amod_ format which is designed to be an easy-to-understand description of an ACT-R model.
