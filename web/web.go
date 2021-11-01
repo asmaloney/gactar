@@ -59,10 +59,6 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 		return nil, err
 	}
 
-	return
-}
-
-func (w *Web) Start() (err error) {
 	http.HandleFunc("/version", w.getVersion)
 	http.HandleFunc("/run", w.runModel)
 
@@ -73,6 +69,10 @@ func (w *Web) Start() (err error) {
 	mainHandler := assetHandler(&mainAssets, "build")
 	http.HandleFunc("/", mainHandler.ServeHTTP)
 
+	return
+}
+
+func (w *Web) Start() (err error) {
 	fmt.Printf("Serving gactar on http://localhost:%d\n", w.port)
 
 	err = http.ListenAndServe(fmt.Sprintf(":%d", w.port), nil)
@@ -88,12 +88,9 @@ func (w *Web) getVersion(rw http.ResponseWriter, req *http.Request) {
 		Version string `json:"version"`
 	}
 
-	r := response{
+	encodeResponse(rw, response{
 		Version: version.BuildVersion,
-	}
-
-	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
-	json.NewEncoder(rw).Encode(r)
+	})
 }
 
 func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
@@ -112,19 +109,17 @@ func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
 		Results json.RawMessage `json:"results"`
 	}
 
-	decoder := json.NewDecoder(req.Body)
-
 	var data request
-	err := decoder.Decode(&data)
+	err := decodeBody(req, &data)
 	if err != nil {
-		fmt.Println(err.Error())
+		encodeErrorResponse(rw, err)
 		return
 	}
 
 	model, log, err := amod.GenerateModel(data.AMODFile)
 	if err != nil {
 		err = errors.New(log.String())
-		errorResponse(rw, err)
+		encodeErrorResponse(rw, err)
 		return
 	}
 
@@ -163,16 +158,13 @@ func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
 
 	results, err := json.Marshal(resultMap)
 	if err != nil {
-		errorResponse(rw, err)
+		encodeErrorResponse(rw, err)
 		return
 	}
 
-	r := response{
+	encodeResponse(rw, response{
 		Results: json.RawMessage(string(results)),
-	}
-
-	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
-	json.NewEncoder(rw).Encode(r)
+	})
 }
 
 // assetHandler returns an http.Handler that will serve files from
@@ -202,7 +194,7 @@ func (w *Web) listExamples(rw http.ResponseWriter, req *http.Request) {
 
 	entries, err := w.examples.ReadDir("examples")
 	if err != nil {
-		errorResponse(rw, err)
+		encodeErrorResponse(rw, err)
 		return
 	}
 
@@ -212,12 +204,9 @@ func (w *Web) listExamples(rw http.ResponseWriter, req *http.Request) {
 		list = append(list, entry.Name())
 	}
 
-	r := response{
+	encodeResponse(rw, response{
 		List: list,
-	}
-
-	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
-	json.NewEncoder(rw).Encode(r)
+	})
 }
 
 func (w *Web) run(model *actr.Model, initialGoal string, framework framework.Framework) (generatedCode, output []byte, err error) {
@@ -241,7 +230,28 @@ func (w *Web) run(model *actr.Model, initialGoal string, framework framework.Fra
 	return
 }
 
-func errorResponse(rw http.ResponseWriter, err error) {
+func decodeBody(req *http.Request, v interface{}) (err error) {
+	if req.Body == nil {
+		err = fmt.Errorf("empty request body")
+		return err
+	}
+
+	decoder := json.NewDecoder(req.Body)
+
+	err = decoder.Decode(&v)
+	if err != nil {
+		return err
+	}
+
+	return
+}
+
+func encodeResponse(rw http.ResponseWriter, v interface{}) {
+	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(rw).Encode(v)
+}
+
+func encodeErrorResponse(rw http.ResponseWriter, err error) {
 	type response struct {
 		ErrorStr string `json:"error"`
 	}
