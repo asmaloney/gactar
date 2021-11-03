@@ -12,7 +12,6 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/asmaloney/gactar/actr"
-	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/version"
 )
@@ -68,8 +67,8 @@ func (p *PyACTR) SetModel(model *actr.Model) (err error) {
 	return
 }
 
-func (p *PyACTR) Run(initialGoal string) (generatedCode, output []byte, err error) {
-	outputFile, err := p.WriteModel(p.tmpPath, initialGoal)
+func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (generatedCode, output []byte, err error) {
+	outputFile, err := p.WriteModel(p.tmpPath, initialBuffers)
 	if err != nil {
 		return
 	}
@@ -89,12 +88,12 @@ func (p *PyACTR) Run(initialGoal string) (generatedCode, output []byte, err erro
 	return
 }
 
-func (p *PyACTR) WriteModel(path, initialGoal string) (outputFileName string, err error) {
-	goal, err := amod.ParseChunk(p.model, initialGoal)
+func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
+	patterns, err := framework.ParseInitialBuffers(p.model, initialBuffers)
 	if err != nil {
-		err = fmt.Errorf("ERROR in initial goal - %s", err)
 		return
 	}
+	goal := patterns["goal"]
 
 	// If our model has a print statement, then write out our support file
 	if p.model.HasPrintStatement() {

@@ -198,17 +198,21 @@ func (s *Shell) cmdRun(initialGoal string) (err error) {
 		return
 	}
 
-	for name, framework := range *s.actrFrameworks {
+	for name, f := range *s.actrFrameworks {
 		if !s.activeFrameworks[name] {
 			continue
 		}
 
-		err = framework.SetModel(s.currentModel)
+		err = f.SetModel(s.currentModel)
 		if err != nil {
 			return err
 		}
 
-		_, output, err := framework.Run(initialGoal)
+		initialBuffers := framework.InitialBuffers{
+			"goal": strings.TrimSpace(initialGoal),
+		}
+
+		_, output, err := f.Run(initialBuffers)
 		if err != nil {
 			return err
 		}

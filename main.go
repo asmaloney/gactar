@@ -183,8 +183,8 @@ func generateCode(frameworks *framework.List, files []string) {
 		return
 	}
 
-	for _, framework := range *frameworks {
-		err = framework.Initialize()
+	for _, f := range *frameworks {
+		err = f.Initialize()
 		if err != nil {
 			fmt.Println(err.Error())
 			continue
@@ -198,13 +198,13 @@ func generateCode(frameworks *framework.List, files []string) {
 				continue
 			}
 
-			err = framework.SetModel(model)
+			err = f.SetModel(model)
 			if err != nil {
 				fmt.Println(err.Error())
 				continue
 			}
 
-			fileName, err := framework.WriteModel("", "")
+			fileName, err := f.WriteModel("", framework.InitialBuffers{})
 			if err != nil {
 				fmt.Println(err.Error())
 				continue

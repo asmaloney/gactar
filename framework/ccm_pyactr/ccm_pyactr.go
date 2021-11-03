@@ -10,7 +10,6 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/asmaloney/gactar/actr"
-	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/version"
 )
@@ -69,8 +68,8 @@ func (c *CCMPyACTR) SetModel(model *actr.Model) (err error) {
 
 // Run generates the python code from the amod file, writes it to disk, creates a "run" file
 // to actually run the model, and returns the output (stdout and stderr combined).
-func (c *CCMPyACTR) Run(initialGoal string) (generatedCode, output []byte, err error) {
-	runFile, err := c.WriteModel(c.tmpPath, initialGoal)
+func (c *CCMPyACTR) Run(initialBuffers framework.InitialBuffers) (generatedCode, output []byte, err error) {
+	runFile, err := c.WriteModel(c.tmpPath, initialBuffers)
 	if err != nil {
 		return
 	}
@@ -89,12 +88,12 @@ func (c *CCMPyACTR) Run(initialGoal string) (generatedCode, output []byte, err e
 }
 
 // WriteModel converts the internal actr.Model to python and writes it to a file.
-func (c *CCMPyACTR) WriteModel(path, initialGoal string) (outputFileName string, err error) {
-	goal, err := amod.ParseChunk(c.model, initialGoal)
+func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
+	patterns, err := framework.ParseInitialBuffers(c.model, initialBuffers)
 	if err != nil {
-		err = fmt.Errorf("ERROR in initial goal - %s", err)
 		return
 	}
+	goal := patterns["goal"]
 
 	outputFileName = fmt.Sprintf("%s.py", c.className)
 	if path != "" {

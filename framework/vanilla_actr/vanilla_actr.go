@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/asmaloney/gactar/actr"
-	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/version"
 	"github.com/urfave/cli/v2"
@@ -57,8 +56,8 @@ func (v *VanillaACTR) SetModel(model *actr.Model) (err error) {
 	return
 }
 
-func (v *VanillaACTR) Run(initialGoal string) (generatedCode, output []byte, err error) {
-	modelFile, err := v.WriteModel(v.tmpPath, initialGoal)
+func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (generatedCode, output []byte, err error) {
+	modelFile, err := v.WriteModel(v.tmpPath, initialBuffers)
 	if err != nil {
 		return
 	}
@@ -89,12 +88,12 @@ func (v *VanillaACTR) Run(initialGoal string) (generatedCode, output []byte, err
 	return
 }
 
-func (v *VanillaACTR) WriteModel(path, initialGoal string) (outputFileName string, err error) {
-	goal, err := amod.ParseChunk(v.model, initialGoal)
+func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
+	patterns, err := framework.ParseInitialBuffers(v.model, initialBuffers)
 	if err != nil {
-		err = fmt.Errorf("ERROR in initial goal - %s", err)
 		return
 	}
+	goal := patterns["goal"]
 
 	outputFileName = fmt.Sprintf("%s.lisp", v.modelName)
 	if path != "" {
