@@ -209,20 +209,22 @@ func (w *Web) listExamples(rw http.ResponseWriter, req *http.Request) {
 	})
 }
 
-func (w *Web) run(model *actr.Model, initialGoal string, framework framework.Framework) (generatedCode, output []byte, err error) {
+func (w *Web) run(model *actr.Model, initialGoal string, f framework.Framework) (generatedCode, output []byte, err error) {
 	if model == nil {
 		err = fmt.Errorf("no model loaded")
 		return
 	}
 
-	err = framework.SetModel(model)
+	err = f.SetModel(model)
 	if err != nil {
 		return
 	}
 
-	initialGoal = strings.TrimSpace(initialGoal)
+	initialBuffers := framework.InitialBuffers{
+		"goal": strings.TrimSpace(initialGoal),
+	}
 
-	generatedCode, output, err = framework.Run(initialGoal)
+	generatedCode, output, err = f.Run(initialBuffers)
 	if err != nil {
 		return
 	}

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/asmaloney/gactar/actr"
+	"github.com/asmaloney/gactar/amod"
 )
 
 // Some tools for working with our frameworks
@@ -24,6 +25,28 @@ func IdentifyYourself(frameworkName, exeName string) {
 	output, _ = cmd.CombinedOutput()
 
 	fmt.Printf("%s: Using %s from %s", frameworkName, version, string(output))
+}
+
+func ParseInitialBuffers(model *actr.Model, initialBuffers InitialBuffers) (parsed ParsedInitialBuffers, err error) {
+	parsed = ParsedInitialBuffers{}
+
+	for bufferName, bufferInit := range initialBuffers {
+		buffer := model.LookupBuffer(bufferName)
+		if buffer == nil {
+			err = fmt.Errorf("ERROR cannot initialize buffer '%s' - not found in model '%s'", bufferName, model.Name)
+			return
+		}
+
+		pattern, parseErr := amod.ParseChunk(model, bufferInit)
+		if parseErr != nil {
+			err = fmt.Errorf("ERROR in initial buffer  '%s' - %s", bufferName, err)
+			return
+		}
+
+		parsed[bufferName] = pattern
+	}
+
+	return
 }
 
 // Float64Str takes a float and returns a string of the minimal representation.
