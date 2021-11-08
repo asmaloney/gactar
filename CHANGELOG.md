@@ -91,6 +91,10 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- **all frameworks**
+
+  - Only output a description comment in the generated code if the _description_ field is present in the amod file.
+
 - **pyactr**
 
   - Generated code now handles printing of numbers and variables. ([#65](https://github.com/asmaloney/gactar/pull/65))
