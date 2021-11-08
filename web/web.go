@@ -59,8 +59,8 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 		return nil, err
 	}
 
-	http.HandleFunc("/version", w.getVersion)
-	http.HandleFunc("/run", w.runModel)
+	http.HandleFunc("/version", w.getVersionHandler)
+	http.HandleFunc("/run", w.runModelHandler)
 
 	exampleHandler := assetHandler(w.examples, "")
 	http.HandleFunc("/examples/", exampleHandler.ServeHTTP)
@@ -83,7 +83,7 @@ func (w *Web) Start() (err error) {
 	return
 }
 
-func (w *Web) getVersion(rw http.ResponseWriter, req *http.Request) {
+func (w *Web) getVersionHandler(rw http.ResponseWriter, req *http.Request) {
 	type response struct {
 		Version string `json:"version"`
 	}
@@ -93,7 +93,7 @@ func (w *Web) getVersion(rw http.ResponseWriter, req *http.Request) {
 	})
 }
 
-func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
+func (w *Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 	type request struct {
 		AMODFile   string   `json:"amod"`
 		RunStr     string   `json:"run"`
@@ -132,13 +132,17 @@ func (w *Web) runModel(rw http.ResponseWriter, req *http.Request) {
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
 
+	initialBuffers := framework.InitialBuffers{
+		"goal": strings.TrimSpace(data.RunStr),
+	}
+
 	for name, f := range w.actrFrameworks {
 		wg.Add(1)
 
 		go func(wg *sync.WaitGroup, name string, f framework.Framework) {
 			defer wg.Done()
 
-			code, output, err := w.run(model, data.RunStr, f)
+			code, output, err := runModel(model, initialBuffers, f)
 
 			mutex.Lock()
 			if err != nil {
@@ -209,7 +213,7 @@ func (w *Web) listExamples(rw http.ResponseWriter, req *http.Request) {
 	})
 }
 
-func (w *Web) run(model *actr.Model, initialGoal string, f framework.Framework) (generatedCode, output []byte, err error) {
+func runModel(model *actr.Model, initialBuffers framework.InitialBuffers, f framework.Framework) (generatedCode, output []byte, err error) {
 	if model == nil {
 		err = fmt.Errorf("no model loaded")
 		return
@@ -218,10 +222,6 @@ func (w *Web) run(model *actr.Model, initialGoal string, f framework.Framework) 
 	err = f.SetModel(model)
 	if err != nil {
 		return
-	}
-
-	initialBuffers := framework.InitialBuffers{
-		"goal": strings.TrimSpace(initialGoal),
 	}
 
 	generatedCode, output, err = f.Run(initialBuffers)
