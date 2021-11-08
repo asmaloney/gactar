@@ -15,6 +15,7 @@ import (
 )
 
 type VanillaACTR struct {
+	framework.Framework
 	framework.WriterHelper
 	model     *actr.Model
 	modelName string
@@ -117,7 +118,10 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 	v.Writeln("")
 	v.Writeln(";;; *** NOTE: This is a generated file. Any changes may be overwritten.")
 	v.Writeln("")
-	v.Write(";;; %s\n\n", v.model.Description)
+
+	if v.model.Description != "" {
+		v.Write(";;; %s\n\n", v.model.Description)
+	}
 
 	v.outputAuthors()
 

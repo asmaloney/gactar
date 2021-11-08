@@ -20,6 +20,7 @@ import (
 var pyactrPrintPython string
 
 type PyACTR struct {
+	framework.Framework
 	framework.WriterHelper
 	model     *actr.Model
 	className string
@@ -133,8 +134,10 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 	p.Writeln("")
 	p.Writeln("# *** NOTE: This is a generated file. Any changes may be overwritten.")
 	p.Writeln("")
-	p.Write("# %s\n\n", p.model.Description)
 
+	if p.model.Description != "" {
+		p.Write("# %s\n\n", p.model.Description)
+	}
 	p.outputAuthors()
 
 	p.Writeln("import pyactr as actr")

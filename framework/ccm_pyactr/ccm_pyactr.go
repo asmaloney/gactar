@@ -15,6 +15,7 @@ import (
 )
 
 type CCMPyACTR struct {
+	framework.Framework
 	framework.WriterHelper
 	model     *actr.Model
 	className string
@@ -117,7 +118,10 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 	c.Writeln("")
 	c.Writeln("# *** NOTE: This is a generated file. Any changes may be overwritten.")
 	c.Writeln("")
-	c.Write("# %s\n\n", c.model.Description)
+
+	if c.model.Description != "" {
+		c.Write("# %s\n\n", c.model.Description)
+	}
 
 	c.outputAuthors()
 
