@@ -37,6 +37,14 @@ type Web struct {
 	port           int
 }
 
+type runResult struct {
+	ModelName string `json:"modelName"`
+	Code      string `json:"code"`
+	Output    string `json:"output"`
+}
+
+type runResultMap map[string]runResult
+
 func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS) (w *Web, err error) {
 	w = &Web{
 		context:        cli,
@@ -62,9 +70,11 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 	http.HandleFunc("/version", w.getVersionHandler)
 	http.HandleFunc("/run", w.runModelHandler)
 
-	exampleHandler := assetHandler(w.examples, "")
-	http.HandleFunc("/examples/", exampleHandler.ServeHTTP)
-	http.HandleFunc("/examples/list", w.listExamples)
+	if examples != nil {
+		exampleHandler := assetHandler(w.examples, "")
+		http.HandleFunc("/examples/", exampleHandler.ServeHTTP)
+		http.HandleFunc("/examples/list", w.listExamples)
+	}
 
 	mainHandler := assetHandler(&mainAssets, "build")
 	http.HandleFunc("/", mainHandler.ServeHTTP)
@@ -99,11 +109,6 @@ func (w *Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		RunStr     string   `json:"run"`
 		Frameworks []string `json:"frameworks"`
 	}
-	type result struct {
-		ModelName string `json:"modelName"`
-		Code      string `json:"code"`
-		Output    string `json:"output"`
-	}
 
 	type response struct {
 		Results json.RawMessage `json:"results"`
@@ -123,42 +128,15 @@ func (w *Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	resultMap := make(map[string]result, len(w.actrFrameworks))
-
-	if log.HasInfo() {
-		resultMap["amod"] = result{Output: log.String()}
-	}
-
-	var wg sync.WaitGroup
-	var mutex = &sync.Mutex{}
-
 	initialBuffers := framework.InitialBuffers{
 		"goal": strings.TrimSpace(data.RunStr),
 	}
 
-	for name, f := range w.actrFrameworks {
-		wg.Add(1)
+	resultMap := runModel(model, initialBuffers, w.actrFrameworks)
 
-		go func(wg *sync.WaitGroup, name string, f framework.Framework) {
-			defer wg.Done()
-
-			code, output, err := runModel(model, initialBuffers, f)
-
-			mutex.Lock()
-			if err != nil {
-				resultMap[name] = result{Output: err.Error()}
-			} else {
-				resultMap[name] = result{
-					ModelName: model.Name,
-					Code:      string(code),
-					Output:    string(output),
-				}
-			}
-			mutex.Unlock()
-
-		}(&wg, name, f)
+	if log.HasInfo() {
+		resultMap["amod"] = runResult{Output: log.String()}
 	}
-	wg.Wait()
 
 	results, err := json.Marshal(resultMap)
 	if err != nil {
@@ -213,7 +191,42 @@ func (w *Web) listExamples(rw http.ResponseWriter, req *http.Request) {
 	})
 }
 
-func runModel(model *actr.Model, initialBuffers framework.InitialBuffers, f framework.Framework) (generatedCode, output []byte, err error) {
+func runModel(model *actr.Model, initialBuffers framework.InitialBuffers, actrFrameworks framework.List) (resultMap runResultMap) {
+	fmt.Printf("%v\n", initialBuffers)
+	fmt.Printf("%v\n", len(actrFrameworks))
+	resultMap = make(runResultMap, len(actrFrameworks))
+
+	var wg sync.WaitGroup
+	var mutex = &sync.Mutex{}
+
+	for name, f := range actrFrameworks {
+		wg.Add(1)
+
+		go func(wg *sync.WaitGroup, name string, f framework.Framework) {
+			defer wg.Done()
+
+			code, output, err := runModelOnFramework(model, initialBuffers, f)
+
+			mutex.Lock()
+			if err != nil {
+				resultMap[name] = runResult{Output: err.Error()}
+			} else {
+				resultMap[name] = runResult{
+					ModelName: model.Name,
+					Code:      string(code),
+					Output:    string(output),
+				}
+			}
+			mutex.Unlock()
+
+		}(&wg, name, f)
+	}
+	wg.Wait()
+
+	return
+}
+
+func runModelOnFramework(model *actr.Model, initialBuffers framework.InitialBuffers, f framework.Framework) (generatedCode, output []byte, err error) {
 	if model == nil {
 		err = fmt.Errorf("no model loaded")
 		return
