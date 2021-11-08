@@ -39,7 +39,7 @@ func ParseInitialBuffers(model *actr.Model, initialBuffers InitialBuffers) (pars
 
 		pattern, parseErr := amod.ParseChunk(model, bufferInit)
 		if parseErr != nil {
-			err = fmt.Errorf("ERROR in initial buffer  '%s' - %s", bufferName, err)
+			err = fmt.Errorf("ERROR in initial buffer  '%s' - %s", bufferName, parseErr)
 			return
 		}
 

@@ -162,7 +162,7 @@ func createFrameworks(cli *cli.Context) (frameworks framework.List, err error) {
 		}
 
 		if createErr != nil {
-			fmt.Println(err.Error())
+			fmt.Println(createErr.Error())
 		}
 	}
 
