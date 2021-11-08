@@ -115,7 +115,7 @@ func main() {
 
 			cli.ShowVersion(c)
 
-			generateCode(&frameworks, c.Args().Slice())
+			generateCode(frameworks, c.Args().Slice())
 			if err != nil {
 				fmt.Println(err.Error())
 				return err
@@ -174,7 +174,7 @@ func createFrameworks(cli *cli.Context) (frameworks framework.List, err error) {
 	return
 }
 
-func generateCode(frameworks *framework.List, files []string) {
+func generateCode(frameworks framework.List, files []string) {
 	var err error
 
 	if len(files) == 0 {
@@ -183,7 +183,7 @@ func generateCode(frameworks *framework.List, files []string) {
 		return
 	}
 
-	for _, f := range *frameworks {
+	for _, f := range frameworks {
 		err = f.Initialize()
 		if err != nil {
 			fmt.Println(err.Error())
