@@ -192,8 +192,6 @@ func (w *Web) listExamples(rw http.ResponseWriter, req *http.Request) {
 }
 
 func runModel(model *actr.Model, initialBuffers framework.InitialBuffers, actrFrameworks framework.List) (resultMap runResultMap) {
-	fmt.Printf("%v\n", initialBuffers)
-	fmt.Printf("%v\n", len(actrFrameworks))
 	resultMap = make(runResultMap, len(actrFrameworks))
 
 	var wg sync.WaitGroup
