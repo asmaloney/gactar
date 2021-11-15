@@ -35,22 +35,30 @@ type Web struct {
 	actrFrameworks framework.List
 	examples       *embed.FS
 	port           int
+
+	sessionList      SessionList
+	currentSessionID int
 }
 
 type runResult struct {
-	ModelName string `json:"modelName"`
-	Code      string `json:"code"`
-	Output    string `json:"output"`
+	ModelName string  `json:"modelName"`
+	Code      *string `json:"code,omitempty"`
+	Output    *string `json:"output,omitempty"`
+
+	SessionID *int `json:"sessionID,omitempty"`
+	ModelID   *int `json:"modelID,omitempty"`
 }
 
 type runResultMap map[string]runResult
 
 func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS) (w *Web, err error) {
 	w = &Web{
-		context:        cli,
-		actrFrameworks: frameworks,
-		examples:       examples,
-		port:           cli.Int("port"),
+		context:          cli,
+		actrFrameworks:   frameworks,
+		examples:         examples,
+		port:             cli.Int("port"),
+		sessionList:      SessionList{},
+		currentSessionID: 1,
 	}
 
 	for name, f := range w.actrFrameworks {
@@ -64,17 +72,18 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 
 	if len(w.actrFrameworks) == 0 {
 		err := fmt.Errorf("could not initialize any frameworks - please check your installation")
-		return nil, err
+		return w, err
 	}
 
 	http.HandleFunc("/version", w.getVersionHandler)
 	http.HandleFunc("/run", w.runModelHandler)
 
 	if examples != nil {
-		exampleHandler := assetHandler(w.examples, "")
-		http.HandleFunc("/examples/", exampleHandler.ServeHTTP)
-		http.HandleFunc("/examples/list", w.listExamples)
+		initExamples(w)
 	}
+
+	initSessions(w)
+	initModels(w)
 
 	mainHandler := assetHandler(&mainAssets, "build")
 	http.HandleFunc("/", mainHandler.ServeHTTP)
@@ -105,9 +114,8 @@ func (w *Web) getVersionHandler(rw http.ResponseWriter, req *http.Request) {
 
 func (w *Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 	type request struct {
-		AMODFile   string   `json:"amod"`
-		RunStr     string   `json:"run"`
-		Frameworks []string `json:"frameworks"`
+		AMODFile string `json:"amod"`
+		Goal     string `json:"goal"`
 	}
 
 	type response struct {
@@ -129,13 +137,14 @@ func (w *Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	initialBuffers := framework.InitialBuffers{
-		"goal": strings.TrimSpace(data.RunStr),
+		"goal": strings.TrimSpace(data.Goal),
 	}
 
 	resultMap := runModel(model, initialBuffers, w.actrFrameworks)
 
 	if log.HasInfo() {
-		resultMap["amod"] = runResult{Output: log.String()}
+		info := log.String()
+		resultMap["amod"] = runResult{Output: &info}
 	}
 
 	results, err := json.Marshal(resultMap)
@@ -168,29 +177,6 @@ func assetHandler(assets *embed.FS, root string) http.Handler {
 	return http.FileServer(http.FS(handler))
 }
 
-// listExamples simply returns a list of the examples included in the build.
-func (w *Web) listExamples(rw http.ResponseWriter, req *http.Request) {
-	type response struct {
-		List []string `json:"example_list"`
-	}
-
-	entries, err := w.examples.ReadDir("examples")
-	if err != nil {
-		encodeErrorResponse(rw, err)
-		return
-	}
-
-	list := []string{}
-
-	for _, entry := range entries {
-		list = append(list, entry.Name())
-	}
-
-	encodeResponse(rw, response{
-		List: list,
-	})
-}
-
 func runModel(model *actr.Model, initialBuffers framework.InitialBuffers, actrFrameworks framework.List) (resultMap runResultMap) {
 	resultMap = make(runResultMap, len(actrFrameworks))
 
@@ -207,12 +193,15 @@ func runModel(model *actr.Model, initialBuffers framework.InitialBuffers, actrFr
 
 			mutex.Lock()
 			if err != nil {
-				resultMap[name] = runResult{Output: err.Error()}
+				errStr := err.Error()
+				resultMap[name] = runResult{Output: &errStr}
 			} else {
+				codeStr := string(code)
+				outputStr := string(output)
 				resultMap[name] = runResult{
 					ModelName: model.Name,
-					Code:      string(code),
-					Output:    string(output),
+					Code:      &codeStr,
+					Output:    &outputStr,
 				}
 			}
 			mutex.Unlock()
