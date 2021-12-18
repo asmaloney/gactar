@@ -75,8 +75,8 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 		return w, err
 	}
 
-	http.HandleFunc("/version", w.getVersionHandler)
-	http.HandleFunc("/run", w.runModelHandler)
+	http.HandleFunc("/api/version", w.getVersionHandler)
+	http.HandleFunc("/api/run", w.runModelHandler)
 
 	if examples != nil {
 		initExamples(w)
@@ -85,7 +85,7 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 	initSessions(w)
 	initModels(w)
 
-	mainHandler := assetHandler(&mainAssets, "build")
+	mainHandler := assetHandler(&mainAssets, "", "build")
 	http.HandleFunc("/", mainHandler.ServeHTTP)
 
 	return
@@ -159,12 +159,12 @@ func (w *Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 }
 
 // assetHandler returns an http.Handler that will serve files from
-// the given embed.FS.  When locating a file, it will prepend the root
-// to the filesystem lookup.
+// the given embed.FS.  When locating a file, it will optionally strip
+// and append a prefix to the filesystem lookup.
 // Adapted from https://blog.lawrencejones.dev/golang-embed/
-func assetHandler(assets *embed.FS, root string) http.Handler {
+func assetHandler(assets *embed.FS, stripPrefix, prepend string) http.Handler {
 	handler := fsFunc(func(name string) (fs.File, error) {
-		assetPath := path.Join(root, name)
+		assetPath := path.Join(prepend, name)
 
 		f, err := assets.Open(assetPath)
 		if os.IsNotExist(err) {
@@ -174,7 +174,7 @@ func assetHandler(assets *embed.FS, root string) http.Handler {
 		return f, err
 	})
 
-	return http.FileServer(http.FS(handler))
+	return http.StripPrefix(stripPrefix, http.FileServer(http.FS(handler)))
 }
 
 func runModel(model *actr.Model, initialBuffers framework.InitialBuffers, actrFrameworks framework.List) (resultMap runResultMap) {

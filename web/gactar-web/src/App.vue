@@ -129,7 +129,7 @@ export default {
     async run() {
       this.running = true
       try {
-        const { data } = await this.$http.post('/run', {
+        const { data } = await this.$http.post('/api/run', {
           amod: this.code['amod'],
           goal: this.goal,
         })
@@ -147,7 +147,7 @@ export default {
 
     async getVersion() {
       try {
-        const { data } = await this.$http.get('/version')
+        const { data } = await this.$http.get('/api/version')
 
         this.version = data.version
       } catch (err) {

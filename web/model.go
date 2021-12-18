@@ -17,7 +17,7 @@ type Model struct {
 }
 
 func initModels(w *Web) {
-	http.HandleFunc("/model/load", w.loadModelHandler)
+	http.HandleFunc("/api/model/load", w.loadModelHandler)
 }
 
 func (w *Web) loadModelHandler(rw http.ResponseWriter, req *http.Request) {
