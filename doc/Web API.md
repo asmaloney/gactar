@@ -2,6 +2,8 @@
 
 This document outlines the endpoints that are available when running gactar as a web server (i.e. by passing `-w` on the command line).
 
+All endpoints are prefixed by `/api/`.
+
 **Important Note:** The web API is intended for _local use only_. It should not be used to expose gactar to the internet. It is not designed for security or to prevent abuse.
 
 # General
@@ -23,7 +25,7 @@ Get the version of gactar being run.
 ### Example
 
 ```
-http://localhost:8181/version
+http://localhost:8181/api/version
 ```
 
 Result:
@@ -65,7 +67,7 @@ Map of results - one entry for each framework that was run.
 ### Example
 
 ```
- http://localhost:8181/run
+ http://localhost:8181/api/run
 ```
 
 Request payload:
@@ -120,7 +122,7 @@ Get a list of the available examples built-in to the server.
 ### Example
 
 ```
- http://localhost:8181/examples/list
+ http://localhost:8181/api/examples/list
 ```
 
 Result:
@@ -152,7 +154,7 @@ The amod code for the requested example. (Note that it is not JSON like the othe
 ### Example
 
 ```
- http://localhost:8181/examples/count.amod
+ http://localhost:8181/api/examples/count.amod
 ```
 
 Result:
@@ -183,7 +185,7 @@ name: count
 ### Example
 
 ```
- http://localhost:8181/session/begin
+ http://localhost:8181/api/session/begin
 ```
 
 Result:
@@ -209,7 +211,7 @@ Result:
 ### Example
 
 ```
- http://localhost:8181/session/end
+ http://localhost:8181/api/session/end
 ```
 
 Request payload:
@@ -267,7 +269,7 @@ Map of results - one entry for each framework that was run.
 ### Example
 
 ```
- http://localhost:8181/session/runModel
+ http://localhost:8181/api/session/runModel
 ```
 
 Request payload:
@@ -342,7 +344,7 @@ Given a model (amod code), compile and store it on the server. It returns an id 
 ### Example
 
 ```
- http://localhost:8181/model/load
+ http://localhost:8181/api/model/load
 ```
 
 Request payload:

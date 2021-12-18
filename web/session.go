@@ -16,9 +16,9 @@ type Session struct {
 type SessionList []*Session
 
 func initSessions(w *Web) {
-	http.HandleFunc("/session/begin", w.beginSessionHandler)
-	http.HandleFunc("/session/runModel", w.runModelSessionHandler)
-	http.HandleFunc("/session/end", w.endSessionHandler)
+	http.HandleFunc("/api/session/begin", w.beginSessionHandler)
+	http.HandleFunc("/api/session/runModel", w.runModelSessionHandler)
+	http.HandleFunc("/api/session/end", w.endSessionHandler)
 }
 
 func (w *Web) beginSessionHandler(rw http.ResponseWriter, req *http.Request) {

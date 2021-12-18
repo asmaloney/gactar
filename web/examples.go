@@ -3,9 +3,9 @@ package web
 import "net/http"
 
 func initExamples(w *Web) {
-	exampleHandler := assetHandler(w.examples, "")
-	http.HandleFunc("/examples/", exampleHandler.ServeHTTP)
-	http.HandleFunc("/examples/list", w.listExamples)
+	exampleHandler := assetHandler(w.examples, "/api/", "")
+	http.HandleFunc("/api/examples/", exampleHandler.ServeHTTP)
+	http.HandleFunc("/api/examples/list", w.listExamples)
 }
 
 // listExamples simply returns a list of the examples included in the build.

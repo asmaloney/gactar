@@ -117,7 +117,7 @@ export default {
 
     async getExample(example) {
       try {
-        const { data } = await this.$http.get('/examples/' + example)
+        const { data } = await this.$http.get('/api/examples/' + example)
         this.count += 1
         this.amodCode = data
       } catch (err) {
@@ -127,7 +127,7 @@ export default {
 
     async getExamples() {
       try {
-        const { data } = await this.$http.get('/examples/list')
+        const { data } = await this.$http.get('/api/examples/list')
         this.exampleFiles = data.example_list
       } catch (err) {
         this.$emit('showError', err)
