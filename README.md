@@ -108,13 +108,28 @@ If there is sufficient interest in this project, my strategy going forward would
 
 For information on how to contribute (code, bug reports, ideas, or other resources), please see the [CONTRIBUTING](CONTRIBUTING.md) doc.
 
-## Setup
+## Installation
 
 1. Although the `gactar` executable itself is compiled for each platform, it requires **python3** to run the setup and to run the _ccm_ and _pyactr_ implementations. **python3** needs to be somewhere in your `PATH` environment variable.
 
 2. `gactar` requires one or more of the three implementations (_ccm_, _pyactr_, _vanilla_) be installed.
 
 `gactar` uses a python virtual environment to keep all the required python packages, lisp files, and other implementation files in one place so it does not affect the rest of your system. For more information about the virtual environment see the [python docs](https://docs.python.org/3/library/venv.html).
+
+### Download gactar Release
+
+1. Download the latest [release](https://github.com/asmaloney/gactar/releases) for your platform.
+
+2. Decompress the file using the appropriate tool for your platform.
+
+3. You should end up with a folder named something like `gactar-v<version>-<platform>-<architecture>` (e.g. `gactar-v0.2.0-darwin-amd64`) containing the following files & folders:
+
+- CHANGELOG.md (describes changes between versions)
+- gactar (the executable)
+- examples/ (folder containing the examples)
+- LICENSE
+- README.md (this readme file)
+- scripts/ (setup scripts)
 
 ### Setup Virtual Environment
 
@@ -156,11 +171,11 @@ For now this is only automated on macOS because the required files are not easy 
    ```
    This will take a few moments to compile all the ACT-R files so it is ready to use.
 
-## Build
+## Build/Develop
 
-If you want to build `gactar`, you will need [git](https://git-scm.com/), [make](https://www.gnu.org/software/make/), and the [go compiler](https://golang.org/) installed for your platform.
+If you want to build `gactar` from scratch, you will need [git](https://git-scm.com/), [make](https://www.gnu.org/software/make/), and the [go compiler](https://golang.org/) installed for your platform.
 
-Then you just need to clone this repo:
+Then you just need to clone this repository:
 
 ```sh
 git clone https://github.com/asmaloney/gactar
@@ -174,6 +189,8 @@ make
 ```
 
 This will create the `gactar` executable.
+
+See the [web README](web/gactar-web/README.md) for information on developing the web interface.
 
 **Note for Windows:** I haven't actually built this on Windows directly (the GitHub CI builds it for me). If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues).
 

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.3.0 - In Development
+
+### Changed
+
+- All endpoints are now prefixed by `/api`. This allows us to control the routes better in the web interface. ([#83](https://github.com/asmaloney/gactar/pull/83))
+
+- Web development & build environment migrated from [vue-cli](https://cli.vuejs.org/) to [vite](https://vitejs.dev/). It is faster, reduces our dependencies, and opens up the possibility of using typescript if we're feeling ambitious. ([#84](https://github.com/asmaloney/gactar/pull/84))
+
 ## [0.2.0](https://github.com/asmaloney/gactar/releases/tag/v0.2.0) - 2021-11-17
 
 ### Added
