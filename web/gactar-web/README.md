@@ -35,7 +35,7 @@ vite v2.7.3 dev server running at:
 ready in 416ms.
 ```
 
-Navigate to this localhost site and you can work on the vue frontened with live updating.
+Navigate to this localhost site and you can work on the vue frontend with live updating.
 
 ## Release
 
