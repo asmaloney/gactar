@@ -26,8 +26,8 @@
 </template>
 
 <script>
-import CodeMirror from './CodeMirror'
-import SaveButton from './SaveButton'
+import CodeMirror from './CodeMirror.vue'
+import SaveButton from './SaveButton.vue'
 
 export default {
   components: { CodeMirror, SaveButton },

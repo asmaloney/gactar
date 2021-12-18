@@ -48,7 +48,7 @@ Vue.component('FontAwesomeIcon', FontAwesomeIcon)
 
 Vue.config.productionTip = false
 
-require('./app.scss')
+import './app.scss'
 
 new Vue({
   render: (h) => h(App),

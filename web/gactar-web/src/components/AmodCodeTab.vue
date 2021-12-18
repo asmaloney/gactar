@@ -53,8 +53,8 @@
 </template>
 
 <script>
-import CodeMirror from './CodeMirror'
-import SaveButton from './SaveButton'
+import CodeMirror from './CodeMirror.vue'
+import SaveButton from './SaveButton.vue'
 
 const localStorageName = 'gactar-code-editor'
 
