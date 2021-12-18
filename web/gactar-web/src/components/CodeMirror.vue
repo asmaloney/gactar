@@ -15,7 +15,7 @@ import 'codemirror/addon/selection/active-line'
 import 'codemirror/mode/commonlisp/commonlisp'
 import 'codemirror/mode/python/python'
 
-require('../codemirror/amod')
+import '../codemirror/amod'
 
 export default {
   props: {

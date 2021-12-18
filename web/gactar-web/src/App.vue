@@ -70,8 +70,8 @@
 </template>
 
 <script>
-import AmodCodeTab from './components/AmodCodeTab'
-import CodeTab from './components/CodeTab'
+import AmodCodeTab from './components/AmodCodeTab.vue'
+import CodeTab from './components/CodeTab.vue'
 
 export default {
   components: { AmodCodeTab, CodeTab },

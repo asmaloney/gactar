@@ -1,18 +1,17 @@
-@import '~bulma';
+@import 'bulma/bulma';
 
 // Instead of this larger import, just import what we use
-// @import '~buefy/src/scss/buefy';
-@import '~buefy/src/scss/utils/_all';
-@import '~buefy/src/scss/components/_checkbox';
-@import '~buefy/src/scss/components/_dropdown';
-@import '~buefy/src/scss/components/_form';
-@import '~buefy/src/scss/components/_icon';
-@import '~buefy/src/scss/components/_loading';
-@import '~buefy/src/scss/components/_select';
-@import '~buefy/src/scss/components/_tabs';
-@import '~buefy/src/scss/components/_upload';
+// @import 'buefy/src/scss/buefy';
+@import 'buefy/src/scss/utils/_all';
+@import 'buefy/src/scss/components/_dropdown';
+@import 'buefy/src/scss/components/_form';
+@import 'buefy/src/scss/components/_icon';
+@import 'buefy/src/scss/components/_loading';
+@import 'buefy/src/scss/components/_select';
+@import 'buefy/src/scss/components/_tabs';
+@import 'buefy/src/scss/components/_upload';
 
-@import '~codemirror/lib/codemirror.css';
+@import 'codemirror/lib/codemirror.css';
 @import './codemirror/amod.css';
 
 $tab-border-color: #dbdbdb;
