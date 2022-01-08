@@ -69,11 +69,54 @@
   </span>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
+
 import AmodCodeTab from './components/AmodCodeTab.vue'
 import CodeTab from './components/CodeTab.vue'
 
-export default {
+interface Tab {
+  id: string
+  mode: string
+  fileExtension: string
+  modelName: string
+  displayed: boolean
+}
+
+interface Result {
+  output: string
+  code: string
+  modelName: string
+}
+
+type ResultMap = { [key: string]: Result }
+type CodeMap = { [key: string]: string }
+
+interface Data {
+  activeTab: number
+  baseTabs: Tab[]
+  code: CodeMap
+  goal: string
+  running: boolean
+  results: string
+  version: string
+}
+
+interface Methods {
+  codeChange(newCode: string): void
+  run(): void
+  loadVersion(): void
+  setResults(results: ResultMap): void
+  showError(err: string): void
+}
+
+interface Computed {
+  tabs: Tab[]
+}
+
+interface Props {}
+
+export default Vue.extend<Data, Methods, Computed, Props>({
   components: { AmodCodeTab, CodeTab },
 
   data() {
@@ -112,17 +155,17 @@ export default {
   },
 
   computed: {
-    tabs() {
+    tabs(): Tab[] {
       return this.baseTabs
     },
   },
 
   async mounted() {
-    this.version = this.getVersion()
+    this.version = this.loadVersion()
   },
 
   methods: {
-    codeChange(newCode) {
+    codeChange(newCode: string) {
       this.code['amod'] = newCode
     },
 
@@ -145,7 +188,7 @@ export default {
       }
     },
 
-    async getVersion() {
+    async loadVersion() {
       try {
         const { data } = await this.$http.get('/api/version')
 
@@ -155,7 +198,7 @@ export default {
       }
     },
 
-    setResults(results) {
+    setResults(results: ResultMap) {
       let text = ''
       for (const [key, value] of Object.entries(results)) {
         text += key + '\n' + '---\n'
@@ -164,7 +207,7 @@ export default {
 
         this.code[key] = value.code
 
-        const index = this.tabs.findIndex((obj) => obj.id == key)
+        const index = this.tabs.findIndex((obj: Tab) => obj.id == key)
         if (index != -1) {
           this.tabs[index].modelName = value.modelName
 
@@ -179,10 +222,10 @@ export default {
       this.running = false
     },
 
-    showError(err) {
+    showError(err: string) {
       this.results = err
       this.running = false
     },
   },
-}
+})
 </script>

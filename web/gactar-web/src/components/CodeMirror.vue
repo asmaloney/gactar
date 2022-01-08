@@ -49,7 +49,8 @@ export default Vue.extend({
   },
 
   mounted() {
-    this.editor = CodeMirror.fromTextArea(document.getElementById(this.id), {
+    const element = document.getElementById(this.id) as HTMLTextAreaElement
+    this.editor = CodeMirror.fromTextArea(element, {
       lineNumbers: true,
       mode: this.mode,
       theme: 'amod',
