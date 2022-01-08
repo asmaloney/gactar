@@ -25,11 +25,13 @@
   </b-tab-item>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
+
 import CodeMirror from './CodeMirror.vue'
 import SaveButton from './SaveButton.vue'
 
-export default {
+export default Vue.extend({
   components: { CodeMirror, SaveButton },
 
   props: {
@@ -69,7 +71,7 @@ export default {
   },
 
   computed: {
-    defaultFileName() {
+    defaultFileName(): string {
       return this.framework + '_' + this.modelName
     },
   },
@@ -80,5 +82,5 @@ export default {
       this.$refs[this.refName].setCode(this.code)
     },
   },
-}
+})
 </script>

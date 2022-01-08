@@ -4,7 +4,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import CodeMirror from 'codemirror'
 
 // Add-ons
@@ -17,7 +18,7 @@ import 'codemirror/mode/python/python'
 
 import '../codemirror/amod'
 
-export default {
+export default Vue.extend({
   props: {
     amodCode: {
       type: String,
@@ -70,9 +71,9 @@ export default {
     },
 
     // Called by the parent to set the code directly
-    setCode(code) {
+    setCode(code: string) {
       this.editor.setValue(code)
     },
   },
-}
+})
 </script>

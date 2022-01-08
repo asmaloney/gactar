@@ -52,13 +52,15 @@
   </b-tab-item>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
+
 import CodeMirror from './CodeMirror.vue'
 import SaveButton from './SaveButton.vue'
 
 const localStorageName = 'gactar-code-editor'
 
-export default {
+export default Vue.extend({
   components: { CodeMirror, SaveButton },
 
   data() {
@@ -115,7 +117,7 @@ export default {
       localStorage.setItem(localStorageName, this.amodCode)
     },
 
-    async getExample(example) {
+    async getExample(example: string) {
       try {
         const { data } = await this.$http.get('/api/examples/' + example)
         this.count += 1
@@ -143,5 +145,5 @@ export default {
       }
     },
   },
-}
+})
 </script>

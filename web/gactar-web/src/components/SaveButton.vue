@@ -4,8 +4,10 @@
   </b-button>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+export default Vue.extend({
   props: {
     code: {
       type: String,
@@ -40,7 +42,7 @@ export default {
         downloadLink.href = window.URL.createObjectURL(codeAsBlob)
         downloadLink.style.display = 'none'
         downloadLink.onclick = (e) => {
-          document.body.removeChild(e.target)
+          document.body.removeChild(e.target as Node)
         }
         document.body.appendChild(downloadLink)
       }
@@ -48,5 +50,5 @@ export default {
       downloadLink.click()
     },
   },
-}
+})
 </script>

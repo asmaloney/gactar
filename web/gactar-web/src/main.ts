@@ -8,27 +8,33 @@ import VueAxios from 'vue-axios'
 Vue.use(VueAxios, axios)
 
 // Buefy
-import {
-  ConfigProgrammatic,
-  Button,
-  Dropdown,
-  Field,
-  Input,
-  Select,
-  Tabs,
-  Upload,
-} from 'buefy'
-
-Vue.use(Button)
-Vue.use(Dropdown)
-Vue.use(Field)
-Vue.use(Input)
-Vue.use(Select)
-Vue.use(Tabs)
-Vue.use(Upload)
-ConfigProgrammatic.setOptions({
+// Currently we cannot import individual components using TypeScript.
+// So we have to import all of buefy.
+import Buefy from 'buefy'
+Vue.use(Buefy, {
   defaultIconPack: 'far',
 })
+
+// import {
+//   ConfigProgrammatic,
+//   Dropdown,
+//   Field,
+//   Input,
+//   Select,
+//   Tabs,
+//   Upload,
+// } from 'buefy'
+
+// Vue.use(Button)
+// Vue.use(Dropdown)
+// Vue.use(Field)
+// Vue.use(Input)
+// Vue.use(Select)
+// Vue.use(Tabs)
+// Vue.use(Upload)
+// ConfigProgrammatic.setOptions({
+//   defaultIconPack: 'far',
+// })
 
 // Fontawesome icons
 // Icons are found here: https://fontawesome.com/v5.15/icons?d=gallery&p=2

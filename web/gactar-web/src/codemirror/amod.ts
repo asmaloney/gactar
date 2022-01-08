@@ -2,6 +2,11 @@ import CodeMirror from 'codemirror'
 
 // Implement very basic lexing/parsing of amod files for syntax highlighting
 
+interface State {
+  pending: boolean
+  startPattern: boolean
+}
+
 CodeMirror.defineMode('amod', function () {
   const section_regex = /^={2}(model|config|init|productions)={2}/
   const variable_regex = /[?][a-zA-Z0-9_]*/
@@ -33,7 +38,7 @@ CodeMirror.defineMode('amod', function () {
     retrieval: true,
   }
 
-  function tokenString(stream, state) {
+  function tokenString(stream, state: State): string {
     var current = stream.next()
     while (!stream.eol() && current != state.pending) {
       current = stream.next()
@@ -42,7 +47,7 @@ CodeMirror.defineMode('amod', function () {
     return 'string'
   }
 
-  function tokenize(stream, state) {
+  function tokenize(stream, state: State): string {
     var ch = stream.next()
 
     if (ch == '/') {
@@ -99,15 +104,11 @@ CodeMirror.defineMode('amod', function () {
   }
 
   return {
-    startState: function () {
-      var state = {}
-
-      state.pending = false
-      state.startPattern = false
-
-      return state
+    startState: function (): State {
+      return { pending: false, startPattern: false }
     },
-    token: function (stream, state) {
+
+    token: function (stream, state: State): string {
       if (stream.eatSpace()) return null
       return tokenize(stream, state)
     },
