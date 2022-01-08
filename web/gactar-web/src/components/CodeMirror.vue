@@ -4,7 +4,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import CodeMirror from 'codemirror'
 
 // Add-ons
@@ -17,7 +18,7 @@ import 'codemirror/mode/python/python'
 
 import '../codemirror/amod'
 
-export default {
+export default Vue.extend({
   props: {
     amodCode: {
       type: String,
@@ -48,7 +49,8 @@ export default {
   },
 
   mounted() {
-    this.editor = CodeMirror.fromTextArea(document.getElementById(this.id), {
+    const element = document.getElementById(this.id) as HTMLTextAreaElement
+    this.editor = CodeMirror.fromTextArea(element, {
       lineNumbers: true,
       mode: this.mode,
       theme: 'amod',
@@ -70,9 +72,9 @@ export default {
     },
 
     // Called by the parent to set the code directly
-    setCode(code) {
+    setCode(code: string) {
       this.editor.setValue(code)
     },
   },
-}
+})
 </script>

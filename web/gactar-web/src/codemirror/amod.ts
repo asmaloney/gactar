@@ -1,10 +1,15 @@
-import CodeMirror from 'codemirror'
+import CodeMirror, { StringStream } from 'codemirror'
 
 // Implement very basic lexing/parsing of amod files for syntax highlighting
 
+interface State {
+  pending: string
+  startPattern: boolean
+}
+
 CodeMirror.defineMode('amod', function () {
-  const section_regex = /^={2}(model|config|init|productions)={2}/
-  const variable_regex = /[?][a-zA-Z0-9_]*/
+  const section_regex: RegExp = /^={2}(model|config|init|productions)={2}/
+  const variable_regex: RegExp = /[?][a-zA-Z0-9_]*/
 
   const keywords = {
     authors: true,
@@ -33,7 +38,7 @@ CodeMirror.defineMode('amod', function () {
     retrieval: true,
   }
 
-  function tokenString(stream, state) {
+  function tokenString(stream: StringStream, state: State): string {
     var current = stream.next()
     while (!stream.eol() && current != state.pending) {
       current = stream.next()
@@ -42,7 +47,7 @@ CodeMirror.defineMode('amod', function () {
     return 'string'
   }
 
-  function tokenize(stream, state) {
+  function tokenize(stream: StringStream, state: State): string {
     var ch = stream.next()
 
     if (ch == '/') {
@@ -72,6 +77,7 @@ CodeMirror.defineMode('amod', function () {
 
     if (ch === '?') {
       stream.backUp(1)
+
       if (stream.match(variable_regex)) {
         return 'variable'
       }
@@ -79,9 +85,11 @@ CodeMirror.defineMode('amod', function () {
 
     if (ch === '=') {
       stream.backUp(1)
+
       if (stream.match(section_regex)) {
         return 'header'
       }
+
       stream.next()
     }
 
@@ -99,16 +107,14 @@ CodeMirror.defineMode('amod', function () {
   }
 
   return {
-    startState: function () {
-      var state = {}
-
-      state.pending = false
-      state.startPattern = false
-
-      return state
+    startState: function (): State {
+      return { pending: '', startPattern: false }
     },
-    token: function (stream, state) {
-      if (stream.eatSpace()) return null
+
+    token: function (stream: StringStream, state: State): string | null {
+      if (stream.eatSpace()) {
+        return null
+      }
       return tokenize(stream, state)
     },
   }
