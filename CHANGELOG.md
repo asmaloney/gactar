@@ -8,7 +8,9 @@ All notable changes to this project will be documented in this file. The format 
 
 - All endpoints are now prefixed by `/api`. This allows us to control the routes better in the web interface. ([#83](https://github.com/asmaloney/gactar/pull/83))
 
-- Web development & build environment migrated from [vue-cli](https://cli.vuejs.org/) to [vite](https://vitejs.dev/). It is faster, reduces our dependencies, and opens up the possibility of using typescript if we're feeling ambitious. ([#84](https://github.com/asmaloney/gactar/pull/84))
+- Web development & build environment migrated from [vue-cli](https://cli.vuejs.org/) to [vite](https://vitejs.dev/). It is faster & reduces our dependencies. ([#84](https://github.com/asmaloney/gactar/pull/84))
+
+- Convert website to use TypeScript. ([#86](https://github.com/asmaloney/gactar/pull/86))
 
 ## [0.2.0](https://github.com/asmaloney/gactar/releases/tag/v0.2.0) - 2021-11-17
 
