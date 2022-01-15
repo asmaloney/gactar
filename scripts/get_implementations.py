@@ -86,8 +86,8 @@ def download_vanilla():
     """Download the lisp ACT-R files and install in the correct location."""
     print('Downloading and installing Vanilla ACT-R...')
 
-    url = 'https://github.com/asmaloney/ACT-R/releases/download/v7.21.6/actr-super-slim-v7.21.6.zip'
-    unpacked_dir = 'actr-super-slim-v7.21.6'
+    url = 'https://github.com/asmaloney/ACT-R/releases/download/v7.27.0/actr-super-slim-v7.27.0.zip'
+    unpacked_dir = 'actr-super-slim-v7.27.0'
     target_dir = 'actr'
 
     # remove old files if they exists for some reason

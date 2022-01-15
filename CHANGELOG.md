@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file. The format 
 
 - Convert website to use TypeScript. ([#86](https://github.com/asmaloney/gactar/pull/86))
 
+- Update vanilla ACT-R to version 7.27.0 (from 15 Sep 2021).
+
 ## [0.2.0](https://github.com/asmaloney/gactar/releases/tag/v0.2.0) - 2021-11-17
 
 ### Added
