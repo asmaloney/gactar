@@ -4,7 +4,6 @@ import platform
 import shutil
 import subprocess
 import sys
-import sysconfig
 
 import pathlib
 import requests
@@ -54,40 +53,15 @@ def download_url(url):
     return local_filename
 
 
-def download_ccm():
-    """Download The CCMSuite and install the files we need in the correct location."""
-    print('Downloading and installing CCM-PyACTR...')
-
-    # Because CCMSuite isn't a proper package and we can't use pip, we need
-    # to copy files to the right place.
-    # I'm using a fork (CCM-PyACTR) to avoid pulling all the tmp and .pyc
-    # files in the original repo.
-
-    url = 'https://github.com/asmaloney/CCM-PyACTR/archive/refs/heads/master.zip'
-    unpacked_dir = 'CCM-PyACTR-master'
-    target_dir = sysconfig.get_paths()["purelib"] + '/ccm'
-
-    # remove old files if they exists for some reason
-    remove_dir(unpacked_dir)
-    remove_dir(target_dir)
-
-    # get the CCM-PyACTR files
-    zip_file = download_url(url)
-    unpack_file(zip_file)
-
-    shutil.move(unpacked_dir + '/ccm', target_dir)
-
-    # clean up
-    remove_file(zip_file)
-    remove_dir(unpacked_dir)
-
-
 def download_vanilla():
     """Download the lisp ACT-R files and install in the correct location."""
     print('Downloading and installing Vanilla ACT-R...')
 
-    url = 'https://github.com/asmaloney/ACT-R/releases/download/v7.27.0/actr-super-slim-v7.27.0.zip'
-    unpacked_dir = 'actr-super-slim-v7.27.0'
+    version = "v7.27.0"
+
+    url = 'https://github.com/asmaloney/ACT-R/releases/download/' + \
+        version + '/actr-super-slim-' + version + '.zip'
+    unpacked_dir = 'actr-super-slim-' + version
     target_dir = 'actr'
 
     # remove old files if they exists for some reason
@@ -160,6 +134,5 @@ def download_sbcl():
 
 
 if __name__ == "__main__":
-    download_ccm()
     download_vanilla()
     download_sbcl()

@@ -12,9 +12,11 @@ You can read the tech note **gactar: A Tool For Exploring ACT-R Modelling** [her
 
 Currently, `gactar` will take an [_amod_ file](#gactar-models) and generate code to run it on three different ACT-R implementations:
 
-- [CCM PyACTR](https://github.com/asmaloney/CCM-PyACTR) (python) - a.k.a. _"ccm"_
 - [pyactr](https://github.com/jakdot/pyactr) (python)
-- [ACT-R](https://github.com/asmaloney/ACT-R) (lisp) - a.k.a. _"vanilla"_
+- [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr) (python) - a.k.a. **_ccm_**
+- [ACT-R](https://github.com/asmaloney/ACT-R) (lisp) - a.k.a. **_vanilla_**
+
+**Naming note:** When gactar was written, the `python_actr` implementation came from [CCMSuite3](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) and was referred to throughout gactar as `ccm`. Instead of changing everything to refer to `python_actr` I've decided to leave it as `ccm`. This helps avoid confusion between `python_actr` and `pyactr`.
 
 `gactar` will work with the tutorial models included in the _examples_ directory. It doesn't handle a lot beyond what's in there - it only works with memory modules, not perceptual-motor ones, and does not yet work with environments - so _it's limited at the moment_.
 
@@ -137,8 +139,7 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
    This will do several things to set up your environment:
 
    - create a [virtual environment](https://docs.python.org/3/library/venv.html) for the project in a directory called `env`
-   - download the [CCM Suite](https://github.com/asmaloney/CCM-PyACTR) & put its files in the right place
-   - install [pyactr](https://github.com/jakdot/pyactr) using pip
+   - install [pyactr](https://github.com/jakdot/pyactr) and [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr) using pip
    - download "vanilla" [ACT-R](https://github.com/asmaloney/ACT-R)
    - (macOS-only) download & install the [Steel Bank Common Lisp](http://www.sbcl.org/index.html) (sbcl) compiler
    - (macOS-only) compile the ACT-R lisp files

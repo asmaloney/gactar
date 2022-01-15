@@ -14,6 +14,9 @@ All notable changes to this project will be documented in this file. The format 
 
 - Update vanilla ACT-R to version 7.27.0 (from 15 Sep 2021).
 
+- Change underlying `ccm` code from [CCMSuite3](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) to [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr). The python_actr code was extracted from CCMSuite3 and now has a pip package to make installation easier.
+  - **Naming note:** When gactar was written, it used [CCMSuite3](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) and it was referred to throughout gactar as `ccm`. Instead of changing everything to refer to `python_actr` I've decided to leave it as `ccm`. This helps avoid confusion between `python_actr` and `pyactr`.
+
 ## [0.2.0](https://github.com/asmaloney/gactar/releases/tag/v0.2.0) - 2021-11-17
 
 ### Added

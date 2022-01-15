@@ -41,7 +41,7 @@ func (c *CCMPyACTR) Initialize() (err error) {
 
 	framework.IdentifyYourself("ccm", "python3")
 
-	err = framework.PythonCheckForPackage("ccm")
+	err = framework.PythonCheckForPackage("python_actr")
 	if err != nil {
 		return
 	}
@@ -127,10 +127,10 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 
 	imports := []string{"ACTR", "Buffer", "Memory"}
 
-	c.Write("from ccm.lib.actr import %s\n", strings.Join(imports, ", "))
+	c.Write("from python_actr import %s\n", strings.Join(imports, ", "))
 
 	if c.model.LogLevel == "detail" {
-		c.Writeln("from ccm import log, log_everything")
+		c.Writeln("from python_actr import log, log_everything")
 	}
 
 	c.Write("\n\n")
