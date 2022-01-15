@@ -354,21 +354,3 @@ func convertSetValue(s *actr.SetValue) string {
 
 	return ""
 }
-
-// convertPattern converts amod-style patterns to ccm-style.
-func convertPattern(g *actr.Pattern) string {
-	str := g.Chunk.Name + " "
-
-	numSlots := len(g.Slots)
-
-	for i, slot := range g.Slots {
-		str += slot.String()
-		if i < numSlots-1 {
-			str += " "
-		}
-	}
-
-	str = strings.ReplaceAll(str, " nil", " None")
-
-	return str
-}
