@@ -6,7 +6,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "isolatedModules": true,
-    "strict": false,
+    "strict": true,
     "allowJs": true,
     "sourceMap": true,
     "resolveJsonModule": true,
@@ -22,6 +22,6 @@
   "vueCompilerOptions": {
     "experimentalCompatMode": 2
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", ".eslintrc.js"],
   "exclude": ["node_modules", "dist"]
 }

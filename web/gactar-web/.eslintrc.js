@@ -1,4 +1,4 @@
-// http://eslint.org/docs/user-guide/configuring
+// https://eslint.org/docs/user-guide/configuring
 
 module.exports = {
   root: true,
@@ -14,7 +14,10 @@ module.exports = {
   parser: 'vue-eslint-parser',
   parserOptions: {
     parser: '@typescript-eslint/parser',
+    project: './tsconfig.json',
+    extraFileExtensions: ['.vue'],
     requireConfigFile: false,
   },
+  plugins: ['@typescript-eslint'],
   rules: {},
 }
