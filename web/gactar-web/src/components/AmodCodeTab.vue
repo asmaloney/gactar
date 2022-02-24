@@ -45,9 +45,10 @@
     <code-mirror
       :key="count"
       ref="code-editor"
-      :amod-code.sync="amodCode"
+      :amod-code="amodCode"
       mode="amod"
       framework="amod"
+      @editorCodeChange="editorCodeChange"
     />
   </b-tab-item>
 </template>
@@ -95,8 +96,8 @@ export default Vue.extend({
     fileToLoad(file: File) {
       var reader = new FileReader()
       reader.onload = (ev: ProgressEvent<FileReader>) => {
-        if (ev.target != null) {
-          this.$refs['code-editor'].setCode(ev.target.result)
+        if (ev.target != null && typeof ev.target.result === 'string') {
+          this.amodCode = ev.target.result
         }
       }
       reader.readAsText(file)
@@ -133,6 +134,10 @@ export default Vue.extend({
       localStorage.setItem(localStorageName, this.amodCode)
     },
 
+    editorCodeChange(code: string) {
+      this.$emit('codeChange', code)
+    },
+
     async getExample(example: string) {
       await api
         .getExample(example)
@@ -161,7 +166,7 @@ export default Vue.extend({
       var code = localStorage.getItem(localStorageName)
       if (code !== null) {
         this.loadedFromLocal = true
-        this.$refs['code-editor'].setCode(code)
+        this.amodCode = code
       }
     },
   },

@@ -17,7 +17,7 @@
     <code-mirror
       :key="count"
       :ref="refName"
-      :amod-code.sync="code"
+      :amod-code="code"
       :mode="mode"
       :framework="framework"
       :read-only="true"
@@ -86,7 +86,6 @@ export default Vue.extend({
   watch: {
     code() {
       this.count += 1
-      this.$refs[this.refName].setCode(this.code)
     },
   },
 })

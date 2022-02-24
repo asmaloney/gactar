@@ -75,17 +75,18 @@ export default Vue.extend({
     this.editor = editor
   },
 
+  watch: {
+    amodCode(code: string) {
+      if (this.editor) {
+        this.editor.setValue(code)
+      }
+    },
+  },
+
   methods: {
     onCodeChange(editor: Editor) {
       if (editor && editor.getValue().length != 0) {
-        this.$emit('update:amodCode', editor.getValue())
-      }
-    },
-
-    // Called by the parent to set the code directly
-    setCode(code: string) {
-      if (this.editor) {
-        this.editor.setValue(code)
+        this.$emit('editorCodeChange', editor.getValue())
       }
     },
   },
