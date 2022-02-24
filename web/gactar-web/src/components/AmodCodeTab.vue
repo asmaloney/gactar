@@ -60,10 +60,18 @@ import SaveButton from './SaveButton.vue'
 
 const localStorageName = 'gactar-code-editor'
 
+interface Data {
+  amodCode: string
+  exampleFiles: string[]
+  fileToLoad: File | null
+  loadedFromLocal: boolean
+  count: number
+}
+
 export default Vue.extend({
   components: { CodeMirror, SaveButton },
 
-  data() {
+  data(): Data {
     return {
       amodCode: '',
       exampleFiles: [],
@@ -82,33 +90,37 @@ export default Vue.extend({
     },
 
     // watch for a change in fileToLoad, then load it
-    fileToLoad(val) {
-      if (val == null) {
-        return
-      }
-
+    fileToLoad(file: File) {
       var reader = new FileReader()
-      reader.onload = (e) => {
-        this.$refs['code-editor'].setCode(e.target.result)
+      reader.onload = (ev: ProgressEvent<FileReader>) => {
+        this.$refs['code-editor'].setCode(ev.target.result)
       }
-      reader.readAsText(this.fileToLoad)
+      reader.readAsText(file)
     },
   },
 
   created() {
-    window.addEventListener('beforeunload', this.beforeWindowUnload)
-    window.addEventListener('load', this.onWindowLoad)
+    window.addEventListener('beforeunload', () => {
+      this.beforeWindowUnload()
+    })
+    window.addEventListener('load', () => {
+      this.onWindowLoad()
+    })
   },
 
   beforeDestroy() {
-    window.removeEventListener('load', this.onWindowLoad)
-    window.removeEventListener('beforeunload', this.beforeWindowUnload)
+    window.removeEventListener('load', () => {
+      this.onWindowLoad()
+    })
+    window.removeEventListener('beforeunload', () => {
+      this.beforeWindowUnload()
+    })
   },
 
   async mounted() {
     await this.getExamples()
     if (!this.loadedFromLocal) {
-      this.getExample(this.exampleFiles[0])
+      await this.getExample(this.exampleFiles[0])
     }
   },
 

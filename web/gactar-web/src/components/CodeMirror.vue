@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import CodeMirror from 'codemirror'
+import CodeMirror, { Editor } from 'codemirror'
 
 // Add-ons
 import 'codemirror/addon/display/autorefresh'
@@ -17,6 +17,12 @@ import 'codemirror/mode/commonlisp/commonlisp'
 import 'codemirror/mode/python/python'
 
 import '../codemirror/amod'
+
+interface Data {
+  editor: Editor | null
+  id: string
+  code: string
+}
 
 export default Vue.extend({
   props: {
@@ -40,7 +46,7 @@ export default Vue.extend({
     },
   },
 
-  data() {
+  data(): Data {
     return {
       editor: null,
       id: 'id-' + this.framework,
@@ -50,7 +56,7 @@ export default Vue.extend({
 
   mounted() {
     const element = document.getElementById(this.id) as HTMLTextAreaElement
-    this.editor = CodeMirror.fromTextArea(element, {
+    const editor = CodeMirror.fromTextArea(element, {
       lineNumbers: true,
       mode: this.mode,
       theme: 'amod',
@@ -61,19 +67,26 @@ export default Vue.extend({
       readOnly: this.readOnly,
       styleActiveLine: true,
     })
-    this.editor.on('change', this.onCmCodeChange)
+
+    editor.on('change', () => {
+      this.onCodeChange(editor)
+    })
+
+    this.editor = editor
   },
 
   methods: {
-    onCmCodeChange() {
-      if (this.editor.getValue().length != 0) {
-        this.$emit('update:amodCode', this.editor.getValue())
+    onCodeChange(editor: Editor) {
+      if (editor && editor.getValue().length != 0) {
+        this.$emit('update:amodCode', editor.getValue())
       }
     },
 
     // Called by the parent to set the code directly
     setCode(code: string) {
-      this.editor.setValue(code)
+      if (this.editor) {
+        this.editor.setValue(code)
+      }
     },
   },
 })

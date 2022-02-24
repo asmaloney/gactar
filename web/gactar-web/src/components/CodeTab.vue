@@ -31,6 +31,13 @@ import Vue from 'vue'
 import CodeMirror from './CodeMirror.vue'
 import SaveButton from './SaveButton.vue'
 
+interface Data {
+  fileToLoad: string | null
+  accept: string
+  refName: string
+  count: number
+}
+
 export default Vue.extend({
   components: { CodeMirror, SaveButton },
 
@@ -57,7 +64,7 @@ export default Vue.extend({
     },
   },
 
-  data() {
+  data(): Data {
     return {
       fileToLoad: null,
 
