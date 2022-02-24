@@ -72,6 +72,8 @@
 <script lang="ts">
 import Vue from 'vue'
 
+import api, { ResultMap, RunResult, Version } from './api'
+
 import AmodCodeTab from './components/AmodCodeTab.vue'
 import CodeTab from './components/CodeTab.vue'
 
@@ -83,13 +85,6 @@ interface Tab {
   displayed: boolean
 }
 
-interface Result {
-  output: string
-  code: string
-  modelName: string
-}
-
-type ResultMap = { [key: string]: Result }
 type CodeMap = { [key: string]: string }
 
 interface Data {
@@ -102,24 +97,10 @@ interface Data {
   version: string
 }
 
-interface Methods {
-  codeChange(newCode: string): void
-  run(): void
-  loadVersion(): void
-  setResults(results: ResultMap): void
-  showError(err: string): void
-}
-
-interface Computed {
-  tabs: Tab[]
-}
-
-interface Props {}
-
-export default Vue.extend<Data, Methods, Computed, Props>({
+export default Vue.extend({
   components: { AmodCodeTab, CodeTab },
 
-  data() {
+  data(): Data {
     return {
       activeTab: 0,
       baseTabs: [
@@ -150,7 +131,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       goal: '',
       running: false,
       results: '',
-      version: null,
+      version: '',
     }
   },
 
@@ -160,8 +141,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
   },
 
-  async mounted() {
-    this.version = this.loadVersion()
+  mounted() {
+    this.loadVersion()
   },
 
   methods: {
@@ -169,33 +150,32 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       this.code['amod'] = newCode
     },
 
-    async run() {
+    run() {
       this.running = true
-      try {
-        const { data } = await this.$http.post('/api/run', {
-          amod: this.code['amod'],
-          goal: this.goal,
+
+      api
+        .run(this.code['amod'], this.goal)
+        .then((results: RunResult) => {
+          if ('results' in results) {
+            this.setResults(results.results)
+          } else {
+            this.showError(results.error)
+          }
         })
-
-        if (data.error) {
-          this.showError(data.error)
-          return
-        }
-
-        this.setResults(data.results)
-      } catch (err) {
-        this.showError(err)
-      }
+        .catch((err: Error) => {
+          this.showError(err.message)
+        })
     },
 
-    async loadVersion() {
-      try {
-        const { data } = await this.$http.get('/api/version')
-
-        this.version = data.version
-      } catch (err) {
-        this.showError(err)
-      }
+    loadVersion() {
+      api
+        .getVersion()
+        .then((version: Version) => {
+          this.version = version.version
+        })
+        .catch((err: Error) => {
+          this.showError(err.message)
+        })
     },
 
     setResults(results: ResultMap) {

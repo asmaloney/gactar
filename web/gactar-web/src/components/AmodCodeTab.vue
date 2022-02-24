@@ -55,6 +55,8 @@
 <script lang="ts">
 import Vue from 'vue'
 
+import api, { ExampleList } from '../api'
+
 import CodeMirror from './CodeMirror.vue'
 import SaveButton from './SaveButton.vue'
 
@@ -93,7 +95,9 @@ export default Vue.extend({
     fileToLoad(file: File) {
       var reader = new FileReader()
       reader.onload = (ev: ProgressEvent<FileReader>) => {
-        this.$refs['code-editor'].setCode(ev.target.result)
+        if (ev.target != null) {
+          this.$refs['code-editor'].setCode(ev.target.result)
+        }
       }
       reader.readAsText(file)
     },
@@ -130,22 +134,26 @@ export default Vue.extend({
     },
 
     async getExample(example: string) {
-      try {
-        const { data } = await this.$http.get('/api/examples/' + example)
-        this.count += 1
-        this.amodCode = data
-      } catch (err) {
-        this.$emit('showError', err)
-      }
+      await api
+        .getExample(example)
+        .then((code: string) => {
+          this.count += 1
+          this.amodCode = code
+        })
+        .catch((err: Error) => {
+          this.$emit('showError', err)
+        })
     },
 
     async getExamples() {
-      try {
-        const { data } = await this.$http.get('/api/examples/list')
-        this.exampleFiles = data.example_list
-      } catch (err) {
-        this.$emit('showError', err)
-      }
+      await api
+        .getExampleList()
+        .then((list: ExampleList) => {
+          this.exampleFiles = list.example_list
+        })
+        .catch((err: Error) => {
+          this.$emit('showError', err)
+        })
     },
 
     onWindowLoad() {
