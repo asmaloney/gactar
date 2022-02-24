@@ -77,6 +77,7 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 
 	http.HandleFunc("/api/version", w.getVersionHandler)
 	http.HandleFunc("/api/run", w.runModelHandler)
+	http.HandleFunc("/api/", http.NotFound)
 
 	if examples != nil {
 		initExamples(w)
