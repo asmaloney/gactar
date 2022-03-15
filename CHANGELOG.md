@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 0.3.0 - In Development
+## [0.3.0](https://github.com/asmaloney/gactar/releases/tag/v0.3.0) - 2022-03-15
 
 ### Changed
 
@@ -10,12 +10,15 @@ All notable changes to this project will be documented in this file. The format 
 
 - Web development & build environment migrated from [vue-cli](https://cli.vuejs.org/) to [vite](https://vitejs.dev/). It is faster & reduces our dependencies. ([#84](https://github.com/asmaloney/gactar/pull/84))
 
-- Convert website to use TypeScript. ([#86](https://github.com/asmaloney/gactar/pull/86))
+- Convert web interface to use TypeScript. ([#86](https://github.com/asmaloney/gactar/pull/86))
 
 - Update vanilla ACT-R to version 7.27.0 (from 15 Sep 2021).
 
 - Change underlying `ccm` code from [CCMSuite3](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) to [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr). The python_actr code was extracted from CCMSuite3 and now has a pip package to make installation easier.
+
   - **Naming note:** When gactar was written, it used [CCMSuite3](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) and it was referred to throughout gactar as `ccm`. Instead of changing everything to refer to `python_actr` I've decided to leave it as `ccm`. This helps avoid confusion between `python_actr` and `pyactr`.
+
+- Update all underlying dependencies (both go and npm).
 
 ## [0.2.0](https://github.com/asmaloney/gactar/releases/tag/v0.2.0) - 2021-11-17
 
