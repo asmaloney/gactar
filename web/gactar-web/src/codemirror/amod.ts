@@ -8,8 +8,8 @@ interface State {
 }
 
 CodeMirror.defineMode('amod', function () {
-  const section_regex: RegExp = /^={2}(model|config|init|productions)={2}/
-  const variable_regex: RegExp = /[?][a-zA-Z0-9_]*/
+  const section_regex = /^={2}(model|config|init|productions)={2}/
+  const variable_regex = /[?][a-zA-Z0-9_]*/
 
   const keywords = {
     authors: true,
@@ -39,7 +39,7 @@ CodeMirror.defineMode('amod', function () {
   }
 
   function tokenString(stream: StringStream, state: State): string {
-    var current = stream.next()
+    let current = stream.next()
     while (!stream.eol() && current != state.pending) {
       current = stream.next()
     }
@@ -47,8 +47,8 @@ CodeMirror.defineMode('amod', function () {
     return 'string'
   }
 
-  function tokenize(stream: StringStream, state: State): string {
-    var ch = stream.next()
+  function tokenize(stream: StringStream, state: State): string | null {
+    const ch = stream.next()
 
     if (ch == '/') {
       if (stream.eat('/')) {
@@ -95,7 +95,7 @@ CodeMirror.defineMode('amod', function () {
 
     stream.eatWhile(/[\w-]/)
 
-    var cur = stream.current()
+    const cur = stream.current()
     if (cur in keywords) {
       return 'keyword'
     } else if (cur in builtIns) {
@@ -104,6 +104,8 @@ CodeMirror.defineMode('amod', function () {
       state.startPattern = false
       return 'chunk-name'
     }
+
+    return null
   }
 
   return {
