@@ -55,7 +55,20 @@ func (f *Float64Flag) GetUsage() string {
 // GetValue returns the flags value as string representation and an empty
 // string if the flag takes no value at all.
 func (f *Float64Flag) GetValue() string {
-	return fmt.Sprintf("%f", f.Value)
+	return fmt.Sprintf("%v", f.Value)
+}
+
+// GetDefaultText returns the default text for this flag
+func (f *Float64Flag) GetDefaultText() string {
+	if f.DefaultText != "" {
+		return f.DefaultText
+	}
+	return f.GetValue()
+}
+
+// GetEnvVars returns the env vars for this flag
+func (f *Float64Flag) GetEnvVars() []string {
+	return f.EnvVars
 }
 
 // IsVisible returns true if the flag is not hidden, otherwise false
@@ -88,10 +101,15 @@ func (f *Float64Flag) Apply(set *flag.FlagSet) error {
 	return nil
 }
 
+// Get returns the flag’s value in the given Context.
+func (f *Float64Flag) Get(ctx *Context) float64 {
+	return ctx.Float64(f.Name)
+}
+
 // Float64 looks up the value of a local Float64Flag, returns
 // 0 if not found
-func (c *Context) Float64(name string) float64 {
-	if fs := c.lookupFlagSet(name); fs != nil {
+func (cCtx *Context) Float64(name string) float64 {
+	if fs := cCtx.lookupFlagSet(name); fs != nil {
 		return lookupFloat64(name, fs)
 	}
 	return 0

@@ -10,7 +10,6 @@ import (
 	"strings"
 	"sync"
 	"unicode"
-	"unicode/utf8"
 )
 
 var (
@@ -143,16 +142,6 @@ type StatefulDefinition struct {
 	matchLongest bool
 }
 
-// MustSimple creates a new lexer definition based on a single state described by `rules`.
-// panics if the rules trigger an error
-func MustSimple(rules []Rule, options ...Option) *StatefulDefinition {
-	def, err := NewSimple(rules, options...)
-	if err != nil {
-		panic(err)
-	}
-	return def
-}
-
 // MustStateful creates a new stateful lexer and panics if it is incorrect.
 func MustStateful(rules Rules, options ...Option) *StatefulDefinition {
 	def, err := New(rules, options...)
@@ -160,11 +149,6 @@ func MustStateful(rules Rules, options ...Option) *StatefulDefinition {
 		panic(err)
 	}
 	return def
-}
-
-// NewSimple creates a new stateful lexer with a single "Root" state.
-func NewSimple(rules []Rule, options ...Option) (*StatefulDefinition, error) {
-	return New(Rules{"Root": rules}, options...)
 }
 
 // New constructs a new stateful lexer from rules.
@@ -245,7 +229,8 @@ func (d *StatefulDefinition) Rules() Rules {
 	return out
 }
 
-func (d *StatefulDefinition) LexString(filename string, s string) (Lexer, error) { // nolint: golint
+// LexString is a fast-path implementation for lexing strings.
+func (d *StatefulDefinition) LexString(filename string, s string) (Lexer, error) {
 	return &StatefulLexer{
 		def:   d,
 		data:  s,
@@ -341,15 +326,7 @@ next:
 
 		// Update position.
 		pos := l.pos
-		l.pos.Offset += match[1]
-		lines := strings.Count(span, "\n")
-		l.pos.Line += lines
-		// Update column.
-		if lines == 0 {
-			l.pos.Column += utf8.RuneCountInString(span)
-		} else {
-			l.pos.Column = utf8.RuneCountInString(span[strings.LastIndex(span, "\n"):])
-		}
+		l.pos.Advance(span)
 		if rule.ignore {
 			parent = l.stack[len(l.stack)-1]
 			rules = l.def.rules[parent.name]

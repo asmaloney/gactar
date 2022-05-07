@@ -257,29 +257,6 @@ type Value struct {
 }
 ```
 
-## Streaming
-<a id="markdown-streaming" name="streaming"></a>
-
-Participle supports streaming parsing. Simply pass a channel of your grammar into
-`Parse*()`. The grammar will be repeatedly parsed and sent to the channel. Note that
-the `Parse*()` call will not return until parsing completes, so it should generally be
-started in a goroutine.
-
-```go
-type token struct {
-  Str string `  @Ident`
-  Num int    `| @Int`
-}
-
-parser, err := participle.Build(&token{})
-
-tokens := make(chan *token, 128)
-err := parser.ParseString("", `hello 10 11 12 world`, tokens)
-for token := range tokens {
-  fmt.Printf("%#v\n", token)
-}
-```
-
 ## Lexing
 <a id="markdown-lexing" name="lexing"></a>
 
@@ -303,9 +280,11 @@ To use your own Lexer you will need to implement two interfaces:
 ### Stateful lexer
 <a id="markdown-stateful-lexer" name="stateful-lexer"></a>
 
-Participle's included stateful/modal lexer provides powerful yet convenient
-construction of most lexers (notably, indentation based lexers cannot be
-expressed).
+In addition to the default lexer, Participle includes an optional
+stateful/modal lexer which provides powerful yet convenient
+construction of most lexers.  (Notably, indentation based lexers cannot
+be expressed using the `stateful` lexer -- for discussion of how these
+lexers can be implemented, see [#20](https://github.com/alecthomas/participle/issues/20)).
 
 It is sometimes the case that a simple lexer cannot fully express the tokens
 required by a parser. The canonical example of this is interpolated strings
@@ -328,8 +307,7 @@ As a convenience, any `Rule` starting with a lowercase letter will be elided fro
 
 Lexing starts in the `Root` group. Each rule is matched in order, with the first
 successful match producing a lexeme. If the matching rule has an associated Action
-it will be executed. The name of each non-root rule is prefixed with the name
-of its group to yield the token identifier used during matching.
+it will be executed.
 
 A state change can be introduced with the Action `Push(state)`. `Pop()` will
 return to the previous state.
@@ -376,24 +354,26 @@ var lexer = stateful.Must(Rules{
 ### Example simple/non-stateful lexer
 <a id="markdown-example-simple%2Fnon-stateful-lexer" name="example-simple%2Fnon-stateful-lexer"></a>
 
-The Stateful lexer is now the only custom lexer supported by Participle, but
-most parsers won't need this level of flexibility. To support this common
-case, which replaces the old `Regex` and `EBNF` lexers, you can use
-`stateful.MustSimple()` and `stateful.NewSimple()`.
+Other than the default and stateful lexers, it's easy to define your
+own stateless lexer using the `stateful.MustSimple()` and
+`stateful.NewSimple()` methods.  These methods accept a slice of
+`stateful.SimpleRule{}` objects consisting of a key and a regex-style pattern.
+The stateful lexer replaced the old regex lexer.
 
-eg. The lexer for a form of BASIC:
+For example, the lexer for a form of BASIC:
 
 ```go
-var basicLexer = stateful.MustSimple([]stateful.Rule{
-    {"Comment", `(?i)rem[^\n]*`, nil},
-    {"String", `"(\\"|[^"])*"`, nil},
-    {"Number", `[-+]?(\d*\.)?\d+`, nil},
-    {"Ident", `[a-zA-Z_]\w*`, nil},
-    {"Punct", `[-[!@#$%^&*()+_={}\|:;"'<,>.?/]|]`, nil},
-    {"EOL", `[\n\r]+`, nil},
-    {"whitespace", `[ \t]+`, nil},
+var basicLexer = stateful.MustSimple([]stateful.SimpleRule{
+    {"Comment", `(?i)rem[^\n]*`},
+    {"String", `"(\\"|[^"])*"`},
+    {"Number", `[-+]?(\d*\.)?\d+`},
+    {"Ident", `[a-zA-Z_]\w*`},
+    {"Punct", `[-[!@#$%^&*()+_={}\|:;"'<,>.?/]|]`},
+    {"EOL", `[\n\r]+`},
+    {"whitespace", `[ \t]+`},
 })
 ```
+
 ### Experimental - code generation
 <a id="markdown-experimental---code-generation" name="experimental---code-generation"></a>
 
@@ -583,6 +563,14 @@ recursion must be eliminated by restructuring your grammar.
 
 ## EBNF
 <a id="markdown-ebnf" name="ebnf"></a>
+
+The old `EBNF` lexer was removed in a major refactoring at
+[362b26](https://github.com/alecthomas/participle/commit/362b26640fa3dc406aa60960f7d9a5b9a909414e)
+-- if you have an EBNF grammar you need to implement, you can either translate it into
+regex-style stateful.Rule{} syntax or implement your own EBNF lexer --
+you might be able to use 
+[the old EBNF lexer](https://github.com/alecthomas/participle/blob/2403858c8b2068b4b0cf96a6b36dd7069674039b/lexer/ebnf/ebnf.go)
+as a starting point.
 
 Participle supports outputting an EBNF grammar from a Participle parser. Once
 the parser is constructed simply call `String()`.

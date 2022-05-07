@@ -119,6 +119,19 @@ func (f *TimestampFlag) IsVisible() bool {
 	return !f.Hidden
 }
 
+// GetDefaultText returns the default text for this flag
+func (f *TimestampFlag) GetDefaultText() string {
+	if f.DefaultText != "" {
+		return f.DefaultText
+	}
+	return f.GetValue()
+}
+
+// GetEnvVars returns the env vars for this flag
+func (f *TimestampFlag) GetEnvVars() []string {
+	return f.EnvVars
+}
+
 // Apply populates the flag given the flag set and environment
 func (f *TimestampFlag) Apply(set *flag.FlagSet) error {
 	if f.Layout == "" {
@@ -151,9 +164,14 @@ func (f *TimestampFlag) Apply(set *flag.FlagSet) error {
 	return nil
 }
 
+// Get returns the flag’s value in the given Context.
+func (f *TimestampFlag) Get(ctx *Context) *time.Time {
+	return ctx.Timestamp(f.Name)
+}
+
 // Timestamp gets the timestamp from a flag name
-func (c *Context) Timestamp(name string) *time.Time {
-	if fs := c.lookupFlagSet(name); fs != nil {
+func (cCtx *Context) Timestamp(name string) *time.Time {
+	if fs := cCtx.lookupFlagSet(name); fs != nil {
 		return lookupTimestamp(name, fs)
 	}
 	return nil

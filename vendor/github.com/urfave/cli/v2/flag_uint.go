@@ -88,10 +88,28 @@ func (f *UintFlag) GetValue() string {
 	return fmt.Sprintf("%d", f.Value)
 }
 
+// GetDefaultText returns the default text for this flag
+func (f *UintFlag) GetDefaultText() string {
+	if f.DefaultText != "" {
+		return f.DefaultText
+	}
+	return f.GetValue()
+}
+
+// GetEnvVars returns the env vars for this flag
+func (f *UintFlag) GetEnvVars() []string {
+	return f.EnvVars
+}
+
+// Get returns the flag’s value in the given Context.
+func (f *UintFlag) Get(ctx *Context) uint {
+	return ctx.Uint(f.Name)
+}
+
 // Uint looks up the value of a local UintFlag, returns
 // 0 if not found
-func (c *Context) Uint(name string) uint {
-	if fs := c.lookupFlagSet(name); fs != nil {
+func (cCtx *Context) Uint(name string) uint {
+	if fs := cCtx.lookupFlagSet(name); fs != nil {
 		return lookupUint(name, fs)
 	}
 	return 0

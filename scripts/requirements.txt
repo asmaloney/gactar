@@ -1,6 +1,5 @@
-autopep8
-pylint
-
+autopep8 == 1.6.0
 pyactr == 0.3.0
-python-actr==1.9.1
-requests ~= 2.26
+pylint == 2.13.8
+python-actr == 1.9.2
+requests == 2.27.1
