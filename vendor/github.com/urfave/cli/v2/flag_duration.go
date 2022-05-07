@@ -63,6 +63,19 @@ func (f *DurationFlag) IsVisible() bool {
 	return !f.Hidden
 }
 
+// GetDefaultText returns the default text for this flag
+func (f *DurationFlag) GetDefaultText() string {
+	if f.DefaultText != "" {
+		return f.DefaultText
+	}
+	return f.GetValue()
+}
+
+// GetEnvVars returns the env vars for this flag
+func (f *DurationFlag) GetEnvVars() []string {
+	return f.EnvVars
+}
+
 // Apply populates the flag given the flag set and environment
 func (f *DurationFlag) Apply(set *flag.FlagSet) error {
 	if val, ok := flagFromEnvOrFile(f.EnvVars, f.FilePath); ok {
@@ -88,10 +101,15 @@ func (f *DurationFlag) Apply(set *flag.FlagSet) error {
 	return nil
 }
 
+// Get returns the flag’s value in the given Context.
+func (f *DurationFlag) Get(ctx *Context) time.Duration {
+	return ctx.Duration(f.Name)
+}
+
 // Duration looks up the value of a local DurationFlag, returns
 // 0 if not found
-func (c *Context) Duration(name string) time.Duration {
-	if fs := c.lookupFlagSet(name); fs != nil {
+func (cCtx *Context) Duration(name string) time.Duration {
+	if fs := cCtx.lookupFlagSet(name); fs != nil {
 		return lookupDuration(name, fs)
 	}
 	return 0

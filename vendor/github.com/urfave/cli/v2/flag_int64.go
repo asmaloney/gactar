@@ -63,6 +63,19 @@ func (f *Int64Flag) IsVisible() bool {
 	return !f.Hidden
 }
 
+// GetDefaultText returns the default text for this flag
+func (f *Int64Flag) GetDefaultText() string {
+	if f.DefaultText != "" {
+		return f.DefaultText
+	}
+	return f.GetValue()
+}
+
+// GetEnvVars returns the env vars for this flag
+func (f *Int64Flag) GetEnvVars() []string {
+	return f.EnvVars
+}
+
 // Apply populates the flag given the flag set and environment
 func (f *Int64Flag) Apply(set *flag.FlagSet) error {
 	if val, ok := flagFromEnvOrFile(f.EnvVars, f.FilePath); ok {
@@ -88,10 +101,15 @@ func (f *Int64Flag) Apply(set *flag.FlagSet) error {
 	return nil
 }
 
+// Get returns the flag’s value in the given Context.
+func (f *Int64Flag) Get(ctx *Context) int64 {
+	return ctx.Int64(f.Name)
+}
+
 // Int64 looks up the value of a local Int64Flag, returns
 // 0 if not found
-func (c *Context) Int64(name string) int64 {
-	if fs := c.lookupFlagSet(name); fs != nil {
+func (cCtx *Context) Int64(name string) int64 {
+	if fs := cCtx.lookupFlagSet(name); fs != nil {
 		return lookupInt64(name, fs)
 	}
 	return 0

@@ -1,10 +1,10 @@
 module github.com/asmaloney/gactar
 
-go 1.17
+go 1.18
 
 require (
-	github.com/alecthomas/participle/v2 v2.0.0-alpha7
-	github.com/urfave/cli/v2 v2.4.0
+	github.com/alecthomas/participle/v2 v2.0.0-alpha8
+	github.com/urfave/cli/v2 v2.6.0
 )
 
 require (

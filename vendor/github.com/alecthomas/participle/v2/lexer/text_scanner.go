@@ -9,19 +9,33 @@ import (
 
 // TextScannerLexer is a lexer that uses the text/scanner module.
 var (
-	TextScannerLexer Definition = &defaultDefinition{}
+	TextScannerLexer Definition = &textScannerLexerDefinition{}
 
 	// DefaultDefinition defines properties for the default lexer.
 	DefaultDefinition = TextScannerLexer
 )
 
-type defaultDefinition struct{}
-
-func (d *defaultDefinition) Lex(filename string, r io.Reader) (Lexer, error) {
-	return Lex(filename, r), nil
+// NewTextScannerLexer constructs a Definition that uses an underlying scanner.Scanner
+//
+// "configure" will be called after the scanner.Scanner.Init(r) is called. If "configure"
+// is nil a default scanner.Scanner will be used.
+func NewTextScannerLexer(configure func(*scanner.Scanner)) Definition {
+	return &textScannerLexerDefinition{configure: configure}
 }
 
-func (d *defaultDefinition) Symbols() map[string]TokenType {
+type textScannerLexerDefinition struct {
+	configure func(*scanner.Scanner)
+}
+
+func (d *textScannerLexerDefinition) Lex(filename string, r io.Reader) (Lexer, error) {
+	l := Lex(filename, r)
+	if d.configure != nil {
+		d.configure(l.(*textScannerLexer).scanner)
+	}
+	return l, nil
+}
+
+func (d *textScannerLexerDefinition) Symbols() map[string]TokenType {
 	return map[string]TokenType{
 		"EOF":       EOF,
 		"Char":      scanner.Char,
@@ -51,10 +65,7 @@ func Lex(filename string, r io.Reader) Lexer {
 	s.Init(r)
 	lexer := lexWithScanner(filename, s)
 	lexer.scanner.Error = func(s *scanner.Scanner, msg string) {
-		// This is to support single quoted strings. Hacky.
-		if !strings.HasSuffix(msg, "char literal") {
-			lexer.err = errorf(Position(lexer.scanner.Pos()), msg)
-		}
+		lexer.err = errorf(Position(lexer.scanner.Pos()), msg)
 	}
 	return lexer
 }
@@ -67,6 +78,7 @@ func LexWithScanner(filename string, scan *scanner.Scanner) Lexer {
 }
 
 func lexWithScanner(filename string, scan *scanner.Scanner) *textScannerLexer {
+	scan.Filename = filename
 	lexer := &textScannerLexer{
 		filename: filename,
 		scanner:  scan,
