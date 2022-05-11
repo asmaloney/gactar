@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+title: gactar
+type: software
+version: 0.3.0
+date-released: '2022-03-22'
+authors:
+  - given-names: Andy
+    family-names: Maloney
+    email: asmaloney@gmail.com
+    affiliation: Independent Researcher
+repository-code: 'https://github.com/asmaloney/gactar'
+license: MIT
+message: >-
+  If you use this software, please cite both the article from
+  preferred-citation and the software itself.
+abstract: >-
+  A tool for creating & running basic ACT-R models on multiple
+  implementations using a single declarative file format.
+keywords:
+  - 'ACT-R'
+  - 'cognitive science'
+  - 'cognitive architecture'
+  - 'cognitive modelling'
+preferred-citation:
+  type: article
+  title: 'gactar: A Tool For Exploring ACT-R Modelling'
+  authors:
+    - given-names: Andy
+      family-names: Maloney
+      email: asmaloney@gmail.com
+      affiliation: Independent Researcher
+  year: 2021
+  scope: >-
+    Cite this paper if you want to reference the general
+    concepts of the software.
+  doi: 10.13140/RG.2.2.25387.36642
