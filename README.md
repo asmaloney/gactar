@@ -685,6 +685,16 @@ done {
 
 This production is called `done`. It attempts to match the `goal` buffer to a `parsing_goal` chunk, and the `imaginal` buffer to a `sentence` chunk. If they match, then it will `print` the contents of the `?parsed` variable, `set` the `task` slot of the `goal` buffer to `'done'`, and clear both the `imaginal` and `goal` buffers.
 
+## Editing amod Files With VS Code
+
+I have created a VS Code extension called _gactar-vscode_ to provide amod syntax highlighting.
+
+![VS Code Example](images/vscode-example.png)
+
+The extension is [published](https://marketplace.visualstudio.com/items?itemName=asmaloney.gactar) on the VS Code marketplace, so you can install it from within VS Code.
+
+The source code for _gactar-vscode_ may be found [here](https://github.com/asmaloney/gactar-vscode).
+
 ## amod Processing
 
 The following diagram shows how an _amod_ file is processed by gactar. The partial paths at the bottom of the items is the path to the source code responsible for that part of the processing.
