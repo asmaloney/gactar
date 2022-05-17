@@ -22,4 +22,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
-          extra_files: examples scripts CHANGELOG.md LICENSE README.md
+          extra_files: examples scripts CHANGELOG.md CITATION.cff LICENSE README.md
