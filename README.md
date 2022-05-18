@@ -124,14 +124,18 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
 
 2. Decompress the file using the appropriate tool for your platform.
 
-3. You should end up with a folder named something like `gactar-v<version>-<platform>-<architecture>` (e.g. `gactar-v0.2.0-darwin-amd64`) containing the following files & folders:
+3. You should end up with a folder named something like `gactar-v<version>-<platform>-<architecture>` (e.g. `gactar-v0.3.0-darwin-amd64`) containing the following files & folders:
 
-- CHANGELOG.md (describes changes between versions)
-- gactar (the executable)
-- examples/ (folder containing the examples)
-- LICENSE
-- README.md (this readme file)
-- scripts/ (setup scripts)
+   |              |                                                                              |
+   | ------------ | ---------------------------------------------------------------------------- |
+   | CHANGELOG.md | describes changes between versions                                           |
+   | CITATION.cff | citation information in [cff format](https://citation-file-format.github.io) |
+   | doc/         | folder containing extra documentation                                        |
+   | gactar       | the executable                                                               |
+   | examples/    | folder containing the examples                                               |
+   | LICENSE      | the license                                                                  |
+   | README.md    | this readme file                                                             |
+   | scripts/     | folder containing the setup scripts                                          |
 
 ### Setup Virtual Environment
 
@@ -171,37 +175,6 @@ For now this is only automated on macOS because the required files are not easy 
    export SBCL_HOME=/path/to/env/lib/sbcl; sbcl --script actr/load-single-threaded-act-r.lisp
    ```
    This will take a few moments to compile all the ACT-R files so it is ready to use.
-
-## Build/Develop
-
-If you want to build `gactar` from scratch, you will need [git](https://git-scm.com/), [make](https://www.gnu.org/software/make/), and the [go compiler](https://golang.org/) installed for your platform.
-
-Then you just need to clone this repository:
-
-```sh
-git clone https://github.com/asmaloney/gactar
-cd gactar
-```
-
-...and run make:
-
-```
-make
-```
-
-This will create the `gactar` executable.
-
-See the [web README](web/gactar-web/README.md) for information on developing the web interface.
-
-**Note for Windows:** I haven't actually built this on Windows directly (the GitHub CI builds it for me). If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues).
-
-## Test
-
-To run the built-in tests, from the top-level of the repo run:
-
-```
-go test ./...
-```
 
 ## Usage
 
@@ -374,6 +347,37 @@ Opening `http://localhost:8181` in your browser will let you load, edit, and sav
 The results (and any errors) will be shown on the right and the generated code that was used to run the model on each framework is shown in the editor tabs.
 
 **Important Note:** This web server is only intended to be run locally. It should not be used to expose gactar to the internet. Because we are running code, a lot more checking and validation of inputs would be required before doing so.
+
+## Build/Develop
+
+If you want to build `gactar` from scratch, you will need [git](https://git-scm.com/), [make](https://www.gnu.org/software/make/), and the [go compiler](https://golang.org/) installed for your platform.
+
+Then you just need to clone this repository:
+
+```sh
+git clone https://github.com/asmaloney/gactar
+cd gactar
+```
+
+...and run make:
+
+```
+make
+```
+
+This will create the `gactar` executable.
+
+See the [web README](web/gactar-web/README.md) for information on developing the web interface.
+
+**Note for Windows:** I haven't actually built this on Windows directly (the GitHub CI builds it for me). If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues).
+
+## Test
+
+To run the built-in tests, from the top-level of the repo run:
+
+```
+go test ./...
+```
 
 ## Web API
 
