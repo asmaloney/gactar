@@ -41,7 +41,7 @@ func (p *PyACTR) Initialize() (err error) {
 		return
 	}
 
-	framework.IdentifyYourself("pyactr", "python3")
+	framework.IdentifyYourself(p.Name(), "python3")
 
 	err = framework.PythonCheckForPackage("pyactr")
 	if err != nil {
@@ -56,6 +56,10 @@ func (p *PyACTR) Initialize() (err error) {
 	return
 }
 
+func (PyACTR) Name() string {
+	return "pyactr"
+}
+
 func (p *PyACTR) SetModel(model *actr.Model) (err error) {
 	if model.Name == "" {
 		err = fmt.Errorf("model is missing name")
@@ -66,6 +70,10 @@ func (p *PyACTR) SetModel(model *actr.Model) (err error) {
 	p.className = fmt.Sprintf("pyactr_%s", p.model.Name)
 
 	return
+}
+
+func (p PyACTR) Model() (model *actr.Model) {
+	return p.model
 }
 
 func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (generatedCode, output []byte, err error) {

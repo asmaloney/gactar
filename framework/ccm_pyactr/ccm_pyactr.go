@@ -39,7 +39,7 @@ func (c *CCMPyACTR) Initialize() (err error) {
 		return
 	}
 
-	framework.IdentifyYourself("ccm", "python3")
+	framework.IdentifyYourself(c.Name(), "python3")
 
 	err = framework.PythonCheckForPackage("python_actr")
 	if err != nil {
@@ -54,6 +54,10 @@ func (c *CCMPyACTR) Initialize() (err error) {
 	return
 }
 
+func (CCMPyACTR) Name() string {
+	return "ccm"
+}
+
 // SetModel sets our model and saves the python class name we are going to use.
 func (c *CCMPyACTR) SetModel(model *actr.Model) (err error) {
 	if model.Name == "" {
@@ -65,6 +69,10 @@ func (c *CCMPyACTR) SetModel(model *actr.Model) (err error) {
 	c.className = fmt.Sprintf("ccm_%s", c.model.Name)
 
 	return
+}
+
+func (c CCMPyACTR) Model() (model *actr.Model) {
+	return c.model
 }
 
 // Run generates the python code from the amod file, writes it to disk, creates a "run" file
