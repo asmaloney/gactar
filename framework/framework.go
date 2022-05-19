@@ -13,7 +13,10 @@ var ValidFrameworks = []string{"all", "ccm", "pyactr", "vanilla"}
 
 type Framework interface {
 	Initialize() (err error)
+	Name() string
+
 	SetModel(model *actr.Model) (err error)
+	Model() (model *actr.Model)
 
 	Run(initialBuffers InitialBuffers) (generatedCode, output []byte, err error)
 	WriteModel(path string, initialBuffers InitialBuffers) (outputFileName string, err error)

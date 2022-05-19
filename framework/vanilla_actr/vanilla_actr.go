@@ -40,9 +40,13 @@ func (v *VanillaACTR) Initialize() (err error) {
 		return
 	}
 
-	framework.IdentifyYourself("vanilla", "sbcl")
+	framework.IdentifyYourself(v.Name(), "sbcl")
 
 	return
+}
+
+func (VanillaACTR) Name() string {
+	return "vanilla"
 }
 
 func (v *VanillaACTR) SetModel(model *actr.Model) (err error) {
@@ -55,6 +59,10 @@ func (v *VanillaACTR) SetModel(model *actr.Model) (err error) {
 	v.modelName = fmt.Sprintf("vanilla_%s", v.model.Name)
 
 	return
+}
+
+func (c VanillaACTR) Model() (model *actr.Model) {
+	return c.model
 }
 
 func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (generatedCode, output []byte, err error) {
