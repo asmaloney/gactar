@@ -24,12 +24,12 @@ type Shell struct {
 	context          *cli.Context
 	history          []string
 	currentModel     *actr.Model
-	actrFrameworks   *framework.List
+	actrFrameworks   framework.List
 	activeFrameworks map[string]bool
 	commands         map[string]command
 }
 
-func Initialize(cli *cli.Context, frameworks *framework.List) (s *Shell, err error) {
+func Initialize(cli *cli.Context, frameworks framework.List) (s *Shell, err error) {
 	s = &Shell{
 		context:          cli,
 		actrFrameworks:   frameworks,
@@ -38,7 +38,7 @@ func Initialize(cli *cli.Context, frameworks *framework.List) (s *Shell, err err
 
 	s.preamble()
 
-	for name, framework := range *frameworks {
+	for name, framework := range frameworks {
 		err = framework.Initialize()
 		if err != nil {
 			return nil, err
@@ -198,7 +198,7 @@ func (s *Shell) cmdRun(initialGoal string) (err error) {
 		return
 	}
 
-	for name, f := range *s.actrFrameworks {
+	for name, f := range s.actrFrameworks {
 		if !s.activeFrameworks[name] {
 			continue
 		}
