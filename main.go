@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -42,7 +43,6 @@ func main() {
 		},
 		Copyright:            "©2021 Andy Maloney",
 		EnableBashCompletion: true,
-		HideHelpCommand:      true,
 		Flags: []cli.Flag{
 			&cli.StringFlag{Name: "env", Usage: "directory where ACT-R, pyactr, and other necessary files are installed", EnvVars: []string{"VIRTUAL_ENV"}},
 
@@ -56,10 +56,16 @@ func main() {
 				Usage:   fmt.Sprintf("add framework - valid frameworks: %s", strings.Join(framework.ValidFrameworks, ", ")),
 			},
 
+			// for default
+			&cli.PathFlag{Name: "output", Aliases: []string{"o"}, Value: ".", Usage: "directory for generated files (will be created)"},
+			&cli.BoolFlag{Name: "run", Aliases: []string{"r"}, Usage: "run the models after generating the code"},
+
+			// for interactive
 			&cli.BoolFlag{Name: "interactive", Aliases: []string{"i"}, Usage: "run an interactive shell"},
 
-			&cli.BoolFlag{Name: "web", Aliases: []string{"w"}, Usage: "start a webserver to run in a browser"},
-			&cli.IntFlag{Name: "port", Aliases: []string{"p"}, Value: defaultPort, Usage: "port to run the webserver on"},
+			// for web
+			&cli.BoolFlag{Name: "web", Aliases: []string{"w"}, Usage: "start a web server to run in a browser"},
+			&cli.IntFlag{Name: "port", Aliases: []string{"p"}, Value: defaultPort, Usage: "port to run the web server on"},
 		},
 		Action: func(c *cli.Context) error {
 			if c.Bool("debug") {
@@ -77,14 +83,14 @@ func main() {
 				return err
 			}
 
-			if c.Bool("web") {
-				w, err := web.Initialize(c, frameworks, &amodExamples)
-				if err != nil {
-					fmt.Println(err.Error())
-					return err
-				}
+			if c.Bool("web") && c.Bool("interactive") {
+				err = errors.New("cannot run 'web' and 'interactive' at the same time")
+				fmt.Println(err.Error())
+				return err
+			}
 
-				err = w.Start()
+			if c.Bool("web") {
+				err := handleWeb(c, frameworks)
 				if err != nil {
 					fmt.Println(err.Error())
 					return err
@@ -92,30 +98,21 @@ func main() {
 			}
 
 			if c.Int("port") != defaultPort {
-				fmt.Println("info: -port only applies when using -web")
+				fmt.Println("info: --port only applies when using --web")
 			}
 
 			if c.Bool("interactive") {
-				s, err := shell.Initialize(c, &frameworks)
+				err := handleInteractive(c, frameworks)
 				if err != nil {
 					fmt.Println(err.Error())
 					return err
 				}
 
-				err = s.Start()
-				if err != nil {
-					fmt.Println(err.Error())
-					return err
-				}
-
-				return nil
+				return err
 			}
 
 			// We are not interactive or web, so simply generate the output files.
-
-			cli.ShowVersion(c)
-
-			generateCode(frameworks, c.Args().Slice())
+			err = handleDefault(c, frameworks)
 			if err != nil {
 				fmt.Println(err.Error())
 				return err
@@ -174,14 +171,79 @@ func createFrameworks(cli *cli.Context) (frameworks framework.List, err error) {
 	return
 }
 
-func generateCode(frameworks framework.List, files []string) {
-	var err error
+func handleWeb(context *cli.Context, frameworks framework.List) (err error) {
+	w, err := web.Initialize(context, frameworks, &amodExamples)
+	if err != nil {
+		return err
+	}
+
+	err = w.Start()
+	if err != nil {
+		return err
+	}
+
+	return
+}
+
+func handleInteractive(context *cli.Context, frameworks framework.List) (err error) {
+	s, err := shell.Initialize(context, frameworks)
+	if err != nil {
+		return err
+	}
+
+	err = s.Start()
+	if err != nil {
+		return err
+	}
+
+	return
+}
+
+func handleDefault(context *cli.Context, frameworks framework.List) (err error) {
+	cli.ShowVersion(context)
+
+	// Check if files exist first
+	files := context.Args().Slice()
 
 	if len(files) == 0 {
-		err = fmt.Errorf("no input files specified on command line")
-		fmt.Println(err.Error())
+		err = fmt.Errorf("error: no input files specified on command line")
 		return
 	}
+
+	existingFiles := files[:0]
+	for _, file := range files {
+		if _, err := os.Stat(file); errors.Is(err, os.ErrNotExist) {
+			fmt.Printf("error: file does not exist - %q\n", file)
+			continue
+		}
+
+		existingFiles = append(existingFiles, file)
+	}
+
+	if len(existingFiles) == 0 {
+		err = fmt.Errorf("error: no files to process")
+		return
+	}
+
+	outputDir := context.Path("output")
+	err = os.MkdirAll(outputDir, 0750)
+	if err != nil && !os.IsExist(err) {
+		return
+	}
+
+	generateCode(frameworks, existingFiles, outputDir, context.Bool("run"))
+	if err != nil {
+		return err
+	}
+
+	if context.Bool("run") {
+		runCode(frameworks)
+	}
+	return
+}
+
+func generateCode(frameworks framework.List, files []string, outputDir string, runCode bool) {
+	var err error
 
 	for _, f := range frameworks {
 		err = f.Initialize()
@@ -204,13 +266,27 @@ func generateCode(frameworks framework.List, files []string) {
 				continue
 			}
 
-			fileName, err := f.WriteModel("", framework.InitialBuffers{})
+			fileName, err := f.WriteModel(outputDir, framework.InitialBuffers{})
 			if err != nil {
 				fmt.Println(err.Error())
 				continue
 			}
 			fmt.Printf("\t- written to %s\n", fileName)
 		}
+	}
+}
+
+func runCode(frameworks framework.List) {
+	for _, f := range frameworks {
+		_, result, err := f.Run(framework.InitialBuffers{})
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+
+		fmt.Printf("== %s ==\n", f.Name())
+		fmt.Println(string(result))
+		fmt.Println()
 	}
 }
 
