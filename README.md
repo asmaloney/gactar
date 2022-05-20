@@ -22,13 +22,57 @@ Currently, `gactar` will take an [_amod_ file](#gactar-models) and generate code
 
 Given that gactar in its early stages, the amod syntax may change dramatically based on use and feedback.
 
+**Note for Windows users:** I haven't actually built & run this on Windows directly (the GitHub CI builds it for me). If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues).
+
 ### What isn't implemented?
 
 A lot! The big, obvious one is environments (and therefore the visual & motor modules). That's a big challenge and probably not worth tackling if there isn't sufficient interest in this initial proof of concept. Environments may even prove impossible given the way they are implemented in the three frameworks, but I haven't yet explored this too deeply.
 
 If there is sufficient interest in this project, my strategy going forward would be to continue implementing examples included with the three implementations, adding capabilities as necessary and, when the implementations differ, raising issues for discussion. Once all the non-environment capabilities are implemented, then I would turn to the environment issue.
 
-## Why?
+## Quickstart
+
+There are more details on each step below, but here's the short version:
+
+### Requirements
+
+1. You need to have python 3 installed.
+
+### Download
+
+1. Download the latest [release](https://github.com/asmaloney/gactar/releases) for your platform & decompress the file.
+
+### Install
+
+0. (optional) Rename the folder that was just created (e.g. `gactar-v0.4.0-darwin-amd64`) to something shorter (e.g. `gactar`):
+
+   `mv gactar-v0.4.0-darwin-amd64 gactar`
+
+1. Change to the folder :
+
+   `cd gactar-v0.4.0-darwin-amd64`
+
+   OR
+
+   `cd gactar` (if you did step 0)
+
+2. Run the set up script:
+
+   `./scripts/setup.sh`
+
+### Run
+
+1. Activate the virtual environment:
+
+   `source ./env/bin/activate`
+
+2. Run gactar:
+
+   `gactar -w`
+
+3. Open your browser to the URL it outputs (e.g. http://localhost:8181)
+
+## Why gactar?
 
 1. Provides a human-readable, easy-to-understand, standard format to define basic ACT-R models.
 1. Allows the easy exchange of models with other researchers
@@ -124,7 +168,7 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
 
 2. Decompress the file using the appropriate tool for your platform.
 
-3. You should end up with a folder named something like `gactar-v<version>-<platform>-<architecture>` (e.g. `gactar-v0.3.0-darwin-amd64`) containing the following files & folders:
+3. You should end up with a folder named something like `gactar-v<version>-<platform>-<architecture>` (e.g. `gactar-v0.4.0-darwin-amd64`) containing the following files & folders:
 
    |              |                                                                              |
    | ------------ | ---------------------------------------------------------------------------- |
@@ -156,13 +200,13 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
 
    If it activated properly, your command line prompt will start with `(env)`. If you want to deactivate it, run `deactivate`.
 
-### Install SBCL Lisp Compiler
+### (Optional - Linux & Windows) Install SBCL Lisp Compiler
 
 **Note:** On macOS, these steps are handled by running the [setup file](#setup-virtual-environment).
 
 For now this is only automated on macOS because the required files are not easy to determine programmatically. It may be possible to improve this in the future for other operating systems.
 
-1. We are using the [Steel Bank Common Lisp](http://www.sbcl.org/index.html) (sbcl) compiler. Download the correct version [from here](http://www.sbcl.org/platform-table.html) by finding your platform (OS and architecture) in the table and clicking its box. Put the file in the `env` directory and unpack it there.
+1. We are using the [Steel Bank Common Lisp](http://www.sbcl.org/index.html) (sbcl) compiler to compile and run our _vanilla_ framework. Download the correct version [from here](http://www.sbcl.org/platform-table.html) by finding your platform (OS and architecture) in the table and clicking its box. Put the file in the `env` directory and unpack it there.
 
 2. To install it in our environment, change to the new directory it created (e.g. `sbcl-1.2.11-x86-64-darwin`) and run this command (setting the path to wherever the env directory is):
 
@@ -176,13 +220,24 @@ For now this is only automated on macOS because the required files are not easy 
    ```
    This will take a few moments to compile all the ACT-R files so it is ready to use.
 
-## Usage
+## Running gactar
+
+The following assumes you have set up your virtual environment properly. See [setup](#setup) above.
+
+There are four different ways to use gactar depending on your needs:
+
+1. In [Visual Studio Code](https://code.visualstudio.com/) using the [gactar extension](https://marketplace.visualstudio.com/items?itemName=asmaloney.gactar).
+2. With a UI locally in a web browser.
+3. Using a command line interface.
+4. Using an interactive command line interface.
+
+### Command Line
+
+To run it using methods 2-4, here are the command line options:
 
 ```
 gactar [OPTIONS] [FILES...]
 ```
-
-### Command Line Options
 
 **--debug, -d**: turn on debugging output
 
@@ -192,57 +247,127 @@ gactar [OPTIONS] [FILES...]
 
 **--interactive, -i**: run an interactive shell
 
-**--port, -p** [number]: port to run the webserver on (default: 8181)
+**--output, -o** [string]: directory for generated files (will be created) (default: .)
 
-**--web, -w**: start a webserver to run in a browser
+**--port, -p** [number]: port to run the web server on (default: 8181)
 
-## Example Usage
+**--run, -r**: run the models after generating the code
 
-These examples assume you have set up your virtual environment properly. See [setup](#setup) above.
+**--web, -w**: start a web server to run in a browser
 
-### Write Generated Code To Files
+### 1. Run With Visual Studio Code
 
-This will generate code for all active frameworks in the directory you are running from. It does not run the models.
+I have created a [Visual Studio Code](https://code.visualstudio.com/) extension called _gactar-vscode_ to provide amod syntax highlighting, code snippets, and a command to run gactar.
+
+![VS Code Example](images/vscode-example.png)
+
+The extension is [published](https://marketplace.visualstudio.com/items?itemName=asmaloney.gactar) on the VS Code marketplace, so you can install it from within VS Code:
+
+1. Run VS Code.
+2. Go to the extensions and search for `gactar`.
+3. Click the `Install` button on the gactar extension.
+4. Details about using it may be found on the [VS Code extension](https://marketplace.visualstudio.com/items?itemName=asmaloney.gactar) page.
+
+The source code for _gactar-vscode_ may be found [here](https://github.com/asmaloney/gactar-vscode).
+
+### 2. Run As Web Server
+
+gactar includes a web server and will use your browser as a user interface.
+
+```
+(env)$ ./gactar -w
+ccm: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
+pyactr: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
+vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
+Serving gactar on http://localhost:8181
+```
+
+Opening `http://localhost:8181` in your browser will let you load, edit, and save amod files, and run them on the implementation frameworks. The page already has an example model loaded, so you can run it by clicking **Run**. You can also:
+
+- select another example using the **Load Example** button
+- modify the amod code in the editor
+- **Save** the amod code to a file
+- **Load** the amod code from a file
+- set a **Goal** to override the default goal in the _amod_ file
+- once it's been run, browse the generated code using the tabs at the top of the code editor
+
+![gactar Web Interface](images/gactar-web.png)
+
+The results (and any errors) will be shown on the right and the generated code that was used to run the model on each framework is shown in the editor tabs.
+
+**Important Note:** This web server is only intended to be run locally. It should not be used to expose gactar to the internet. Because we are running code, a lot more checking and validation of inputs would be required before doing so.
+
+### 3. Run With Command Line Interface
+
+This will generate code for all active frameworks and optionally run the models.
 
 ```
 (env)$ ./gactar examples/count.amod
-gactar version v0.1.0
-ccm: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
+gactar version v0.4.0
+pyactr: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
 	- Generating code for examples/count.amod
-	- written to ccm_count.py
-pyactr: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
-	- Generating code for examples/count.amod
-	- written to pyactr_count.py
+	- written to ./pyactr_count.py
 vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
 	- Generating code for examples/count.amod
-	- written to vanilla_count.lisp
+	- written to ./vanilla_count.lisp
+ccm: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
+	- Generating code for examples/count.amod
+	- written to ./ccm_count.py
 ```
 
-You can choose which frameworks to use with `-f` like this:
+You can choose which frameworks to use with `--framework` or `-f` like this:
 
 ```
 ./gactar -f ccm -f vanilla examples/count.amod
-gactar version v0.1.0
-ccm: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
+gactar version v0.4.0
+ccm: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
 	- Generating code for examples/count.amod
-	- written to ccm_count.py
+	- written to ./ccm_count.py
 vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
 	- Generating code for examples/count.amod
-	- written to vanilla_count.lisp
+	- written to ./vanilla_count.lisp
 ```
 
-### Run Interactively
+You can write the files to a different location using `--output` or `-o`:
+
+```
+./gactar -f ccm -o intermediate examples/count.amod
+gactar version v0.4.0
+ccm: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
+	- Generating code for examples/count.amod
+	- written to intermediate/ccm_count.py
+```
+
+You can also choose to run the models using `--run` or `-r`:
+
+```
+./gactar -f ccm -o intermediate -r examples/count.amod
+gactar version v0.4.0
+ccm: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
+	- Generating code for examples/count.amod
+	- written to intermediate/ccm_count.py
+== ccm ==
+   0.000 production_match_delay 0
+   0.000 production_threshold None
+   0.000 production_time 0.05
+   0.000 production_time_sd None
+   0.000 memory.error False
+   ...
+end...
+```
+
+### 4. Run With Interactive Command Line Interface
 
 gactar provides a simple interactive command-line mode to load and run models.
 
 ```
 (env)$ ./gactar -i
-gactar version v0.1.0
+gactar version v0.4.0
 Type 'help' for a list of commands.
 To exit, type 'exit' or 'quit'.
-pyactr: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
+ccm: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
+pyactr: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
 vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
-ccm: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
 > help
   exit:        exits the program
   frameworks:  choose frameworks to run (e.g. "ccm pyactr", "all")
@@ -320,33 +445,6 @@ Specifying frameworks on the command line will limit you to selecting those fram
 ```
 ./gactar -f ccm -i
 ```
-
-### Run As Web Server
-
-gactar includes a web server and will use your browser as a user interface.
-
-```
-(env)$ ./gactar -w
-ccm: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
-pyactr: Using Python 3.9.7 from /path/to/gactar/env/bin/python3
-vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
-Serving gactar on http://localhost:8181
-```
-
-Opening `http://localhost:8181` in your browser will let you load, edit, and save amod files, and run them on the implementation frameworks. The initial page already has an example model loaded, so you can run it by clicking **Run**. You can also:
-
-- select another example using the **Load Example** button
-- modify the amod code in the editor
-- **Save** the amod code to a file
-- **Load** the amod code from a file
-- set a **Goal** to override the default goal in the _amod_ file
-- once it's been run, browse the generated code using the tabs at the top of the code editor
-
-![gactar Web Interface](images/gactar-web.png)
-
-The results (and any errors) will be shown on the right and the generated code that was used to run the model on each framework is shown in the editor tabs.
-
-**Important Note:** This web server is only intended to be run locally. It should not be used to expose gactar to the internet. Because we are running code, a lot more checking and validation of inputs would be required before doing so.
 
 ## Build/Develop
 
@@ -625,16 +723,6 @@ done {
 ```
 
 This production is called `done`. It attempts to match the `goal` buffer to a `parsing_goal` chunk, and the `imaginal` buffer to a `sentence` chunk. If they match, then it will `print` the contents of the `?parsed` variable, `set` the `task` slot of the `goal` buffer to `'done'`, and clear both the `imaginal` and `goal` buffers.
-
-## Editing amod Files With VS Code
-
-I have created a VS Code extension called _gactar-vscode_ to provide amod syntax highlighting.
-
-![VS Code Example](images/vscode-example.png)
-
-The extension is [published](https://marketplace.visualstudio.com/items?itemName=asmaloney.gactar) on the VS Code marketplace, so you can install it from within VS Code.
-
-The source code for _gactar-vscode_ may be found [here](https://github.com/asmaloney/gactar-vscode).
 
 ## amod Processing
 

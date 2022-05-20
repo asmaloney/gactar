@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.4.0](https://github.com/asmaloney/gactar/releases/tag/v0.4.0) - 2022-05-20
+
+### Added
+
+- New command line options to support the new [gactar VS Code extension](https://marketplace.visualstudio.com/items?itemName=asmaloney.gactar) ([source here](https://github.com/asmaloney/gactar-vscode)).
+  - `--output` (or `-o`) specifies where to put the intermediate source files. Defaults to "./".
+  - `--run` (or `-r`) tells gactar to run the models after generating the code.
+
 ## [0.3.0](https://github.com/asmaloney/gactar/releases/tag/v0.3.0) - 2022-03-15
 
 ### Changed
