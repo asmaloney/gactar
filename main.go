@@ -298,14 +298,14 @@ func generateCode(frameworks framework.List, files []string, outputDir string, r
 
 func runCode(frameworks framework.List) {
 	for _, f := range frameworks {
-		_, result, err := f.Run(framework.InitialBuffers{})
+		result, err := f.Run(framework.InitialBuffers{})
 		if err != nil {
 			fmt.Println(err.Error())
 			continue
 		}
 
 		fmt.Printf("== %s ==\n", f.Info().Name)
-		fmt.Println(string(result))
+		fmt.Println(string(result.Output))
 		fmt.Println()
 	}
 }

@@ -212,14 +212,14 @@ func (s *Shell) cmdRun(initialGoal string) (err error) {
 			"goal": strings.TrimSpace(initialGoal),
 		}
 
-		_, output, err := f.Run(initialBuffers)
+		result, err := f.Run(initialBuffers)
 		if err != nil {
 			return err
 		}
 
-		fmt.Print(string(output))
+		fmt.Print(string(result.Output))
 
-		if output[len(output)-1] != '\n' {
+		if result.Output[len(result.Output)-1] != '\n' {
 			fmt.Println()
 		}
 	}
