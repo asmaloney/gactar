@@ -31,15 +31,17 @@ var Info framework.Info = framework.Info{
 type PyACTR struct {
 	framework.Framework
 	framework.WriterHelper
+
+	tmpPath string
+
 	model     *actr.Model
 	className string
-	tmpPath   string
 }
 
-// New simply creates a new PyACTR instance and sets the tmp path.
-func New(cli *cli.Context) (p *PyACTR, err error) {
+// New simply creates a new PyACTR instance and sets the tmp path from the context.
+func New(ctx *cli.Context) (p *PyACTR, err error) {
 
-	p = &PyACTR{tmpPath: "tmp"}
+	p = &PyACTR{tmpPath: ctx.Path("temp")}
 
 	return
 }

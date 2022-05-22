@@ -25,15 +25,17 @@ var Info framework.Info = framework.Info{
 type CCMPyACTR struct {
 	framework.Framework
 	framework.WriterHelper
+
+	tmpPath string
+
 	model     *actr.Model
 	className string
-	tmpPath   string
 }
 
 // New simply creates a new CCMPyACTR instance and sets the tmp path.
-func New(cli *cli.Context) (c *CCMPyACTR, err error) {
+func New(ctx *cli.Context) (c *CCMPyACTR, err error) {
 
-	c = &CCMPyACTR{tmpPath: "tmp"}
+	c = &CCMPyACTR{tmpPath: ctx.Path("temp")}
 
 	return
 }

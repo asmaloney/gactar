@@ -30,12 +30,12 @@ type VanillaACTR struct {
 	envPath   string
 }
 
-// New simply creates a new VanillaACTR instance and sets the tmp path.
-func New(cli *cli.Context) (v *VanillaACTR, err error) {
+// New simply creates a new VanillaACTR instance and sets some paths from the context.
+func New(ctx *cli.Context) (v *VanillaACTR, err error) {
 
 	v = &VanillaACTR{
-		tmpPath: "tmp",
-		envPath: cli.String("env"),
+		tmpPath: ctx.Path("temp"),
+		envPath: ctx.String("env"),
 	}
 
 	return
