@@ -70,24 +70,27 @@ func (p PyACTR) Model() (model *actr.Model) {
 	return p.model
 }
 
-func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (generatedCode, output []byte, err error) {
-	outputFile, err := p.WriteModel(p.tmpPath, initialBuffers)
+func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (result *framework.RunResult, err error) {
+	runFile, err := p.WriteModel(p.tmpPath, initialBuffers)
 	if err != nil {
 		return
 	}
 
 	// run it!
-	cmd := exec.Command("python3", outputFile)
+	cmd := exec.Command("python3", runFile)
 
-	output, err = cmd.CombinedOutput()
+	output, err := cmd.CombinedOutput()
 	output = removeWarning(output)
 	if err != nil {
 		err = fmt.Errorf("%s", string(output))
 		return
 	}
 
-	generatedCode = p.GetContents()
-
+	result = &framework.RunResult{
+		FileName:      runFile,
+		GeneratedCode: p.GetContents(),
+		Output:        output,
+	}
 	return
 }
 

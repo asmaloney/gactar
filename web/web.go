@@ -41,9 +41,12 @@ type Web struct {
 }
 
 type runResult struct {
-	ModelName string  `json:"modelName"`
-	Code      *string `json:"code,omitempty"`
-	Output    *string `json:"output,omitempty"`
+	Language string `json:"language"` // language being used to run this model
+
+	ModelName string  `json:"model_name"`       // name of the model (from the amod file)
+	FilePath  string  `json:"file_path"`        // intermediate code file (full path)
+	Code      *string `json:"code,omitempty"`   // actual code which was run
+	Output    *string `json:"output,omitempty"` // output of run (stdout + stderr)
 
 	SessionID *int `json:"sessionID,omitempty"`
 	ModelID   *int `json:"modelID,omitempty"`
@@ -190,23 +193,31 @@ func runModel(model *actr.Model, initialBuffers framework.InitialBuffers, actrFr
 		go func(wg *sync.WaitGroup, name string, f framework.Framework) {
 			defer wg.Done()
 
-			code, output, err := runModelOnFramework(model, initialBuffers, f)
+			result, err := runModelOnFramework(model, initialBuffers, f)
 
 			mutex.Lock()
+
+			resultBase := runResult{
+				Language: f.Info().Language,
+
+				ModelName: model.Name,
+			}
+
 			if err != nil {
 				errStr := err.Error()
-				resultMap[name] = runResult{Output: &errStr}
+				resultBase.Output = &errStr
 			} else {
-				codeStr := string(code)
-				outputStr := string(output)
-				resultMap[name] = runResult{
-					ModelName: model.Name,
-					Code:      &codeStr,
-					Output:    &outputStr,
-				}
-			}
-			mutex.Unlock()
+				codeStr := string(result.GeneratedCode)
+				outputStr := string(result.Output)
 
+				resultBase.FilePath = result.FileName
+				resultBase.Code = &codeStr
+				resultBase.Output = &outputStr
+			}
+
+			resultMap[name] = resultBase
+
+			mutex.Unlock()
 		}(&wg, name, f)
 	}
 	wg.Wait()
@@ -214,7 +225,7 @@ func runModel(model *actr.Model, initialBuffers framework.InitialBuffers, actrFr
 	return
 }
 
-func runModelOnFramework(model *actr.Model, initialBuffers framework.InitialBuffers, f framework.Framework) (generatedCode, output []byte, err error) {
+func runModelOnFramework(model *actr.Model, initialBuffers framework.InitialBuffers, f framework.Framework) (result *framework.RunResult, err error) {
 	if model == nil {
 		err = fmt.Errorf("no model loaded")
 		return
@@ -225,7 +236,7 @@ func runModelOnFramework(model *actr.Model, initialBuffers framework.InitialBuff
 		return
 	}
 
-	generatedCode, output, err = f.Run(initialBuffers)
+	result, err = f.Run(initialBuffers)
 	if err != nil {
 		return
 	}

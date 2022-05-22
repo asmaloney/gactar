@@ -8,6 +8,7 @@ import (
 // interactive case.
 var ValidFrameworks = []string{"all", "ccm", "pyactr", "vanilla"}
 
+// Info provides basic info to set up a framework.
 type Info struct {
 	Name     string // name of the framework
 	Language string // language the framework uses
@@ -19,6 +20,13 @@ type Info struct {
 	PythonRequiredPackages []string // (Python only) List of packages this framework requires
 }
 
+// RunResult is the result of a Run() call which runs the code using the framework's executable.
+type RunResult struct {
+	FileName      string // full path to the intermediate file
+	GeneratedCode []byte // code which was run
+	Output        []byte // resulting output (stdout + stderr)
+}
+
 type Framework interface {
 	Info() *Info
 
@@ -27,7 +35,7 @@ type Framework interface {
 	SetModel(model *actr.Model) (err error)
 	Model() (model *actr.Model)
 
-	Run(initialBuffers InitialBuffers) (generatedCode, output []byte, err error)
+	Run(initialBuffers InitialBuffers) (result *RunResult, err error)
 	WriteModel(path string, initialBuffers InitialBuffers) (outputFileName string, err error)
 }
 

@@ -65,13 +65,14 @@ func (c VanillaACTR) Model() (model *actr.Model) {
 	return c.model
 }
 
-func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (generatedCode, output []byte, err error) {
+func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (result *framework.RunResult, err error) {
 	modelFile, err := v.WriteModel(v.tmpPath, initialBuffers)
 	if err != nil {
 		return
 	}
 
-	generatedCode = v.GetContents()
+	// Save the current code for our result
+	generatedCode := v.GetContents()
 
 	runFile, err := v.createRunFile(modelFile)
 	if err != nil {
@@ -79,19 +80,24 @@ func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (generatedCod
 	}
 
 	// run it!
-	command := fmt.Sprintf("./%s", runFile)
-	cmd := exec.Command(command)
+	cmd := exec.Command(runFile)
 
 	// set SBCL_HOME so compiler works
 	sbclPath := fmt.Sprintf("%s/lib/sbcl", v.envPath)
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, fmt.Sprintf("SBCL_HOME=%s", sbclPath))
 
-	output, err = cmd.CombinedOutput()
+	output, err := cmd.CombinedOutput()
 	output = removePreamble(output)
 	if err != nil {
 		err = fmt.Errorf("%s", string(output))
 		return
+	}
+
+	result = &framework.RunResult{
+		FileName:      modelFile,
+		GeneratedCode: generatedCode,
+		Output:        output,
 	}
 
 	return
