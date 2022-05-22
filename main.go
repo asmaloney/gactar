@@ -284,7 +284,7 @@ func runCode(frameworks framework.List) {
 			continue
 		}
 
-		fmt.Printf("== %s ==\n", f.Name())
+		fmt.Printf("== %s ==\n", f.Info().Name)
 		fmt.Println(string(result))
 		fmt.Println()
 	}

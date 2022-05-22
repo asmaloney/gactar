@@ -14,17 +14,26 @@ import (
 
 // Some tools for working with our frameworks
 
-// IdentifyYourself outputs version info and the path to an executable.
-func IdentifyYourself(frameworkName, exeName string) {
-	cmd := exec.Command(exeName, "--version")
-	output, _ := cmd.CombinedOutput()
+// Setup will check that the executable exists and then use it to identify itself.
+func Setup(info *Info) (err error) {
+	_, err = checkForExecutable(info.ExecutableName)
+	if err != nil {
+		return
+	}
 
-	version := strings.TrimSpace(string(output))
+	err = identifyYourself(info.Name, info.ExecutableName)
+	if err != nil {
+		return
+	}
 
-	cmd = exec.Command("which", exeName)
-	output, _ = cmd.CombinedOutput()
+	for _, packageName := range info.PythonRequiredPackages {
+		err = pythonCheckForPackage(info.ExecutableName, packageName)
+		if err != nil {
+			return
+		}
+	}
 
-	fmt.Printf("%s: Using %s from %s", frameworkName, version, string(output))
+	return
 }
 
 func ParseInitialBuffers(model *actr.Model, initialBuffers InitialBuffers) (parsed ParsedInitialBuffers, err error) {
@@ -69,21 +78,6 @@ func RemoveTempFile(filePath string) error {
 	return err
 }
 
-// PythonCheckForPackage checks for the proper installation of the named package.
-func PythonCheckForPackage(packageName string) (err error) {
-	importCmd := fmt.Sprintf("import %s", packageName)
-
-	cmd := exec.Command("python3", "-c", importCmd)
-
-	err = cmd.Run()
-	if err != nil {
-		err = fmt.Errorf("python package '%s' not found. Please ensure it is installed with pip or is in your PYTHONPATH env variable", packageName)
-		return
-	}
-
-	return
-}
-
 func PythonValuesToStrings(values *[]*actr.Value, quoteStrings bool) []string {
 	str := make([]string, len(*values))
 	for i, v := range *values {
@@ -102,4 +96,51 @@ func PythonValuesToStrings(values *[]*actr.Value, quoteStrings bool) []string {
 	}
 
 	return str
+}
+
+// checkForExecutable checks if an executable exists in the path.
+func checkForExecutable(exe string) (path string, err error) {
+	path, err = exec.LookPath(exe)
+	if err != nil {
+		err = fmt.Errorf("cannot find '%s' in your path", exe)
+		return "", err
+	}
+
+	return
+}
+
+// pythonCheckForPackage checks for the proper installation of the named package.
+func pythonCheckForPackage(python, packageName string) (err error) {
+	importCmd := fmt.Sprintf("import %s", packageName)
+
+	cmd := exec.Command(python, "-c", importCmd)
+
+	err = cmd.Run()
+	if err != nil {
+		err = fmt.Errorf("python package '%s' not found. Please ensure it is installed with pip or is in your PYTHONPATH env variable", packageName)
+		return
+	}
+
+	return
+}
+
+// identifyYourself outputs version info and the path to an executable.
+func identifyYourself(frameworkName, exeName string) (err error) {
+	cmd := exec.Command(exeName, "--version")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+
+	version := strings.TrimSpace(string(output))
+
+	cmd = exec.Command("which", exeName)
+	output, err = cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s: Using %s from %s", frameworkName, version, string(output))
+
+	return
 }
