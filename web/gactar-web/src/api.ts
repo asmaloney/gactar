@@ -16,9 +16,12 @@ async function getVersion(): Promise<Version> {
 
 // run
 export interface Result {
-  output: string
+  language: string
+
+  model_name: string
+  file_path: string
   code: string
-  modelName: string
+  output: string
 }
 
 export type ResultMap = { [key: string]: Result }

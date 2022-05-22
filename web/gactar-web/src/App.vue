@@ -189,7 +189,7 @@ export default Vue.extend({
 
         const index = this.tabs.findIndex((obj: Tab) => obj.id == key)
         if (index != -1) {
-          this.tabs[index].modelName = value.modelName
+          this.tabs[index].modelName = value.model_name
 
           // show our tabs the first time we have code
           if (value.code.length != 0) {
