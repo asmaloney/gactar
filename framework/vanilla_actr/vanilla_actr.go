@@ -71,6 +71,9 @@ func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (result *fram
 		return
 	}
 
+	// Save the current code for our result
+	generatedCode := v.GetContents()
+
 	runFile, err := v.createRunFile(modelFile)
 	if err != nil {
 		return
@@ -93,7 +96,7 @@ func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (result *fram
 
 	result = &framework.RunResult{
 		FileName:      modelFile,
-		GeneratedCode: v.GetContents(),
+		GeneratedCode: generatedCode,
 		Output:        output,
 	}
 
