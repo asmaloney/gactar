@@ -192,7 +192,7 @@ export default Vue.extend({
           this.tabs[index].modelName = value.model_name
 
           // show our tabs the first time we have code
-          if (value.code.length != 0) {
+          if (value.code && value.code.length != 0) {
             this.tabs[index].displayed = true
           }
         }
