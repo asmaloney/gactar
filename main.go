@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -48,6 +49,7 @@ func main() {
 
 			&cli.BoolFlag{Name: "debug", Aliases: []string{"d"}, Usage: "turn on debugging output"},
 			&cli.BoolFlag{Name: "ebnf", Usage: "output amod EBNF to stdout and quit"},
+			&cli.PathFlag{Name: "temp", Value: "./gactar-temp", Usage: "directory for generated files (it will be created if it does not exist)"},
 
 			&cli.StringSliceFlag{
 				Name:    "framework",
@@ -57,7 +59,6 @@ func main() {
 			},
 
 			// for default
-			&cli.PathFlag{Name: "output", Aliases: []string{"o"}, Value: ".", Usage: "directory for generated files (will be created)"},
 			&cli.BoolFlag{Name: "run", Aliases: []string{"r"}, Usage: "run the models after generating the code"},
 
 			// for interactive
@@ -86,6 +87,12 @@ func main() {
 			if c.Bool("web") && c.Bool("interactive") {
 				err = errors.New("cannot run 'web' and 'interactive' at the same time")
 				fmt.Println(err.Error())
+				return err
+			}
+
+			// Create our temp dir. This will expand our "temp" to an absolute path.
+			err = createTempDir(c)
+			if err != nil {
 				return err
 			}
 
@@ -171,8 +178,8 @@ func createFrameworks(cli *cli.Context) (frameworks framework.List, err error) {
 	return
 }
 
-func handleWeb(context *cli.Context, frameworks framework.List) (err error) {
-	w, err := web.Initialize(context, frameworks, &amodExamples)
+func handleWeb(ctx *cli.Context, frameworks framework.List) (err error) {
+	w, err := web.Initialize(ctx, frameworks, &amodExamples)
 	if err != nil {
 		return err
 	}
@@ -185,8 +192,8 @@ func handleWeb(context *cli.Context, frameworks framework.List) (err error) {
 	return
 }
 
-func handleInteractive(context *cli.Context, frameworks framework.List) (err error) {
-	s, err := shell.Initialize(context, frameworks)
+func handleInteractive(ctx *cli.Context, frameworks framework.List) (err error) {
+	s, err := shell.Initialize(ctx, frameworks)
 	if err != nil {
 		return err
 	}
@@ -199,11 +206,11 @@ func handleInteractive(context *cli.Context, frameworks framework.List) (err err
 	return
 }
 
-func handleDefault(context *cli.Context, frameworks framework.List) (err error) {
-	cli.ShowVersion(context)
+func handleDefault(ctx *cli.Context, frameworks framework.List) (err error) {
+	cli.ShowVersion(ctx)
 
 	// Check if files exist first
-	files := context.Args().Slice()
+	files := ctx.Args().Slice()
 
 	if len(files) == 0 {
 		err = fmt.Errorf("error: no input files specified on command line")
@@ -225,20 +232,32 @@ func handleDefault(context *cli.Context, frameworks framework.List) (err error) 
 		return
 	}
 
-	outputDir := context.Path("output")
-	err = os.MkdirAll(outputDir, 0750)
-	if err != nil && !os.IsExist(err) {
-		return
-	}
+	tempPath := ctx.Path("temp")
+	fmt.Printf("Intermediate file path: %q\n", tempPath)
 
-	generateCode(frameworks, existingFiles, outputDir, context.Bool("run"))
+	generateCode(frameworks, existingFiles, tempPath, ctx.Bool("run"))
 	if err != nil {
 		return err
 	}
 
-	if context.Bool("run") {
+	if ctx.Bool("run") {
 		runCode(frameworks)
 	}
+	return
+}
+
+func createTempDir(ctx *cli.Context) (err error) {
+	path, err := filepath.Abs(ctx.Path("temp"))
+	if err != nil {
+		return
+	}
+
+	err = os.MkdirAll(path, 0750)
+	if err != nil && !os.IsExist(err) {
+		return
+	}
+
+	ctx.Set("temp", path)
 	return
 }
 
