@@ -78,21 +78,21 @@ func main() {
 				return nil
 			}
 
-			frameworks, err := createFrameworks(c)
-			if err != nil {
-				fmt.Println(err.Error())
-				return err
-			}
-
 			if c.Bool("web") && c.Bool("interactive") {
-				err = errors.New("cannot run 'web' and 'interactive' at the same time")
+				err := errors.New("cannot run 'web' and 'interactive' at the same time")
 				fmt.Println(err.Error())
 				return err
 			}
 
 			// Create our temp dir. This will expand our "temp" to an absolute path.
-			err = createTempDir(c)
+			err := createTempDir(c)
 			if err != nil {
+				return err
+			}
+
+			frameworks, err := createFrameworks(c)
+			if err != nil {
+				fmt.Println(err.Error())
 				return err
 			}
 
@@ -252,13 +252,14 @@ func createTempDir(ctx *cli.Context) (err error) {
 		return
 	}
 
+	ctx.Set("temp", path)
+
 	err = os.MkdirAll(path, 0750)
 	if err != nil && !os.IsExist(err) {
 		return
 	}
 
-	ctx.Set("temp", path)
-	return
+	return nil
 }
 
 func generateCode(frameworks framework.List, files []string, outputDir string, runCode bool) {
