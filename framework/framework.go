@@ -1,9 +1,6 @@
 package framework
 
 import (
-	"fmt"
-	"os/exec"
-
 	"github.com/asmaloney/gactar/actr"
 )
 
@@ -11,9 +8,21 @@ import (
 // interactive case.
 var ValidFrameworks = []string{"all", "ccm", "pyactr", "vanilla"}
 
+type Info struct {
+	Name     string // name of the framework
+	Language string // language the framework uses
+
+	FileExtension string // file extension of the intermediate file
+
+	ExecutableName string // name of the executable to run
+
+	PythonRequiredPackages []string // (Python only) List of packages this framework requires
+}
+
 type Framework interface {
+	Info() *Info
+
 	Initialize() (err error)
-	Name() string
 
 	SetModel(model *actr.Model) (err error)
 	Model() (model *actr.Model)
@@ -54,16 +63,6 @@ func (l List) Exists(framework string) bool {
 	}
 
 	return false
-}
-
-func CheckForExecutable(exe string) (path string, err error) {
-	path, err = exec.LookPath(exe)
-	if err != nil {
-		err = fmt.Errorf("cannot find '%s' in your path", exe)
-		return
-	}
-
-	return
 }
 
 func IsValidFramework(framework string) bool {

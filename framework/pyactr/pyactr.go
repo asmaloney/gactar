@@ -19,6 +19,15 @@ import (
 //go:embed pyactr_print.py
 var pyactrPrintPython string
 
+var Info framework.Info = framework.Info{
+	Name:           "pyactr",
+	Language:       "python",
+	FileExtension:  "py",
+	ExecutableName: "python3",
+
+	PythonRequiredPackages: []string{"pyactr"},
+}
+
 type PyACTR struct {
 	framework.Framework
 	framework.WriterHelper
@@ -35,29 +44,12 @@ func New(cli *cli.Context) (p *PyACTR, err error) {
 	return
 }
 
-func (p *PyACTR) Initialize() (err error) {
-	_, err = framework.CheckForExecutable("python3")
-	if err != nil {
-		return
-	}
-
-	framework.IdentifyYourself(p.Name(), "python3")
-
-	err = framework.PythonCheckForPackage("pyactr")
-	if err != nil {
-		return
-	}
-
-	err = os.MkdirAll(p.tmpPath, os.ModePerm)
-	if err != nil {
-		return
-	}
-
-	return
+func (PyACTR) Info() *framework.Info {
+	return &Info
 }
 
-func (PyACTR) Name() string {
-	return "pyactr"
+func (p *PyACTR) Initialize() (err error) {
+	return framework.Setup(&Info)
 }
 
 func (p *PyACTR) SetModel(model *actr.Model) (err error) {

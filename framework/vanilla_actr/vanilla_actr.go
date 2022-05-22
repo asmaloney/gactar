@@ -14,6 +14,13 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+var Info framework.Info = framework.Info{
+	Name:           "vanilla",
+	Language:       "lisp",
+	FileExtension:  "lisp",
+	ExecutableName: "sbcl",
+}
+
 type VanillaACTR struct {
 	framework.Framework
 	framework.WriterHelper
@@ -34,19 +41,12 @@ func New(cli *cli.Context) (v *VanillaACTR, err error) {
 	return
 }
 
-func (v *VanillaACTR) Initialize() (err error) {
-	_, err = framework.CheckForExecutable("sbcl")
-	if err != nil {
-		return
-	}
-
-	framework.IdentifyYourself(v.Name(), "sbcl")
-
-	return
+func (VanillaACTR) Info() *framework.Info {
+	return &Info
 }
 
-func (VanillaACTR) Name() string {
-	return "vanilla"
+func (v *VanillaACTR) Initialize() (err error) {
+	return framework.Setup(&Info)
 }
 
 func (v *VanillaACTR) SetModel(model *actr.Model) (err error) {

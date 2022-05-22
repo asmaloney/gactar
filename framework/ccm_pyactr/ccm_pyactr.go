@@ -2,7 +2,6 @@ package ccm_pyactr
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -13,6 +12,15 @@ import (
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/version"
 )
+
+var Info framework.Info = framework.Info{
+	Name:           "ccm",
+	Language:       "python",
+	FileExtension:  "py",
+	ExecutableName: "python3",
+
+	PythonRequiredPackages: []string{"python_actr"},
+}
 
 type CCMPyACTR struct {
 	framework.Framework
@@ -30,32 +38,12 @@ func New(cli *cli.Context) (c *CCMPyACTR, err error) {
 	return
 }
 
-// Initialize will check for python3 and the ccm package, and create a tmp dir to save files for running.
-// Note that this directory is not currently created in the proper place - it should end up in the OS's
-// tmp directory. It is created locally so we can look at and debug the generated python files.
-func (c *CCMPyACTR) Initialize() (err error) {
-	_, err = framework.CheckForExecutable("python3")
-	if err != nil {
-		return
-	}
-
-	framework.IdentifyYourself(c.Name(), "python3")
-
-	err = framework.PythonCheckForPackage("python_actr")
-	if err != nil {
-		return
-	}
-
-	err = os.MkdirAll(c.tmpPath, os.ModePerm)
-	if err != nil {
-		return
-	}
-
-	return
+func (CCMPyACTR) Info() *framework.Info {
+	return &Info
 }
 
-func (CCMPyACTR) Name() string {
-	return "ccm"
+func (c *CCMPyACTR) Initialize() (err error) {
+	return framework.Setup(&Info)
 }
 
 // SetModel sets our model and saves the python class name we are going to use.
