@@ -2,6 +2,7 @@ package framework
 
 import (
 	"github.com/asmaloney/gactar/actr"
+	"github.com/asmaloney/gactar/util/container"
 )
 
 // ValidFrameworks lists the valid options for choosing frameworks on the command line and in the
@@ -73,12 +74,7 @@ func (l List) Exists(framework string) bool {
 	return false
 }
 
-func IsValidFramework(framework string) bool {
-	for _, f := range ValidFrameworks {
-		if f == framework {
-			return true
-		}
-	}
-
-	return false
+// IsValidFramework returns if the framework name is in our list of valid ones or not.
+func IsValidFramework(frameworkName string) bool {
+	return container.Contains(frameworkName, ValidFrameworks)
 }

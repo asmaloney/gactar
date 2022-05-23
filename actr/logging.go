@@ -1,5 +1,7 @@
 package actr
 
+import "github.com/asmaloney/gactar/util/container"
+
 type ACTRLogLevel string
 
 var ACTRLoggingLevels = []string{
@@ -9,11 +11,5 @@ var ACTRLoggingLevels = []string{
 }
 
 func ValidLogLevel(e string) bool {
-	for _, a := range ACTRLoggingLevels {
-		if a == e {
-			return true
-		}
-	}
-
-	return false
+	return container.Contains(e, ACTRLoggingLevels)
 }
