@@ -95,7 +95,7 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 	return
 }
 
-func (w *Web) Start() (err error) {
+func (w Web) Start() (err error) {
 	fmt.Printf("Serving gactar on http://localhost:%d\n", w.port)
 
 	err = http.ListenAndServe(fmt.Sprintf(":%d", w.port), nil)
@@ -106,7 +106,7 @@ func (w *Web) Start() (err error) {
 	return
 }
 
-func (w *Web) getVersionHandler(rw http.ResponseWriter, req *http.Request) {
+func (Web) getVersionHandler(rw http.ResponseWriter, req *http.Request) {
 	type response struct {
 		Version string `json:"version"`
 	}
