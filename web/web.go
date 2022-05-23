@@ -17,6 +17,7 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
+	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/version"
 )
 
@@ -116,10 +117,11 @@ func (Web) getVersionHandler(rw http.ResponseWriter, req *http.Request) {
 	})
 }
 
-func (w *Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
+func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 	type request struct {
-		AMODFile string `json:"amod"`
-		Goal     string `json:"goal"`
+		AMODFile   string   `json:"amod"`                 // text of an amod file
+		Goal       string   `json:"goal"`                 // initial goal
+		Frameworks []string `json:"frameworks,omitempty"` // list of frameworks to run on (if empty, "all")
 	}
 
 	type response struct {
@@ -128,6 +130,14 @@ func (w *Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 
 	var data request
 	err := decodeBody(req, &data)
+	if err != nil {
+		encodeErrorResponse(rw, err)
+		return
+	}
+
+	data.Frameworks = w.normalizeFrameworkList(data.Frameworks)
+
+	err = w.verifyFrameworkList(data.Frameworks)
 	if err != nil {
 		encodeErrorResponse(rw, err)
 		return
@@ -144,7 +154,7 @@ func (w *Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		"goal": strings.TrimSpace(data.Goal),
 	}
 
-	resultMap := runModel(model, initialBuffers, w.actrFrameworks)
+	resultMap := w.runModel(model, initialBuffers, data.Frameworks)
 
 	if log.HasInfo() {
 		info := log.String()
@@ -162,32 +172,40 @@ func (w *Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 	})
 }
 
-// assetHandler returns an http.Handler that will serve files from
-// the given embed.FS.  When locating a file, it will optionally strip
-// and append a prefix to the filesystem lookup.
-// Adapted from https://blog.lawrencejones.dev/golang-embed/
-func assetHandler(assets *embed.FS, stripPrefix, prepend string) http.Handler {
-	handler := fsFunc(func(name string) (fs.File, error) {
-		assetPath := path.Join(prepend, name)
+// normalizeFrameworkList will look for "all" and replace it with all available
+// framework names. It will then return a unique and sorted list of framework names.
+func (w Web) normalizeFrameworkList(list []string) (normalized []string) {
+	normalized = list
 
-		f, err := assets.Open(assetPath)
-		if os.IsNotExist(err) {
-			return assets.Open("build/index.html")
-		}
+	if list == nil || container.Contains("all", list) {
+		normalized = w.actrFrameworks.Names()
+	}
 
-		return f, err
-	})
-
-	return http.StripPrefix(stripPrefix, http.FileServer(http.FS(handler)))
+	normalized = container.UniqueAndSorted(normalized)
+	return
 }
 
-func runModel(model *actr.Model, initialBuffers framework.InitialBuffers, actrFrameworks framework.List) (resultMap runResultMap) {
-	resultMap = make(runResultMap, len(actrFrameworks))
+// verifyFrameworkList will check that each name is of a valid framework.
+func (w Web) verifyFrameworkList(list []string) (err error) {
+	for _, name := range list {
+		if !framework.IsValidFramework(name) {
+			err = fmt.Errorf("invalid framework name: %q", name)
+			return
+		}
+	}
+
+	return
+}
+
+func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers, frameworkNames []string) (resultMap runResultMap) {
+	resultMap = make(runResultMap, len(frameworkNames))
 
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
 
-	for name, f := range actrFrameworks {
+	for _, name := range frameworkNames {
+		f := w.actrFrameworks[name]
+
 		wg.Add(1)
 
 		go func(wg *sync.WaitGroup, name string, f framework.Framework) {
@@ -275,4 +293,23 @@ func encodeErrorResponse(rw http.ResponseWriter, err error) {
 	}
 
 	json.NewEncoder(rw).Encode(errResponse)
+}
+
+// assetHandler returns an http.Handler that will serve files from
+// the given embed.FS.  When locating a file, it will optionally strip
+// and append a prefix to the filesystem lookup.
+// Adapted from https://blog.lawrencejones.dev/golang-embed/
+func assetHandler(assets *embed.FS, stripPrefix, prepend string) http.Handler {
+	handler := fsFunc(func(name string) (fs.File, error) {
+		assetPath := path.Join(prepend, name)
+
+		f, err := assets.Open(assetPath)
+		if os.IsNotExist(err) {
+			return assets.Open("build/index.html")
+		}
+
+		return f, err
+	})
+
+	return http.StripPrefix(stripPrefix, http.FileServer(http.FS(handler)))
 }

@@ -37,8 +37,9 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 	type request struct {
 		SessionID   int                      `json:"sessionID"`
 		ModelID     int                      `json:"modelID"`
-		Buffers     framework.InitialBuffers `json:"buffers"`     // set the initial buffers
-		IncludeCode bool                     `json:"includeCode"` // include generated code in the result
+		Buffers     framework.InitialBuffers `json:"buffers"`              // set the initial buffers
+		Frameworks  []string                 `json:"frameworks,omitempty"` // list of frameworks to run on (if empty, "all")
+		IncludeCode bool                     `json:"includeCode"`          // include generated code in the result
 	}
 	type response struct {
 		Results json.RawMessage `json:"results"`
@@ -65,7 +66,15 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	resultMap := runModel(model.actrModel, data.Buffers, w.actrFrameworks)
+	data.Frameworks = w.normalizeFrameworkList(data.Frameworks)
+
+	err = w.verifyFrameworkList(data.Frameworks)
+	if err != nil {
+		encodeErrorResponse(rw, err)
+		return
+	}
+
+	resultMap := w.runModel(model.actrModel, data.Buffers, data.Frameworks)
 
 	for key := range resultMap {
 		result := resultMap[key]
