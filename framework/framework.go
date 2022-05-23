@@ -6,7 +6,7 @@ import (
 )
 
 // ValidFrameworks lists the valid options for choosing frameworks on the command line and in the
-// interactive case.
+// interactive case. Make sure "all" is the first entry as we use [1:] to get the rest.
 var ValidFrameworks = []string{"all", "ccm", "pyactr", "vanilla"}
 
 // Info provides basic info to set up a framework.
@@ -77,4 +77,9 @@ func (l List) Exists(framework string) bool {
 // IsValidFramework returns if the framework name is in our list of valid ones or not.
 func IsValidFramework(frameworkName string) bool {
 	return container.Contains(frameworkName, ValidFrameworks)
+}
+
+// ValidNamedFrameworks returns the list of all valid framework names without "all".
+func ValidNamedFrameworks() []string {
+	return ValidFrameworks[1:]
 }

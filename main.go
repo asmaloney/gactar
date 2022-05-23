@@ -145,7 +145,7 @@ func createFrameworks(cli *cli.Context) (frameworks framework.List, err error) {
 	list = container.UniqueAndSorted(list)
 
 	if list[0] == "all" {
-		list = framework.ValidFrameworks[1:]
+		list = framework.ValidNamedFrameworks()
 	}
 
 	frameworks = make(framework.List, len(list))
