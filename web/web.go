@@ -43,8 +43,8 @@ type Web struct {
 type runResult struct {
 	Language string `json:"language"` // language being used to run this model
 
-	ModelName string  `json:"model_name"`       // name of the model (from the amod file)
-	FilePath  string  `json:"file_path"`        // intermediate code file (full path)
+	ModelName string  `json:"modelName"`        // name of the model (from the amod file)
+	FilePath  string  `json:"filePath"`         // intermediate code file (full path)
 	Code      *string `json:"code,omitempty"`   // actual code which was run
 	Output    *string `json:"output,omitempty"` // output of run (stdout + stderr)
 

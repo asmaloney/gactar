@@ -18,8 +18,8 @@ async function getVersion(): Promise<Version> {
 export interface Result {
   language: string
 
-  model_name: string
-  file_path: string
+  modelName: string
+  filePath: string
   code: string
   output: string
 }
