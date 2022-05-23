@@ -1,5 +1,7 @@
 package actr
 
+import "github.com/asmaloney/gactar/util/container"
+
 type Chunk struct {
 	Name      string
 	SlotNames []string
@@ -34,22 +36,10 @@ func (c Chunk) IsInternal() bool {
 
 // HasSlot checks if the slot name exists on this chunk.
 func (chunk Chunk) HasSlot(slot string) bool {
-	for _, name := range chunk.SlotNames {
-		if name == slot {
-			return true
-		}
-	}
-
-	return false
+	return container.Contains(slot, chunk.SlotNames)
 }
 
 // GetSlotIndex returns the slot index (indexed from 1) of the slot name or -1 if not found.
 func (chunk Chunk) GetSlotIndex(slot string) int {
-	for i, name := range chunk.SlotNames {
-		if name == slot {
-			return i + 1
-		}
-	}
-
-	return -1
+	return container.GetIndex1(slot, chunk.SlotNames)
 }

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 	"time"
 
@@ -18,6 +17,7 @@ import (
 	"github.com/asmaloney/gactar/framework/pyactr"
 	"github.com/asmaloney/gactar/framework/vanilla_actr"
 	"github.com/asmaloney/gactar/shell"
+	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/version"
 	"github.com/asmaloney/gactar/web"
 )
@@ -142,8 +142,7 @@ func createFrameworks(cli *cli.Context) (frameworks framework.List, err error) {
 		return
 	}
 
-	list = deduplicate(list)
-	sort.Strings(list)
+	list = container.UniqueAndSorted(list)
 
 	if list[0] == "all" {
 		list = framework.ValidFrameworks[1:]
@@ -308,21 +307,4 @@ func runCode(frameworks framework.List) {
 		fmt.Println(string(result.Output))
 		fmt.Println()
 	}
-}
-
-func deduplicate(s []string) []string {
-	if len(s) <= 1 {
-		return s
-	}
-
-	result := []string{}
-	seen := make(map[string]struct{})
-	for _, val := range s {
-		if _, ok := seen[val]; !ok {
-			result = append(result, val)
-			seen[val] = struct{}{}
-		}
-	}
-
-	return result
 }
