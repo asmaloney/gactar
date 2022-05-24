@@ -206,11 +206,18 @@ func (w Web) normalizeFrameworkList(list []string) (normalized []string) {
 	return
 }
 
-// verifyFrameworkList will check that each name is of a valid framework.
+// verifyFrameworkList will check that each name is of a valid framework and that
+// it is active on this server.
 func (w Web) verifyFrameworkList(list []string) (err error) {
 	for _, name := range list {
 		if !framework.IsValidFramework(name) {
 			err = fmt.Errorf("invalid framework name: %q", name)
+			return
+		}
+
+		// we have a valid name, check if it is active
+		if _, ok := w.actrFrameworks[name]; !ok {
+			err = fmt.Errorf("framework %q is not active on server", name)
 			return
 		}
 	}
