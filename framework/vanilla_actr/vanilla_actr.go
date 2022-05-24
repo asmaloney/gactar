@@ -16,7 +16,7 @@ import (
 
 var Info framework.Info = framework.Info{
 	Name:           "vanilla",
-	Language:       "lisp",
+	Language:       "commonlisp",
 	FileExtension:  "lisp",
 	ExecutableName: "sbcl",
 }
