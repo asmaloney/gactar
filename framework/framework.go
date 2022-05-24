@@ -11,15 +11,17 @@ var ValidFrameworks = []string{"all", "ccm", "pyactr", "vanilla"}
 
 // Info provides basic info to set up a framework.
 type Info struct {
-	Name     string // name of the framework
-	Language string // language the framework uses
+	Name     string `json:"name"`     // name of the framework
+	Language string `json:"language"` // language the framework uses
 
-	FileExtension string // file extension of the intermediate file
+	FileExtension string `json:"fileExtension"` // file extension of the intermediate file
 
-	ExecutableName string // name of the executable to run
+	ExecutableName string `json:"executableName"` // name of the executable to run
 
-	PythonRequiredPackages []string // (Python only) List of packages this framework requires
+	PythonRequiredPackages []string `json:"pythonRequiredPackages,omitempty"` // (Python only) List of packages this framework requires
 }
+
+type InfoList = []Info
 
 // RunResult is the result of a Run() call which runs the code using the framework's executable.
 type RunResult struct {

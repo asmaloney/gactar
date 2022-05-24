@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"sort"
 	"strings"
 	"sync"
 
@@ -80,6 +81,7 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 	}
 
 	http.HandleFunc("/api/version", w.getVersionHandler)
+	http.HandleFunc("/api/frameworks", w.getFrameworksHandler)
 	http.HandleFunc("/api/run", w.runModelHandler)
 	http.HandleFunc("/api/", http.NotFound)
 
@@ -114,6 +116,30 @@ func (Web) getVersionHandler(rw http.ResponseWriter, req *http.Request) {
 
 	encodeResponse(rw, response{
 		Version: version.BuildVersion,
+	})
+}
+
+func (w Web) getFrameworksHandler(rw http.ResponseWriter, req *http.Request) {
+	type response struct {
+		Frameworks framework.InfoList `json:"frameworks"`
+	}
+
+	frameworks := framework.InfoList{}
+
+	for _, framework := range w.actrFrameworks {
+		if framework.Info().Name == "vanilla" {
+			continue
+		}
+		frameworks = append(frameworks, *framework.Info())
+	}
+
+	// return them sorted by name
+	sort.Slice(frameworks, func(i, j int) bool {
+		return frameworks[i].Name < frameworks[j].Name
+	})
+
+	encodeResponse(rw, response{
+		Frameworks: frameworks,
 	})
 }
 
