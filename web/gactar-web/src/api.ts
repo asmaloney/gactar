@@ -74,7 +74,8 @@ async function run(
 
 // examples
 export interface ExampleList {
-  example_list: string[]
+  // List of example names which are built into the webserver.
+  exampleList: string[]
 }
 
 async function getExampleList(): Promise<ExampleList> {

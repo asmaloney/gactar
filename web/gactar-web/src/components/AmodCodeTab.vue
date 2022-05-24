@@ -154,7 +154,7 @@ export default Vue.extend({
       await api
         .getExampleList()
         .then((list: ExampleList) => {
-          this.exampleFiles = list.example_list
+          this.exampleFiles = list.exampleList
         })
         .catch((err: Error) => {
           this.$emit('showError', err)

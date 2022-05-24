@@ -11,7 +11,7 @@ func initExamples(w *Web) {
 // listExamples simply returns a list of the examples included in the build.
 func (w *Web) listExamples(rw http.ResponseWriter, req *http.Request) {
 	type response struct {
-		List []string `json:"example_list"`
+		List []string `json:"exampleList"`
 	}
 
 	entries, err := w.examples.ReadDir("examples")
