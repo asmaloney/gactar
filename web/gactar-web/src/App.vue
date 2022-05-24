@@ -112,6 +112,7 @@ interface Data {
   running: boolean
   results: string
 
+  availableFrameworks: string[]
   selectedFrameworks: string[]
   version: Version
 }
@@ -130,6 +131,7 @@ export default Vue.extend({
       goal: '',
       running: false,
       results: '',
+      availableFrameworks: [],
       selectedFrameworks: [],
       version: '',
     }
@@ -187,6 +189,8 @@ export default Vue.extend({
               displayed: false,
             }
 
+            this.availableFrameworks.push(info.name)
+
             this.baseTabs.push(tab)
           })
         })
@@ -210,10 +214,17 @@ export default Vue.extend({
       // Load our selected frameworks from local storage (if any)
       var frameworks = localStorage.getItem(selectedFrameworksStorageName)
       if (frameworks === null) {
-        // list all even if some might not be installed
-        this.selectedFrameworks = ['ccm', 'pyactr', 'vanilla']
+        this.selectedFrameworks = this.availableFrameworks
       } else {
         this.selectedFrameworks = JSON.parse(frameworks) as string[]
+
+        // Filter the saved list by the available frameworks.
+        const availableFrameworks = this.availableFrameworks // need this const because we can't use "this" inside filter
+        this.selectedFrameworks = this.selectedFrameworks.filter(function (
+          name: string
+        ) {
+          return availableFrameworks.includes(name)
+        })
       }
 
       window.removeEventListener('load', () => {
