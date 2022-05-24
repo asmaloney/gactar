@@ -203,9 +203,11 @@ Get a list of the available examples built-in to the server.
 The amod file names which may be used with the `/examples/[example_name]` endpoint.
 
 ```ts
-interface ExampleList {
-  // List of example names which are built into the webserver.
-  exampleList: string[]
+// List of example names which are built into the webserver.
+type ExampleList = string[]
+
+interface ExampleListResponse {
+  exampleList: ExampleList
 }
 ```
 

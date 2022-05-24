@@ -63,7 +63,7 @@ import SaveButton from './SaveButton.vue'
 
 interface Data {
   amodCode: string
-  exampleFiles: string[]
+  exampleFiles: ExampleList
   fileToLoad: File | null
   loadedFromLocal: boolean
   count: number
@@ -154,7 +154,7 @@ export default Vue.extend({
       await api
         .getExampleList()
         .then((list: ExampleList) => {
-          this.exampleFiles = list.exampleList
+          this.exampleFiles = list
         })
         .catch((err: Error) => {
           this.$emit('showError', err)

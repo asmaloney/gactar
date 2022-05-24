@@ -90,14 +90,16 @@ async function run(params: RunParams): Promise<RunResult> {
 }
 
 // examples
-export interface ExampleList {
-  // List of example names which are built into the webserver.
-  exampleList: string[]
+// List of example names which are built into the webserver.
+export type ExampleList = string[]
+
+export interface ExampleListResponse {
+  exampleList: ExampleList
 }
 
 async function getExampleList(): Promise<ExampleList> {
-  const response = await http.get<ExampleList>('/api/examples/list')
-  return response.data
+  const response = await http.get<ExampleListResponse>('/api/examples/list')
+  return response.data.exampleList
 }
 
 async function getExample(name: string): Promise<string> {
