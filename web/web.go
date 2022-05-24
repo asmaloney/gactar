@@ -127,9 +127,6 @@ func (w Web) getFrameworksHandler(rw http.ResponseWriter, req *http.Request) {
 	frameworks := framework.InfoList{}
 
 	for _, framework := range w.actrFrameworks {
-		if framework.Info().Name == "vanilla" {
-			continue
-		}
 		frameworks = append(frameworks, *framework.Info())
 	}
 
