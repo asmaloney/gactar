@@ -36,10 +36,15 @@ export interface RunError {
 
 export type RunResult = Results | RunError
 
-async function run(amod: string, goal: string): Promise<RunResult> {
+async function run(
+  amod: string,
+  goal: string,
+  frameworks: string[]
+): Promise<RunResult> {
   const response = await http.post<RunResult>('/api/run', {
-    amod,
-    goal,
+    amod: amod,
+    goal: goal,
+    frameworks: frameworks,
   })
   return response.data
 }

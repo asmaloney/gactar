@@ -4,17 +4,17 @@
       <img src="/images/gactar-logo.svg" />
       gactar-web
       <span v-if="version" class="version-number">
-        &nbsp;(<a href="https://github.com/asmaloney/gactar" target="_">{{
-          version
-        }}</a>
+        &nbsp;(<a href="https://github.com/asmaloney/gactar" target="_">
+          {{ version }}
+        </a>
         )
       </span>
     </h1>
-    <div class="columns">
-      <div class="column is-three-fifths code-column">
+    <div class="tile is-ancestor">
+      <div class="tile is-vertical is-7 code-tile">
         <b-tabs
           v-model="activeTab"
-          class="custom"
+          class="code-tabs"
           :animated="false"
           expanded
           :type="'is-boxed'"
@@ -37,32 +37,42 @@
         </b-tabs>
       </div>
 
-      <div class="column">
-        <div class="columns buttons">
-          <div class="column">
-            <b-field label="Goal" label-position="on-border">
-              <b-input
-                v-model="goal"
-                placeholder="(initial goal here)"
-                expanded
-              />
-              <p class="control">
-                <b-button
-                  class="button is-info"
-                  :loading="running"
-                  @click="run"
-                >
-                  <span class="fa fa-running icon-space" />Run
-                </b-button>
-              </p>
-            </b-field>
-          </div>
+      <div class="tile is-vertical is-parent">
+        <div class="tile is-child is-12">
+          <b-field label="Select Frameworks" custom-class="is-small">
+            <b-checkbox-button
+              v-for="tab in tabs"
+              v-model="selectedFrameworks"
+              type="is-info"
+              size="is-small"
+              :native-value="tab.id"
+              :key="tab.id"
+              expanded
+              class="ml-1 mr-1"
+              @input="frameworkChanged"
+            >
+              <span>{{ tab.id }}</span>
+            </b-checkbox-button>
+          </b-field>
         </div>
 
-        <div class="columns result">
-          <div class="column">
-            <textarea id="results" v-model="results"></textarea>
-          </div>
+        <div class="tile is-child is-12">
+          <b-field label="Goal" label-position="on-border">
+            <b-input
+              v-model="goal"
+              placeholder="(initial goal here)"
+              expanded
+            />
+            <p class="control">
+              <b-button type="is-info" :loading="running" @click="run">
+                <span class="fa fa-running icon-space" />Run
+              </b-button>
+            </p>
+          </b-field>
+        </div>
+
+        <div class="tile is-child">
+          <textarea id="results" v-model="results" expanded></textarea>
         </div>
       </div>
     </div>
@@ -94,8 +104,11 @@ interface Data {
   goal: string
   running: boolean
   results: string
+  selectedFrameworks: string[]
   version: string
 }
+
+const selectedFrameworksStorageName = 'gactar.selected-frameworks'
 
 export default Vue.extend({
   components: { AmodCodeTab, CodeTab },
@@ -131,6 +144,7 @@ export default Vue.extend({
       goal: '',
       running: false,
       results: '',
+      selectedFrameworks: [],
       version: '',
     }
   },
@@ -141,30 +155,35 @@ export default Vue.extend({
     },
   },
 
+  created() {
+    window.addEventListener('load', () => {
+      this.onWindowLoad()
+    })
+  },
+
   mounted() {
     this.loadVersion()
   },
 
   methods: {
+    frameworkChanged() {
+      // Save our selected frameworks
+      localStorage.setItem(
+        selectedFrameworksStorageName,
+        JSON.stringify(this.selectedFrameworks)
+      )
+    },
+
     codeChange(newCode: string) {
       this.code['amod'] = newCode
     },
 
-    run() {
-      this.running = true
-
-      api
-        .run(this.code['amod'], this.goal)
-        .then((results: RunResult) => {
-          if ('results' in results) {
-            this.setResults(results.results)
-          } else {
-            this.showError(results.error)
-          }
-        })
-        .catch((err: Error) => {
-          this.showError(err.message)
-        })
+    hideTabsNotInUse() {
+      this.baseTabs.forEach((tab: Tab) => {
+        if (!this.selectedFrameworks.includes(tab.id)) {
+          tab.displayed = false
+        }
+      })
     },
 
     loadVersion() {
@@ -172,6 +191,39 @@ export default Vue.extend({
         .getVersion()
         .then((version: Version) => {
           this.version = version.version
+        })
+        .catch((err: Error) => {
+          this.showError(err.message)
+        })
+    },
+
+    onWindowLoad() {
+      // Load our selected frameworks from local storage (if any)
+      var frameworks = localStorage.getItem(selectedFrameworksStorageName)
+      if (frameworks === null) {
+        this.selectedFrameworks = ['ccm', 'pyactr', 'vanilla']
+      } else {
+        this.selectedFrameworks = JSON.parse(frameworks) as string[]
+      }
+
+      window.removeEventListener('load', () => {
+        this.onWindowLoad()
+      })
+    },
+
+    run() {
+      this.running = true
+
+      this.hideTabsNotInUse()
+
+      api
+        .run(this.code['amod'], this.goal, this.selectedFrameworks)
+        .then((results: RunResult) => {
+          if ('results' in results) {
+            this.setResults(results.results)
+          } else {
+            this.showError(results.error)
+          }
         })
         .catch((err: Error) => {
           this.showError(err.message)

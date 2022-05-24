@@ -61,8 +61,6 @@ import api, { ExampleList } from '../api'
 import CodeMirror from './CodeMirror.vue'
 import SaveButton from './SaveButton.vue'
 
-const localStorageName = 'gactar-code-editor'
-
 interface Data {
   amodCode: string
   exampleFiles: string[]
@@ -70,6 +68,8 @@ interface Data {
   loadedFromLocal: boolean
   count: number
 }
+
+const codeEditorStorageName = 'gactar.code-editor'
 
 export default Vue.extend({
   components: { CodeMirror, SaveButton },
@@ -131,7 +131,7 @@ export default Vue.extend({
 
   methods: {
     beforeWindowUnload() {
-      localStorage.setItem(localStorageName, this.amodCode)
+      localStorage.setItem(codeEditorStorageName, this.amodCode)
     },
 
     editorCodeChange(code: string) {
@@ -163,7 +163,7 @@ export default Vue.extend({
 
     onWindowLoad() {
       // check for a local save and use it instead of loading an example
-      var code = localStorage.getItem(localStorageName)
+      var code = localStorage.getItem(codeEditorStorageName)
       if (code !== null) {
         this.loadedFromLocal = true
         this.amodCode = code
