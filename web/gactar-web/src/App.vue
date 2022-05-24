@@ -113,7 +113,7 @@ interface Data {
   results: string
 
   selectedFrameworks: string[]
-  version: string
+  version: Version
 }
 
 const selectedFrameworksStorageName = 'gactar.selected-frameworks'
@@ -199,7 +199,7 @@ export default Vue.extend({
       api
         .getVersion()
         .then((version: Version) => {
-          this.version = version.version
+          this.version = version
         })
         .catch((err: Error) => {
           this.showError(err.message)

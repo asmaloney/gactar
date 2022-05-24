@@ -5,13 +5,15 @@ const http = axios.create({
 })
 
 // version
-export interface Version {
+export type Version = string
+
+export interface VersionResponse {
   version: string
 }
 
 async function getVersion(): Promise<Version> {
-  const response = await http.get<Version>('/api/version')
-  return response.data
+  const response = await http.get<VersionResponse>('/api/version')
+  return response.data.version
 }
 
 // frameworks
