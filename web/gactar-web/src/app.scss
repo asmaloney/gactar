@@ -1,16 +1,5 @@
 @import 'bulma/bulma';
-
-// Instead of this larger import, just import what we use
-// @import 'buefy/src/scss/buefy';
-@import 'buefy/src/scss/utils/_all';
-@import 'buefy/src/scss/components/_dropdown';
-@import 'buefy/src/scss/components/_form';
-@import 'buefy/src/scss/components/_icon';
-@import 'buefy/src/scss/components/_loading';
-@import 'buefy/src/scss/components/_select';
-@import 'buefy/src/scss/components/_tabs';
-@import 'buefy/src/scss/components/_upload';
-
+@import 'buefy/src/scss/buefy';
 @import 'codemirror/lib/codemirror.css';
 @import './codemirror/amod.css';
 
@@ -89,17 +78,11 @@ textarea#results {
   }
 }
 
-.columns {
-  .result {
-    height: 98%; // can't figure out why this column isn't contained properly, so hack it
-  }
+.code-tile {
+  margin: 0.8em 0 0.8em 0.8em;
 }
 
-.code-column {
-  padding-right: 0 !important;
-}
-
-.b-tabs.custom {
+.b-tabs.code-tabs {
   height: 100%;
 
   .tab-content {
