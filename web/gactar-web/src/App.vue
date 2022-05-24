@@ -86,6 +86,7 @@ import api, {
   FrameworkInfo,
   FrameworkInfoList,
   ResultMap,
+  RunParams,
   RunResult,
   Version,
 } from './api'
@@ -237,8 +238,14 @@ export default Vue.extend({
 
       this.hideTabsNotInUse()
 
+      const params: RunParams = {
+        amod: this.code['amod'],
+        goal: this.goal,
+        frameworks: this.selectedFrameworks,
+      }
+
       api
-        .run(this.code['amod'], this.goal, this.selectedFrameworks)
+        .run(params)
         .then((results: RunResult) => {
           if ('results' in results) {
             this.setResults(results.results)
