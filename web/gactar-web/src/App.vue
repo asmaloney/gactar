@@ -38,7 +38,7 @@
       </div>
 
       <div class="tile is-vertical is-parent">
-        <div class="tile is-child is-12">
+        <div v-if="tabs.length > 0" class="tile is-child is-12">
           <b-field label="Select Frameworks" custom-class="is-small">
             <b-checkbox-button
               v-for="tab in tabs"
@@ -82,7 +82,13 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import api, { ResultMap, RunResult, Version } from './api'
+import api, {
+  FrameworkInfo,
+  FrameworkInfoList,
+  ResultMap,
+  RunResult,
+  Version,
+} from './api'
 
 import AmodCodeTab from './components/AmodCodeTab.vue'
 import CodeTab from './components/CodeTab.vue'
@@ -101,9 +107,11 @@ interface Data {
   activeTab: number
   baseTabs: Tab[]
   code: CodeMap
+
   goal: string
   running: boolean
   results: string
+
   selectedFrameworks: string[]
   version: string
 }
@@ -116,29 +124,7 @@ export default Vue.extend({
   data(): Data {
     return {
       activeTab: 0,
-      baseTabs: [
-        {
-          id: 'ccm',
-          mode: 'python',
-          fileExtension: 'py',
-          modelName: '',
-          displayed: false,
-        },
-        {
-          id: 'pyactr',
-          mode: 'python',
-          fileExtension: 'py',
-          modelName: '',
-          displayed: false,
-        },
-        {
-          id: 'vanilla',
-          mode: 'commonlisp',
-          fileExtension: 'lisp',
-          modelName: '',
-          displayed: false,
-        },
-      ],
+      baseTabs: [],
 
       code: {},
       goal: '',
@@ -162,6 +148,7 @@ export default Vue.extend({
   },
 
   mounted() {
+    this.loadFrameworks()
     this.loadVersion()
   },
 
@@ -186,6 +173,28 @@ export default Vue.extend({
       })
     },
 
+    loadFrameworks() {
+      api
+        .getFrameworks()
+        .then((list: FrameworkInfoList) => {
+          list.forEach((info: FrameworkInfo) => {
+            // create tab info for each language present on the server
+            const tab: Tab = {
+              id: info.name,
+              mode: info.language,
+              fileExtension: info.fileExtension,
+              modelName: '',
+              displayed: false,
+            }
+
+            this.baseTabs.push(tab)
+          })
+        })
+        .catch((err: Error) => {
+          this.showError(err.message)
+        })
+    },
+
     loadVersion() {
       api
         .getVersion()
@@ -201,6 +210,7 @@ export default Vue.extend({
       // Load our selected frameworks from local storage (if any)
       var frameworks = localStorage.getItem(selectedFrameworksStorageName)
       if (frameworks === null) {
+        // list all even if some might not be installed
         this.selectedFrameworks = ['ccm', 'pyactr', 'vanilla']
       } else {
         this.selectedFrameworks = JSON.parse(frameworks) as string[]
