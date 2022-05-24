@@ -39,8 +39,6 @@ async function getFrameworks(): Promise<FrameworkInfoList> {
 
 // run
 export interface Result {
-  language: string
-
   modelName: string
   filePath: string
   code: string
