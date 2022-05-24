@@ -58,15 +58,15 @@ func main() {
 				Usage:   fmt.Sprintf("add framework - valid frameworks: %s", strings.Join(framework.ValidFrameworks, ", ")),
 			},
 
-			// for default
-			&cli.BoolFlag{Name: "run", Aliases: []string{"r"}, Usage: "run the models after generating the code"},
+			// CLI mode
+			&cli.BoolFlag{Name: "run", Aliases: []string{"r"}, Category: "Mode: CLI", Usage: "run the models after generating the code"},
 
-			// for interactive
-			&cli.BoolFlag{Name: "interactive", Aliases: []string{"i"}, Usage: "run an interactive shell"},
+			// CLI (interactive) mode
+			&cli.BoolFlag{Name: "interactive", Aliases: []string{"i"}, Category: "Mode: CLI (interactive)", Usage: "run an interactive shell"},
 
-			// for web
-			&cli.BoolFlag{Name: "web", Aliases: []string{"w"}, Usage: "start a web server to run in a browser"},
-			&cli.IntFlag{Name: "port", Aliases: []string{"p"}, Value: defaultPort, Usage: "port to run the web server on"},
+			// Web mode
+			&cli.BoolFlag{Name: "web", Aliases: []string{"w"}, Category: "Mode: Web", Usage: "start a web server to run in a browser"},
+			&cli.IntFlag{Name: "port", Aliases: []string{"p"}, Category: "Mode: Web", Value: defaultPort, Usage: "port to run the web server on"},
 		},
 		Action: func(c *cli.Context) error {
 			if c.Bool("debug") {
