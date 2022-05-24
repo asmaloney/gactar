@@ -91,6 +91,8 @@ import api, {
   Version,
 } from './api'
 
+import { commentString } from './utils'
+
 import AmodCodeTab from './components/AmodCodeTab.vue'
 import CodeTab from './components/CodeTab.vue'
 
@@ -103,6 +105,7 @@ interface Tab {
 }
 
 type CodeMap = { [key: string]: string }
+type FrameworkInfoMap = { [key: string]: FrameworkInfo }
 
 interface Data {
   activeTab: number
@@ -113,6 +116,7 @@ interface Data {
   running: boolean
   results: string
 
+  frameworks: FrameworkInfoMap
   availableFrameworks: string[]
   selectedFrameworks: string[]
   version: Version
@@ -132,6 +136,8 @@ export default Vue.extend({
       goal: '',
       running: false,
       results: '',
+
+      frameworks: {},
       availableFrameworks: [],
       selectedFrameworks: [],
       version: '',
@@ -190,6 +196,7 @@ export default Vue.extend({
               displayed: false,
             }
 
+            this.frameworks[info.name] = info
             this.availableFrameworks.push(info.name)
 
             this.baseTabs.push(tab)
@@ -265,14 +272,21 @@ export default Vue.extend({
         text += value.output
         text += '\n\n'
 
-        this.code[key] = value.code
+        if (value.code) {
+          this.code[key] = value.code
+        } else {
+          this.code[key] = commentString(
+            this.frameworks[key].language,
+            '(No code returned from server)'
+          )
+        }
 
         const index = this.tabs.findIndex((obj: Tab) => obj.id == key)
         if (index != -1) {
           this.tabs[index].modelName = value.modelName
 
           // show our tabs the first time we have code
-          if (value.code && value.code.length != 0) {
+          if (this.code[key] && this.code[key].length != 0) {
             this.tabs[index].displayed = true
           }
         }
