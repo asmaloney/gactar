@@ -173,7 +173,7 @@ func TestEndSessionHandler(t *testing.T) {
 // 			http.StatusOK, status)
 // 	}
 
-// 	expected := `{"results":{"ccm":{"modelName":"Test","output":"2\n3\n4\n5\nend...\n"`
+// 	expected := `{"results":{"ccm":{"language":"python","modelName":"Test","filePath":"ccm_Test.py","output":"2\n3\n4\n5\nend...\n"`
 // 	responseStr := strings.TrimSpace(responseRecorder.Body.String())
 // 	if !strings.HasPrefix(responseStr, expected) {
 // 		t.Errorf("handler returned unexpected body: expected '%v' got '%v'",
