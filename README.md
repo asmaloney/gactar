@@ -243,15 +243,15 @@ gactar [OPTIONS] [FILES...]
 
 **--ebnf**: output amod EBNF to stdout and quit
 
-**--framework, -f** [string]: add framework - valid frameworks: all, ccm, pyactr, vanilla (default: [all])
+**--framework, -f** [string]: add framework - valid frameworks: all, ccm, pyactr, vanilla (default: `all`)
 
 **--interactive, -i**: run an interactive shell
 
-**--output, -o** [string]: directory for generated files (will be created) (default: .)
-
-**--port, -p** [number]: port to run the web server on (default: 8181)
+**--port, -p** [number]: port to run the web server on (default: `8181`)
 
 **--run, -r**: run the models after generating the code
+
+**--temp** [string]: directory for generated files (it will be created if it does not exist) (default: `./gactar-temp`)
 
 **--web, -w**: start a web server to run in a browser
 
@@ -288,6 +288,7 @@ Opening `http://localhost:8181` in your browser will let you load, edit, and sav
 - modify the amod code in the editor
 - **Save** the amod code to a file
 - **Load** the amod code from a file
+- choose which frameworks to run under `Select Frameworks`
 - set a **Goal** to override the default goal in the _amod_ file
 - once it's been run, browse the generated code using the tabs at the top of the code editor
 
@@ -304,15 +305,15 @@ This will generate code for all active frameworks and optionally run the models.
 ```
 (env)$ ./gactar examples/count.amod
 gactar version v0.4.0
-pyactr: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
+pyactr: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
 	- Generating code for examples/count.amod
-	- written to ./pyactr_count.py
+	- written to gactar-temp/pyactr_count.py
 vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
 	- Generating code for examples/count.amod
-	- written to ./vanilla_count.lisp
-ccm: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
+	- written to gactar-temp/vanilla_count.lisp
+ccm: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
 	- Generating code for examples/count.amod
-	- written to ./ccm_count.py
+	- written to gactar-temp/ccm_count.py
 ```
 
 You can choose which frameworks to use with `--framework` or `-f` like this:
@@ -320,20 +321,20 @@ You can choose which frameworks to use with `--framework` or `-f` like this:
 ```
 ./gactar -f ccm -f vanilla examples/count.amod
 gactar version v0.4.0
-ccm: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
+ccm: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
 	- Generating code for examples/count.amod
-	- written to ./ccm_count.py
+	- written to gactar-temp/ccm_count.py
 vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
 	- Generating code for examples/count.amod
-	- written to ./vanilla_count.lisp
+	- written to gactar-temp/vanilla_count.lisp
 ```
 
-You can write the files to a different location using `--output` or `-o`:
+You can write the files to a different location using `--temp`:
 
 ```
-./gactar -f ccm -o intermediate examples/count.amod
+./gactar -f ccm -temp intermediate examples/count.amod
 gactar version v0.4.0
-ccm: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
+ccm: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
 	- Generating code for examples/count.amod
 	- written to intermediate/ccm_count.py
 ```
@@ -341,9 +342,9 @@ ccm: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
 You can also choose to run the models using `--run` or `-r`:
 
 ```
-./gactar -f ccm -o intermediate -r examples/count.amod
+./gactar -f ccm -temp intermediate -r examples/count.amod
 gactar version v0.4.0
-ccm: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
+ccm: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
 	- Generating code for examples/count.amod
 	- written to intermediate/ccm_count.py
 == ccm ==

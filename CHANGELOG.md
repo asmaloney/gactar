@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.5.0] - (in progress)
+
+### Added
+
+- New command line option `temp` to specify where to generate the intermediate code files. If not specified, it defaults to `./gactar-temp` in the directory gactar was run from. The directory will be created if it does not exist. ([#94](https://github.com/asmaloney/gactar/pull/94))
+- Web UI now allows the user to select which frameworks to run from the ones available on the server. ([#100](https://github.com/asmaloney/gactar/pull/100))
+- Added new `/api/frameworks` endpoint to get info on frameworks available on the server. ([#99](https://github.com/asmaloney/gactar/pull/99))
+- Added TypeScript interfaces for all endpoints (in api.ts).
+- The `/api/run` endpoint now accepts an optional list of frameworks to run (property: `frameworks`). If not specified, it will run on all available frameworks. ([#97](https://github.com/asmaloney/gactar/pull/97))
+- The return data for `/api/run` now includes the full path to the intermediate code file in the property `filePath`.
+
+### Changed
+
+- Use [camelCase](https://en.wikipedia.org/wiki/Camel_case) for all returned properties in the API.
+- Clean up API TypeScript interfaces.
+
 ## [0.4.0](https://github.com/asmaloney/gactar/releases/tag/v0.4.0) - 2022-05-20
 
 ### Added
