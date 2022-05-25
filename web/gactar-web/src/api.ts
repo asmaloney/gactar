@@ -80,8 +80,9 @@ export interface Results {
 
 export interface Issue {
   level: string
-  lineNumber?: number
   text: string
+  line: number
+  column: number
 }
 
 export type IssueList = Issue[]
