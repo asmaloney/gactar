@@ -307,10 +307,8 @@ export default Vue.extend({
       let issueTexts: string[] = []
 
       list.forEach((issue: Issue) => {
-        let text = `${issue.level}: ${issue.text}`
-        if (issue.lineNumber) {
-          text = `${text} (line ${issue.lineNumber})`
-        }
+        const text = `${issue.level}: ${issue.text} (line ${issue.line}, col ${issue.column})\n`
+
         issueTexts.push(text)
       })
 

@@ -15,9 +15,10 @@ const (
 )
 
 type Issue struct {
-	Level level  `json:"level"`
-	Line  int    `json:"lineNumber,omitempty"`
-	Text  string `json:"text"`
+	Level  level  `json:"level"`
+	Text   string `json:"text"`
+	Line   int    `json:"line"`
+	Column int    `json:"column"`
 }
 
 type IssueList = []Issue
@@ -53,14 +54,14 @@ func (l Log) HasError() bool {
 }
 
 // Info will add a new info entry to the log.
-func (l *Log) Info(line int, s string, a ...interface{}) {
-	l.addEntry(line, info, s, a...)
+func (l *Log) Info(line, col int, s string, a ...interface{}) {
+	l.addEntry(line, col, info, s, a...)
 	l.hasInfo = true
 }
 
 // Error will add a new error entry to the log.
-func (l *Log) Error(line int, s string, a ...interface{}) {
-	l.addEntry(line, err, s, a...)
+func (l *Log) Error(line, col int, s string, a ...interface{}) {
+	l.addEntry(line, col, err, s, a...)
 	l.hasError = true
 }
 
@@ -99,7 +100,7 @@ func (l Log) Write(w io.Writer) {
 		str += entry.Text
 
 		if entry.Line != 0 {
-			str += fmt.Sprintf(" (line %d)", entry.Line)
+			str += fmt.Sprintf(" (line %d, col %d)", entry.Line, entry.Column)
 		}
 
 		str += "\n"
@@ -108,11 +109,12 @@ func (l Log) Write(w io.Writer) {
 	}
 }
 
-func (el *Log) addEntry(line int, l level, e string, a ...interface{}) {
+func (el *Log) addEntry(line int, col int, l level, e string, a ...interface{}) {
 	str := fmt.Sprintf(e, a...)
 	el.issues = append(el.issues, Issue{
-		Level: l,
-		Line:  line,
-		Text:  str,
+		Level:  l,
+		Text:   str,
+		Line:   line,
+		Column: col,
 	})
 }
