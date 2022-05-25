@@ -3,7 +3,6 @@ package web
 import (
 	"embed"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/fs"
 	"net/http"
@@ -17,6 +16,7 @@ import (
 
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
+	"github.com/asmaloney/gactar/amodlog"
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/version"
@@ -166,8 +166,7 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 
 	model, log, err := amod.GenerateModel(data.AMODFile)
 	if err != nil {
-		err = errors.New(log.String())
-		encodeErrorResponse(rw, err)
+		encodeIssueResponse(rw, log)
 		return
 	}
 
@@ -311,12 +310,27 @@ func encodeResponse(rw http.ResponseWriter, v interface{}) {
 
 func encodeErrorResponse(rw http.ResponseWriter, err error) {
 	type response struct {
-		ErrorStr string `json:"error"`
+		Issues amodlog.IssueList `json:"issues"`
 	}
 
 	errResponse := response{
-		ErrorStr: err.Error(),
+		Issues: amodlog.IssueList{
+			{
+				Level: "error",
+				Text:  err.Error(),
+			},
+		},
 	}
+
+	json.NewEncoder(rw).Encode(errResponse)
+}
+
+func encodeIssueResponse(rw http.ResponseWriter, log *amodlog.Log) {
+	type response struct {
+		Issues amodlog.IssueList `json:"issues"`
+	}
+
+	errResponse := response{Issues: log.AllIssues()}
 
 	json.NewEncoder(rw).Encode(errResponse)
 }

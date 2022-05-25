@@ -78,11 +78,19 @@ export interface Results {
   results: ResultMap
 }
 
-export interface RunError {
-  error: string
+export interface Issue {
+  level: string
+  lineNumber?: number
+  text: string
 }
 
-export type RunResult = Results | RunError
+export type IssueList = Issue[]
+
+export interface RunIssues {
+  issues: IssueList
+}
+
+export type RunResult = Results | RunIssues
 
 async function run(params: RunParams): Promise<RunResult> {
   const response = await http.post<RunResult>('/api/run', params)

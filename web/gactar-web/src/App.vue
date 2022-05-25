@@ -85,6 +85,8 @@ import Vue from 'vue'
 import api, {
   FrameworkInfo,
   FrameworkInfoList,
+  Issue,
+  IssueList,
   ResultMap,
   RunParams,
   RunResult,
@@ -257,7 +259,7 @@ export default Vue.extend({
           if ('results' in results) {
             this.setResults(results.results)
           } else {
-            this.showError(results.error)
+            this.showIssues(results.issues)
           }
         })
         .catch((err: Error) => {
@@ -298,6 +300,21 @@ export default Vue.extend({
 
     showError(err: string) {
       this.results = err
+      this.running = false
+    },
+
+    showIssues(list: IssueList) {
+      let issueTexts: string[] = []
+
+      list.forEach((issue: Issue) => {
+        let text = `${issue.level}: ${issue.text}`
+        if (issue.lineNumber) {
+          text = `${text} (line ${issue.lineNumber})`
+        }
+        issueTexts.push(text)
+      })
+
+      this.results = issueTexts.join('\n')
       this.running = false
     },
   },
