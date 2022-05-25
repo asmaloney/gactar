@@ -9,7 +9,7 @@ import (
 // reserved names.
 func validateChunk(model *actr.Model, log *issues.Log, chunk *chunkDecl) (err error) {
 	if actr.IsInternalChunkName(chunk.Name) {
-		log.Error(chunk.Pos.Line, chunk.Pos.Column, "cannot use reserved chunk name '%s' (chunks begining with '_' are reserved)", chunk.Name)
+		log.Error(chunk.Pos.Line, chunk.Pos.Column, "cannot use reserved chunk name '%s' (chunks beginning with '_' are reserved)", chunk.Name)
 		return CompileError{}
 	}
 
@@ -27,7 +27,7 @@ func validateInitialization(model *actr.Model, log *issues.Log, init *initializa
 	module := model.LookupModule(name)
 
 	if module == nil {
-		log.Error(init.Pos.Line, init.Pos.Column, "module '%s' not found in initialization ", name)
+		log.Error(init.Pos.Line, init.Pos.Column, "module '%s' not found in initialization", name)
 		return CompileError{}
 	}
 
