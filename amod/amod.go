@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alecthomas/participle/v2"
+	"github.com/alecthomas/participle/v2/lexer"
 
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/issues"
@@ -46,9 +47,9 @@ func GenerateModel(buffer string) (model *actr.Model, log *issues.Log, err error
 	if err != nil {
 		pErr, ok := err.(participle.Error)
 		if ok {
-			log.Error(pErr.Position().Line, pErr.Position().Column, pErr.Message())
+			log.Error(&issues.Location{Line: pErr.Position().Line, ColumnStart: pErr.Position().Column}, pErr.Message())
 		} else {
-			log.Error(0, 0, err.Error())
+			log.Error(&issues.Location{}, err.Error())
 		}
 
 		err = ParseError{}
@@ -67,9 +68,9 @@ func GenerateModelFromFile(fileName string) (model *actr.Model, log *issues.Log,
 	if err != nil {
 		pErr, ok := err.(participle.Error)
 		if ok {
-			log.Error(pErr.Position().Line, pErr.Position().Column, pErr.Message())
+			log.Error(&issues.Location{Line: pErr.Position().Line, ColumnStart: pErr.Position().Column}, pErr.Message())
 		} else {
-			log.Error(0, 0, err.Error())
+			log.Error(&issues.Location{}, err.Error())
 		}
 
 		err = ParseError{}
@@ -102,9 +103,9 @@ func ParseChunk(model *actr.Model, chunk string) (*actr.Pattern, error) {
 
 	err := patternParser.Parse("", r, &p)
 	if err != nil {
-		perr, ok := err.(participle.Error)
+		pErr, ok := err.(participle.Error)
 		if ok {
-			err = errors.New(perr.Message())
+			err = errors.New(pErr.Message())
 		}
 
 		return nil, err
@@ -180,14 +181,14 @@ func addGACTAR(model *actr.Model, log *issues.Log, list []*field) {
 		switch field.Key {
 		case "log_level":
 			if (field.Value.Str == nil) || !actr.ValidLogLevel(*field.Value.Str) {
-				log.Error(field.Pos.Line, field.Pos.Column, "log_level '%s' must be 'min', 'info', 'or 'detail'", field.Value.String())
+				log.Error(tokensToLocation(field.Tokens), "log_level '%s' must be 'min', 'info', 'or 'detail'", field.Value.String())
 				continue
 			}
 
 			model.LogLevel = actr.ACTRLogLevel(*field.Value.Str)
 
 		default:
-			log.Error(field.Pos.Line, field.Pos.Column, "unrecognized field in gactar section: '%s'", field.Key)
+			log.Error(tokensToLocation(field.Tokens), "unrecognized field in gactar section: '%s'", field.Key)
 		}
 	}
 }
@@ -204,7 +205,7 @@ func addModules(model *actr.Model, log *issues.Log, modules []*module) {
 		case "memory":
 			addMemory(model, log, module.InitFields)
 		default:
-			log.Error(module.Pos.Line, module.Pos.Column, "unrecognized module in config: '%s'", module.Name)
+			log.Error(tokensToLocation(module.Tokens), "unrecognized module in config: '%s'", module.Name)
 		}
 	}
 }
@@ -216,19 +217,19 @@ func addImaginal(model *actr.Model, log *issues.Log, fields []*field) {
 		switch field.Key {
 		case "delay":
 			if field.Value.Number == nil {
-				log.Error(field.Pos.Line, field.Pos.Column, "imaginal delay '%s' must be a number", field.Value.String())
+				log.Error(tokensToLocation(field.Tokens), "imaginal delay '%s' must be a number", field.Value.String())
 				continue
 			}
 
 			if *field.Value.Number < 0 {
-				log.Error(field.Pos.Line, field.Pos.Column, "imaginal delay '%s' must be a positive number", field.Value.String())
+				log.Error(tokensToLocation(field.Tokens), "imaginal delay '%s' must be a positive number", field.Value.String())
 				continue
 			}
 
 			imaginal.Delay = *field.Value.Number
 
 		default:
-			log.Error(field.Pos.Line, field.Pos.Column, "unrecognized field '%s' in imaginal config", field.Key)
+			log.Error(tokensToLocation(field.Tokens), "unrecognized field '%s' in imaginal config", field.Key)
 		}
 	}
 }
@@ -242,7 +243,7 @@ func addMemory(model *actr.Model, log *issues.Log, mem []*field) {
 		switch field.Key {
 		case "latency":
 			if field.Value.Number == nil {
-				log.Error(field.Pos.Line, field.Pos.Column, "memory latency '%s' must be a number", field.Value.String())
+				log.Error(tokensToLocation(field.Tokens), "memory latency '%s' must be a number", field.Value.String())
 				continue
 			}
 
@@ -250,7 +251,7 @@ func addMemory(model *actr.Model, log *issues.Log, mem []*field) {
 
 		case "threshold":
 			if field.Value.Number == nil {
-				log.Error(field.Pos.Line, field.Pos.Column, "memory threshold '%s' must be a number", field.Value.String())
+				log.Error(tokensToLocation(field.Tokens), "memory threshold '%s' must be a number", field.Value.String())
 				continue
 			}
 
@@ -258,7 +259,7 @@ func addMemory(model *actr.Model, log *issues.Log, mem []*field) {
 
 		case "max_time":
 			if field.Value.Number == nil {
-				log.Error(field.Pos.Line, field.Pos.Column, "memory max_time '%s' must be a number", field.Value.String())
+				log.Error(tokensToLocation(field.Tokens), "memory max_time '%s' must be a number", field.Value.String())
 				continue
 			}
 
@@ -266,7 +267,7 @@ func addMemory(model *actr.Model, log *issues.Log, mem []*field) {
 
 		case "finst_size":
 			if field.Value.Number == nil {
-				log.Error(field.Pos.Line, field.Pos.Column, "memory finst_size '%s' must be a number", field.Value.String())
+				log.Error(tokensToLocation(field.Tokens), "memory finst_size '%s' must be a number", field.Value.String())
 				continue
 			}
 
@@ -275,14 +276,14 @@ func addMemory(model *actr.Model, log *issues.Log, mem []*field) {
 
 		case "finst_time":
 			if field.Value.Number == nil {
-				log.Error(field.Pos.Line, field.Pos.Column, "memory finst_time '%s' must be a number", field.Value.String())
+				log.Error(tokensToLocation(field.Tokens), "memory finst_time '%s' must be a number", field.Value.String())
 				continue
 			}
 
 			model.Memory.FinstTime = field.Value.Number
 
 		default:
-			log.Error(field.Pos.Line, field.Pos.Column, "unrecognized field '%s' in memory", field.Key)
+			log.Error(tokensToLocation(field.Tokens), "unrecognized field '%s' in memory", field.Key)
 		}
 	}
 }
@@ -307,7 +308,7 @@ func addChunks(model *actr.Model, log *issues.Log, chunks []*chunkDecl) {
 			Name:           chunk.Name,
 			SlotNames:      slotNames,
 			NumSlots:       len(chunk.Slots),
-			AMODLineNumber: chunk.Pos.Line,
+			AMODLineNumber: chunk.Tokens[0].Pos.Line,
 		}
 
 		model.Chunks = append(model.Chunks, &aChunk)
@@ -337,7 +338,7 @@ func addInit(model *actr.Model, log *issues.Log, init *initSection) {
 			init := actr.Initializer{
 				Buffer:         module,
 				Pattern:        pattern,
-				AMODLineNumber: init.Pos.Line,
+				AMODLineNumber: init.Tokens[0].Pos.Line,
 			}
 
 			model.Initializers = append(model.Initializers, &init)
@@ -355,7 +356,7 @@ func addProductions(model *actr.Model, log *issues.Log, productions *productionS
 			Name:           production.Name,
 			Description:    production.Description,
 			VarIndexMap:    map[string]actr.VarIndex{},
-			AMODLineNumber: production.Pos.Line,
+			AMODLineNumber: production.Tokens[0].Pos.Line,
 		}
 
 		err := validateMatch(production.Match, model, log, &prod)
@@ -414,7 +415,7 @@ func addProductions(model *actr.Model, log *issues.Log, productions *productionS
 func createChunkPattern(model *actr.Model, log *issues.Log, cp *pattern) (*actr.Pattern, error) {
 	chunk := model.LookupChunk(cp.ChunkName)
 	if chunk == nil {
-		log.Error(cp.Pos.Line, cp.Pos.Column, "could not find chunk named '%s'", cp.ChunkName)
+		log.Error(tokensToLocation(cp.Tokens), "could not find chunk named '%s'", cp.ChunkName)
 		return nil, CompileError{}
 	}
 
@@ -500,7 +501,7 @@ func addSetStatement(model *actr.Model, log *issues.Log, set *setStatement, prod
 		// find slot index in chunk
 		match := production.LookupMatchByBuffer(bufferName)
 		if match == nil {
-			log.Error(set.Pos.Line, set.Pos.Column, "could not find buffer match '%s' in production '%s'", bufferName, production.Name)
+			log.Error(tokensToLocation(set.Tokens), "could not find buffer match '%s' in production '%s'", bufferName, production.Name)
 			return nil, ParseError{}
 		}
 
@@ -509,7 +510,7 @@ func addSetStatement(model *actr.Model, log *issues.Log, set *setStatement, prod
 		slotName := *set.Slot
 		index := match.Pattern.Chunk.GetSlotIndex(slotName)
 		if index == -1 {
-			log.Error(set.Pos.Line, set.Pos.Column, "could not find slot named '%s' in buffer match '%s' in production '%s'", slotName, bufferName, production.Name)
+			log.Error(tokensToLocation(set.Tokens), "could not find slot named '%s' in buffer match '%s' in production '%s'", slotName, bufferName, production.Name)
 			return nil, ParseError{}
 		}
 
@@ -622,4 +623,17 @@ func convertArgs(args []*arg) *[]*actr.Value {
 	}
 
 	return &actrValues
+}
+
+// tokensToLocation takes the list of lexer tokens and converts it to our own
+// issues.Location struct.
+func tokensToLocation(tokens []lexer.Token) *issues.Location {
+	firstToken := tokens[0]
+	lastToken := tokens[len(tokens)-1]
+
+	return &issues.Location{
+		Line:        firstToken.Pos.Line,
+		ColumnStart: firstToken.Pos.Column,
+		ColumnEnd:   lastToken.Pos.Column + len(lastToken.Value),
+	}
 }

@@ -82,7 +82,8 @@ export interface Issue {
   level: string
   text: string
   line: number
-  column: number
+  columnStart: number
+  columnEnd: number
 }
 
 export type IssueList = Issue[]

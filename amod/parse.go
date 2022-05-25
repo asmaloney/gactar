@@ -30,7 +30,7 @@ type amodFile struct {
 	Init        *initSection       `parser:"'==init==' (@@)?"`
 	Productions *productionSection `parser:"'==productions==' (@@)?"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type modelSection struct {
@@ -39,7 +39,7 @@ type modelSection struct {
 	Authors     []string   `parser:"('authors' '{' @String* '}')?"`
 	Examples    []*pattern `parser:"('examples' '{' @@* '}')?"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type arg struct {
@@ -48,7 +48,7 @@ type arg struct {
 	Str    *string `parser:"| @String"`
 	Number *string `parser:"| @Number)"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type fieldValue struct {
@@ -56,7 +56,7 @@ type fieldValue struct {
 	Str    *string  `parser:"| @String"`
 	Number *float64 `parser:"| @Number)"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 // Used for outputting errors
@@ -76,7 +76,7 @@ type field struct {
 	Key   string     `parser:"@Ident ':'"`
 	Value fieldValue `parser:"@@ (',')?"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type chunkSlot struct {
@@ -84,7 +84,7 @@ type chunkSlot struct {
 	Slot   string `parser:"@Ident"`
 	Space2 string `parser:"@PatternSpace?"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type chunkDecl struct {
@@ -93,14 +93,14 @@ type chunkDecl struct {
 	Slots        []*chunkSlot `parser:"@@+"`
 	EndBracket   string       `parser:"']'"` // not used - must be set for parse
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type module struct {
 	Name       string   `parser:"@Ident"`
 	InitFields []*field `parser:"'{' @@* '}'"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type configSection struct {
@@ -108,20 +108,20 @@ type configSection struct {
 	Modules    []*module    `parser:"('modules' '{' @@* '}')?"`
 	ChunkDecls []*chunkDecl `parser:"('chunks' '{' @@* '}')?"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type initialization struct {
 	Name         string     `parser:"@Ident"`
 	InitPatterns []*pattern `parser:"( '{' @@+ '}' | @@ )"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type initSection struct {
 	Initializations []*initialization `parser:"@@*"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type patternSlotItem struct {
@@ -131,7 +131,7 @@ type patternSlotItem struct {
 	Num *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
 	Var *string `parser:"| @PatternVar )"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type patternSlot struct {
@@ -139,7 +139,7 @@ type patternSlot struct {
 	Items  []*patternSlotItem `parser:"@@+"`
 	Space2 string             `parser:"@PatternSpace?"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type pattern struct {
@@ -148,38 +148,38 @@ type pattern struct {
 	Slots        []*patternSlot `parser:"@@+"`
 	EndBracket   string         `parser:"']'"` // not used - must be set for parse
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type matchItem struct {
 	Name    string   `parser:"@Ident"`
 	Pattern *pattern `parser:"@@"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type match struct {
 	Items []*matchItem `parser:"'match' '{' @@+ '}'"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type clearStatement struct {
 	BufferNames []string `parser:"'clear' ( @Ident ','? )+"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type printStatement struct {
 	Args []*arg `parser:"'print' ( @@ ','? )*"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type recallStatement struct {
 	Pattern *pattern `parser:"'recall' @@"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type setValue struct {
@@ -188,7 +188,7 @@ type setValue struct {
 	Str    *string `parser:"| @String"`
 	Number *string `parser:"| @Number)"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type setStatement struct {
@@ -200,7 +200,7 @@ type setStatement struct {
 	Value   *setValue `parser:"( @@"`
 	Pattern *pattern  `parser:"| @@)"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type statement struct {
@@ -209,14 +209,14 @@ type statement struct {
 	Recall *recallStatement `parser:"| @@"`
 	Set    *setStatement    `parser:"| @@"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type do struct {
 	Do         string        `parser:"'do'"` // not used, but must be visible for parse to work
 	Statements *[]*statement `parser:"'{' @@+ '}'"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type production struct {
@@ -226,13 +226,13 @@ type production struct {
 	Do          *do     `parser:"@@"`
 	End         string  `parser:"'}'"` // not used, but must be visible for parse to work
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 type productionSection struct {
 	Productions []*production `parser:"@@+"`
 
-	Pos lexer.Position
+	Tokens []lexer.Token
 }
 
 var amodParser = participle.MustBuild(&amodFile{},
