@@ -16,8 +16,8 @@ import (
 
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
-	"github.com/asmaloney/gactar/amodlog"
 	"github.com/asmaloney/gactar/framework"
+	"github.com/asmaloney/gactar/issues"
 	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/version"
 )
@@ -310,11 +310,11 @@ func encodeResponse(rw http.ResponseWriter, v interface{}) {
 
 func encodeErrorResponse(rw http.ResponseWriter, err error) {
 	type response struct {
-		Issues amodlog.IssueList `json:"issues"`
+		Issues issues.IssueList `json:"issues"`
 	}
 
 	errResponse := response{
-		Issues: amodlog.IssueList{
+		Issues: issues.IssueList{
 			{
 				Level: "error",
 				Text:  err.Error(),
@@ -325,9 +325,9 @@ func encodeErrorResponse(rw http.ResponseWriter, err error) {
 	json.NewEncoder(rw).Encode(errResponse)
 }
 
-func encodeIssueResponse(rw http.ResponseWriter, log *amodlog.Log) {
+func encodeIssueResponse(rw http.ResponseWriter, log *issues.Log) {
 	type response struct {
-		Issues amodlog.IssueList `json:"issues"`
+		Issues issues.IssueList `json:"issues"`
 	}
 
 	errResponse := response{Issues: log.AllIssues()}

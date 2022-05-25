@@ -8,7 +8,7 @@ import (
 	"github.com/alecthomas/participle/v2"
 
 	"github.com/asmaloney/gactar/actr"
-	"github.com/asmaloney/gactar/amodlog"
+	"github.com/asmaloney/gactar/issues"
 )
 
 var debugging bool = false
@@ -37,10 +37,10 @@ func OutputEBNF() {
 }
 
 // GenerateModel generates a model from the text in the buffer.
-func GenerateModel(buffer string) (model *actr.Model, log *amodlog.Log, err error) {
+func GenerateModel(buffer string) (model *actr.Model, log *issues.Log, err error) {
 	r := strings.NewReader(buffer)
 
-	log = amodlog.New()
+	log = issues.New()
 
 	amod, err := parse(r)
 	if err != nil {
@@ -60,8 +60,8 @@ func GenerateModel(buffer string) (model *actr.Model, log *amodlog.Log, err erro
 }
 
 // GenerateModelFromFile generates a model from the file 'fileName'.
-func GenerateModelFromFile(fileName string) (model *actr.Model, log *amodlog.Log, err error) {
-	log = amodlog.New()
+func GenerateModelFromFile(fileName string) (model *actr.Model, log *issues.Log, err error) {
+	log = issues.New()
 
 	amod, err := parseFile(fileName)
 	if err != nil {
@@ -98,7 +98,7 @@ func ParseChunk(model *actr.Model, chunk string) (*actr.Pattern, error) {
 
 	r := strings.NewReader(chunk)
 
-	log := amodlog.New()
+	log := issues.New()
 
 	err := patternParser.Parse("", r, &p)
 	if err != nil {
@@ -120,7 +120,7 @@ func ParseChunk(model *actr.Model, chunk string) (*actr.Pattern, error) {
 }
 
 // generateModel runs through the parsed structures and creates an actr.Model from them
-func generateModel(amod *amodFile, log *amodlog.Log) (model *actr.Model, err error) {
+func generateModel(amod *amodFile, log *issues.Log) (model *actr.Model, err error) {
 	model = &actr.Model{
 		Name:        amod.Model.Name,
 		Description: amod.Model.Description,
@@ -141,7 +141,7 @@ func generateModel(amod *amodFile, log *amodlog.Log) (model *actr.Model, err err
 	return
 }
 
-func addConfig(model *actr.Model, log *amodlog.Log, config *configSection) {
+func addConfig(model *actr.Model, log *issues.Log, config *configSection) {
 	if config == nil {
 		return
 	}
@@ -151,7 +151,7 @@ func addConfig(model *actr.Model, log *amodlog.Log, config *configSection) {
 	addChunks(model, log, config.ChunkDecls)
 }
 
-func addExamples(model *actr.Model, log *amodlog.Log, examples []*pattern) {
+func addExamples(model *actr.Model, log *issues.Log, examples []*pattern) {
 	if len(examples) == 0 {
 		return
 	}
@@ -171,7 +171,7 @@ func addExamples(model *actr.Model, log *amodlog.Log, examples []*pattern) {
 	}
 }
 
-func addGACTAR(model *actr.Model, log *amodlog.Log, list []*field) {
+func addGACTAR(model *actr.Model, log *issues.Log, list []*field) {
 	if list == nil {
 		return
 	}
@@ -192,7 +192,7 @@ func addGACTAR(model *actr.Model, log *amodlog.Log, list []*field) {
 	}
 }
 
-func addModules(model *actr.Model, log *amodlog.Log, modules []*module) {
+func addModules(model *actr.Model, log *issues.Log, modules []*module) {
 	if modules == nil {
 		return
 	}
@@ -209,7 +209,7 @@ func addModules(model *actr.Model, log *amodlog.Log, modules []*module) {
 	}
 }
 
-func addImaginal(model *actr.Model, log *amodlog.Log, fields []*field) {
+func addImaginal(model *actr.Model, log *issues.Log, fields []*field) {
 	imaginal := model.CreateImaginal()
 
 	for _, field := range fields {
@@ -233,7 +233,7 @@ func addImaginal(model *actr.Model, log *amodlog.Log, fields []*field) {
 	}
 }
 
-func addMemory(model *actr.Model, log *amodlog.Log, mem []*field) {
+func addMemory(model *actr.Model, log *issues.Log, mem []*field) {
 	if mem == nil {
 		return
 	}
@@ -287,7 +287,7 @@ func addMemory(model *actr.Model, log *amodlog.Log, mem []*field) {
 	}
 }
 
-func addChunks(model *actr.Model, log *amodlog.Log, chunks []*chunkDecl) {
+func addChunks(model *actr.Model, log *issues.Log, chunks []*chunkDecl) {
 	if chunks == nil {
 		return
 	}
@@ -314,7 +314,7 @@ func addChunks(model *actr.Model, log *amodlog.Log, chunks []*chunkDecl) {
 	}
 }
 
-func addInit(model *actr.Model, log *amodlog.Log, init *initSection) {
+func addInit(model *actr.Model, log *issues.Log, init *initSection) {
 	if init == nil {
 		return
 	}
@@ -345,7 +345,7 @@ func addInit(model *actr.Model, log *amodlog.Log, init *initSection) {
 	}
 }
 
-func addProductions(model *actr.Model, log *amodlog.Log, productions *productionSection) {
+func addProductions(model *actr.Model, log *issues.Log, productions *productionSection) {
 	if productions == nil {
 		return
 	}
@@ -411,7 +411,7 @@ func addProductions(model *actr.Model, log *amodlog.Log, productions *production
 	}
 }
 
-func createChunkPattern(model *actr.Model, log *amodlog.Log, cp *pattern) (*actr.Pattern, error) {
+func createChunkPattern(model *actr.Model, log *issues.Log, cp *pattern) (*actr.Pattern, error) {
 	chunk := model.LookupChunk(cp.ChunkName)
 	if chunk == nil {
 		log.Error(cp.Pos.Line, "could not find chunk named '%s'", cp.ChunkName)
@@ -448,7 +448,7 @@ func createChunkPattern(model *actr.Model, log *amodlog.Log, cp *pattern) (*actr
 	return &pattern, nil
 }
 
-func addStatement(model *actr.Model, log *amodlog.Log, statement *statement, production *actr.Production) (err error) {
+func addStatement(model *actr.Model, log *issues.Log, statement *statement, production *actr.Production) (err error) {
 	var s *actr.Statement
 
 	if statement.Set != nil {
@@ -475,7 +475,7 @@ func addStatement(model *actr.Model, log *amodlog.Log, statement *statement, pro
 	return nil
 }
 
-func addSetStatement(model *actr.Model, log *amodlog.Log, set *setStatement, production *actr.Production) (*actr.Statement, error) {
+func addSetStatement(model *actr.Model, log *issues.Log, set *setStatement, production *actr.Production) (*actr.Statement, error) {
 	err := validateSetStatement(set, model, log, production)
 	if err != nil {
 		return nil, err
@@ -550,7 +550,7 @@ func addSetStatement(model *actr.Model, log *amodlog.Log, set *setStatement, pro
 	return &s, nil
 }
 
-func addRecallStatement(model *actr.Model, log *amodlog.Log, recall *recallStatement, production *actr.Production) (*actr.Statement, error) {
+func addRecallStatement(model *actr.Model, log *issues.Log, recall *recallStatement, production *actr.Production) (*actr.Statement, error) {
 	err := validateRecallStatement(recall, model, log, production)
 	if err != nil {
 		return nil, err
@@ -571,7 +571,7 @@ func addRecallStatement(model *actr.Model, log *amodlog.Log, recall *recallState
 	return &s, nil
 }
 
-func addClearStatement(model *actr.Model, log *amodlog.Log, clear *clearStatement, production *actr.Production) (*actr.Statement, error) {
+func addClearStatement(model *actr.Model, log *issues.Log, clear *clearStatement, production *actr.Production) (*actr.Statement, error) {
 	err := validateClearStatement(clear, model, log, production)
 	if err != nil {
 		return nil, err
@@ -586,7 +586,7 @@ func addClearStatement(model *actr.Model, log *amodlog.Log, clear *clearStatemen
 	return &s, nil
 }
 
-func addPrintStatement(model *actr.Model, log *amodlog.Log, print *printStatement, production *actr.Production) (*actr.Statement, error) {
+func addPrintStatement(model *actr.Model, log *issues.Log, print *printStatement, production *actr.Production) (*actr.Statement, error) {
 	err := validatePrintStatement(print, model, log, production)
 	if err != nil {
 		return nil, err

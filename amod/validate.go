@@ -2,12 +2,12 @@ package amod
 
 import (
 	"github.com/asmaloney/gactar/actr"
-	"github.com/asmaloney/gactar/amodlog"
+	"github.com/asmaloney/gactar/issues"
 )
 
 // validateChunk checks the chunk name to ensure uniqueness and that it isn't using
 // reserved names.
-func validateChunk(model *actr.Model, log *amodlog.Log, chunk *chunkDecl) (err error) {
+func validateChunk(model *actr.Model, log *issues.Log, chunk *chunkDecl) (err error) {
 	if actr.IsInternalChunkName(chunk.Name) {
 		log.Error(chunk.Pos.Line, "cannot use reserved chunk name '%s' (chunks begining with '_' are reserved)", chunk.Name)
 		return CompileError{}
@@ -22,7 +22,7 @@ func validateChunk(model *actr.Model, log *amodlog.Log, chunk *chunkDecl) (err e
 	return nil
 }
 
-func validateInitialization(model *actr.Model, log *amodlog.Log, init *initialization) (err error) {
+func validateInitialization(model *actr.Model, log *issues.Log, init *initialization) (err error) {
 	name := init.Name
 	module := model.LookupModule(name)
 
@@ -48,7 +48,7 @@ func validateInitialization(model *actr.Model, log *amodlog.Log, init *initializ
 }
 
 // validatePattern ensures that the pattern's chunk exists and that its number of slots match.
-func validatePattern(model *actr.Model, log *amodlog.Log, pattern *pattern) (err error) {
+func validatePattern(model *actr.Model, log *issues.Log, pattern *pattern) (err error) {
 	chunkName := pattern.ChunkName
 	chunk := model.LookupChunk(chunkName)
 	if chunk == nil {
@@ -65,7 +65,7 @@ func validatePattern(model *actr.Model, log *amodlog.Log, pattern *pattern) (err
 }
 
 // validateMatch verifies several aspects of a match item.
-func validateMatch(match *match, model *actr.Model, log *amodlog.Log, production *actr.Production) (err error) {
+func validateMatch(match *match, model *actr.Model, log *issues.Log, production *actr.Production) (err error) {
 	if match == nil {
 		return
 	}
@@ -108,7 +108,7 @@ func validateMatch(match *match, model *actr.Model, log *amodlog.Log, production
 }
 
 // validateDo checks for multiple recall statements.
-func validateDo(log *amodlog.Log, production *production) {
+func validateDo(log *issues.Log, production *production) {
 	type ref struct {
 		lastLine int // keep track of the last case of a recall statement for our output
 		count    int // ref count
@@ -133,7 +133,7 @@ func validateDo(log *amodlog.Log, production *production) {
 
 // validateSetStatement checks a "set" statement to verify the buffer name & field indexing is correct.
 // The production's matches have been constructed, so that's what we check against.
-func validateSetStatement(set *setStatement, model *actr.Model, log *amodlog.Log, production *actr.Production) (err error) {
+func validateSetStatement(set *setStatement, model *actr.Model, log *issues.Log, production *actr.Production) (err error) {
 	bufferName := set.BufferName
 	buffer := model.LookupBuffer(bufferName)
 	if buffer == nil {
@@ -227,7 +227,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *amodlog.Log
 }
 
 // validateRecallStatement checks a "recall" statement to verify the memory name.
-func validateRecallStatement(recall *recallStatement, model *actr.Model, log *amodlog.Log, production *actr.Production) (err error) {
+func validateRecallStatement(recall *recallStatement, model *actr.Model, log *issues.Log, production *actr.Production) (err error) {
 	vars := varsFromPattern(recall.Pattern)
 
 	for _, varName := range vars {
@@ -246,7 +246,7 @@ func validateRecallStatement(recall *recallStatement, model *actr.Model, log *am
 }
 
 // validateClearStatement checks a "clear" statement to verify the buffer names.
-func validateClearStatement(clear *clearStatement, model *actr.Model, log *amodlog.Log, production *actr.Production) (err error) {
+func validateClearStatement(clear *clearStatement, model *actr.Model, log *issues.Log, production *actr.Production) (err error) {
 	bufferNames := clear.BufferNames
 
 	for _, name := range bufferNames {
@@ -263,7 +263,7 @@ func validateClearStatement(clear *clearStatement, model *actr.Model, log *amodl
 }
 
 // validatePrintStatement is a placeholder for checking a "print" statement. Currently there are no checks.
-func validatePrintStatement(print *printStatement, model *actr.Model, log *amodlog.Log, production *actr.Production) (err error) {
+func validatePrintStatement(print *printStatement, model *actr.Model, log *issues.Log, production *actr.Production) (err error) {
 	if print.Args != nil {
 		for _, v := range print.Args {
 			if v.ID != nil {
@@ -287,7 +287,7 @@ func validatePrintStatement(print *printStatement, model *actr.Model, log *amodl
 }
 
 // validateVariableUsage verifies variable usage by counting how many times they are referenced.
-func validateVariableUsage(log *amodlog.Log, match *match, do *do) {
+func validateVariableUsage(log *issues.Log, match *match, do *do) {
 	type ref struct {
 		firstLine int // keep track of the first case of this variable for our output
 		count     int // ref count

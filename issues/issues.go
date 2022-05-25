@@ -1,5 +1,5 @@
-// Package amodlog provides info & error logging for parsing/compiling amod files.
-package amodlog
+// Package issues provides info & error logging for parsing/compiling amod files.
+package issues
 
 import (
 	"fmt"
