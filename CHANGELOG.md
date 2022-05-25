@@ -12,11 +12,12 @@ All notable changes to this project will be documented in this file. The format 
 - Added TypeScript interfaces for all endpoints (in api.ts).
 - The `/api/run` endpoint now accepts an optional list of frameworks to run (property: `frameworks`). If not specified, it will run on all available frameworks. ([#97](https://github.com/asmaloney/gactar/pull/97))
 - The return data for `/api/run` now includes the full path to the intermediate code file in the property `filePath`.
+- Added column numbers to error output. ([#102](https://github.com/asmaloney/gactar/pull/102))
 
 ### Changed
 
 - Use [camelCase](https://en.wikipedia.org/wiki/Camel_case) for all returned properties in the API.
-- Clean up API TypeScript interfaces.
+- Clean up and complete API TypeScript interfaces.
 
 ## [0.4.0](https://github.com/asmaloney/gactar/releases/tag/v0.4.0) - 2022-05-20
 

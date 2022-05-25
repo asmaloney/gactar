@@ -98,7 +98,7 @@ There are more details on each step below, but here's the short version:
    The CCM Suite implementation _fails silently_ when given invalid variables which makes it difficult to catch errors & can result in incorrect output. Instead of ignoring the incorrect variable, gactar outputs a nice error message so it's obvious what the problem is:
 
    ```
-   recall statement variable '?ojb' not found in matches for production 'initialRetrieval' (line 53)
+   recall statement variable '?ojb' not found in matches for production 'initialRetrieval' (line 56, col 13)
    ```
 
    **Example #2 (invalid slot name)**
@@ -108,7 +108,7 @@ There are more details on each step below, but here's the short version:
         goal [isMember: ?obj ? nil]
     }
     do {
-        set goal.resutl to 'pending'
+        set goal.jugdment to 'pending'
     }
    ```
 
@@ -133,14 +133,14 @@ There are more details on each step below, but here's the short version:
     val = self.func(self.obj, *args, **keys)
    File "/path/CCMSuite3/ccm/lib/actr/buffer.py", line 60, in modify
     raise Exception('No slot "%s" to modify to "%s"' % (k, v))
-   Exception: No slot "resutl" to modify to "pending"
+   Exception: No slot "jugdment" to modify to "pending"
    end...
    ```
 
    Instead, by adding validation, gactar produces a much better message:
 
    ```
-   slot 'resutl' does not exist in chunk 'isMember' for match buffer 'goal' in production 'initialRetrieval' (line 52)
+   slot 'jugdment' does not exist in chunk 'isMember' for match buffer 'goal' in production 'initialRetrieval' (line 55, col 10)
    ```
 
 ## Design Goals
@@ -305,47 +305,55 @@ This will generate code for all active frameworks and optionally run the models.
 ```
 (env)$ ./gactar examples/count.amod
 gactar version v0.4.0
+Intermediate file path: "gactar-temp"
+Generating model for examples/count.amod
 pyactr: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
-	- Generating code for examples/count.amod
+	- generating code for examples/count.amod
 	- written to gactar-temp/pyactr_count.py
 vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
-	- Generating code for examples/count.amod
+	- generating code for examples/count.amod
 	- written to gactar-temp/vanilla_count.lisp
 ccm: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
-	- Generating code for examples/count.amod
+	- generating code for examples/count.amod
 	- written to gactar-temp/ccm_count.py
 ```
 
 You can choose which frameworks to use with `--framework` or `-f` like this:
 
 ```
-./gactar -f ccm -f vanilla examples/count.amod
+(env)$ ./gactar -f ccm -f vanilla examples/count.amod
 gactar version v0.4.0
+Intermediate file path: "gactar-temp"
+Generating model for examples/count.amod
 ccm: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
-	- Generating code for examples/count.amod
+	- generating code for examples/count.amod
 	- written to gactar-temp/ccm_count.py
 vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
-	- Generating code for examples/count.amod
+	- generating code for examples/count.amod
 	- written to gactar-temp/vanilla_count.lisp
 ```
 
 You can write the files to a different location using `--temp`:
 
 ```
-./gactar -f ccm -temp intermediate examples/count.amod
+(env)$ ./gactar -f ccm -temp intermediate examples/count.amod
 gactar version v0.4.0
+Intermediate file path: "intermediate"
+Generating model for examples/count.amod
 ccm: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
-	- Generating code for examples/count.amod
+	- generating code for examples/count.amod
 	- written to intermediate/ccm_count.py
 ```
 
 You can also choose to run the models using `--run` or `-r`:
 
 ```
-./gactar -f ccm -temp intermediate -r examples/count.amod
+(env)$ ./gactar -f ccm -temp intermediate -r examples/count.amod
 gactar version v0.4.0
+Intermediate file path: "intermediate"
+Generating model for examples/count.amod
 ccm: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
-	- Generating code for examples/count.amod
+	- generating code for examples/count.amod
 	- written to intermediate/ccm_count.py
 == ccm ==
    0.000 production_match_delay 0
