@@ -136,7 +136,7 @@ func lex(filename string, data string) *lexer_amod {
 		name:           filename,
 		input:          data,
 		line:           1,
-		lastNewlinePos: 0,
+		lastNewlinePos: 1, // start @ 1 so first line gets 0 (see emit())
 		lexemes:        make(chan lexeme),
 		keywords:       make(map[string]bool),
 		inPattern:      false,
@@ -244,11 +244,12 @@ func (l *lexer_amod) acceptRun(valid string) {
 
 // pass an item back to the client via the channel
 func (l *lexer_amod) emit(t lexemeType) {
+	value := l.input[l.start:l.pos]
 	l.lexemes <- lexeme{
 		typ:   t,
-		value: l.input[l.start:l.pos],
+		value: value,
 		line:  l.line,
-		pos:   l.pos - l.lastNewlinePos,
+		pos:   (l.pos - l.lastNewlinePos + 1) - len(value),
 	}
 
 	l.start = l.pos
