@@ -11,6 +11,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
+	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/framework/ccm_pyactr"
@@ -234,7 +235,7 @@ func handleDefault(ctx *cli.Context, frameworks framework.List) (err error) {
 	tempPath := ctx.Path("temp")
 	fmt.Printf("Intermediate file path: %q\n", tempPath)
 
-	generateCode(frameworks, existingFiles, tempPath, ctx.Bool("run"))
+	err = generateCode(frameworks, existingFiles, tempPath, ctx.Bool("run"))
 	if err != nil {
 		return err
 	}
@@ -261,8 +262,24 @@ func createTempDir(ctx *cli.Context) (err error) {
 	return nil
 }
 
-func generateCode(frameworks framework.List, files []string, outputDir string, runCode bool) {
-	var err error
+func generateCode(frameworks framework.List, files []string, outputDir string, runCode bool) (err error) {
+	modelMap := map[string]*actr.Model{}
+
+	for _, file := range files {
+		fmt.Printf("Generating model for %s\n", file)
+		model, log, err := amod.GenerateModelFromFile(file)
+		fmt.Print(log)
+		if err != nil {
+			continue
+		}
+
+		modelMap[file] = model
+	}
+
+	if len(modelMap) == 0 {
+		err = errors.New("no valid models to run")
+		return
+	}
 
 	for _, f := range frameworks {
 		err = f.Initialize()
@@ -271,14 +288,8 @@ func generateCode(frameworks framework.List, files []string, outputDir string, r
 			continue
 		}
 
-		for _, file := range files {
-			fmt.Printf("\t- Generating code for %s\n", file)
-			model, log, err := amod.GenerateModelFromFile(file)
-			fmt.Print(log)
-			if err != nil {
-				continue
-			}
-
+		for file, model := range modelMap {
+			fmt.Printf("\t- generating code for %s\n", file)
 			err = f.SetModel(model)
 			if err != nil {
 				fmt.Println(err.Error())
@@ -293,6 +304,8 @@ func generateCode(frameworks framework.List, files []string, outputDir string, r
 			fmt.Printf("\t- written to %s\n", fileName)
 		}
 	}
+
+	return
 }
 
 func runCode(frameworks framework.List) {
