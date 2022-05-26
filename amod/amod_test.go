@@ -148,7 +148,7 @@ func Example_imaginalFieldType() {
 	==productions==`)
 
 	// Output:
-	// ERROR: imaginal delay 'gack' must be a number (line 6, col 13)
+	// ERROR: imaginal delay 'gack' must be a number (line 6, col 20)
 }
 
 func Example_imaginalFieldRange() {
@@ -163,7 +163,7 @@ func Example_imaginalFieldRange() {
 	==productions==`)
 
 	// Output:
-	// ERROR: imaginal delay '-0.500000' must be a positive number (line 6, col 13)
+	// ERROR: imaginal delay '-0.500000' must be a positive number (line 6, col 20)
 }
 
 func Example_imaginalFieldUnrecognized() {
@@ -383,7 +383,7 @@ func Example_productionInvalidAnonVarInSet2() {
 	}`)
 
 	// Output:
-	// ERROR: cannot set 'goal.thing' to anonymous var ('?') in production 'start' (line 10, col 19)
+	// ERROR: cannot set 'goal.thing' to anonymous var ('?') in production 'start' (line 10, col 25)
 }
 
 func Example_productionInvalidMemory() {
@@ -499,6 +499,62 @@ func Example_productionSetStatementNil() {
 	// Output:
 }
 
+func Example_productionSetStatementNonBuffer() {
+	// Check setting to non-existent buffer in set statement
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: blat] }
+		do { set foo.bar to 'blat' }
+	}`)
+
+	// Output:
+	// ERROR: buffer 'foo' not found (line 10, col 11)
+	// ERROR: match buffer 'foo' not found in production 'start' (line 10, col 11)
+}
+
+func Example_productionSetStatementNonBuffer2() {
+	// Check setting to buffer not used in the match
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	modules { imaginal { delay: 0.2 } }
+	chunks { [foo: thing] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: blat] }
+		do { set imaginal.bar to 'blat' }
+	}`)
+
+	// Output:
+	// ERROR: match buffer 'imaginal' not found in production 'start' (line 11, col 11)
+}
+
+func Example_productionSetStatementInvalidSlot() {
+	// Check setting to buffer not used in the match
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: blat] }
+		do { set goal.bar to 'blat' }
+	}`)
+
+	// Output:
+	// ERROR: slot 'bar' does not exist in chunk 'foo' for match buffer 'goal' in production 'start' (line 10, col 16)
+}
+
 func Example_productionSetStatementNonVar1() {
 	// Check setting to non-existent var
 	generateToStdout(`
@@ -531,7 +587,7 @@ func Example_productionSetStatementNonVar2() {
 	}`)
 
 	// Output:
-	// ERROR: set statement variable '?ding' not found in matches for production 'start' (line 10, col 19)
+	// ERROR: set statement variable '?ding' not found in matches for production 'start' (line 10, col 25)
 }
 
 func Example_productionSetStatementCompoundVar() {
@@ -548,7 +604,7 @@ func Example_productionSetStatementCompoundVar() {
 	}`)
 
 	// Output:
-	// ERROR: cannot set 'goal.thing' to compound var in production 'start' (line 10, col 19)
+	// ERROR: cannot set 'goal.thing' to compound var in production 'start' (line 10, col 25)
 }
 
 func Example_productionSetStatementAssignNonPattern() {
@@ -567,7 +623,7 @@ func Example_productionSetStatementAssignNonPattern() {
 	}`)
 
 	// Output:
-	// ERROR: buffer 'goal' must be set to a pattern in production 'start' (line 10, col 7)
+	// ERROR: buffer 'goal' must be set to a pattern in production 'start' (line 10, col 19)
 }
 
 func Example_productionSetStatementAssignNonsense() {
@@ -603,7 +659,7 @@ func Example_productionSetStatementAssignPattern() {
 	}`)
 
 	// Output:
-	// ERROR: cannot set a slot ('thing') to a pattern in match buffer 'goal' in production 'start' (line 10, col 7)
+	// ERROR: cannot set a slot ('goal.thing') to a pattern in production 'start' (line 10, col 11)
 }
 
 func Example_productionRecallStatement() {
@@ -777,7 +833,7 @@ func Example_productionPrintStatementInvalidID() {
 	}`)
 
 	// Output:
-	// ERROR: cannot use ID 'fooID' in print statement (line 9, col 7)
+	// ERROR: cannot use ID 'fooID' in print statement (line 9, col 13)
 }
 
 func Example_productionPrintStatementInvalidVar() {
@@ -793,7 +849,7 @@ func Example_productionPrintStatementInvalidVar() {
 	}`)
 
 	// Output:
-	// ERROR: print statement variable '?fooVar' not found in matches for production 'start' (line 9, col 7)
+	// ERROR: print statement variable '?fooVar' not found in matches for production 'start' (line 9, col 13)
 }
 
 func Example_productionPrintStatementAnonymousVar() {
@@ -809,7 +865,7 @@ func Example_productionPrintStatementAnonymousVar() {
 	}`)
 
 	// Output:
-	// ERROR: cannot print anonymous var ('?') in production 'start' (line 9, col 7)
+	// ERROR: cannot print anonymous var ('?') in production 'start' (line 9, col 13)
 }
 
 func Example_productionMatchInternal() {
@@ -856,7 +912,7 @@ func Example_productionMatchInternalInvalidStatus1() {
 	}`)
 
 	// Output:
-	// ERROR: invalid _status 'something' for 'goal' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8, col 10)
+	// ERROR: invalid _status 'something' for 'goal' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8, col 25)
 }
 
 func Example_productionMatchInternalInvalidStatus2() {
@@ -872,5 +928,5 @@ func Example_productionMatchInternalInvalidStatus2() {
 	}`)
 
 	// Output:
-	// ERROR: invalid _status 'something' for 'retrieval' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8, col 10)
+	// ERROR: invalid _status 'something' for 'retrieval' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8, col 30)
 }

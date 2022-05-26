@@ -46,7 +46,12 @@ func GenerateModel(buffer string) (model *actr.Model, log *Log, err error) {
 	if err != nil {
 		pErr, ok := err.(participle.Error)
 		if ok {
-			log.Error(&issues.Location{Line: pErr.Position().Line, ColumnStart: pErr.Position().Column}, pErr.Message())
+			location := issues.Location{
+				Line:        pErr.Position().Line,
+				ColumnStart: pErr.Position().Column,
+				ColumnEnd:   pErr.Position().Column,
+			}
+			log.Error(&location, pErr.Message())
 		} else {
 			log.Error(&issues.Location{}, err.Error())
 		}
@@ -67,7 +72,12 @@ func GenerateModelFromFile(fileName string) (model *actr.Model, log *Log, err er
 	if err != nil {
 		pErr, ok := err.(participle.Error)
 		if ok {
-			log.Error(&issues.Location{Line: pErr.Position().Line, ColumnStart: pErr.Position().Column}, pErr.Message())
+			location := issues.Location{
+				Line:        pErr.Position().Line,
+				ColumnStart: pErr.Position().Column,
+				ColumnEnd:   pErr.Position().Column,
+			}
+			log.Error(&location, pErr.Message())
 		} else {
 			log.Error(&issues.Location{}, err.Error())
 		}
@@ -177,17 +187,19 @@ func addGACTAR(model *actr.Model, log *Log, list []*field) {
 	}
 
 	for _, field := range list {
+		value := field.Value
+
 		switch field.Key {
 		case "log_level":
-			if (field.Value.Str == nil) || !actr.ValidLogLevel(*field.Value.Str) {
-				log.ErrorT(field.Tokens, "log_level '%s' must be 'min', 'info', 'or 'detail'", field.Value.String())
+			if (value.Str == nil) || !actr.ValidLogLevel(*value.Str) {
+				log.ErrorT(value.Tokens, "log_level '%s' must be 'min', 'info', 'or 'detail'", value.String())
 				continue
 			}
 
-			model.LogLevel = actr.ACTRLogLevel(*field.Value.Str)
+			model.LogLevel = actr.ACTRLogLevel(*value.Str)
 
 		default:
-			log.ErrorT(field.Tokens, "unrecognized field in gactar section: '%s'", field.Key)
+			log.ErrorTR(field.Tokens, 0, 1, "unrecognized field in gactar section: '%s'", field.Key)
 		}
 	}
 }
@@ -213,22 +225,24 @@ func addImaginal(model *actr.Model, log *Log, fields []*field) {
 	imaginal := model.CreateImaginal()
 
 	for _, field := range fields {
+		value := field.Value
+
 		switch field.Key {
 		case "delay":
-			if field.Value.Number == nil {
-				log.ErrorT(field.Tokens, "imaginal delay '%s' must be a number", field.Value.String())
+			if value.Number == nil {
+				log.ErrorT(value.Tokens, "imaginal delay '%s' must be a number", value.String())
 				continue
 			}
 
-			if *field.Value.Number < 0 {
-				log.ErrorT(field.Tokens, "imaginal delay '%s' must be a positive number", field.Value.String())
+			if *value.Number < 0 {
+				log.ErrorT(value.Tokens, "imaginal delay '%s' must be a positive number", value.String())
 				continue
 			}
 
-			imaginal.Delay = *field.Value.Number
+			imaginal.Delay = *value.Number
 
 		default:
-			log.ErrorT(field.Tokens, "unrecognized field '%s' in imaginal config", field.Key)
+			log.ErrorTR(field.Tokens, 0, 1, "unrecognized field '%s' in imaginal config", field.Key)
 		}
 	}
 }
@@ -239,50 +253,52 @@ func addMemory(model *actr.Model, log *Log, mem []*field) {
 	}
 
 	for _, field := range mem {
+		value := field.Value
+
 		switch field.Key {
 		case "latency":
-			if field.Value.Number == nil {
-				log.ErrorT(field.Tokens, "memory latency '%s' must be a number", field.Value.String())
+			if value.Number == nil {
+				log.ErrorT(value.Tokens, "memory latency '%s' must be a number", value.String())
 				continue
 			}
 
-			model.Memory.Latency = field.Value.Number
+			model.Memory.Latency = value.Number
 
 		case "threshold":
-			if field.Value.Number == nil {
-				log.ErrorT(field.Tokens, "memory threshold '%s' must be a number", field.Value.String())
+			if value.Number == nil {
+				log.ErrorT(value.Tokens, "memory threshold '%s' must be a number", value.String())
 				continue
 			}
 
-			model.Memory.Threshold = field.Value.Number
+			model.Memory.Threshold = value.Number
 
 		case "max_time":
 			if field.Value.Number == nil {
-				log.ErrorT(field.Tokens, "memory max_time '%s' must be a number", field.Value.String())
+				log.ErrorT(value.Tokens, "memory max_time '%s' must be a number", value.String())
 				continue
 			}
 
-			model.Memory.MaxTime = field.Value.Number
+			model.Memory.MaxTime = value.Number
 
 		case "finst_size":
-			if field.Value.Number == nil {
-				log.ErrorT(field.Tokens, "memory finst_size '%s' must be a number", field.Value.String())
+			if value.Number == nil {
+				log.ErrorT(value.Tokens, "memory finst_size '%s' must be a number", value.String())
 				continue
 			}
 
-			size := int(*field.Value.Number)
+			size := int(*value.Number)
 			model.Memory.FinstSize = &size
 
 		case "finst_time":
-			if field.Value.Number == nil {
-				log.ErrorT(field.Tokens, "memory finst_time '%s' must be a number", field.Value.String())
+			if value.Number == nil {
+				log.ErrorT(value.Tokens, "memory finst_time '%s' must be a number", value.String())
 				continue
 			}
 
-			model.Memory.FinstTime = field.Value.Number
+			model.Memory.FinstTime = value.Number
 
 		default:
-			log.ErrorT(field.Tokens, "unrecognized field '%s' in memory", field.Key)
+			log.ErrorTR(field.Tokens, 0, 1, "unrecognized field '%s' in memory", field.Key)
 		}
 	}
 }
@@ -499,20 +515,11 @@ func addSetStatement(model *actr.Model, log *Log, set *setStatement, production 
 
 		// find slot index in chunk
 		match := production.LookupMatchByBuffer(bufferName)
-		if match == nil {
-			log.ErrorT(set.Tokens, "could not find buffer match '%s' in production '%s'", bufferName, production.Name)
-			return nil, ParseError{}
-		}
 
 		s.Set.Chunk = match.Pattern.Chunk
 
 		slotName := *set.Slot
 		index := match.Pattern.Chunk.GetSlotIndex(slotName)
-		if index == -1 {
-			log.ErrorT(set.Tokens, "could not find slot named '%s' in buffer match '%s' in production '%s'", slotName, bufferName, production.Name)
-			return nil, ParseError{}
-		}
-
 		value := &actr.SetValue{}
 
 		if set.Value.Var != nil {
@@ -533,7 +540,6 @@ func addSetStatement(model *actr.Model, log *Log, set *setStatement, production 
 		}
 
 		s.Set.AddSlot(newSlot)
-
 	} else if set.Pattern != nil {
 		pattern, err := createChunkPattern(model, log, set.Pattern)
 		if err != nil {
