@@ -2,15 +2,15 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.5.0] - (in progress)
+## [0.5.0](https://github.com/asmaloney/gactar/releases/tag/v0.5.0) - 2022-05-26
 
 ### Added
 
 - New command line option `temp` to specify where to generate the intermediate code files. If not specified, it defaults to `./gactar-temp` in the directory gactar was run from. The directory will be created if it does not exist. ([#94](https://github.com/asmaloney/gactar/pull/94))
 - Web UI now allows the user to select which frameworks to run from the ones available on the server. ([#100](https://github.com/asmaloney/gactar/pull/100))
+- Added TypeScript interfaces for all endpoints (in `api.ts`).
 - Added new `/api/frameworks` endpoint to get info on frameworks available on the server. ([#99](https://github.com/asmaloney/gactar/pull/99))
-- Added TypeScript interfaces for all endpoints (in api.ts).
-- The `/api/run` endpoint now accepts an optional list of frameworks to run (property: `frameworks`). If not specified, it will run on all available frameworks. ([#97](https://github.com/asmaloney/gactar/pull/97))
+- The `/api/run` endpoint now accepts an optional list of frameworks to run. If not specified, it will run on all available frameworks. ([#97](https://github.com/asmaloney/gactar/pull/97))
 - The return data for `/api/run` now includes the full path to the intermediate code file in the property `filePath`.
 - Added column numbers to error output. ([#102](https://github.com/asmaloney/gactar/pull/102))
 - Added extra checks on patterns for valid chunk names and number of slots.
@@ -18,7 +18,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Changed
 
 - Use [camelCase](https://en.wikipedia.org/wiki/Camel_case) for all returned properties in the API.
-- Clean up and complete API TypeScript interfaces.
+- Clean up API TypeScript interfaces.
 
 ### Fixed
 
