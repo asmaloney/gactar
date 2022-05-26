@@ -13,11 +13,16 @@ All notable changes to this project will be documented in this file. The format 
 - The `/api/run` endpoint now accepts an optional list of frameworks to run (property: `frameworks`). If not specified, it will run on all available frameworks. ([#97](https://github.com/asmaloney/gactar/pull/97))
 - The return data for `/api/run` now includes the full path to the intermediate code file in the property `filePath`.
 - Added column numbers to error output. ([#102](https://github.com/asmaloney/gactar/pull/102))
+- Added extra checks on patterns for valid chunk names and number of slots.
 
 ### Changed
 
 - Use [camelCase](https://en.wikipedia.org/wiki/Camel_case) for all returned properties in the API.
 - Clean up and complete API TypeScript interfaces.
+
+### Fixed
+
+- When running as a web server, always create temp folder before a run in case it was removed. ([#107](https://github.com/asmaloney/gactar/pull/107))
 
 ## [0.4.0](https://github.com/asmaloney/gactar/releases/tag/v0.4.0) - 2022-05-20
 
