@@ -36,8 +36,8 @@ type lexer_amod struct {
 	input          string // the string being scanned.
 	line           int    // the line number
 	lastNewlinePos int
-	start          int             // start position of this lexeme
-	pos            int             // current position in the input
+	start          int             // start position of this lexeme (offset from beginning of file)
+	pos            int             // current position in the input  (offset from beginning of file)
 	width          int             // width of last rune read from input
 	lexemes        chan lexeme     // channel of scanned lexemes
 	keywords       map[string]bool // used to lookup identifier to see if they are keywords
@@ -178,7 +178,7 @@ func (l *lexer_amod) Next() (tok lexer.Token, err error) {
 	}
 
 	if debugging {
-		fmt.Printf("TOK (%d, %d): %+v (%d)\n", pos.Line, pos.Column, tok, tok.Type)
+		fmt.Printf("TOK (%d, %d-%d): %+v (%d)\n", pos.Line, pos.Column, pos.Column+len(tok.Value), tok, tok.Type)
 	}
 	return
 }
@@ -249,7 +249,7 @@ func (l *lexer_amod) emit(t lexemeType) {
 		typ:   t,
 		value: value,
 		line:  l.line,
-		pos:   (l.pos - l.lastNewlinePos + 1) - len(value),
+		pos:   l.start - l.lastNewlinePos + 1,
 	}
 
 	l.start = l.pos
