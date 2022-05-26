@@ -170,16 +170,17 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
 
 3. You should end up with a folder named something like `gactar-v<version>-<platform>-<architecture>` (e.g. `gactar-v0.4.0-darwin-amd64`) containing the following files & folders:
 
-   |              |                                                                              |
-   | ------------ | ---------------------------------------------------------------------------- |
-   | CHANGELOG.md | describes changes between versions                                           |
-   | CITATION.cff | citation information in [cff format](https://citation-file-format.github.io) |
-   | doc/         | folder containing extra documentation                                        |
-   | gactar       | the executable                                                               |
-   | examples/    | folder containing the examples                                               |
-   | LICENSE      | the license                                                                  |
-   | README.md    | this readme file                                                             |
-   | scripts/     | folder containing the setup scripts                                          |
+   |                 |                                                                              |
+   | --------------- | ---------------------------------------------------------------------------- |
+   | CHANGELOG.md    | describes changes between versions                                           |
+   | CITATION.cff    | citation information in [cff format](https://citation-file-format.github.io) |
+   | CONTRIBUTING.md | how to contribute to the project - financially & otherwise                   |
+   | doc/            | folder containing extra documentation                                        |
+   | gactar          | the executable                                                               |
+   | examples/       | folder containing the examples                                               |
+   | LICENSE         | the license                                                                  |
+   | README.md       | this readme file                                                             |
+   | scripts/        | folder containing the setup scripts                                          |
 
 ### Setup Virtual Environment
 
