@@ -5,6 +5,13 @@ import (
 	"github.com/asmaloney/gactar/issues"
 )
 
+// varAndIndex is used to match var text to slot indices.
+// This is used for issue locations.
+type varAndIndex struct {
+	text  string
+	index int
+}
+
 // validateChunk checks the chunk name to ensure uniqueness and that it isn't using
 // reserved names.
 func validateChunk(model *actr.Model, log *issues.Log, chunk *chunkDecl) (err error) {
@@ -230,14 +237,14 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *issues.Log,
 func validateRecallStatement(recall *recallStatement, model *actr.Model, log *issues.Log, production *actr.Production) (err error) {
 	vars := varsFromPattern(recall.Pattern)
 
-	for _, varName := range vars {
-		if varName == "?" {
+	for _, v := range vars {
+		if v.text == "?" {
 			continue
 		}
 
-		match := production.LookupMatchByVariable(varName)
+		match := production.LookupMatchByVariable(v.text)
 		if match == nil {
-			log.Error(tokensToLocation(recall.Tokens), "recall statement variable '%s' not found in matches for production '%s'", varName, production.Name)
+			log.Error(tokensToLocation(recall.Pattern.Slots[v.index].Tokens), "recall statement variable '%s' not found in matches for production '%s'", v.text, production.Name)
 			err = CompileError{}
 		}
 	}
@@ -289,8 +296,8 @@ func validatePrintStatement(print *printStatement, model *actr.Model, log *issue
 // validateVariableUsage verifies variable usage by counting how many times they are referenced.
 func validateVariableUsage(log *issues.Log, match *match, do *do) {
 	type ref struct {
-		firstLine int // keep track of the first case of this variable for our output
-		count     int // ref count
+		location *issues.Location // keep track of the first case of this variable for our output
+		count    int              // ref count
 	}
 	varRefCount := map[string]*ref{}
 
@@ -298,17 +305,18 @@ func validateVariableUsage(log *issues.Log, match *match, do *do) {
 	addPatternRefs := func(p *pattern, insertIfNotFound bool) {
 		vars := varsFromPattern(p)
 
-		for _, varName := range vars {
-			if varName == "?" {
+		for _, v := range vars {
+			if v.text == "?" {
 				continue
 			}
 
-			if r, ok := varRefCount[varName]; ok {
+			if r, ok := varRefCount[v.text]; ok {
 				r.count++
 			} else if insertIfNotFound {
-				varRefCount[varName] = &ref{
-					firstLine: p.Tokens[0].Pos.Line,
-					count:     1,
+				tokens := p.Slots[v.index].Tokens
+				varRefCount[v.text] = &ref{
+					location: tokensToLocation(tokens),
+					count:    1,
 				}
 			}
 		}
@@ -352,17 +360,17 @@ func validateVariableUsage(log *issues.Log, match *match, do *do) {
 	// Any var with only one reference should be anonymous ("?"), so add info to log
 	for k, r := range varRefCount {
 		if r.count == 1 {
-			log.Error(&issues.Location{Line: r.firstLine, ColumnStart: 0}, "variable %s is not used - should be simplified to '?'", k)
+			log.Error(r.location, "variable %s is not used - should be simplified to '?'", k)
 		}
 	}
 }
 
 // Get a slice of all the vars referenced in a pattern
-func varsFromPattern(pattern *pattern) (vars []string) {
-	for _, slot := range pattern.Slots {
+func varsFromPattern(pattern *pattern) (vars []varAndIndex) {
+	for i, slot := range pattern.Slots {
 		for _, slotItem := range slot.Items {
 			if slotItem.Var != nil {
-				vars = append(vars, *slotItem.Var)
+				vars = append(vars, varAndIndex{text: *slotItem.Var, index: i})
 			}
 		}
 	}
