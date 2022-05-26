@@ -25,8 +25,11 @@ func (l *Log) ErrorTR(tokens []lexer.Token, start, end int, s string, a ...inter
 
 // tokensToLocation takes the list of lexer tokens and converts it to our own
 // issues.Location struct.
-func tokensToLocation(tokens []lexer.Token) *issues.Location {
-	// If we have space tokens on either side, strip them out
+func tokensToLocation(t []lexer.Token) *issues.Location {
+	tokens := trimCommentsFromRange(t)
+
+	// If we are in the middle of a pattern, we might have pattern spaces,
+	// so remove from beginning & end.
 	if tokens[0].Type == lexer.TokenType(lexemePatternSpace) {
 		tokens = tokens[1:]
 	}
@@ -52,11 +55,13 @@ func tokensToLocation(tokens []lexer.Token) *issues.Location {
 	}
 }
 
-func tokenRangeToLocation(tokens []lexer.Token, start, end int) *issues.Location {
+func tokenRangeToLocation(t []lexer.Token, start, end int) *issues.Location {
 	if start < 0 || end < 1 || start == end || end < start {
 		fmt.Printf("Internal error (tokenRangeToLocation): start (%d) and/or end (%d) incorrect. Using full range.\n", start, end)
-		return tokensToLocation(tokens)
+		return tokensToLocation(t)
 	}
+
+	tokens := trimCommentsFromRange(t)
 
 	numTokens := len(tokens)
 	if end > numTokens-1 {
@@ -67,4 +72,33 @@ func tokenRangeToLocation(tokens []lexer.Token, start, end int) *issues.Location
 	restricted := tokens[start:end]
 
 	return tokensToLocation(restricted)
+}
+
+// trimCommentsFromRange will remove any comment tokens from the beginning and end of the range.
+// This is necessary because participle will include them with the Tokens in a struct.
+func trimCommentsFromRange(t []lexer.Token) (tokens []lexer.Token) {
+	begin := 0
+	for _, token := range t {
+		if token.Type == lexer.TokenType(lexemeComment) {
+			begin++
+			continue
+		}
+
+		break
+	}
+
+	end := len(t)
+	for i := end - 1; i >= 0; i-- {
+		token := t[i]
+
+		if token.Type == lexer.TokenType(lexemeComment) {
+			end--
+			continue
+		}
+
+		break
+	}
+
+	tokens = t[begin:end]
+	return
 }
