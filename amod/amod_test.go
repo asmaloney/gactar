@@ -47,7 +47,7 @@ func Example_modelExampleBadChunk() {
 	==productions==`)
 
 	// Output:
-	// ERROR: could not find chunk named 'foo' (line 4, col 12)
+	// ERROR: could not find chunk named 'foo' (line 4, col 13)
 }
 
 func Example_gactarUnrecognizedField() {
@@ -73,7 +73,7 @@ func Example_chunkReservedName() {
 	==productions==`)
 
 	// Output:
-	// ERROR: cannot use reserved chunk name '_internal' (chunks beginning with '_' are reserved) (line 5, col 10)
+	// ERROR: cannot use reserved chunk name '_internal' (chunks beginning with '_' are reserved) (line 5, col 11)
 }
 
 func Example_chunkDuplicateName() {
@@ -89,7 +89,7 @@ func Example_chunkDuplicateName() {
 	==productions==`)
 
 	// Output:
-	// ERROR: duplicate chunk name: 'something' (line 7, col 5)
+	// ERROR: duplicate chunk name: 'something' (line 7, col 6)
 }
 
 func Example_modules() {
@@ -268,7 +268,7 @@ func Example_initializerInvalidChunk1() {
 	==productions==`)
 
 	// Output:
-	// ERROR: could not find chunk named 'author' (line 6, col 10)
+	// ERROR: could not find chunk named 'author' (line 6, col 11)
 }
 
 func Example_initializerInvalidChunk2() {
@@ -282,7 +282,7 @@ func Example_initializerInvalidChunk2() {
 	==productions==`)
 
 	// Output:
-	// ERROR: could not find chunk named 'author' (line 6, col 6)
+	// ERROR: could not find chunk named 'author' (line 6, col 7)
 }
 
 func Example_initializerUnknownBuffer() {
@@ -402,7 +402,7 @@ func Example_productionInvalidMemory() {
 	// ERROR: buffer 'another_goal' not found in production 'start' (line 8, col 10)
 }
 
-func Example_productionClearStatemtent() {
+func Example_productionClearStatement() {
 	generateToStdout(`
 	==model==
 	name: Test
@@ -418,7 +418,7 @@ func Example_productionClearStatemtent() {
 	// Output:
 }
 
-func Example_productionClearStatemtentInvalidBuffer() {
+func Example_productionClearStatementInvalidBuffer() {
 	generateToStdout(`
 	==model==
 	name: Test
@@ -435,7 +435,7 @@ func Example_productionClearStatemtentInvalidBuffer() {
 	// ERROR: buffer 'some_buffer' not found in production 'start' (line 10, col 7)
 }
 
-func Example_productionSetStatemtentPattern() {
+func Example_productionSetStatementPattern() {
 	// Check setting to pattern
 	generateToStdout(`
 	==model==
@@ -453,7 +453,7 @@ func Example_productionSetStatemtentPattern() {
 	// Output:
 }
 
-func Example_productionSetStatemtentVar() {
+func Example_productionSetStatementVar() {
 	// Check setting to var
 	generateToStdout(`
 	==model==
@@ -470,7 +470,7 @@ func Example_productionSetStatemtentVar() {
 	// Output:
 }
 
-func Example_productionSetStatemtentNil() {
+func Example_productionSetStatementNil() {
 	// Check setting to nil
 	generateToStdout(`
 	==model==
@@ -499,7 +499,7 @@ func Example_productionSetStatemtentNil() {
 	// Output:
 }
 
-func Example_productionSetStatemtentNonVar1() {
+func Example_productionSetStatementNonVar1() {
 	// Check setting to non-existent var
 	generateToStdout(`
 	==model==
@@ -517,7 +517,7 @@ func Example_productionSetStatemtentNonVar1() {
 	// ERROR: set statement variable '?ding' not found in matches for production 'start' (line 10, col 25)
 }
 
-func Example_productionSetStatemtentNonVar2() {
+func Example_productionSetStatementNonVar2() {
 	generateToStdout(`
 	==model==
 	name: Test
@@ -534,7 +534,7 @@ func Example_productionSetStatemtentNonVar2() {
 	// ERROR: set statement variable '?ding' not found in matches for production 'start' (line 10, col 19)
 }
 
-func Example_productionSetStatemtentCompoundVar() {
+func Example_productionSetStatementCompoundVar() {
 	generateToStdout(`
 	==model==
 	name: Test
@@ -551,7 +551,7 @@ func Example_productionSetStatemtentCompoundVar() {
 	// ERROR: cannot set 'goal.thing' to compound var in production 'start' (line 10, col 19)
 }
 
-func Example_productionSetStatemtentAssignNonPattern() {
+func Example_productionSetStatementAssignNonPattern() {
 	// Check setting buffer to non-pattern
 	// https://github.com/asmaloney/gactar/issues/28
 	generateToStdout(`
@@ -570,7 +570,7 @@ func Example_productionSetStatemtentAssignNonPattern() {
 	// ERROR: buffer 'goal' must be set to a pattern in production 'start' (line 10, col 7)
 }
 
-func Example_productionSetStatemtentAssignNonsense() {
+func Example_productionSetStatementAssignNonsense() {
 	generateToStdout(`
 	==model==
 	name: Test
@@ -587,7 +587,7 @@ func Example_productionSetStatemtentAssignNonsense() {
 	// ERROR: unexpected token "blat" (expected (SetValue | Pattern)) (line 10, col 19)
 }
 
-func Example_productionSetStatemtentAssignPattern() {
+func Example_productionSetStatementAssignPattern() {
 	// Check assignment of pattern to slot
 	// https://github.com/asmaloney/gactar/issues/17
 	generateToStdout(`
@@ -639,24 +639,41 @@ func Example_productionRecallStatementMultiple() {
 	}`)
 
 	// Output:
-	// ERROR: only one recall statement per production is allowed in production 'start' (line 12, col 0)
+	// ERROR: only one recall statement per production is allowed in production 'start' (line 12, col 3)
 }
 
-func Example_productionRecallStatemtentVarNotFound() {
+func Example_productionRecallStatementInvalidPattern() {
 	generateToStdout(`
 	==model==
 	name: Test
 	==config==
-	chunks { [foo: thing] }
+	chunks { [foo: thing1 thing2] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: ?next ?] }
+		do { recall [foo: ?next ? bar] }
+	}`)
+
+	// Output:
+	// ERROR: invalid chunk - 'foo' expects 2 slots (line 10, col 14)
+}
+
+func Example_productionRecallStatementVarNotFound() {
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing] [bar: other thing] }
 	==init==
 	==productions==
 	start {
 		match { goal [foo: blat] }
-		do { recall [count: ?next ?] }
+		do { recall [bar: ?next ?] }
 	}`)
 
 	// Output:
-	// ERROR: recall statement variable '?next' not found in matches for production 'start' (line 10, col 22)
+	// ERROR: recall statement variable '?next' not found in matches for production 'start' (line 10, col 20)
 }
 
 func Example_productionMultipleStatement() {
@@ -691,7 +708,7 @@ func Example_productionChunkNotFound() {
 	}`)
 
 	// Output:
-	// ERROR: could not find chunk named 'foo' (line 8, col 15)
+	// ERROR: could not find chunk named 'foo' (line 8, col 16)
 }
 
 func Example_productionPrintStatement1() {
@@ -823,7 +840,7 @@ func Example_productionMatchInternalSlots() {
 	}`)
 
 	// Output:
-	// ERROR: _status should only have one slot for 'retrieval' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8, col 10)
+	// ERROR: invalid chunk - '_status' expects 1 slot (line 8, col 20)
 }
 
 func Example_productionMatchInternalInvalidStatus1() {
