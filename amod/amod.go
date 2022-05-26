@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/alecthomas/participle/v2"
-	"github.com/alecthomas/participle/v2/lexer"
 
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/issues"
@@ -38,10 +37,10 @@ func OutputEBNF() {
 }
 
 // GenerateModel generates a model from the text in the buffer.
-func GenerateModel(buffer string) (model *actr.Model, log *issues.Log, err error) {
+func GenerateModel(buffer string) (model *actr.Model, log *Log, err error) {
 	r := strings.NewReader(buffer)
 
-	log = issues.New()
+	log = &Log{issues.New()}
 
 	amod, err := parse(r)
 	if err != nil {
@@ -61,8 +60,8 @@ func GenerateModel(buffer string) (model *actr.Model, log *issues.Log, err error
 }
 
 // GenerateModelFromFile generates a model from the file 'fileName'.
-func GenerateModelFromFile(fileName string) (model *actr.Model, log *issues.Log, err error) {
-	log = issues.New()
+func GenerateModelFromFile(fileName string) (model *actr.Model, log *Log, err error) {
+	log = &Log{issues.New()}
 
 	amod, err := parseFile(fileName)
 	if err != nil {
@@ -99,7 +98,7 @@ func ParseChunk(model *actr.Model, chunk string) (*actr.Pattern, error) {
 
 	r := strings.NewReader(chunk)
 
-	log := issues.New()
+	log := Log{issues.New()}
 
 	err := patternParser.Parse("", r, &p)
 	if err != nil {
@@ -111,17 +110,17 @@ func ParseChunk(model *actr.Model, chunk string) (*actr.Pattern, error) {
 		return nil, err
 	}
 
-	err = validatePattern(model, log, &p)
+	err = validatePattern(model, &log, &p)
 	if err != nil {
 		err = errors.New(log.FirstEntry())
 		return nil, err
 	}
 
-	return createChunkPattern(model, log, &p)
+	return createChunkPattern(model, &log, &p)
 }
 
 // generateModel runs through the parsed structures and creates an actr.Model from them
-func generateModel(amod *amodFile, log *issues.Log) (model *actr.Model, err error) {
+func generateModel(amod *amodFile, log *Log) (model *actr.Model, err error) {
 	model = &actr.Model{
 		Name:        amod.Model.Name,
 		Description: amod.Model.Description,
@@ -142,7 +141,7 @@ func generateModel(amod *amodFile, log *issues.Log) (model *actr.Model, err erro
 	return
 }
 
-func addConfig(model *actr.Model, log *issues.Log, config *configSection) {
+func addConfig(model *actr.Model, log *Log, config *configSection) {
 	if config == nil {
 		return
 	}
@@ -152,7 +151,7 @@ func addConfig(model *actr.Model, log *issues.Log, config *configSection) {
 	addChunks(model, log, config.ChunkDecls)
 }
 
-func addExamples(model *actr.Model, log *issues.Log, examples []*pattern) {
+func addExamples(model *actr.Model, log *Log, examples []*pattern) {
 	if len(examples) == 0 {
 		return
 	}
@@ -172,7 +171,7 @@ func addExamples(model *actr.Model, log *issues.Log, examples []*pattern) {
 	}
 }
 
-func addGACTAR(model *actr.Model, log *issues.Log, list []*field) {
+func addGACTAR(model *actr.Model, log *Log, list []*field) {
 	if list == nil {
 		return
 	}
@@ -181,19 +180,19 @@ func addGACTAR(model *actr.Model, log *issues.Log, list []*field) {
 		switch field.Key {
 		case "log_level":
 			if (field.Value.Str == nil) || !actr.ValidLogLevel(*field.Value.Str) {
-				log.Error(tokensToLocation(field.Tokens), "log_level '%s' must be 'min', 'info', 'or 'detail'", field.Value.String())
+				log.ErrorT(field.Tokens, "log_level '%s' must be 'min', 'info', 'or 'detail'", field.Value.String())
 				continue
 			}
 
 			model.LogLevel = actr.ACTRLogLevel(*field.Value.Str)
 
 		default:
-			log.Error(tokensToLocation(field.Tokens), "unrecognized field in gactar section: '%s'", field.Key)
+			log.ErrorT(field.Tokens, "unrecognized field in gactar section: '%s'", field.Key)
 		}
 	}
 }
 
-func addModules(model *actr.Model, log *issues.Log, modules []*module) {
+func addModules(model *actr.Model, log *Log, modules []*module) {
 	if modules == nil {
 		return
 	}
@@ -205,36 +204,36 @@ func addModules(model *actr.Model, log *issues.Log, modules []*module) {
 		case "memory":
 			addMemory(model, log, module.InitFields)
 		default:
-			log.Error(tokensToLocation(module.Tokens), "unrecognized module in config: '%s'", module.Name)
+			log.ErrorT(module.Tokens, "unrecognized module in config: '%s'", module.Name)
 		}
 	}
 }
 
-func addImaginal(model *actr.Model, log *issues.Log, fields []*field) {
+func addImaginal(model *actr.Model, log *Log, fields []*field) {
 	imaginal := model.CreateImaginal()
 
 	for _, field := range fields {
 		switch field.Key {
 		case "delay":
 			if field.Value.Number == nil {
-				log.Error(tokensToLocation(field.Tokens), "imaginal delay '%s' must be a number", field.Value.String())
+				log.ErrorT(field.Tokens, "imaginal delay '%s' must be a number", field.Value.String())
 				continue
 			}
 
 			if *field.Value.Number < 0 {
-				log.Error(tokensToLocation(field.Tokens), "imaginal delay '%s' must be a positive number", field.Value.String())
+				log.ErrorT(field.Tokens, "imaginal delay '%s' must be a positive number", field.Value.String())
 				continue
 			}
 
 			imaginal.Delay = *field.Value.Number
 
 		default:
-			log.Error(tokensToLocation(field.Tokens), "unrecognized field '%s' in imaginal config", field.Key)
+			log.ErrorT(field.Tokens, "unrecognized field '%s' in imaginal config", field.Key)
 		}
 	}
 }
 
-func addMemory(model *actr.Model, log *issues.Log, mem []*field) {
+func addMemory(model *actr.Model, log *Log, mem []*field) {
 	if mem == nil {
 		return
 	}
@@ -243,7 +242,7 @@ func addMemory(model *actr.Model, log *issues.Log, mem []*field) {
 		switch field.Key {
 		case "latency":
 			if field.Value.Number == nil {
-				log.Error(tokensToLocation(field.Tokens), "memory latency '%s' must be a number", field.Value.String())
+				log.ErrorT(field.Tokens, "memory latency '%s' must be a number", field.Value.String())
 				continue
 			}
 
@@ -251,7 +250,7 @@ func addMemory(model *actr.Model, log *issues.Log, mem []*field) {
 
 		case "threshold":
 			if field.Value.Number == nil {
-				log.Error(tokensToLocation(field.Tokens), "memory threshold '%s' must be a number", field.Value.String())
+				log.ErrorT(field.Tokens, "memory threshold '%s' must be a number", field.Value.String())
 				continue
 			}
 
@@ -259,7 +258,7 @@ func addMemory(model *actr.Model, log *issues.Log, mem []*field) {
 
 		case "max_time":
 			if field.Value.Number == nil {
-				log.Error(tokensToLocation(field.Tokens), "memory max_time '%s' must be a number", field.Value.String())
+				log.ErrorT(field.Tokens, "memory max_time '%s' must be a number", field.Value.String())
 				continue
 			}
 
@@ -267,7 +266,7 @@ func addMemory(model *actr.Model, log *issues.Log, mem []*field) {
 
 		case "finst_size":
 			if field.Value.Number == nil {
-				log.Error(tokensToLocation(field.Tokens), "memory finst_size '%s' must be a number", field.Value.String())
+				log.ErrorT(field.Tokens, "memory finst_size '%s' must be a number", field.Value.String())
 				continue
 			}
 
@@ -276,19 +275,19 @@ func addMemory(model *actr.Model, log *issues.Log, mem []*field) {
 
 		case "finst_time":
 			if field.Value.Number == nil {
-				log.Error(tokensToLocation(field.Tokens), "memory finst_time '%s' must be a number", field.Value.String())
+				log.ErrorT(field.Tokens, "memory finst_time '%s' must be a number", field.Value.String())
 				continue
 			}
 
 			model.Memory.FinstTime = field.Value.Number
 
 		default:
-			log.Error(tokensToLocation(field.Tokens), "unrecognized field '%s' in memory", field.Key)
+			log.ErrorT(field.Tokens, "unrecognized field '%s' in memory", field.Key)
 		}
 	}
 }
 
-func addChunks(model *actr.Model, log *issues.Log, chunks []*chunkDecl) {
+func addChunks(model *actr.Model, log *Log, chunks []*chunkDecl) {
 	if chunks == nil {
 		return
 	}
@@ -315,7 +314,7 @@ func addChunks(model *actr.Model, log *issues.Log, chunks []*chunkDecl) {
 	}
 }
 
-func addInit(model *actr.Model, log *issues.Log, init *initSection) {
+func addInit(model *actr.Model, log *Log, init *initSection) {
 	if init == nil {
 		return
 	}
@@ -346,7 +345,7 @@ func addInit(model *actr.Model, log *issues.Log, init *initSection) {
 	}
 }
 
-func addProductions(model *actr.Model, log *issues.Log, productions *productionSection) {
+func addProductions(model *actr.Model, log *Log, productions *productionSection) {
 	if productions == nil {
 		return
 	}
@@ -412,10 +411,10 @@ func addProductions(model *actr.Model, log *issues.Log, productions *productionS
 	}
 }
 
-func createChunkPattern(model *actr.Model, log *issues.Log, cp *pattern) (*actr.Pattern, error) {
+func createChunkPattern(model *actr.Model, log *Log, cp *pattern) (*actr.Pattern, error) {
 	chunk := model.LookupChunk(cp.ChunkName)
 	if chunk == nil {
-		log.Error(tokensToLocation(cp.Tokens), "could not find chunk named '%s'", cp.ChunkName)
+		log.ErrorTR(cp.Tokens, 1, 2, "could not find chunk named '%s'", cp.ChunkName)
 		return nil, CompileError{}
 	}
 
@@ -449,7 +448,7 @@ func createChunkPattern(model *actr.Model, log *issues.Log, cp *pattern) (*actr.
 	return &pattern, nil
 }
 
-func addStatement(model *actr.Model, log *issues.Log, statement *statement, production *actr.Production) (err error) {
+func addStatement(model *actr.Model, log *Log, statement *statement, production *actr.Production) (err error) {
 	var s *actr.Statement
 
 	if statement.Set != nil {
@@ -476,7 +475,7 @@ func addStatement(model *actr.Model, log *issues.Log, statement *statement, prod
 	return nil
 }
 
-func addSetStatement(model *actr.Model, log *issues.Log, set *setStatement, production *actr.Production) (*actr.Statement, error) {
+func addSetStatement(model *actr.Model, log *Log, set *setStatement, production *actr.Production) (*actr.Statement, error) {
 	err := validateSetStatement(set, model, log, production)
 	if err != nil {
 		return nil, err
@@ -501,7 +500,7 @@ func addSetStatement(model *actr.Model, log *issues.Log, set *setStatement, prod
 		// find slot index in chunk
 		match := production.LookupMatchByBuffer(bufferName)
 		if match == nil {
-			log.Error(tokensToLocation(set.Tokens), "could not find buffer match '%s' in production '%s'", bufferName, production.Name)
+			log.ErrorT(set.Tokens, "could not find buffer match '%s' in production '%s'", bufferName, production.Name)
 			return nil, ParseError{}
 		}
 
@@ -510,7 +509,7 @@ func addSetStatement(model *actr.Model, log *issues.Log, set *setStatement, prod
 		slotName := *set.Slot
 		index := match.Pattern.Chunk.GetSlotIndex(slotName)
 		if index == -1 {
-			log.Error(tokensToLocation(set.Tokens), "could not find slot named '%s' in buffer match '%s' in production '%s'", slotName, bufferName, production.Name)
+			log.ErrorT(set.Tokens, "could not find slot named '%s' in buffer match '%s' in production '%s'", slotName, bufferName, production.Name)
 			return nil, ParseError{}
 		}
 
@@ -551,7 +550,7 @@ func addSetStatement(model *actr.Model, log *issues.Log, set *setStatement, prod
 	return &s, nil
 }
 
-func addRecallStatement(model *actr.Model, log *issues.Log, recall *recallStatement, production *actr.Production) (*actr.Statement, error) {
+func addRecallStatement(model *actr.Model, log *Log, recall *recallStatement, production *actr.Production) (*actr.Statement, error) {
 	err := validateRecallStatement(recall, model, log, production)
 	if err != nil {
 		return nil, err
@@ -572,7 +571,7 @@ func addRecallStatement(model *actr.Model, log *issues.Log, recall *recallStatem
 	return &s, nil
 }
 
-func addClearStatement(model *actr.Model, log *issues.Log, clear *clearStatement, production *actr.Production) (*actr.Statement, error) {
+func addClearStatement(model *actr.Model, log *Log, clear *clearStatement, production *actr.Production) (*actr.Statement, error) {
 	err := validateClearStatement(clear, model, log, production)
 	if err != nil {
 		return nil, err
@@ -587,7 +586,7 @@ func addClearStatement(model *actr.Model, log *issues.Log, clear *clearStatement
 	return &s, nil
 }
 
-func addPrintStatement(model *actr.Model, log *issues.Log, print *printStatement, production *actr.Production) (*actr.Statement, error) {
+func addPrintStatement(model *actr.Model, log *Log, print *printStatement, production *actr.Production) (*actr.Statement, error) {
 	err := validatePrintStatement(print, model, log, production)
 	if err != nil {
 		return nil, err
@@ -623,33 +622,4 @@ func convertArgs(args []*arg) *[]*actr.Value {
 	}
 
 	return &actrValues
-}
-
-// tokensToLocation takes the list of lexer tokens and converts it to our own
-// issues.Location struct.
-func tokensToLocation(tokens []lexer.Token) *issues.Location {
-	// If we have space tokens on either side, strip them out
-	if tokens[0].Type == lexer.TokenType(lexemePatternSpace) {
-		tokens = tokens[1:]
-	}
-	if tokens[len(tokens)-1].Type == lexer.TokenType(lexemePatternSpace) {
-		tokens = tokens[:len(tokens)-1]
-	}
-
-	// first & last may end being the same - that's ok
-	firstToken := tokens[0]
-	lastToken := tokens[len(tokens)-1]
-
-	// Because the parser strips quotes (see var amodParser), we need to
-	// account for them here.
-	lastTokenLen := len(lastToken.Value)
-	if lastToken.Type == lexer.TokenType(lexemeString) {
-		lastTokenLen += 2
-	}
-
-	return &issues.Location{
-		Line:        firstToken.Pos.Line,
-		ColumnStart: firstToken.Pos.Column,
-		ColumnEnd:   lastToken.Pos.Column + lastTokenLen,
-	}
 }
