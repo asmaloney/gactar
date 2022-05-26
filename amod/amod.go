@@ -628,12 +628,28 @@ func convertArgs(args []*arg) *[]*actr.Value {
 // tokensToLocation takes the list of lexer tokens and converts it to our own
 // issues.Location struct.
 func tokensToLocation(tokens []lexer.Token) *issues.Location {
+	// If we have space tokens on either side, strip them out
+	if tokens[0].Type == lexer.TokenType(lexemePatternSpace) {
+		tokens = tokens[1:]
+	}
+	if tokens[len(tokens)-1].Type == lexer.TokenType(lexemePatternSpace) {
+		tokens = tokens[:len(tokens)-1]
+	}
+
+	// first & last may end being the same - that's ok
 	firstToken := tokens[0]
 	lastToken := tokens[len(tokens)-1]
+
+	// Because the parser strips quotes (see var amodParser), we need to
+	// account for them here.
+	lastTokenLen := len(lastToken.Value)
+	if lastToken.Type == lexer.TokenType(lexemeString) {
+		lastTokenLen += 2
+	}
 
 	return &issues.Location{
 		Line:        firstToken.Pos.Line,
 		ColumnStart: firstToken.Pos.Column,
-		ColumnEnd:   lastToken.Pos.Column + len(lastToken.Value),
+		ColumnEnd:   lastToken.Pos.Column + lastTokenLen,
 	}
 }
