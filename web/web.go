@@ -19,6 +19,7 @@ import (
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/issues"
 	"github.com/asmaloney/gactar/util/container"
+	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/version"
 )
 
@@ -225,6 +226,10 @@ func (w Web) verifyFrameworkList(list []string) (err error) {
 }
 
 func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers, frameworkNames []string) (resultMap runResultMap) {
+	// ensure temp dir exists
+	// https://github.com/asmaloney/gactar/issues/103
+	filesystem.CreateTempDir(w.context)
+
 	resultMap = make(runResultMap, len(frameworkNames))
 
 	var wg sync.WaitGroup
