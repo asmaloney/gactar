@@ -329,7 +329,7 @@ func Example_productionUnusedVar1() {
 	}`)
 
 	// Output:
-	// ERROR: variable ?blat is not used - should be simplified to '?' (line 9, col 0)
+	// ERROR: variable ?blat is not used - should be simplified to '?' (line 9, col 21)
 }
 
 func Example_productionUnusedVar2() {
@@ -656,7 +656,7 @@ func Example_productionRecallStatemtentVarNotFound() {
 	}`)
 
 	// Output:
-	// ERROR: recall statement variable '?next' not found in matches for production 'start' (line 10, col 7)
+	// ERROR: recall statement variable '?next' not found in matches for production 'start' (line 10, col 22)
 }
 
 func Example_productionMultipleStatement() {
