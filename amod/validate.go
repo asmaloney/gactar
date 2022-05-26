@@ -86,20 +86,13 @@ func validateMatch(match *match, model *actr.Model, log *Log, production *actr.P
 		name := item.Name
 
 		buffer := model.LookupBuffer(name)
-
 		if buffer == nil {
-			log.ErrorT(item.Tokens, "buffer '%s' not found in production '%s'", name, production.Name)
+			log.ErrorTR(item.Tokens, 0, 1, "buffer '%s' not found in production '%s'", name, production.Name)
 			err = CompileError{}
 			continue
 		}
 
 		pattern := item.Pattern
-		if pattern == nil {
-			log.ErrorT(item.Tokens, "invalid pattern for '%s' in production '%s'", name, production.Name)
-			err = CompileError{}
-			continue
-		}
-
 		pattern_err := validatePattern(model, log, pattern)
 		if pattern_err != nil {
 			err = CompileError{}
@@ -107,10 +100,11 @@ func validateMatch(match *match, model *actr.Model, log *Log, production *actr.P
 
 		// check _status chunks to ensure they have one of the allowed tests
 		if pattern.ChunkName == "_status" {
-			slot := *pattern.Slots[0].Items[0].ID
+			slot := *pattern.Slots[0]
+			slotItem := slot.Items[0].ID
 
-			if !actr.IsValidBufferState(slot) {
-				log.ErrorT(item.Tokens, "invalid _status '%s' for '%s' in production '%s' (should be %v)", slot, name, production.Name, actr.ValidBufferStatesStr())
+			if !actr.IsValidBufferState(*slotItem) {
+				log.ErrorT(slot.Tokens, "invalid _status '%s' for '%s' in production '%s' (should be %v)", *slotItem, name, production.Name, actr.ValidBufferStatesStr())
 				err = CompileError{}
 			}
 		}
@@ -148,7 +142,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *Log, produc
 	bufferName := set.BufferName
 	buffer := model.LookupBuffer(bufferName)
 	if buffer == nil {
-		log.ErrorT(set.Tokens, "buffer '%s' not found in production '%s'", bufferName, production.Name)
+		log.ErrorTR(set.Tokens, 1, 2, "buffer '%s' not found", bufferName)
 		err = CompileError{}
 	}
 
@@ -156,82 +150,73 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *Log, produc
 		// we have the form "set <buffer>.<slot name> to <value>"
 		slotName := *set.Slot
 		if set.Pattern != nil {
-			log.ErrorT(set.Tokens, "cannot set a slot ('%s') to a pattern in match buffer '%s' in production '%s'", slotName, bufferName, production.Name)
+			log.ErrorTR(set.Tokens, 1, 3, "cannot set a slot ('%s.%s') to a pattern in production '%s'", bufferName, slotName, production.Name)
 			err = CompileError{}
-		} else {
-			match := production.LookupMatchByBuffer(bufferName)
+			return
+		}
 
+		match := production.LookupMatchByBuffer(bufferName)
+		if match == nil {
+			log.ErrorTR(set.Tokens, 1, 2, "match buffer '%s' not found in production '%s'", bufferName, production.Name)
+			err = CompileError{}
+			return
+		}
+
+		chunk := match.Pattern.Chunk
+		if !chunk.HasSlot(slotName) {
+			log.ErrorTR(set.Tokens, 3, 4, "slot '%s' does not exist in chunk '%s' for match buffer '%s' in production '%s'", slotName, chunk.Name, bufferName, production.Name)
+			err = CompileError{}
+		}
+
+		if set.Value.Var != nil {
+			// Check set.Value.Var to ensure it exists
+			varItem := *set.Value.Var
+			match := production.LookupMatchByVariable(varItem)
 			if match == nil {
-				log.ErrorT(set.Tokens, "match buffer '%s' not found in production '%s'", bufferName, production.Name)
-				err = CompileError{}
-			} else {
-				chunk := match.Pattern.Chunk
-				if chunk == nil {
-					log.ErrorT(set.Tokens, "chunk does not exist in match buffer '%s' in production '%s'", bufferName, production.Name)
-					err = CompileError{}
+				if varItem == "?" {
+					log.ErrorT(set.Value.Tokens, "cannot set '%s.%s' to anonymous var ('?') in production '%s'", bufferName, slotName, production.Name)
 				} else {
-					if !chunk.HasSlot(slotName) {
-						log.ErrorT(set.Tokens, "slot '%s' does not exist in chunk '%s' for match buffer '%s' in production '%s'", slotName, chunk.Name, bufferName, production.Name)
-						err = CompileError{}
-					}
-
-					if set.Value.Var != nil {
-						// Check set.Value.Var to ensure it exists
-						varItem := *set.Value.Var
-						match := production.LookupMatchByVariable(varItem)
-						if match == nil {
-							if varItem == "?" {
-								log.ErrorT(set.Value.Tokens, "cannot set '%s.%s' to anonymous var ('?') in production '%s'", bufferName, slotName, production.Name)
-							} else {
-								log.ErrorT(set.Value.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
-							}
-							err = CompileError{}
-						}
-					}
+					log.ErrorT(set.Value.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
 				}
+				err = CompileError{}
 			}
 		}
 	} else {
 		// we have the form "set <buffer> to <pattern>"
 		if set.Value != nil {
-			log.ErrorT(set.Tokens, "buffer '%s' must be set to a pattern in production '%s'", bufferName, production.Name)
+			log.ErrorT(set.Value.Tokens, "buffer '%s' must be set to a pattern in production '%s'", bufferName, production.Name)
 			err = CompileError{}
-		} else {
-			chunkName := set.Pattern.ChunkName
-			chunk := model.LookupChunk(chunkName)
+			return
+		}
 
-			for slotIndex, slot := range set.Pattern.Slots {
-				if len(slot.Items) > 1 {
-					log.ErrorT(set.Pattern.Tokens, "cannot set '%s.%v' to compound var in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
-					err = CompileError{}
+		chunkName := set.Pattern.ChunkName
+		chunk := model.LookupChunk(chunkName)
 
-					continue
+		for slotIndex, slot := range set.Pattern.Slots {
+			if len(slot.Items) > 1 {
+				log.ErrorT(slot.Tokens, "cannot set '%s.%v' to compound var in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
+				err = CompileError{}
+
+				continue
+			}
+
+			// we only have one item
+			item := slot.Items[0]
+			if item.Var == nil {
+				continue
+			}
+
+			varItem := *item.Var
+			match := production.LookupMatchByVariable(varItem)
+			if match == nil {
+				if varItem == "?" {
+					log.ErrorT(item.Tokens, "cannot set '%s.%v' to anonymous var ('?') in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
+				} else {
+					log.ErrorT(item.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
 				}
-
-				// we only have one item
-				item := slot.Items[0]
-				if item.Var == nil {
-					continue
-				}
-
-				varItem := *item.Var
-				match := production.LookupMatchByVariable(varItem)
-				if match == nil {
-					if varItem == "?" {
-						log.ErrorT(set.Pattern.Tokens, "cannot set '%s.%v' to anonymous var ('?') in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
-					} else {
-						log.ErrorT(set.Pattern.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
-					}
-					err = CompileError{}
-				}
+				err = CompileError{}
 			}
 		}
-	}
-
-	if set.Pattern == nil && set.Value == nil {
-		// should not be possible to get here since the parser should pick this up
-		log.ErrorT(set.Tokens, "set statement is missing value (set to what?) in production '%s'", production.Name)
-		err = CompileError{}
 	}
 
 	return
@@ -281,17 +266,17 @@ func validateClearStatement(clear *clearStatement, model *actr.Model, log *Log, 
 // validatePrintStatement is a placeholder for checking a "print" statement. Currently there are no checks.
 func validatePrintStatement(print *printStatement, model *actr.Model, log *Log, production *actr.Production) (err error) {
 	if print.Args != nil {
-		for _, v := range print.Args {
-			if v.ID != nil {
-				log.ErrorT(print.Tokens, "cannot use ID '%s' in print statement", *v.ID)
-			} else if v.Var != nil {
-				varItem := *v.Var
+		for _, arg := range print.Args {
+			if arg.ID != nil {
+				log.ErrorT(arg.Tokens, "cannot use ID '%s' in print statement", *arg.ID)
+			} else if arg.Var != nil {
+				varItem := *arg.Var
 				match := production.LookupMatchByVariable(varItem)
 				if match == nil {
 					if varItem == "?" {
-						log.ErrorT(print.Tokens, "cannot print anonymous var ('?') in production '%s'", production.Name)
+						log.ErrorT(arg.Tokens, "cannot print anonymous var ('?') in production '%s'", production.Name)
 					} else {
-						log.ErrorT(print.Tokens, "print statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
+						log.ErrorT(arg.Tokens, "print statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
 					}
 					err = CompileError{}
 				}
