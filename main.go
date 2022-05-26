@@ -18,9 +18,11 @@ import (
 	"github.com/asmaloney/gactar/framework/pyactr"
 	"github.com/asmaloney/gactar/framework/vanilla_actr"
 	"github.com/asmaloney/gactar/shell"
-	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/version"
 	"github.com/asmaloney/gactar/web"
+
+	"github.com/asmaloney/gactar/util/container"
+	"github.com/asmaloney/gactar/util/filesystem"
 )
 
 // "embed" cannot use relative paths, so we must declare this at the top level and pass into web.
@@ -254,12 +256,7 @@ func createTempDir(ctx *cli.Context) (err error) {
 
 	ctx.Set("temp", path)
 
-	err = os.MkdirAll(path, 0750)
-	if err != nil && !os.IsExist(err) {
-		return
-	}
-
-	return nil
+	return filesystem.CreateTempDir(ctx)
 }
 
 func generateCode(frameworks framework.List, files []string, outputDir string, runCode bool) (err error) {
