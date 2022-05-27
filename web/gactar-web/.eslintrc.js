@@ -3,6 +3,7 @@
 module.exports = {
   root: true,
   env: {
+    es2022: true,
     node: true,
   },
   extends: [
@@ -13,10 +14,15 @@ module.exports = {
   ],
   parser: 'vue-eslint-parser',
   parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
     parser: '@typescript-eslint/parser',
     project: './tsconfig.json',
     extraFileExtensions: ['.vue'],
     requireConfigFile: false,
+    ecmaFeatures: {
+      impliedStrict: true,
+    },
   },
   plugins: ['@typescript-eslint'],
   rules: {},
