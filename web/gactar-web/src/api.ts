@@ -58,7 +58,7 @@ export interface RunParams {
   frameworks?: string[]
 }
 
-export interface Result {
+export interface FrameworkResult {
   // Name of the model (from the amod text).
   modelName: string
 
@@ -72,27 +72,26 @@ export interface Result {
   output: string
 }
 
-export type ResultMap = { [key: string]: Result }
+export type FrameworkResultMap = { [key: string]: FrameworkResult }
 
-export interface Results {
-  results: ResultMap
-}
-
-export interface Issue {
-  level: string
-  text: string
+export interface Location {
   line: number
   columnStart: number
   columnEnd: number
 }
 
-export type IssueList = Issue[]
-
-export interface RunIssues {
-  issues: IssueList
+export interface Issue {
+  level: string
+  text: string
+  location?: Location
 }
 
-export type RunResult = Results | RunIssues
+export type IssueList = Issue[]
+
+export interface RunResult {
+  issues?: IssueList
+  results?: FrameworkResultMap
+}
 
 async function run(params: RunParams): Promise<RunResult> {
   const response = await http.post<RunResult>('/api/run', params)
@@ -139,7 +138,7 @@ export interface SessionRunParams {
   includeCode: boolean
 }
 
-export interface SessionRunResult extends Result {
+export interface SessionRunResult extends FrameworkResult {
   // The id of the session.
   sessionID: number
 

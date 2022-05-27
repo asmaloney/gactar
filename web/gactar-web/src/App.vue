@@ -85,9 +85,9 @@ import Vue from 'vue'
 import api, {
   FrameworkInfo,
   FrameworkInfoList,
+  FrameworkResultMap,
   Issue,
   IssueList,
-  ResultMap,
   RunParams,
   RunResult,
   Version,
@@ -172,6 +172,10 @@ export default Vue.extend({
       )
     },
 
+    clearResults() {
+      this.results = ''
+    },
+
     codeChange(newCode: string) {
       this.code['amod'] = newCode
     },
@@ -245,6 +249,7 @@ export default Vue.extend({
     run() {
       this.running = true
 
+      this.clearResults()
       this.hideTabsNotInUse()
 
       const params: RunParams = {
@@ -255,11 +260,12 @@ export default Vue.extend({
 
       api
         .run(params)
-        .then((results: RunResult) => {
-          if ('results' in results) {
-            this.setResults(results.results)
-          } else {
-            this.showIssues(results.issues)
+        .then((result: RunResult) => {
+          if (result.issues) {
+            this.showIssues(result.issues)
+          }
+          if (result.results) {
+            this.setResults(result.results)
           }
         })
         .catch((err: Error) => {
@@ -267,7 +273,7 @@ export default Vue.extend({
         })
     },
 
-    setResults(results: ResultMap) {
+    setResults(results: FrameworkResultMap) {
       let text = ''
       for (const [key, value] of Object.entries(results)) {
         text += key + '\n' + '---\n'
@@ -294,7 +300,7 @@ export default Vue.extend({
         }
       }
 
-      this.results = text
+      this.results += text
       this.running = false
     },
 
@@ -307,12 +313,16 @@ export default Vue.extend({
       let issueTexts: string[] = []
 
       list.forEach((issue: Issue) => {
-        const text = `${issue.level}: ${issue.text} (line ${issue.line}, col ${issue.columnStart})\n`
+        let text = `${issue.level}: ${issue.text}`
+
+        if (issue.location) {
+          text += `  (line ${issue.location.line}, col ${issue.location.columnStart})`
+        }
 
         issueTexts.push(text)
       })
 
-      this.results = issueTexts.join('\n')
+      this.results += issueTexts.join('\n') + '\n\n'
       this.running = false
     },
   },
