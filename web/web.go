@@ -177,11 +177,6 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 
 	resultMap := w.runModel(model, initialBuffers, data.Frameworks)
 
-	if log.HasInfo() {
-		info := log.String()
-		resultMap["amod"] = runResult{Output: &info}
-	}
-
 	results, err := json.Marshal(resultMap)
 	if err != nil {
 		encodeErrorResponse(rw, err)

@@ -10,8 +10,9 @@ import (
 type level string
 
 const (
-	info level = "info"
-	err  level = "error"
+	info    level = "info"
+	warning level = "warning"
+	err     level = "error"
 )
 
 type Location struct {
@@ -23,13 +24,12 @@ type Location struct {
 type Issue struct {
 	Level level  `json:"level"`
 	Text  string `json:"text"`
-	Location
+	*Location
 }
 
 type IssueList = []Issue
 
 type Log struct {
-	hasInfo  bool // does this log contain at least one info entry?
 	hasError bool // does this log contain at least one error entry?
 	issues   []Issue
 }
@@ -37,7 +37,6 @@ type Log struct {
 // New will create and return a new Log.
 func New() Log {
 	return Log{
-		hasInfo:  false,
 		hasError: false,
 		issues:   []Issue{},
 	}
@@ -48,11 +47,6 @@ func (l Log) AllIssues() IssueList {
 	return l.issues
 }
 
-// HasInfo returns whether this log contains at least one info entry.
-func (l Log) HasInfo() bool {
-	return l.hasInfo
-}
-
 // HasError returns whether this log contains at least one error entry.
 func (l Log) HasError() bool {
 	return l.hasError
@@ -61,7 +55,11 @@ func (l Log) HasError() bool {
 // Info will add a new info entry to the log.
 func (l *Log) Info(location *Location, s string, a ...interface{}) {
 	l.addEntry(location, info, s, a...)
-	l.hasInfo = true
+}
+
+// Warning will add a new info entry to the log.
+func (l *Log) Warning(location *Location, s string, a ...interface{}) {
+	l.addEntry(location, warning, s, a...)
 }
 
 // Error will add a new error entry to the log.
@@ -98,13 +96,15 @@ func (l Log) Write(w io.Writer) {
 		switch entry.Level {
 		case info:
 			str = "INFO: "
+		case warning:
+			str = "WARN: "
 		case err:
 			str = "ERROR: "
 		}
 
 		str += entry.Text
 
-		if entry.Line != 0 {
+		if entry.Location != nil {
 			str += fmt.Sprintf(" (line %d, col %d)", entry.Line, entry.ColumnStart)
 		}
 
@@ -115,10 +115,14 @@ func (l Log) Write(w io.Writer) {
 }
 
 func (el *Log) addEntry(location *Location, l level, e string, a ...interface{}) {
+	// If location is actually not set to anything, don't include it
+	if location != nil && (*location == Location{}) {
+		location = nil
+	}
 	str := fmt.Sprintf(e, a...)
 	el.issues = append(el.issues, Issue{
 		Level:    l,
 		Text:     str,
-		Location: *location,
+		Location: location,
 	})
 }
