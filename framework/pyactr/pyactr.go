@@ -76,6 +76,11 @@ func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (result *framework
 		return
 	}
 
+	result = &framework.RunResult{
+		FileName:      runFile,
+		GeneratedCode: p.GetContents(),
+	}
+
 	// run it!
 	cmd := exec.Command("python3", runFile)
 
@@ -86,11 +91,8 @@ func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (result *framework
 		return
 	}
 
-	result = &framework.RunResult{
-		FileName:      runFile,
-		GeneratedCode: p.GetContents(),
-		Output:        output,
-	}
+	result.Output = output
+
 	return
 }
 
