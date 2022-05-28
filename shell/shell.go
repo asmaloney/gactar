@@ -183,6 +183,21 @@ func (s *Shell) cmdLoad(fileName string) (err error) {
 
 	}
 
+	for name, f := range s.actrFrameworks {
+		if !s.activeFrameworks[name] {
+			continue
+		}
+
+		log := f.ValidateModel(s.currentModel)
+		if log.HasIssues() {
+			fmt.Printf("== %s ==\n", f.Info().Name)
+			fmt.Print(log)
+			if log.HasError() {
+				continue
+			}
+		}
+	}
+
 	return
 }
 
@@ -202,6 +217,8 @@ func (s *Shell) cmdRun(initialGoal string) (err error) {
 		if !s.activeFrameworks[name] {
 			continue
 		}
+
+		fmt.Printf("== %s ==\n", f.Info().Name)
 
 		err = f.SetModel(s.currentModel)
 		if err != nil {

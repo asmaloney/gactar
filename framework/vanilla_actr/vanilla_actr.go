@@ -10,6 +10,7 @@ import (
 
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
+	"github.com/asmaloney/gactar/issues"
 	"github.com/asmaloney/gactar/version"
 	"github.com/urfave/cli/v2"
 )
@@ -47,6 +48,11 @@ func (VanillaACTR) Info() *framework.Info {
 
 func (v *VanillaACTR) Initialize() (err error) {
 	return framework.Setup(&Info)
+}
+
+func (VanillaACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
+	log = issues.New()
+	return
 }
 
 func (v *VanillaACTR) SetModel(model *actr.Model) (err error) {

@@ -2,6 +2,8 @@ package framework
 
 import (
 	"github.com/asmaloney/gactar/actr"
+	"github.com/asmaloney/gactar/issues"
+
 	"github.com/asmaloney/gactar/util/container"
 )
 
@@ -35,6 +37,7 @@ type Framework interface {
 
 	Initialize() (err error)
 
+	ValidateModel(model *actr.Model) (log *issues.Log)
 	SetModel(model *actr.Model) (err error)
 	Model() (model *actr.Model)
 

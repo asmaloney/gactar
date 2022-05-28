@@ -47,6 +47,11 @@ func (l Log) AllIssues() IssueList {
 	return l.issues
 }
 
+// HasIssues returns whether this log contains at least one entry.
+func (l Log) HasIssues() bool {
+	return len(l.issues) > 0
+}
+
 // HasError returns whether this log contains at least one error entry.
 func (l Log) HasError() bool {
 	return l.hasError
