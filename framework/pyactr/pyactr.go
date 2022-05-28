@@ -13,6 +13,7 @@ import (
 
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
+	"github.com/asmaloney/gactar/issues"
 	"github.com/asmaloney/gactar/version"
 )
 
@@ -52,6 +53,32 @@ func (PyACTR) Info() *framework.Info {
 
 func (p *PyACTR) Initialize() (err error) {
 	return framework.Setup(&Info)
+}
+
+func (PyACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
+	log = issues.New()
+
+	for _, production := range model.Productions {
+		numPrintStatements := 0
+		if production.DoStatements != nil {
+			for _, statement := range production.DoStatements {
+				if statement.Print != nil {
+					numPrintStatements++
+					if numPrintStatements > 1 {
+						location := issues.Location{
+							Line:        production.AMODLineNumber,
+							ColumnStart: 0,
+							ColumnEnd:   0,
+						}
+						log.Warning(&location, "(production '%s') pyactr currently only supports one print statement per production", production.Name)
+						continue
+					}
+				}
+			}
+		}
+	}
+
+	return
 }
 
 func (p *PyACTR) SetModel(model *actr.Model) (err error) {
@@ -239,32 +266,13 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 
 		p.Writeln("\t==>")
 
-		numPrintStatements := 0
-		warnings := []string{}
 		if production.DoStatements != nil {
 			for _, statement := range production.DoStatements {
-				if statement.Print != nil {
-					numPrintStatements++
-					if numPrintStatements > 1 {
-						warning := fmt.Sprintf("Warning: ('%s') pyactr currently only supports one print statement per production", production.Name)
-						warnings = append(warnings, warning)
-						continue
-					}
-				}
-
 				p.outputStatement(production, statement)
 			}
 		}
 
 		p.Write("''')\n\n")
-
-		if len(warnings) > 0 {
-			for _, warning := range warnings {
-				p.Writeln(`print("%s")`, warning)
-			}
-
-			p.Writeln("")
-		}
 	}
 
 	p.Writeln("")

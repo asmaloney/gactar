@@ -10,6 +10,7 @@ import (
 
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
+	"github.com/asmaloney/gactar/issues"
 	"github.com/asmaloney/gactar/version"
 )
 
@@ -46,6 +47,11 @@ func (CCMPyACTR) Info() *framework.Info {
 
 func (c *CCMPyACTR) Initialize() (err error) {
 	return framework.Setup(&Info)
+}
+
+func (CCMPyACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
+	log = issues.New()
+	return
 }
 
 // SetModel sets our model and saves the python class name we are going to use.

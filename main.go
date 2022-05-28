@@ -287,6 +287,13 @@ func generateCode(frameworks framework.List, files []string, outputDir string, r
 
 		for file, model := range modelMap {
 			fmt.Printf("\t- generating code for %s\n", file)
+
+			log := f.ValidateModel(model)
+			fmt.Print(log)
+			if log.HasError() {
+				continue
+			}
+
 			err = f.SetModel(model)
 			if err != nil {
 				fmt.Println(err.Error())
