@@ -1,19 +1,24 @@
-import axios from 'axios'
+import axios, { AxiosInstance } from 'axios'
 
-const http = axios.create({
-  headers: { 'Content-Type': 'application/json' },
-})
+let gactarHTTP: AxiosInstance
+
+function init(port: number) {
+  gactarHTTP = axios.create({
+    headers: { 'Content-Type': 'application/json' },
+    baseURL: `http://localhost:${port}`,
+  })
+}
 
 // version
 export type Version = string
 
 export interface VersionResponse {
   // The current version tag when gactar was built.
-  version: string
+  version: Version
 }
 
 async function getVersion(): Promise<Version> {
-  const response = await http.get<VersionResponse>('/api/version')
+  const response = await gactarHTTP.get<VersionResponse>('/api/version')
   return response.data.version
 }
 
@@ -42,7 +47,9 @@ export interface FrameworkInfoResponse {
 }
 
 async function getFrameworks(): Promise<FrameworkInfoList> {
-  const response = await http.get<FrameworkInfoResponse>('/api/frameworks')
+  const response = await gactarHTTP.get<FrameworkInfoResponse>(
+    '/api/frameworks'
+  )
   return response.data.frameworks
 }
 
@@ -57,6 +64,26 @@ export interface RunParams {
   // An optional list of frameworks ("all" if not set).
   frameworks?: string[]
 }
+
+// Location of an issue in the source code.
+export interface Location {
+  line: number
+  columnStart: number
+  columnEnd: number
+}
+
+export interface Issue {
+  // Severity of the issue.
+  level: string
+
+  // Text of the issue.
+  text: string
+
+  // Location in the code (optional)
+  location?: Location
+}
+
+export type IssueList = Issue[]
 
 export interface FrameworkResult {
   // Name of the model (from the amod text).
@@ -77,27 +104,13 @@ export interface FrameworkResult {
 
 export type FrameworkResultMap = { [key: string]: FrameworkResult }
 
-export interface Location {
-  line: number
-  columnStart: number
-  columnEnd: number
-}
-
-export interface Issue {
-  level: string
-  text: string
-  location?: Location
-}
-
-export type IssueList = Issue[]
-
 export interface RunResult {
   issues?: IssueList
   results?: FrameworkResultMap
 }
 
 async function run(params: RunParams): Promise<RunResult> {
-  const response = await http.post<RunResult>('/api/run', params)
+  const response = await gactarHTTP.post<RunResult>('/api/run', params)
   return response.data
 }
 
@@ -110,12 +123,14 @@ export interface ExampleListResponse {
 }
 
 async function getExampleList(): Promise<ExampleList> {
-  const response = await http.get<ExampleListResponse>('/api/examples/list')
+  const response = await gactarHTTP.get<ExampleListResponse>(
+    '/api/examples/list'
+  )
   return response.data.exampleList
 }
 
 async function getExample(name: string): Promise<string> {
-  const response = await http.get<string>('/api/examples/' + name)
+  const response = await gactarHTTP.get<string>('/api/examples/' + name)
   return response.data
 }
 
@@ -156,19 +171,19 @@ export interface SessionRunResults {
 }
 
 async function sessionBegin(): Promise<Session> {
-  const response = await http.get<Session>('/api/session/begin')
+  const response = await gactarHTTP.get<Session>('/api/session/begin')
   return response.data
 }
 
 async function sessionEnd(session: Session): Promise<void> {
-  await http.put<Session>('/api/session/end', session)
+  await gactarHTTP.put<Session>('/api/session/end', session)
   return
 }
 
 async function sessionRun(
   params: SessionRunParams
 ): Promise<SessionRunResults> {
-  const response = await http.post<SessionRunResults>(
+  const response = await gactarHTTP.post<SessionRunResults>(
     '/api/session/runModel',
     params
   )
@@ -196,7 +211,10 @@ export interface ModelLoadResult {
 }
 
 async function modelLoad(params: ModelParams): Promise<ModelLoadResult> {
-  const response = await http.put<ModelLoadResult>('/api/session/begin', params)
+  const response = await gactarHTTP.put<ModelLoadResult>(
+    '/api/session/begin',
+    params
+  )
   return response.data
 }
 
@@ -205,6 +223,7 @@ export default {
   getExampleList,
   getFrameworks,
   getVersion,
+  init,
   modelLoad,
   run,
   sessionBegin,

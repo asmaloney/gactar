@@ -54,7 +54,13 @@ Vue.component('FontAwesomeIcon', FontAwesomeIcon)
 
 Vue.config.productionTip = false
 
+// SCSS
 import './app.scss'
+
+// Our internal API
+import api from './api'
+
+api.init(parseInt(window.location.port))
 
 new Vue({
   render: (h) => h(App),

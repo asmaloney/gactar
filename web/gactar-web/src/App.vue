@@ -276,34 +276,34 @@ export default Vue.extend({
 
     setResults(results: FrameworkResultMap) {
       let text = ''
-      for (const [key, value] of Object.entries(results)) {
-        text += key + '\n' + '---\n'
+      for (const [framework, result] of Object.entries(results)) {
+        text += framework + '\n' + '---\n'
 
-        if (value.issues) {
-          const issueTexts = issuesToArray(value.issues)
+        if (result.issues) {
+          const issueTexts = issuesToArray(result.issues)
           text += issueTexts.join('\n') + '\n\n'
         }
 
-        if (value.output) {
-          text += value.output
+        if (result.output) {
+          text += result.output
           text += '\n\n'
         }
 
-        if (value.code) {
-          this.code[key] = value.code
+        if (result.code) {
+          this.code[framework] = result.code
         } else {
-          this.code[key] = commentString(
-            this.frameworks[key].language,
+          this.code[framework] = commentString(
+            this.frameworks[framework].language,
             '(No code returned from server)'
           )
         }
 
-        const index = this.tabs.findIndex((obj: Tab) => obj.id == key)
+        const index = this.tabs.findIndex((obj: Tab) => obj.id == framework)
         if (index != -1) {
-          this.tabs[index].modelName = value.modelName
+          this.tabs[index].modelName = result.modelName
 
           // show our tabs the first time we have code
-          if (this.code[key] && this.code[key].length != 0) {
+          if (this.code[framework] && this.code[framework].length != 0) {
             this.tabs[index].displayed = true
           }
         }
