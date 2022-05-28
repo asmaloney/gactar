@@ -73,6 +73,11 @@ func (c *CCMPyACTR) Run(initialBuffers framework.InitialBuffers) (result *framew
 		return
 	}
 
+	result = &framework.RunResult{
+		FileName:      runFile,
+		GeneratedCode: c.GetContents(),
+	}
+
 	cmd := exec.Command("python3", runFile)
 
 	output, err := cmd.CombinedOutput()
@@ -81,11 +86,8 @@ func (c *CCMPyACTR) Run(initialBuffers framework.InitialBuffers) (result *framew
 		return
 	}
 
-	result = &framework.RunResult{
-		FileName:      runFile,
-		GeneratedCode: c.GetContents(),
-		Output:        output,
-	}
+	result.Output = output
+
 	return
 }
 
