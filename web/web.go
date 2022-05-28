@@ -44,10 +44,12 @@ type Web struct {
 }
 
 type frameworkRunResult struct {
-	ModelName string  `json:"modelName"`        // name of the model (from the amod file)
-	FilePath  string  `json:"filePath"`         // intermediate code file (full path)
-	Code      *string `json:"code,omitempty"`   // actual code which was run
-	Output    *string `json:"output,omitempty"` // output of run (stdout + stderr)
+	ModelName string            `json:"modelName"`        // name of the model (from the amod file)
+	Issues    *issues.IssueList `json:"issues,omitempty"` // issues specific to this framework
+
+	FilePath *string `json:"filePath,omitempty"` // intermediate code file (full path)
+	Code     *string `json:"code,omitempty"`     // actual code which was run
+	Output   *string `json:"output,omitempty"`   // output of run (stdout + stderr)
 
 	SessionID *int `json:"sessionID,omitempty"`
 	ModelID   *int `json:"modelID,omitempty"`
@@ -246,27 +248,46 @@ func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers
 		go func(wg *sync.WaitGroup, name string, f framework.Framework) {
 			defer wg.Done()
 
-			result, err := runModelOnFramework(model, initialBuffers, f)
+			result := &framework.RunResult{}
 
-			mutex.Lock()
+			log := f.ValidateModel(model)
+			if !log.HasError() {
+				r, err := runModelOnFramework(model, initialBuffers, f)
+				if err != nil {
+					log.Error(nil, err.Error())
+				}
+				if r != nil {
+					result = r
+				}
+			}
 
-			resultBase := frameworkRunResult{
+			frameworkResult := frameworkRunResult{
 				ModelName: model.Name,
 			}
 
-			if err != nil {
-				errStr := err.Error()
-				resultBase.Output = &errStr
-			} else {
-				codeStr := string(result.GeneratedCode)
-				outputStr := string(result.Output)
+			mutex.Lock()
 
-				resultBase.FilePath = result.FileName
-				resultBase.Code = &codeStr
-				resultBase.Output = &outputStr
+			if log.HasIssues() {
+				all := log.AllIssues()
+				frameworkResult.Issues = &all
 			}
 
-			resultMap[name] = resultBase
+			if result.FileName != "" {
+				frameworkResult.FilePath = &result.FileName
+			}
+
+			if len(result.GeneratedCode) > 0 {
+				codeStr := string(result.GeneratedCode)
+				frameworkResult.Code = &codeStr
+
+			}
+			if len(result.Output) > 0 {
+				outputStr := string(result.Output)
+				frameworkResult.Output = &outputStr
+
+			}
+
+			resultMap[name] = frameworkResult
 
 			mutex.Unlock()
 		}(&wg, name, f)
