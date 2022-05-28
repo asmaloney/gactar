@@ -8,18 +8,23 @@ import (
 	"github.com/asmaloney/gactar/issues"
 )
 
-// Log wraps issues.Log so we can provide extra convenience functions.
-type Log struct {
+// issueLog wraps issues.issueLog so we can provide extra convenience functions.
+type issueLog struct {
 	issues.Log
 }
 
-// ErrorT constructs our location information from tokens and uses that to add an error.
-func (l *Log) ErrorT(tokens []lexer.Token, s string, a ...interface{}) {
+// newLog returns a new Log. Used to hide some pointer hideousness.
+func newLog() *issueLog {
+	return &issueLog{*issues.New()}
+}
+
+// errorT constructs our location information from tokens and uses that to add an error.
+func (l *issueLog) errorT(tokens []lexer.Token, s string, a ...interface{}) {
 	l.Log.Error(tokensToLocation(tokens), s, a...)
 }
 
 // ErrorT constructs our location information from a range of tokens and uses that to add an error.
-func (l *Log) ErrorTR(tokens []lexer.Token, start, end int, s string, a ...interface{}) {
+func (l *issueLog) errorTR(tokens []lexer.Token, start, end int, s string, a ...interface{}) {
 	l.Log.Error(tokenRangeToLocation(tokens, start, end), s, a...)
 }
 

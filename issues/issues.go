@@ -35,8 +35,8 @@ type Log struct {
 }
 
 // New will create and return a new Log.
-func New() Log {
-	return Log{
+func New() *Log {
+	return &Log{
 		hasError: false,
 		issues:   []Issue{},
 	}
