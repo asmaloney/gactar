@@ -24,7 +24,8 @@ type Location struct {
 type Issue struct {
 	Level level  `json:"level"`
 	Text  string `json:"text"`
-	*Location
+
+	*Location `json:"location"`
 }
 
 type IssueList = []Issue
