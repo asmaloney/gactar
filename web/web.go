@@ -329,7 +329,7 @@ func encodeErrorResponse(rw http.ResponseWriter, err error) {
 	json.NewEncoder(rw).Encode(errResponse)
 }
 
-func encodeIssueResponse(rw http.ResponseWriter, log *amod.Log) {
+func encodeIssueResponse(rw http.ResponseWriter, log *issues.Log) {
 	errResponse := runResult{Issues: log.AllIssues()}
 
 	json.NewEncoder(rw).Encode(errResponse)

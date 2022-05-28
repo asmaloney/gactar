@@ -15,32 +15,32 @@ type varAndIndex struct {
 
 // validateChunk checks the chunk name to ensure uniqueness and that it isn't using
 // reserved names.
-func validateChunk(model *actr.Model, log *Log, chunk *chunkDecl) (err error) {
+func validateChunk(model *actr.Model, log *issueLog, chunk *chunkDecl) (err error) {
 	if actr.IsInternalChunkName(chunk.Name) {
-		log.ErrorTR(chunk.Tokens, 1, 2, "cannot use reserved chunk name '%s' (chunks beginning with '_' are reserved)", chunk.Name)
+		log.errorTR(chunk.Tokens, 1, 2, "cannot use reserved chunk name '%s' (chunks beginning with '_' are reserved)", chunk.Name)
 		return CompileError{}
 	}
 
 	c := model.LookupChunk(chunk.Name)
 	if c != nil {
-		log.ErrorTR(chunk.Tokens, 1, 2, "duplicate chunk name: '%s'", chunk.Name)
+		log.errorTR(chunk.Tokens, 1, 2, "duplicate chunk name: '%s'", chunk.Name)
 		return CompileError{}
 	}
 
 	return nil
 }
 
-func validateInitialization(model *actr.Model, log *Log, init *initialization) (err error) {
+func validateInitialization(model *actr.Model, log *issueLog, init *initialization) (err error) {
 	name := init.Name
 	module := model.LookupModule(name)
 
 	if module == nil {
-		log.ErrorTR(init.Tokens, 0, 1, "module '%s' not found in initialization", name)
+		log.errorTR(init.Tokens, 0, 1, "module '%s' not found in initialization", name)
 		return CompileError{}
 	}
 
 	if !module.AllowsMultipleInit() && len(init.InitPatterns) > 1 {
-		log.ErrorTR(init.Tokens, 0, 1, "module '%s' should only have one pattern in initialization", name)
+		log.errorTR(init.Tokens, 0, 1, "module '%s' should only have one pattern in initialization", name)
 		return CompileError{}
 	}
 
@@ -56,11 +56,11 @@ func validateInitialization(model *actr.Model, log *Log, init *initialization) (
 }
 
 // validatePattern ensures that the pattern's chunk exists and that its number of slots match.
-func validatePattern(model *actr.Model, log *Log, pattern *pattern) (err error) {
+func validatePattern(model *actr.Model, log *issueLog, pattern *pattern) (err error) {
 	chunkName := pattern.ChunkName
 	chunk := model.LookupChunk(chunkName)
 	if chunk == nil {
-		log.ErrorTR(pattern.Tokens, 1, 2, "could not find chunk named '%s'", chunkName)
+		log.errorTR(pattern.Tokens, 1, 2, "could not find chunk named '%s'", chunkName)
 		return CompileError{}
 	}
 
@@ -69,7 +69,7 @@ func validatePattern(model *actr.Model, log *Log, pattern *pattern) (err error) 
 		if chunk.NumSlots == 1 {
 			s = "slot"
 		}
-		log.ErrorT(pattern.Tokens, "invalid chunk - '%s' expects %d %s", chunkName, chunk.NumSlots, s)
+		log.errorT(pattern.Tokens, "invalid chunk - '%s' expects %d %s", chunkName, chunk.NumSlots, s)
 		return CompileError{}
 	}
 
@@ -77,7 +77,7 @@ func validatePattern(model *actr.Model, log *Log, pattern *pattern) (err error) 
 }
 
 // validateMatch verifies several aspects of a match item.
-func validateMatch(match *match, model *actr.Model, log *Log, production *actr.Production) (err error) {
+func validateMatch(match *match, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
 	if match == nil {
 		return
 	}
@@ -87,7 +87,7 @@ func validateMatch(match *match, model *actr.Model, log *Log, production *actr.P
 
 		buffer := model.LookupBuffer(name)
 		if buffer == nil {
-			log.ErrorTR(item.Tokens, 0, 1, "buffer '%s' not found in production '%s'", name, production.Name)
+			log.errorTR(item.Tokens, 0, 1, "buffer '%s' not found in production '%s'", name, production.Name)
 			err = CompileError{}
 			continue
 		}
@@ -104,7 +104,7 @@ func validateMatch(match *match, model *actr.Model, log *Log, production *actr.P
 			slotItem := slot.Items[0].ID
 
 			if !actr.IsValidBufferState(*slotItem) {
-				log.ErrorT(slot.Tokens, "invalid _status '%s' for '%s' in production '%s' (should be %v)", *slotItem, name, production.Name, actr.ValidBufferStatesStr())
+				log.errorT(slot.Tokens, "invalid _status '%s' for '%s' in production '%s' (should be %v)", *slotItem, name, production.Name, actr.ValidBufferStatesStr())
 				err = CompileError{}
 			}
 		}
@@ -114,7 +114,7 @@ func validateMatch(match *match, model *actr.Model, log *Log, production *actr.P
 }
 
 // validateDo checks for multiple recall statements.
-func validateDo(log *Log, production *production) {
+func validateDo(log *issueLog, production *production) {
 	type ref struct {
 		token lexer.Token // keep track of the "recall" token from last case
 		count int         // ref count
@@ -132,17 +132,17 @@ func validateDo(log *Log, production *production) {
 	}
 
 	if recallRef.count > 1 {
-		log.ErrorT([]lexer.Token{recallRef.token}, "only one recall statement per production is allowed in production '%s'", production.Name)
+		log.errorT([]lexer.Token{recallRef.token}, "only one recall statement per production is allowed in production '%s'", production.Name)
 	}
 }
 
 // validateSetStatement checks a "set" statement to verify the buffer name & field indexing is correct.
 // The production's matches have been constructed, so that's what we check against.
-func validateSetStatement(set *setStatement, model *actr.Model, log *Log, production *actr.Production) (err error) {
+func validateSetStatement(set *setStatement, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
 	bufferName := set.BufferName
 	buffer := model.LookupBuffer(bufferName)
 	if buffer == nil {
-		log.ErrorTR(set.Tokens, 1, 2, "buffer '%s' not found", bufferName)
+		log.errorTR(set.Tokens, 1, 2, "buffer '%s' not found", bufferName)
 		err = CompileError{}
 	}
 
@@ -150,21 +150,21 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *Log, produc
 		// we have the form "set <buffer>.<slot name> to <value>"
 		slotName := *set.Slot
 		if set.Pattern != nil {
-			log.ErrorTR(set.Tokens, 1, 3, "cannot set a slot ('%s.%s') to a pattern in production '%s'", bufferName, slotName, production.Name)
+			log.errorTR(set.Tokens, 1, 3, "cannot set a slot ('%s.%s') to a pattern in production '%s'", bufferName, slotName, production.Name)
 			err = CompileError{}
 			return
 		}
 
 		match := production.LookupMatchByBuffer(bufferName)
 		if match == nil {
-			log.ErrorTR(set.Tokens, 1, 2, "match buffer '%s' not found in production '%s'", bufferName, production.Name)
+			log.errorTR(set.Tokens, 1, 2, "match buffer '%s' not found in production '%s'", bufferName, production.Name)
 			err = CompileError{}
 			return
 		}
 
 		chunk := match.Pattern.Chunk
 		if !chunk.HasSlot(slotName) {
-			log.ErrorTR(set.Tokens, 3, 4, "slot '%s' does not exist in chunk '%s' for match buffer '%s' in production '%s'", slotName, chunk.Name, bufferName, production.Name)
+			log.errorTR(set.Tokens, 3, 4, "slot '%s' does not exist in chunk '%s' for match buffer '%s' in production '%s'", slotName, chunk.Name, bufferName, production.Name)
 			err = CompileError{}
 		}
 
@@ -174,9 +174,9 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *Log, produc
 			match := production.LookupMatchByVariable(varItem)
 			if match == nil {
 				if varItem == "?" {
-					log.ErrorT(set.Value.Tokens, "cannot set '%s.%s' to anonymous var ('?') in production '%s'", bufferName, slotName, production.Name)
+					log.errorT(set.Value.Tokens, "cannot set '%s.%s' to anonymous var ('?') in production '%s'", bufferName, slotName, production.Name)
 				} else {
-					log.ErrorT(set.Value.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
+					log.errorT(set.Value.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
 				}
 				err = CompileError{}
 			}
@@ -184,7 +184,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *Log, produc
 	} else {
 		// we have the form "set <buffer> to <pattern>"
 		if set.Value != nil {
-			log.ErrorT(set.Value.Tokens, "buffer '%s' must be set to a pattern in production '%s'", bufferName, production.Name)
+			log.errorT(set.Value.Tokens, "buffer '%s' must be set to a pattern in production '%s'", bufferName, production.Name)
 			err = CompileError{}
 			return
 		}
@@ -194,7 +194,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *Log, produc
 
 		for slotIndex, slot := range set.Pattern.Slots {
 			if len(slot.Items) > 1 {
-				log.ErrorT(slot.Tokens, "cannot set '%s.%v' to compound var in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
+				log.errorT(slot.Tokens, "cannot set '%s.%v' to compound var in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
 				err = CompileError{}
 
 				continue
@@ -210,9 +210,9 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *Log, produc
 			match := production.LookupMatchByVariable(varItem)
 			if match == nil {
 				if varItem == "?" {
-					log.ErrorT(item.Tokens, "cannot set '%s.%v' to anonymous var ('?') in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
+					log.errorT(item.Tokens, "cannot set '%s.%v' to anonymous var ('?') in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
 				} else {
-					log.ErrorT(item.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
+					log.errorT(item.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
 				}
 				err = CompileError{}
 			}
@@ -223,7 +223,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *Log, produc
 }
 
 // validateRecallStatement checks a "recall" statement to verify the memory name.
-func validateRecallStatement(recall *recallStatement, model *actr.Model, log *Log, production *actr.Production) (err error) {
+func validateRecallStatement(recall *recallStatement, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
 	pattern_err := validatePattern(model, log, recall.Pattern)
 	if pattern_err != nil {
 		err = CompileError{}
@@ -238,7 +238,7 @@ func validateRecallStatement(recall *recallStatement, model *actr.Model, log *Lo
 
 		match := production.LookupMatchByVariable(v.text)
 		if match == nil {
-			log.ErrorT(recall.Pattern.Slots[v.index].Tokens, "recall statement variable '%s' not found in matches for production '%s'", v.text, production.Name)
+			log.errorT(recall.Pattern.Slots[v.index].Tokens, "recall statement variable '%s' not found in matches for production '%s'", v.text, production.Name)
 			err = CompileError{}
 		}
 	}
@@ -247,13 +247,13 @@ func validateRecallStatement(recall *recallStatement, model *actr.Model, log *Lo
 }
 
 // validateClearStatement checks a "clear" statement to verify the buffer names.
-func validateClearStatement(clear *clearStatement, model *actr.Model, log *Log, production *actr.Production) (err error) {
+func validateClearStatement(clear *clearStatement, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
 	bufferNames := clear.BufferNames
 
 	for _, name := range bufferNames {
 		buffer := model.LookupBuffer(name)
 		if buffer == nil {
-			log.ErrorT(clear.Tokens, "buffer '%s' not found in production '%s'", name, production.Name)
+			log.errorT(clear.Tokens, "buffer '%s' not found in production '%s'", name, production.Name)
 
 			err = CompileError{}
 			continue
@@ -264,19 +264,19 @@ func validateClearStatement(clear *clearStatement, model *actr.Model, log *Log, 
 }
 
 // validatePrintStatement is a placeholder for checking a "print" statement. Currently there are no checks.
-func validatePrintStatement(print *printStatement, model *actr.Model, log *Log, production *actr.Production) (err error) {
+func validatePrintStatement(print *printStatement, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
 	if print.Args != nil {
 		for _, arg := range print.Args {
 			if arg.ID != nil {
-				log.ErrorT(arg.Tokens, "cannot use ID '%s' in print statement", *arg.ID)
+				log.errorT(arg.Tokens, "cannot use ID '%s' in print statement", *arg.ID)
 			} else if arg.Var != nil {
 				varItem := *arg.Var
 				match := production.LookupMatchByVariable(varItem)
 				if match == nil {
 					if varItem == "?" {
-						log.ErrorT(arg.Tokens, "cannot print anonymous var ('?') in production '%s'", production.Name)
+						log.errorT(arg.Tokens, "cannot print anonymous var ('?') in production '%s'", production.Name)
 					} else {
-						log.ErrorT(arg.Tokens, "print statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
+						log.errorT(arg.Tokens, "print statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
 					}
 					err = CompileError{}
 				}
@@ -288,7 +288,7 @@ func validatePrintStatement(print *printStatement, model *actr.Model, log *Log, 
 }
 
 // validateVariableUsage verifies variable usage by counting how many times they are referenced.
-func validateVariableUsage(log *Log, match *match, do *do) {
+func validateVariableUsage(log *issueLog, match *match, do *do) {
 	type ref struct {
 		location *issues.Location // keep track of the first case of this variable for our output
 		count    int              // ref count
