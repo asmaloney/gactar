@@ -43,7 +43,7 @@ type Web struct {
 	currentSessionID int
 }
 
-type runResult struct {
+type frameworkRunResult struct {
 	ModelName string  `json:"modelName"`        // name of the model (from the amod file)
 	FilePath  string  `json:"filePath"`         // intermediate code file (full path)
 	Code      *string `json:"code,omitempty"`   // actual code which was run
@@ -53,7 +53,12 @@ type runResult struct {
 	ModelID   *int `json:"modelID,omitempty"`
 }
 
-type runResultMap map[string]runResult
+type frameworkRunResultMap map[string]frameworkRunResult
+
+type runResult struct {
+	Issues  issues.IssueList      `json:"issues,omitempty"`
+	Results frameworkRunResultMap `json:"results,omitempty"`
+}
 
 func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS) (w *Web, err error) {
 	w = &Web{
@@ -177,15 +182,18 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 
 	resultMap := w.runModel(model, initialBuffers, data.Frameworks)
 
-	results, err := json.Marshal(resultMap)
+	rr := runResult{
+		Issues:  log.AllIssues(),
+		Results: resultMap,
+	}
+
+	results, err := json.Marshal(rr)
 	if err != nil {
 		encodeErrorResponse(rw, err)
 		return
 	}
 
-	encodeResponse(rw, response{
-		Results: json.RawMessage(string(results)),
-	})
+	encodeResponse(rw, json.RawMessage(string(results)))
 }
 
 // normalizeFrameworkList will look for "all" and replace it with all available
@@ -220,12 +228,12 @@ func (w Web) verifyFrameworkList(list []string) (err error) {
 	return
 }
 
-func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers, frameworkNames []string) (resultMap runResultMap) {
+func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers, frameworkNames []string) (resultMap frameworkRunResultMap) {
 	// ensure temp dir exists
 	// https://github.com/asmaloney/gactar/issues/103
 	filesystem.CreateTempDir(w.context)
 
-	resultMap = make(runResultMap, len(frameworkNames))
+	resultMap = make(frameworkRunResultMap, len(frameworkNames))
 
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
@@ -242,7 +250,7 @@ func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers
 
 			mutex.Lock()
 
-			resultBase := runResult{
+			resultBase := frameworkRunResult{
 				ModelName: model.Name,
 			}
 
@@ -309,11 +317,7 @@ func encodeResponse(rw http.ResponseWriter, v interface{}) {
 }
 
 func encodeErrorResponse(rw http.ResponseWriter, err error) {
-	type response struct {
-		Issues issues.IssueList `json:"issues"`
-	}
-
-	errResponse := response{
+	errResponse := runResult{
 		Issues: issues.IssueList{
 			{
 				Level: "error",
@@ -326,11 +330,7 @@ func encodeErrorResponse(rw http.ResponseWriter, err error) {
 }
 
 func encodeIssueResponse(rw http.ResponseWriter, log *amod.Log) {
-	type response struct {
-		Issues issues.IssueList `json:"issues"`
-	}
-
-	errResponse := response{Issues: log.AllIssues()}
+	errResponse := runResult{Issues: log.AllIssues()}
 
 	json.NewEncoder(rw).Encode(errResponse)
 }
