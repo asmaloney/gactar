@@ -62,14 +62,17 @@ export interface FrameworkResult {
   // Name of the model (from the amod text).
   modelName: string
 
+  // Any issues specific to a framework.
+  issues?: IssueList
+
   // Intermediate code file (full path).
-  filePath: string
+  filePath?: string
 
   // Code which was run.
   code?: string
 
   // Output of run (stdout + stderr).
-  output: string
+  output?: string
 }
 
 export type FrameworkResultMap = { [key: string]: FrameworkResult }

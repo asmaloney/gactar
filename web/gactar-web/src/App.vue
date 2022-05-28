@@ -86,14 +86,13 @@ import api, {
   FrameworkInfo,
   FrameworkInfoList,
   FrameworkResultMap,
-  Issue,
   IssueList,
   RunParams,
   RunResult,
   Version,
 } from './api'
 
-import { commentString } from './utils'
+import { commentString, issuesToArray } from './utils'
 
 import AmodCodeTab from './components/AmodCodeTab.vue'
 import CodeTab from './components/CodeTab.vue'
@@ -267,9 +266,11 @@ export default Vue.extend({
           if (result.results) {
             this.setResults(result.results)
           }
+          this.running = false
         })
         .catch((err: Error) => {
           this.showError(err.message)
+          this.running = false
         })
     },
 
@@ -277,8 +278,16 @@ export default Vue.extend({
       let text = ''
       for (const [key, value] of Object.entries(results)) {
         text += key + '\n' + '---\n'
-        text += value.output
-        text += '\n\n'
+
+        if (value.issues) {
+          const issueTexts = issuesToArray(value.issues)
+          text += issueTexts.join('\n') + '\n\n'
+        }
+
+        if (value.output) {
+          text += value.output
+          text += '\n\n'
+        }
 
         if (value.code) {
           this.code[key] = value.code
@@ -301,29 +310,16 @@ export default Vue.extend({
       }
 
       this.results += text
-      this.running = false
     },
 
     showError(err: string) {
       this.results = err
-      this.running = false
     },
 
     showIssues(list: IssueList) {
-      let issueTexts: string[] = []
-
-      list.forEach((issue: Issue) => {
-        let text = `${issue.level}: ${issue.text}`
-
-        if (issue.location) {
-          text += `  (line ${issue.location.line}, col ${issue.location.columnStart})`
-        }
-
-        issueTexts.push(text)
-      })
+      const issueTexts = issuesToArray(list)
 
       this.results += issueTexts.join('\n') + '\n\n'
-      this.running = false
     },
   },
 })
