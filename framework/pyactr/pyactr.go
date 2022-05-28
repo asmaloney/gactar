@@ -70,7 +70,7 @@ func (PyACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
 							ColumnStart: 0,
 							ColumnEnd:   0,
 						}
-						log.Warning(&location, "(production '%s') pyactr currently only supports one print statement per production", production.Name)
+						log.Warning(&location, "pyactr currently only supports one print statement per production (in '%s')", production.Name)
 						continue
 					}
 				}
