@@ -207,6 +207,11 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 		additionalInit = append(additionalInit, fmt.Sprintf("retrieval_threshold=%s", numbers.Float64Str(*memory.RetrievalThreshold)))
 	}
 
+	procedural := p.model.Procedural
+	if procedural.DefaultActionTime != nil {
+		additionalInit = append(additionalInit, fmt.Sprintf("rule_firing=%s", numbers.Float64Str(*procedural.DefaultActionTime)))
+	}
+
 	p.Writeln("%s = actr.ACTRModel(%s)", p.className, strings.Join(additionalInit, ", "))
 
 	if p.model.HasPrintStatement() {

@@ -153,8 +153,8 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 
 	c.Writeln("class %s(ACTR):", c.className)
 
-	for _, module := range c.model.Modules {
-		c.Writeln("\t%s = Buffer()", module.GetBufferName())
+	for _, buffer := range c.model.BufferNames() {
+		c.Writeln("\t%s = Buffer()", buffer)
 	}
 
 	memory := c.model.Memory
@@ -183,6 +183,13 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 	}
 
 	c.Writeln("")
+
+	procedural := c.model.Procedural
+	if procedural.DefaultActionTime != nil {
+		c.Writeln("\tproduction_time = %s", numbers.Float64Str(*procedural.DefaultActionTime))
+
+		c.Writeln("")
+	}
 
 	if c.model.LogLevel == "info" {
 		// this turns on some logging at the high level

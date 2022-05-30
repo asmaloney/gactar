@@ -219,6 +219,8 @@ func addModules(model *actr.Model, log *issueLog, modules []*module) {
 			addImaginal(model, log, module.InitFields)
 		case "memory":
 			addMemory(model, log, module.InitFields)
+		case "procedural":
+			addProcedural(model, log, module.InitFields)
 		default:
 			log.errorT(module.Tokens, "unrecognized module in config: '%s'", module.Name)
 		}
@@ -318,6 +320,35 @@ func addMemory(model *actr.Model, log *issueLog, mem []*field) {
 
 		default:
 			log.errorTR(field.Tokens, 0, 1, "unrecognized field '%s' in memory config", field.Key)
+		}
+	}
+}
+
+func addProcedural(model *actr.Model, log *issueLog, fields []*field) {
+	if fields == nil {
+		return
+	}
+
+	for _, field := range fields {
+		value := field.Value
+
+		switch field.Key {
+		case "default_action_time":
+			if value.Number == nil {
+				log.errorT(value.Tokens, "procedural default_action_time '%s' must be a number", value.String())
+				continue
+			}
+
+			if *value.Number < 0 {
+				log.errorT(value.Tokens, "procedural default_action_time '%s' must be greater than 0", numbers.Float64Str(*value.Number))
+				continue
+			}
+
+			model.Procedural.DefaultActionTime = value.Number
+
+		default:
+			log.errorTR(field.Tokens, 0, 1, "unrecognized field '%s' in procedural config", field.Key)
+
 		}
 	}
 }
