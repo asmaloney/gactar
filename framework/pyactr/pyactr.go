@@ -15,6 +15,8 @@ import (
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/issues"
 	"github.com/asmaloney/gactar/version"
+
+	"github.com/asmaloney/gactar/util/numbers"
 )
 
 //go:embed pyactr_print.py
@@ -57,6 +59,10 @@ func (p *PyACTR) Initialize() (err error) {
 
 func (PyACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
 	log = issues.New()
+
+	if model.Memory.FinstTime != nil {
+		log.Warning(nil, "pyactr does not support memory module's finst_time")
+	}
 
 	for _, production := range model.Productions {
 		numPrintStatements := 0
@@ -186,12 +192,19 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 	memory := p.model.Memory
 	additionalInit := []string{}
 
-	if memory.Latency != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("latency_factor=%s", framework.Float64Str(*memory.Latency)))
+	// enable subsymbolic computations
+	additionalInit = append(additionalInit, "subsymbolic=True")
+
+	if memory.LatencyFactor != nil {
+		additionalInit = append(additionalInit, fmt.Sprintf("latency_factor=%s", numbers.Float64Str(*memory.LatencyFactor)))
 	}
 
-	if memory.Threshold != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("retrieval_threshold=%s", framework.Float64Str(*memory.Threshold)))
+	if memory.LatencyExponent != nil {
+		additionalInit = append(additionalInit, fmt.Sprintf("latency_exponent=%s", numbers.Float64Str(*memory.LatencyExponent)))
+	}
+
+	if memory.RetrievalThreshold != nil {
+		additionalInit = append(additionalInit, fmt.Sprintf("retrieval_threshold=%s", numbers.Float64Str(*memory.RetrievalThreshold)))
 	}
 
 	p.Writeln("%s = actr.ACTRModel(%s)", p.className, strings.Join(additionalInit, ", "))
@@ -216,12 +229,17 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 	p.Writeln("")
 
 	p.Writeln("dm = %s.decmem", p.className)
+
+	if memory.FinstSize != nil {
+		p.Writeln("dm.finst = %d", *memory.FinstSize)
+	}
+
 	p.Writeln("goal = %s.set_goal('goal')", p.className)
 	p.Writeln("")
 
 	imaginal := p.model.GetImaginal()
 	if imaginal != nil {
-		p.Writeln(`imaginal = %s.set_goal(name="imaginal", delay=%s)`, p.className, framework.Float64Str(imaginal.Delay))
+		p.Writeln(`imaginal = %s.set_goal(name="imaginal", delay=%s)`, p.className, numbers.Float64Str(imaginal.Delay))
 		p.Writeln("")
 	}
 

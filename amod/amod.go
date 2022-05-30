@@ -9,6 +9,8 @@ import (
 
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/issues"
+
+	"github.com/asmaloney/gactar/util/numbers"
 )
 
 var debugging bool = false
@@ -258,29 +260,39 @@ func addMemory(model *actr.Model, log *issueLog, mem []*field) {
 		value := field.Value
 
 		switch field.Key {
-		case "latency":
+		case "latency_factor":
 			if value.Number == nil {
-				log.errorT(value.Tokens, "memory latency '%s' must be a number", value.String())
+				log.errorT(value.Tokens, "memory latency_factor '%s' must be a number", value.String())
 				continue
 			}
 
-			model.Memory.Latency = value.Number
+			if *value.Number < 0 {
+				log.errorT(value.Tokens, "memory latency_factor '%s' must be greater than 0", numbers.Float64Str(*value.Number))
+				continue
+			}
 
-		case "threshold":
+			model.Memory.LatencyFactor = value.Number
+
+		case "latency_exponent":
 			if value.Number == nil {
-				log.errorT(value.Tokens, "memory threshold '%s' must be a number", value.String())
+				log.errorT(value.Tokens, "memory latency_exponent '%s' must be a number", value.String())
 				continue
 			}
 
-			model.Memory.Threshold = value.Number
-
-		case "max_time":
-			if field.Value.Number == nil {
-				log.errorT(value.Tokens, "memory max_time '%s' must be a number", value.String())
+			if *value.Number < 0 {
+				log.errorT(value.Tokens, "memory latency_exponent '%s' must be greater than 0", numbers.Float64Str(*value.Number))
 				continue
 			}
 
-			model.Memory.MaxTime = value.Number
+			model.Memory.LatencyExponent = value.Number
+
+		case "retrieval_threshold":
+			if value.Number == nil {
+				log.errorT(value.Tokens, "memory retrieval_threshold '%s' must be a number", value.String())
+				continue
+			}
+
+			model.Memory.RetrievalThreshold = value.Number
 
 		case "finst_size":
 			if value.Number == nil {
@@ -289,6 +301,11 @@ func addMemory(model *actr.Model, log *issueLog, mem []*field) {
 			}
 
 			size := int(*value.Number)
+			if size < 1 {
+				log.errorT(value.Tokens, "memory finst_size '%d' must be greater than 0", size)
+				continue
+			}
+
 			model.Memory.FinstSize = &size
 
 		case "finst_time":
