@@ -5,6 +5,4 @@ type ModuleInterface interface {
 	BufferInterface
 
 	GetModuleName() string
-
-	AllowsMultipleInit() bool
 }

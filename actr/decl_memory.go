@@ -46,14 +46,10 @@ type DeclMemory struct {
 
 func NewDeclMemory() *DeclMemory {
 	return &DeclMemory{
-		BufferInterface: Buffer{Name: "retrieval"},
+		BufferInterface: Buffer{Name: "retrieval", MultipleInit: true},
 	}
 }
 
 func (d DeclMemory) GetModuleName() string {
 	return "memory"
-}
-
-func (d DeclMemory) AllowsMultipleInit() bool {
-	return true
 }

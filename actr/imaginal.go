@@ -11,15 +11,11 @@ func NewImaginal() *Imaginal {
 	// This uses the defaults as per ACT-R docs:
 	// 	http://act-r.psy.cmu.edu/actr7.x/reference-manual.pdf page 276
 	return &Imaginal{
-		BufferInterface: Buffer{Name: "imaginal"},
+		BufferInterface: Buffer{Name: "imaginal", MultipleInit: false},
 		Delay:           0.2,
 	}
 }
 
 func (i Imaginal) GetModuleName() string {
 	return "imaginal"
-}
-
-func (i Imaginal) AllowsMultipleInit() bool {
-	return false
 }

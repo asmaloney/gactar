@@ -7,14 +7,10 @@ type Goal struct {
 
 func NewGoal() *Goal {
 	return &Goal{
-		BufferInterface: Buffer{Name: "goal"},
+		BufferInterface: &Buffer{Name: "goal", MultipleInit: false},
 	}
 }
 
 func (g Goal) GetModuleName() string {
 	return "goal"
-}
-
-func (g *Goal) AllowsMultipleInit() bool {
-	return false
 }
