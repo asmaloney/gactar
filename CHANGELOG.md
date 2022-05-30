@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.6.0] (in progress)
+
+### Added
+
+- Added a _warning_ level for issues. ([#108](https://github.com/asmaloney/gactar/pull/108))
+- Frameworks can now validate the parsed code before running. This lets us return issues on a per-framework basis. ([#112](https://github.com/asmaloney/gactar/pull/112))
+- Output a warning when no **goal** is available - either directly or in the initializers. ([#116](https://github.com/asmaloney/gactar/pull/116))
+- Output the initial **goal** as info before running. ([#117](https://github.com/asmaloney/gactar/pull/117))
+
+### Changed
+
+- Cleaned up the `/api/run` return structure. ([#109](https://github.com/asmaloney/gactar/pull/109))
+- `/api/run` now returns the generated code even if the run failed.
+
 ## [0.5.0](https://github.com/asmaloney/gactar/releases/tag/v0.5.0) - 2022-05-26
 
 ### Added
