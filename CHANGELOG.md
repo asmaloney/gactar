@@ -10,11 +10,20 @@ All notable changes to this project will be documented in this file. The format 
 - Frameworks can now validate the parsed code before running. This lets us return issues on a per-framework basis. ([#112](https://github.com/asmaloney/gactar/pull/112))
 - Output a warning when no **goal** is available - either directly or in the initializers. ([#116](https://github.com/asmaloney/gactar/pull/116))
 - Output the initial **goal** as info before running. ([#117](https://github.com/asmaloney/gactar/pull/117))
+- Added config option for **procedural** module: _default_action_time_ is the time it takes to fire a production (seconds). ([#122](https://github.com/asmaloney/gactar/pull/122))
 
 ### Changed
 
 - Cleaned up the `/api/run` return structure. ([#109](https://github.com/asmaloney/gactar/pull/109))
 - `/api/run` now returns the generated code even if the run failed.
+- Adjusted the **memory** module config options:
+  - Added a _latency_exponent_ option.
+  - Rename _latency_ to _latency_factor_.
+  - Rename _threshold_ to _retrieval_threshold_.
+  - Remove _max_time_ (may be able to add it back later).
+  - Added some range checks.
+  - Warn per-framework about any unsupported options.
+  - Turn on **pyactr**'s _subsymbolic_ option to be in line with **vanilla**
 
 ## [0.5.0](https://github.com/asmaloney/gactar/releases/tag/v0.5.0) - 2022-05-26
 
