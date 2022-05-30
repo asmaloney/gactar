@@ -31,6 +31,10 @@ func (l *issueLog) errorTR(tokens []lexer.Token, start, end int, s string, a ...
 // tokensToLocation takes the list of lexer tokens and converts it to our own
 // issues.Location struct.
 func tokensToLocation(t []lexer.Token) *issues.Location {
+	if len(t) == 0 {
+		return nil
+	}
+
 	tokens := trimCommentsFromRange(t)
 
 	// If we are in the middle of a pattern, we might have pattern spaces,
@@ -61,6 +65,10 @@ func tokensToLocation(t []lexer.Token) *issues.Location {
 }
 
 func tokenRangeToLocation(t []lexer.Token, start, end int) *issues.Location {
+	if len(t) == 0 {
+		return nil
+	}
+
 	if start < 0 || end < 1 || start == end || end < start {
 		fmt.Printf("Internal error (tokenRangeToLocation): start (%d) and/or end (%d) incorrect. Using full range.\n", start, end)
 		return tokensToLocation(t)
