@@ -33,6 +33,7 @@ CodeMirror.defineMode('amod', function () {
     goal: true,
     imaginal: true,
     memory: true,
+    procedural: true,
     nil: true,
     '!nil': true,
     retrieval: true,
