@@ -16,14 +16,21 @@ var ValidBufferStates = map[string]bool{
 
 type BufferInterface interface {
 	GetBufferName() string
+	AllowsMultipleInit() bool
 }
 
 type Buffer struct {
 	Name string
+
+	MultipleInit bool
 }
 
 func (b Buffer) GetBufferName() string {
 	return b.Name
+}
+
+func (b Buffer) AllowsMultipleInit() bool {
+	return b.MultipleInit
 }
 
 func (b Buffer) String() string {
