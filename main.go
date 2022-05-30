@@ -23,6 +23,7 @@ import (
 
 	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/filesystem"
+	"github.com/asmaloney/gactar/util/validate"
 )
 
 // "embed" cannot use relative paths, so we must declare this at the top level and pass into web.
@@ -265,10 +266,15 @@ func generateCode(frameworks framework.List, files []string, outputDir string, r
 	for _, file := range files {
 		fmt.Printf("Generating model for %s\n", file)
 		model, log, err := amod.GenerateModelFromFile(file)
-		fmt.Print(log)
 		if err != nil {
+			fmt.Print(log)
 			continue
 		}
+
+		// When using "-r" the goal must be initialized in the code.
+		validate.Goal(model, "", log)
+
+		fmt.Print(log)
 
 		modelMap[file] = model
 	}

@@ -1,3 +1,4 @@
+// Package web provides a web server with an HTTP API as well as a full UI to run amod code.
 package web
 
 import (
@@ -18,9 +19,11 @@ import (
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/issues"
+	"github.com/asmaloney/gactar/version"
+
 	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/filesystem"
-	"github.com/asmaloney/gactar/version"
+	"github.com/asmaloney/gactar/util/validate"
 )
 
 //go:embed build/*
@@ -178,9 +181,12 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	initialGoal := strings.TrimSpace(data.Goal)
 	initialBuffers := framework.InitialBuffers{
-		"goal": strings.TrimSpace(data.Goal),
+		"goal": initialGoal,
 	}
+
+	validate.Goal(model, initialGoal, log)
 
 	resultMap := w.runModel(model, initialBuffers, data.Frameworks)
 
