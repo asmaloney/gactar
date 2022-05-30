@@ -8,11 +8,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/urfave/cli/v2"
+
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/issues"
 	"github.com/asmaloney/gactar/version"
-	"github.com/urfave/cli/v2"
+
+	"github.com/asmaloney/gactar/util/numbers"
 )
 
 var Info framework.Info = framework.Info{
@@ -148,15 +151,30 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 
 	v.Writeln("(define-model %s\n", v.modelName)
 
-	v.Writeln("(sgp :esc t")
+	v.Writeln("(sgp")
+
+	// enable subsymbolic computations
+	v.Writeln("\t:esc t")
 
 	memory := v.model.Memory
-	if memory.Latency != nil {
-		v.Writeln("\t:lf %s", framework.Float64Str(*memory.Latency))
+	if memory.LatencyFactor != nil {
+		v.Writeln("\t:lf %s", numbers.Float64Str(*memory.LatencyFactor))
 	}
 
-	if memory.Threshold != nil {
-		v.Writeln("\t:rt %s", framework.Float64Str(*memory.Threshold))
+	if memory.LatencyExponent != nil {
+		v.Writeln("\t:le %s", numbers.Float64Str(*memory.LatencyExponent))
+	}
+
+	if memory.RetrievalThreshold != nil {
+		v.Writeln("\t:rt %s", numbers.Float64Str(*memory.RetrievalThreshold))
+	}
+
+	if memory.FinstSize != nil {
+		v.Writeln("\t:declarative-num-finsts %d", *memory.FinstSize)
+	}
+
+	if memory.FinstTime != nil {
+		v.Writeln("\t:declarative-finst-span %s", numbers.Float64Str(*memory.FinstTime))
 	}
 
 	switch v.model.LogLevel {
@@ -171,7 +189,7 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 	imaginal := v.model.GetImaginal()
 	if imaginal != nil {
 		v.Writeln("\t:do-not-harvest imaginal")
-		v.Writeln("\t:imaginal-delay %s", framework.Float64Str(imaginal.Delay))
+		v.Writeln("\t:imaginal-delay %s", numbers.Float64Str(imaginal.Delay))
 	}
 	v.Writeln(")\n")
 

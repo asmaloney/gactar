@@ -12,6 +12,8 @@ import (
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/issues"
 	"github.com/asmaloney/gactar/version"
+
+	"github.com/asmaloney/gactar/util/numbers"
 )
 
 var Info framework.Info = framework.Info{
@@ -51,6 +53,11 @@ func (c *CCMPyACTR) Initialize() (err error) {
 
 func (CCMPyACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
 	log = issues.New()
+
+	if model.Memory.LatencyExponent != nil {
+		log.Warning(nil, "ccm does not support memory module's latency_exponent")
+	}
+
 	return
 }
 
@@ -153,16 +160,12 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 	memory := c.model.Memory
 	additionalInit := []string{}
 
-	if memory.Latency != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("latency=%s", framework.Float64Str(*memory.Latency)))
+	if memory.LatencyFactor != nil {
+		additionalInit = append(additionalInit, fmt.Sprintf("latency=%s", numbers.Float64Str(*memory.LatencyFactor)))
 	}
 
-	if memory.Threshold != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("threshold=%s", framework.Float64Str(*memory.Threshold)))
-	}
-
-	if memory.MaxTime != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("maximum_time=%s", framework.Float64Str(*memory.MaxTime)))
+	if memory.RetrievalThreshold != nil {
+		additionalInit = append(additionalInit, fmt.Sprintf("threshold=%s", numbers.Float64Str(*memory.RetrievalThreshold)))
 	}
 
 	if memory.FinstSize != nil {
@@ -170,7 +173,7 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 	}
 
 	if memory.FinstTime != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("finst_time=%s", framework.Float64Str(*memory.FinstTime)))
+		additionalInit = append(additionalInit, fmt.Sprintf("finst_time=%s", numbers.Float64Str(*memory.FinstTime)))
 	}
 
 	if len(additionalInit) > 0 {

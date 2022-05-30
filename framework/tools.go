@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 
 	"github.com/asmaloney/gactar/actr"
@@ -56,12 +55,6 @@ func ParseInitialBuffers(model *actr.Model, initialBuffers InitialBuffers) (pars
 	}
 
 	return
-}
-
-// Float64Str takes a float and returns a string of the minimal representation.
-// e.g. 2.5000 becomes "2.5"
-func Float64Str(f float64) string {
-	return strconv.FormatFloat(f, 'f', -1, 64)
 }
 
 // RemoveTempFile removes the given file if it exists.

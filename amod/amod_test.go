@@ -128,7 +128,7 @@ func Example_imaginalFields() {
 	==config==
 	modules {
 		imaginal { delay: 0.2 }
-		memory { latency: 0.5 }
+		memory { latency_factor: 0.5 }
 	}
 	==init==
 	==productions==`)
