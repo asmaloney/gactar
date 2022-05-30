@@ -1,3 +1,5 @@
+// Package actr implements our internal, parsed version of the amod file which is passed
+// to a Framework to generate their code.
 package actr
 
 // Model represents a basic ACT-R model.
@@ -40,15 +42,15 @@ func (model *Model) Initialize() {
 	model.LogLevel = "info"
 }
 
-// HasInitializer checks if the model has an initialization for the buffer.
-func (model Model) HasInitializer(buffer string) bool {
+// LookupInitializer returns an initializer or nil if the buffer does not have one.
+func (model Model) LookupInitializer(buffer string) *Initializer {
 	for _, init := range model.Initializers {
 		if init.Buffer.GetBufferName() == buffer {
-			return true
+			return init
 		}
 	}
 
-	return false
+	return nil
 }
 
 // HasPrintStatement checks if this model uses the print statement.
