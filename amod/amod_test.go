@@ -193,7 +193,7 @@ func Example_memoryFieldUnrecognized() {
 	==productions==`)
 
 	// Output:
-	// ERROR: unrecognized field 'foo' in memory (line 6, col 11)
+	// ERROR: unrecognized field 'foo' in memory config (line 6, col 11)
 }
 
 func Example_initializer1() {

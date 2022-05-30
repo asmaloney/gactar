@@ -317,7 +317,7 @@ func addMemory(model *actr.Model, log *issueLog, mem []*field) {
 			model.Memory.FinstTime = value.Number
 
 		default:
-			log.errorTR(field.Tokens, 0, 1, "unrecognized field '%s' in memory", field.Key)
+			log.errorTR(field.Tokens, 0, 1, "unrecognized field '%s' in memory config", field.Key)
 		}
 	}
 }
