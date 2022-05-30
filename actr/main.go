@@ -13,6 +13,7 @@ type Model struct {
 	Chunks       []*Chunk
 	Modules      []ModuleInterface
 	Memory       *DeclMemory // memory is always present, so keep track of it instead of looking it up
+	Procedural   *Procedural // procedural is always present, so keep track of it instead of looking it up
 	Initializers []*Initializer
 	Productions  []*Production
 	LogLevel     ACTRLogLevel
@@ -33,6 +34,9 @@ func (model *Model) Initialize() {
 			NumSlots:  1,
 		},
 	}
+
+	model.Procedural = NewProcedural()
+	model.Modules = append(model.Modules, model.Procedural)
 
 	model.Modules = append(model.Modules, NewGoal())
 
@@ -100,6 +104,18 @@ func (model Model) LookupModule(moduleName string) ModuleInterface {
 	}
 
 	return nil
+}
+
+// BufferNames returns a slice of valid buffers.
+func (model Model) BufferNames() (list []string) {
+	for _, module := range model.Modules {
+		name := module.GetBufferName()
+		if name != "" {
+			list = append(list, name)
+		}
+	}
+
+	return
 }
 
 // LookupBuffer looks up the named buffer in the model and returns it (or nil if it does not exist).

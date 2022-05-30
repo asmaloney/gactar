@@ -177,6 +177,11 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 		v.Writeln("\t:declarative-finst-span %s", numbers.Float64Str(*memory.FinstTime))
 	}
 
+	procedural := v.model.Procedural
+	if procedural.DefaultActionTime != nil {
+		v.Writeln("\t:dat %s", numbers.Float64Str(*procedural.DefaultActionTime))
+	}
+
 	switch v.model.LogLevel {
 	case "min":
 		v.Writeln("\t:trace-detail low")
