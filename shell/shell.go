@@ -1,3 +1,4 @@
+// Package shell provides an interactive shell to load & run amod files.
 package shell
 
 import (
@@ -13,6 +14,9 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
+	"github.com/asmaloney/gactar/issues"
+
+	"github.com/asmaloney/gactar/util/validate"
 )
 
 type command struct {
@@ -212,6 +216,10 @@ func (s *Shell) cmdRun(initialGoal string) (err error) {
 		err = fmt.Errorf("no model loaded")
 		return
 	}
+
+	log := issues.New()
+	validate.Goal(s.currentModel, initialGoal, log)
+	fmt.Print(log)
 
 	for name, f := range s.actrFrameworks {
 		if !s.activeFrameworks[name] {
