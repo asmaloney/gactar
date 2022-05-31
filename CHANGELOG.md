@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.6.0] (in progress)
+## [0.6.0](https://github.com/asmaloney/gactar/releases/tag/v0.6.0) - 2022-05-31
 
 ### Added
 
@@ -25,6 +25,10 @@ All notable changes to this project will be documented in this file. The format 
   - Warn per-framework about any unsupported options.
   - Turn on **pyactr**'s _subsymbolic_ option to be in line with **vanilla**
 - Replaced "anonymous variable" (`?`) with a wildcard character (`*`). ([#123](https://github.com/asmaloney/gactar/pull/123))
+
+### Fixed
+
+- In the web UI, only use syntax highlighting on variables if they are within square brackets.
 
 ## [0.5.0](https://github.com/asmaloney/gactar/releases/tag/v0.5.0) - 2022-05-26
 

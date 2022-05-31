@@ -240,21 +240,21 @@ To run it using methods 2-4, here are the command line options:
 gactar [OPTIONS] [FILES...]
 ```
 
-**--debug, -d**: turn on debugging output
+**-debug, -d**: turn on debugging output
 
-**--ebnf**: output amod EBNF to stdout and quit
+**-ebnf**: output amod EBNF to stdout and quit
 
-**--framework, -f** [string]: add framework - valid frameworks: all, ccm, pyactr, vanilla (default: `all`)
+**-framework, -f** [string]: add framework - valid frameworks: all, ccm, pyactr, vanilla (default: `all`)
 
-**--interactive, -i**: run an interactive shell
+**-interactive, -i**: run an interactive shell
 
-**--port, -p** [number]: port to run the web server on (default: `8181`)
+**-port, -p** [number]: port to run the web server on (default: `8181`)
 
-**--run, -r**: run the models after generating the code
+**-run, -r**: run the models after generating the code
 
-**--temp** [string]: directory for generated files (it will be created if it does not exist) (default: `./gactar-temp`)
+**-temp** [string]: directory for generated files (it will be created if it does not exist) (default: `./gactar-temp`)
 
-**--web, -w**: start a web server to run in a browser
+**-web, -w**: start a web server to run in a browser
 
 ### 1. Run With Visual Studio Code
 
@@ -319,7 +319,7 @@ ccm: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
 	- written to gactar-temp/ccm_count.py
 ```
 
-You can choose which frameworks to use with `--framework` or `-f` like this:
+You can choose which frameworks to use with `-framework` or `-f` like this:
 
 ```
 (env)$ ./gactar -f ccm -f vanilla examples/count.amod
@@ -334,7 +334,7 @@ vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
 	- written to gactar-temp/vanilla_count.lisp
 ```
 
-You can write the files to a different location using `--temp`:
+You can write the files to a different location using `-temp`:
 
 ```
 (env)$ ./gactar -f ccm -temp intermediate examples/count.amod
@@ -346,7 +346,7 @@ ccm: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
 	- written to intermediate/ccm_count.py
 ```
 
-You can also choose to run the models using `--run` or `-r`:
+You can also choose to run the models using `-run` or `-r`:
 
 ```
 (env)$ ./gactar -f ccm -temp intermediate -r examples/count.amod
