@@ -4,7 +4,8 @@ import CodeMirror, { StringStream } from 'codemirror'
 
 interface State {
   pending: string
-  startPattern: boolean
+  startPattern: boolean // used to get chunk name
+  inPattern: boolean // used to check for variables and wildcards
 }
 
 CodeMirror.defineMode('amod', function () {
@@ -58,15 +59,6 @@ CodeMirror.defineMode('amod', function () {
       }
     }
 
-    if (ch === '[') {
-      state.startPattern = true // next id is the chunk name
-      return 'bracket'
-    }
-
-    if (ch === ']') {
-      return 'bracket'
-    }
-
     if (ch === '{' || ch === '}') {
       return 'bracket'
     }
@@ -76,12 +68,30 @@ CodeMirror.defineMode('amod', function () {
       return tokenString(stream, state)
     }
 
-    if (ch === '?') {
-      stream.backUp(1)
+    if (ch === '[') {
+      state.startPattern = true // next id is the chunk name
+      return 'bracket'
+    }
 
-      if (stream.match(variable_regex)) {
-        return 'variable'
+    if (ch === '*') {
+      if (state.inPattern) {
+        return 'wildcard'
       }
+    }
+
+    if (ch === '?') {
+      if (state.inPattern) {
+        stream.backUp(1)
+
+        if (stream.match(variable_regex)) {
+          return 'variable'
+        }
+      }
+    }
+
+    if (ch === ']') {
+      state.inPattern = false
+      return 'bracket'
     }
 
     if (ch === '=') {
@@ -103,6 +113,7 @@ CodeMirror.defineMode('amod', function () {
       return 'built-in'
     } else if (state.startPattern) {
       state.startPattern = false
+      state.inPattern = true
       return 'chunk-name'
     }
 
@@ -111,7 +122,11 @@ CodeMirror.defineMode('amod', function () {
 
   return {
     startState: function (): State {
-      return { pending: '', startPattern: false }
+      return {
+        pending: '',
+        startPattern: false,
+        inPattern: false,
+      }
     },
 
     token: function (stream: StringStream, state: State): string | null {

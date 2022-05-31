@@ -93,6 +93,13 @@
   color: #0184bc;
 }
 
+.cm-s-amod .cm-wildcard {
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: none;
+  color: #c18401;
+}
+
 .cm-s-amod .cm-variable {
   font-weight: normal;
   font-style: normal;
