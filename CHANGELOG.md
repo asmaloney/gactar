@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file. The format 
   - Added some range checks.
   - Warn per-framework about any unsupported options.
   - Turn on **pyactr**'s _subsymbolic_ option to be in line with **vanilla**
+- Replaced "anonymous variable" (`?`) with a wildcard character (`*`). ([#123](https://github.com/asmaloney/gactar/pull/123))
 
 ## [0.5.0](https://github.com/asmaloney/gactar/releases/tag/v0.5.0) - 2022-05-26
 

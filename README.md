@@ -88,10 +88,10 @@ There are more details on each step below, but here's the short version:
 
    ```
     match {
-        goal [isMember: ?obj ? nil]
+        goal [isMember: ?obj * nil]
     }
     do {
-        recall [property: ?ojb category ?]
+        recall [property: ?ojb category *]
     }
    ```
 
@@ -105,7 +105,7 @@ There are more details on each step below, but here's the short version:
 
    ```
     match {
-        goal [isMember: ?obj ? nil]
+        goal [isMember: ?obj * nil]
     }
     do {
         set goal.jugdment to 'pending'
@@ -555,7 +555,7 @@ start {
     }
     // Steps to execute
     do {
-        recall [count: ?start ?]
+        recall [count: ?start *]
         set goal to [countFrom: ?start ?end counting]
     }
 }
@@ -567,7 +567,7 @@ increment {
     }
     do {
         print ?x
-        recall [count: ?next ?]
+        recall [count: ?next *]
         set goal.start to ?next
     }
 }
