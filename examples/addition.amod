@@ -54,19 +54,19 @@ initializeAddition {
     
     // Buffers to match
     match {
-        goal [add: ?num1 ? nil nil]
+        goal [add: ?num1 * nil nil]
     }
     // Steps to execute
     do {
         set goal.count to 0
         set goal.sum to ?num1
-        recall [count: ?num1 ?]
+        recall [count: ?num1 *]
     }
 }
 
 terminateAddition {
     match {
-        goal [add: ? ?num2 ?num2 ?sum]
+        goal [add: * ?num2 ?num2 ?sum]
     }
     do {
         print ?sum
@@ -76,22 +76,22 @@ terminateAddition {
 
 incrementSum {
     match {
-        goal [add: ? ?num2 ?count!?num2 ?sum]
+        goal [add: * ?num2 ?count!?num2 ?sum]
         retrieval [count: ?sum ?next]
     }
     do {
         set goal.sum to ?next
-        recall [count: ?count ?]
+        recall [count: ?count *]
     }
 }
 
 incrementCount {
     match {
-        goal [add: ? ? ?count ?sum]
+        goal [add: * * ?count ?sum]
         retrieval [count: ?count ?next]
     }
     do {
         set goal.count to ?next
-        recall [count: ?sum ?]
+        recall [count: ?sum *]
    }
 }

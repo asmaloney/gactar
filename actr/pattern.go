@@ -13,12 +13,14 @@ type PatternSlot struct {
 }
 
 type PatternSlotItem struct {
-	Nil bool
-	ID  *string
-	Var *string
-	Num *string // we don't need to treat this as a number anywhere, so keep as a string
+	// The item is one of the following:
+	Nil      bool
+	Wildcard bool
+	ID       *string
+	Var      *string
+	Num      *string // we don't need to treat this as a number anywhere, so keep as a string
 
-	Negated bool
+	Negated bool // this item is negated
 }
 
 func (p PatternSlot) String() (str string) {
@@ -27,7 +29,9 @@ func (p PatternSlot) String() (str string) {
 			str += "!"
 		}
 
-		if item.Nil {
+		if item.Wildcard {
+			str += "*"
+		} else if item.Nil {
 			str += "nil"
 		} else if item.ID != nil {
 			str += *item.ID
@@ -60,29 +64,6 @@ func (p Pattern) String() (str string) {
 	str += "]"
 
 	return
-}
-
-func (p *Pattern) AddID(id *string) {
-	slot := PatternSlot{}
-	slot.Items = append(slot.Items, &PatternSlotItem{ID: id})
-
-	p.Slots = append(p.Slots, &slot)
-}
-
-func (p *Pattern) AddVar(id *string, negated bool) {
-	slot := PatternSlot{}
-	slot.Items = append(slot.Items, &PatternSlotItem{Var: id,
-		Negated: negated,
-	})
-
-	p.Slots = append(p.Slots, &slot)
-}
-
-func (p *Pattern) AddNum(num *string) {
-	slot := PatternSlot{}
-	slot.Items = append(slot.Items, &PatternSlotItem{Num: num})
-
-	p.Slots = append(p.Slots, &slot)
 }
 
 func (p *Pattern) AddSlot(slot *PatternSlot) {

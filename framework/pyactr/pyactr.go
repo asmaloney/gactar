@@ -362,6 +362,10 @@ func (p *PyACTR) outputMatch(match *actr.Match) {
 
 func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patternSlot *actr.PatternSlot) {
 	for _, item := range patternSlot.Items {
+		if item.Wildcard {
+			return
+		}
+
 		var value string
 		if item.Negated {
 			value = "~"
@@ -374,10 +378,6 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patter
 		} else if item.Num != nil {
 			value += *item.Num
 		} else if item.Var != nil {
-			if *item.Var == "?" {
-				return
-			}
-
 			value += "="
 			value += strings.TrimPrefix(*item.Var, "?")
 		}

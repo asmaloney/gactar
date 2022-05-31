@@ -348,6 +348,10 @@ func (v *VanillaACTR) outputMatch(match *actr.Match) {
 
 func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patternSlot *actr.PatternSlot) {
 	for _, item := range patternSlot.Items {
+		if item.Wildcard {
+			return
+		}
+
 		value := ""
 		slot := ""
 
@@ -362,10 +366,6 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patter
 		} else if item.Num != nil {
 			value = *item.Num
 		} else if item.Var != nil {
-			if *item.Var == "?" {
-				return
-			}
-
 			varName := strings.TrimPrefix(*item.Var, "?")
 			value = fmt.Sprintf("=%s", varName)
 		}

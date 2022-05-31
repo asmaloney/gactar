@@ -47,7 +47,7 @@ expandS {
 
     // Buffers to match
     match {
-        goal [parsing_goal: S ? ? parsing]
+        goal [parsing_goal: S * * parsing]
     }
     // Steps to execute
     do {
@@ -60,7 +60,7 @@ expandNP {
     description: 'expand: NP ==> ProperN'
 
     match {
-        goal [parsing_goal: NP ? ? parsing]
+        goal [parsing_goal: NP * * parsing]
     }
     do {
         set goal.stack_top to 'ProperN'
@@ -71,7 +71,7 @@ expandVP {
     description: 'expand: VP ==> V NP'
 
     match {
-        goal [parsing_goal: VP ? ? parsing]
+        goal [parsing_goal: VP * * parsing]
     }
     do {
         set goal.stack_top to 'V'
@@ -81,29 +81,29 @@ expandVP {
 
 retrieveProperN {
     match {
-        goal [parsing_goal: ProperN ? ? parsing]
-        imaginal [sentence: ?word1 ? ?]
+        goal [parsing_goal: ProperN * * parsing]
+        imaginal [sentence: ?word1 * *]
     }
     do {
         set goal.task to 'retrieving'
-        recall [word: ?word1 ?]
+        recall [word: ?word1 *]
     }
 }
 
 retrieveV {
     match {
-        goal [parsing_goal: V ? ? parsing]
-        imaginal [sentence: ?word1 ? ?]
+        goal [parsing_goal: V * * parsing]
+        imaginal [sentence: ?word1 * *]
     }
     do {
         set goal.task to 'retrieving'
-        recall [word: ?word1 ?]
+        recall [word: ?word1 *]
     }
 }
 
 scanWord {
     match {
-        goal [parsing_goal: ?top ?bottom ? retrieving]
+        goal [parsing_goal: ?top ?bottom * retrieving]
         retrieval [word: ?word1 ?top]
         imaginal [sentence: ?word1 ?word2 ?word3]
     }
@@ -116,8 +116,8 @@ scanWord {
 
 printParsedWord {
     match {
-        goal [parsing_goal: ? ? ?parsed printing]
-        imaginal [sentence: !nil ? ?]
+        goal [parsing_goal: * * ?parsed printing]
+        imaginal [sentence: !nil * *]
     }
     do {
         print ?parsed
@@ -128,8 +128,8 @@ printParsedWord {
 
 done {
     match {
-        goal [parsing_goal: ? ? ?parsed printing]
-        imaginal [sentence: nil ? ?]
+        goal [parsing_goal: * * ?parsed printing]
+        imaginal [sentence: nil * *]
     }
     do {
         print ?parsed

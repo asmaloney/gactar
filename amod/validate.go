@@ -173,11 +173,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *issueLog, p
 			varItem := *set.Value.Var
 			match := production.LookupMatchByVariable(varItem)
 			if match == nil {
-				if varItem == "?" {
-					log.errorT(set.Value.Tokens, "cannot set '%s.%s' to anonymous var ('?') in production '%s'", bufferName, slotName, production.Name)
-				} else {
-					log.errorT(set.Value.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
-				}
+				log.errorT(set.Value.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
 				err = CompileError{}
 			}
 		}
@@ -206,14 +202,16 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *issueLog, p
 				continue
 			}
 
+			if item.Wildcard != nil {
+				log.errorT(item.Tokens, "cannot set '%s.%v' to wildcard ('*') in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
+				err = CompileError{}
+				continue
+			}
+
 			varItem := *item.Var
 			match := production.LookupMatchByVariable(varItem)
 			if match == nil {
-				if varItem == "?" {
-					log.errorT(item.Tokens, "cannot set '%s.%v' to anonymous var ('?') in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
-				} else {
-					log.errorT(item.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
-				}
+				log.errorT(item.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
 				err = CompileError{}
 			}
 		}
@@ -232,10 +230,6 @@ func validateRecallStatement(recall *recallStatement, model *actr.Model, log *is
 	vars := varsFromPattern(recall.Pattern)
 
 	for _, v := range vars {
-		if v.text == "?" {
-			continue
-		}
-
 		match := production.LookupMatchByVariable(v.text)
 		if match == nil {
 			log.errorT(recall.Pattern.Slots[v.index].Tokens, "recall statement variable '%s' not found in matches for production '%s'", v.text, production.Name)
@@ -273,8 +267,8 @@ func validatePrintStatement(print *printStatement, model *actr.Model, log *issue
 				varItem := *arg.Var
 				match := production.LookupMatchByVariable(varItem)
 				if match == nil {
-					if varItem == "?" {
-						log.errorT(arg.Tokens, "cannot print anonymous var ('?') in production '%s'", production.Name)
+					if varItem == "*" {
+						log.errorT(arg.Tokens, "cannot print wildcard ('*') in production '%s'", production.Name)
 					} else {
 						log.errorT(arg.Tokens, "print statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
 					}
@@ -300,10 +294,6 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 		vars := varsFromPattern(p)
 
 		for _, v := range vars {
-			if v.text == "?" {
-				continue
-			}
-
 			if r, ok := varRefCount[v.text]; ok {
 				r.count++
 			} else if insertIfNotFound {
@@ -327,10 +317,8 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 			if statement.Set.Value != nil {
 				if statement.Set.Value.Var != nil {
 					varItem := *statement.Set.Value.Var
-					if varItem != "?" {
-						if r, ok := varRefCount[varItem]; ok {
-							r.count++
-						}
+					if r, ok := varRefCount[varItem]; ok {
+						r.count++
 					}
 				}
 			} else { // pattern
@@ -351,10 +339,10 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 		// clear statement does not use variables
 	}
 
-	// Any var with only one reference should be anonymous ("?"), so add info to log
+	// Any var with only one reference should be wildcard ("*"), so add info to log
 	for k, r := range varRefCount {
 		if r.count == 1 {
-			log.Error(r.location, "variable %s is not used - should be simplified to '?'", k)
+			log.Error(r.location, "variable %s is not used - should be simplified to '*'", k)
 		}
 	}
 }

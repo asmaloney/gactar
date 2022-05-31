@@ -496,7 +496,9 @@ func createChunkPattern(model *actr.Model, log *issueLog, cp *pattern) (*actr.Pa
 				Negated: item.Not,
 			}
 
-			if item.Nil != nil {
+			if item.Wildcard != nil {
+				newItem.Wildcard = true
+			} else if item.Nil != nil {
 				newItem.Nil = true
 			} else if item.ID != nil {
 				newItem.ID = item.ID

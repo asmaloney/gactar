@@ -48,12 +48,12 @@ initialRetrieval {
     
     // Buffers to match
     match {
-        goal [isMember: ?obj ? nil]
+        goal [isMember: ?obj * nil]
     }
     // Steps to execute
     do {
         set goal.judgment to 'pending'
-        recall [property: ?obj category ?]
+        recall [property: ?obj category *]
     }
 }
 
@@ -75,13 +75,13 @@ chainCategory {
     }
     do {
         set goal.object to ?obj2
-        recall [property: ?obj2 category ?]
+        recall [property: ?obj2 category *]
     }
 }
 
 fail {
     match {
-        goal [isMember: ? ? pending]
+        goal [isMember: * * pending]
         retrieval [_status: error]
     }
     do {
