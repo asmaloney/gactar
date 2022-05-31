@@ -63,6 +63,7 @@ const (
 	lexemePatternDelim
 	lexemePatternSpace
 	lexemePatternVar
+	lexemePatternWildcard
 
 	lexemeSectionModel
 	lexemeSectionConfig
@@ -101,16 +102,17 @@ var keywords []string = []string{
 // Symbols provides a mapping from participle strings to our lexemes
 func (lexer_def) Symbols() map[string]lexer.TokenType {
 	return map[string]lexer.TokenType{
-		"Comment":      lexer.TokenType(lexemeComment),
-		"Whitespace":   lexer.TokenType(lexemeSpace),
-		"Keyword":      lexer.TokenType(lexemeKeyword),
-		"Ident":        lexer.TokenType(lexemeIdentifier),
-		"Number":       lexer.TokenType(lexemeNumber),
-		"String":       lexer.TokenType(lexemeString),
-		"Char":         lexer.TokenType(lexemeChar),
-		"PatternDelim": lexer.TokenType(lexemePatternDelim),
-		"PatternSpace": lexer.TokenType(lexemePatternSpace),
-		"PatternVar":   lexer.TokenType(lexemePatternVar),
+		"Comment":         lexer.TokenType(lexemeComment),
+		"Whitespace":      lexer.TokenType(lexemeSpace),
+		"Keyword":         lexer.TokenType(lexemeKeyword),
+		"Ident":           lexer.TokenType(lexemeIdentifier),
+		"Number":          lexer.TokenType(lexemeNumber),
+		"String":          lexer.TokenType(lexemeString),
+		"Char":            lexer.TokenType(lexemeChar),
+		"PatternDelim":    lexer.TokenType(lexemePatternDelim),
+		"PatternSpace":    lexer.TokenType(lexemePatternSpace),
+		"PatternVar":      lexer.TokenType(lexemePatternVar),
+		"PatternWildcard": lexer.TokenType(lexemePatternWildcard),
 	}
 }
 
@@ -350,7 +352,19 @@ func lexStart(l *lexer_amod) stateFn {
 		l.inPattern = false
 
 	case r == '?':
-		return lexIdentifier
+		if isAlphaNumeric(l.peek()) {
+			return lexIdentifier
+		}
+
+		l.emit(lexemeChar)
+
+	case r == '*':
+		if l.inPattern {
+			l.emit(lexemePatternWildcard)
+			break
+		}
+
+		l.emit(lexemeChar)
 
 	case r <= unicode.MaxASCII && unicode.IsPrint(r):
 		l.emit(lexemeChar)

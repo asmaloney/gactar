@@ -292,14 +292,7 @@ func (c *CCMPyACTR) outputPattern(pattern *actr.Pattern) {
 	str := fmt.Sprintf("'%s ", pattern.Chunk.Name)
 
 	for i, slot := range pattern.Slots {
-		slotStr := slot.String()
-
-		if slotStr == "nil" {
-			str += "None"
-		} else {
-			str += slot.String()
-
-		}
+		str += patternSlotString(slot)
 
 		if i != len(pattern.Slots)-1 {
 			str += " "
@@ -330,6 +323,30 @@ func (c *CCMPyACTR) outputMatch(match *actr.Match) {
 		c.Write("%s=", name)
 		c.outputPattern(match.Pattern)
 	}
+}
+
+func patternSlotString(patternSlot *actr.PatternSlot) string {
+	var str string
+
+	for _, item := range patternSlot.Items {
+		if item.Negated {
+			str += "!"
+		}
+
+		if item.Wildcard {
+			str += "?"
+		} else if item.Nil {
+			str += "None"
+		} else if item.ID != nil {
+			str += *item.ID
+		} else if item.Var != nil {
+			str += *item.Var
+		} else if item.Num != nil {
+			str += *item.Num
+		}
+	}
+
+	return str
 }
 
 func (c *CCMPyACTR) outputStatement(s *actr.Statement) {

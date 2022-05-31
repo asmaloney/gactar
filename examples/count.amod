@@ -60,7 +60,7 @@ start {
     }
     // Steps to execute
     do {
-        recall [count: ?start ?]
+        recall [count: ?start *]
         set goal to [countFrom: ?start ?end counting]
     }
 }
@@ -72,7 +72,7 @@ increment {
     }
     do {
         print ?x
-        recall [count: ?next ?]
+        recall [count: ?next *]
         set goal.start to ?next
     }
 }

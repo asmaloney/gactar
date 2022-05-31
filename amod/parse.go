@@ -125,11 +125,12 @@ type initSection struct {
 }
 
 type patternSlotItem struct {
-	Not bool    `parser:"(@('!':Char))?"`
-	Nil *bool   `parser:"( @('nil':Keyword)"`
-	ID  *string `parser:"| @Ident"`
-	Num *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
-	Var *string `parser:"| @PatternVar )"`
+	Not      bool    `parser:"(@('!':Char))?"`
+	Nil      *bool   `parser:"( @('nil':Keyword)"`
+	Wildcard *string `parser:"| @PatternWildcard"`
+	ID       *string `parser:"| @Ident"`
+	Num      *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
+	Var      *string `parser:"| @PatternVar )"`
 
 	Tokens []lexer.Token
 }

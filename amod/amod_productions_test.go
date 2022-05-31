@@ -1,5 +1,54 @@
 package amod
 
+func Example_production() {
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: ?blat] }
+		do { print ?blat }
+	}`)
+
+	// Output:
+}
+
+func Example_productionWildcard() {
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing1 thing2] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: ?blat *] }
+		do { print ?blat }
+	}`)
+
+	// Output:
+}
+
+func Example_productionNotWildcard() {
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	chunks { [foo: thing1 thing2] }
+	==init==
+	==productions==
+	start {
+		match { goal [foo: ?blat !*] }
+		do { print ?blat }
+	}`)
+
+	// Output:
+	// ERROR: negation cannot apply to a wildcard (line 9, col 27)
+}
+
 func Example_productionUnusedVar1() {
 	generateToStdout(`
 	==model==
@@ -14,7 +63,7 @@ func Example_productionUnusedVar1() {
 	}`)
 
 	// Output:
-	// ERROR: variable ?blat is not used - should be simplified to '?' (line 9, col 21)
+	// ERROR: variable ?blat is not used - should be simplified to '*' (line 9, col 21)
 }
 
 func Example_productionUnusedVar2() {
@@ -35,42 +84,6 @@ func Example_productionUnusedVar2() {
 	// Output:
 }
 
-func Example_productionInvalidAnonVarInSet1() {
-	// https://github.com/asmaloney/gactar/issues/57
-	generateToStdout(`
-	==model==
-	name: Test
-	==config==
-	chunks { [foo: thing] }
-	==init==
-	==productions==
-	start {
-		match { goal [foo: ?] }
-		do { set goal.thing to ? }
-	}`)
-
-	// Output:
-	// ERROR: cannot set 'goal.thing' to anonymous var ('?') in production 'start' (line 10, col 25)
-}
-
-func Example_productionInvalidAnonVarInSet2() {
-	// https://github.com/asmaloney/gactar/issues/57
-	generateToStdout(`
-	==model==
-	name: Test
-	==config==
-	chunks { [foo: thing] }
-	==init==
-	==productions==
-	start {
-		match { goal [foo: ?] }
-		do { set goal to [foo: ?] }
-	}`)
-
-	// Output:
-	// ERROR: cannot set 'goal.thing' to anonymous var ('?') in production 'start' (line 10, col 25)
-}
-
 func Example_productionInvalidMemory() {
 	generateToStdout(`
 	==model==
@@ -79,7 +92,7 @@ func Example_productionInvalidMemory() {
 	==init==
 	==productions==
 	start {
-		match { another_goal [add: ? ?one1 ? ?one2 ? None?ans ?] }
+		match { another_goal [add: * ?one1 * ?one2 * None?ans *] }
 		do { print 'foo' }
 	}`)
 
@@ -356,8 +369,8 @@ func Example_productionRecallStatement() {
 	==init==
 	==productions==
 	start {
-		match { goal [foo: ?next ?] }
-		do { recall [foo: ?next ?] }
+		match { goal [foo: ?next *] }
+		do { recall [foo: ?next *] }
 	}`)
 
 	// Output:
@@ -372,10 +385,10 @@ func Example_productionRecallStatementMultiple() {
 	==init==
 	==productions==
 	start {
-		match { goal [foo: ?next ?] }
+		match { goal [foo: ?next *] }
 		do {
-			recall [foo: ?next ?]
-			recall [foo: ? ?next]
+			recall [foo: ?next *]
+			recall [foo: * ?next]
 		}
 	}`)
 
@@ -392,8 +405,8 @@ func Example_productionRecallStatementInvalidPattern() {
 	==init==
 	==productions==
 	start {
-		match { goal [foo: ?next ?] }
-		do { recall [foo: ?next ? bar] }
+		match { goal [foo: ?next *] }
+		do { recall [foo: ?next * bar] }
 	}`)
 
 	// Output:
@@ -410,7 +423,7 @@ func Example_productionRecallStatementVarNotFound() {
 	==productions==
 	start {
 		match { goal [foo: blat] }
-		do { recall [bar: ?next ?] }
+		do { recall [bar: ?next *] }
 	}`)
 
 	// Output:
@@ -428,7 +441,7 @@ func Example_productionMultipleStatement() {
 	start {
 		match { goal [foo: ?next ?other] }
 		do {
-        	recall [foo: ?next ?]
+        	recall [foo: ?next *]
 			set goal to [foo: ?other 42]
 		}
 	}`)
@@ -461,7 +474,7 @@ func Example_productionPrintStatement1() {
 	==init==
 	==productions==
 	start {
-		match { goal [foo: ? ?other] }
+		match { goal [foo: * ?other] }
 		do { print 42, ?other, "blat" }
 	}`)
 
@@ -479,8 +492,8 @@ func Example_productionPrintStatement2() {
 	==productions==
 	start {
 		match {
-			goal [foo: ? ?other]
-			retrieval [foo: ? ?other1]
+			goal [foo: * ?other]
+			retrieval [foo: * ?other1]
 		}
 		do { print 42, ?other, ?other1, "blat" }
 	}`)
@@ -537,7 +550,7 @@ func Example_productionPrintStatementInvalidVar() {
 	// ERROR: print statement variable '?fooVar' not found in matches for production 'start' (line 9, col 13)
 }
 
-func Example_productionPrintStatementAnonymousVar() {
+func Example_productionPrintStatementWildcard() {
 	generateToStdout(`
 	==model==
 	name: Test
@@ -546,11 +559,11 @@ func Example_productionPrintStatementAnonymousVar() {
 	==productions==
 	start {
 		match { retrieval [_status: error] }
-		do { print ? }
+		do { print * }
 	}`)
 
 	// Output:
-	// ERROR: cannot print anonymous var ('?') in production 'start' (line 9, col 13)
+	// ERROR: unexpected token "*" (expected "}") (line 9, col 13)
 }
 
 func Example_productionMatchInternal() {
