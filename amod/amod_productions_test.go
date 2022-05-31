@@ -33,6 +33,8 @@ func Example_productionWildcard() {
 }
 
 func Example_productionNotWildcard() {
+	// Odd error message.
+	// See: https://github.com/asmaloney/gactar/issues/124
 	generateToStdout(`
 	==model==
 	name: Test
@@ -46,7 +48,7 @@ func Example_productionNotWildcard() {
 	}`)
 
 	// Output:
-	// ERROR: negation cannot apply to a wildcard (line 9, col 27)
+	// ERROR: unexpected token "!" (expected "]") (line 9, col 27)
 }
 
 func Example_productionUnusedVar1() {

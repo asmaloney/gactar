@@ -73,27 +73,6 @@ func validatePattern(model *actr.Model, log *issueLog, pattern *pattern) (err er
 		return CompileError{}
 	}
 
-	for _, slot := range pattern.Slots {
-		slot_err := validatePatternSlot(model, log, slot)
-		if slot_err != nil {
-			err = CompileError{}
-			continue
-		}
-	}
-
-	return
-}
-
-// validatePatternSlot checks each slot item for invalid combinations.
-func validatePatternSlot(model *actr.Model, log *issueLog, item *patternSlot) (err error) {
-	for _, item := range item.Items {
-		if item.Not {
-			if item.Wildcard != nil {
-				log.errorT(item.Tokens, "negation cannot apply to a wildcard")
-				return CompileError{}
-			}
-		}
-	}
 	return
 }
 
