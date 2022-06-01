@@ -5,7 +5,7 @@ import (
 
 	"github.com/alecthomas/participle/v2/lexer"
 
-	"github.com/asmaloney/gactar/issues"
+	"github.com/asmaloney/gactar/util/issues"
 )
 
 // issueLog wraps issues.issueLog so we can provide extra convenience functions.

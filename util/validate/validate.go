@@ -3,7 +3,8 @@ package validate
 
 import (
 	"github.com/asmaloney/gactar/actr"
-	"github.com/asmaloney/gactar/issues"
+
+	"github.com/asmaloney/gactar/util/issues"
 )
 
 // Goal adds a warning if we don't have a goal or adds info with the initial goal.

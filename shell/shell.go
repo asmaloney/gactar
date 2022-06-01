@@ -14,8 +14,8 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
-	"github.com/asmaloney/gactar/issues"
 
+	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/validate"
 )
 

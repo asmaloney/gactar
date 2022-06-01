@@ -2,9 +2,9 @@ package framework
 
 import (
 	"github.com/asmaloney/gactar/actr"
-	"github.com/asmaloney/gactar/issues"
 
 	"github.com/asmaloney/gactar/util/container"
+	"github.com/asmaloney/gactar/util/issues"
 )
 
 // ValidFrameworks lists the valid options for choosing frameworks on the command line and in the
