@@ -7,6 +7,11 @@ import (
 	"os/exec"
 )
 
+func DirExists(path string) bool {
+	stat, err := os.Stat(path)
+	return !os.IsNotExist(err) && stat.IsDir()
+}
+
 func CreateDir(path string) (err error) {
 	err = os.MkdirAll(path, 0750)
 	if err != nil && !os.IsExist(err) {
