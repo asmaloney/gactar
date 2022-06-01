@@ -8,8 +8,8 @@ import (
 	"github.com/alecthomas/participle/v2"
 
 	"github.com/asmaloney/gactar/actr"
-	"github.com/asmaloney/gactar/issues"
 
+	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/numbers"
 )
 

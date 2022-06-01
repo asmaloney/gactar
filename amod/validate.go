@@ -3,7 +3,8 @@ package amod
 import (
 	"github.com/alecthomas/participle/v2/lexer"
 	"github.com/asmaloney/gactar/actr"
-	"github.com/asmaloney/gactar/issues"
+
+	"github.com/asmaloney/gactar/util/issues"
 )
 
 // varAndIndex is used to match var text to slot indices.
