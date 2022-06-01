@@ -15,6 +15,7 @@ import (
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/version"
 
+	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/numbers"
 )
@@ -157,7 +158,7 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
 	}
 
-	err = framework.RemoveTempFile(outputFileName)
+	err = filesystem.RemoveFile(outputFileName)
 	if err != nil {
 		return "", err
 	}

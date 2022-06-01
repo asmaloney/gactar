@@ -1,21 +1,22 @@
 package framework
 
 import (
-	"errors"
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
+
+	"github.com/asmaloney/gactar/util/filesystem"
+	"github.com/asmaloney/gactar/util/python"
 )
 
 // Some tools for working with our frameworks
 
 // Setup will check that the executable exists and then use it to identify itself.
 func Setup(info *Info) (err error) {
-	_, err = checkForExecutable(info.ExecutableName)
+	_, err = filesystem.CheckForExecutable(info.ExecutableName)
 	if err != nil {
 		return
 	}
@@ -26,7 +27,7 @@ func Setup(info *Info) (err error) {
 	}
 
 	for _, packageName := range info.PythonRequiredPackages {
-		err = pythonCheckForPackage(info.ExecutableName, packageName)
+		err = python.CheckForPackage(info.ExecutableName, packageName)
 		if err != nil {
 			return
 		}
@@ -57,20 +58,6 @@ func ParseInitialBuffers(model *actr.Model, initialBuffers InitialBuffers) (pars
 	return
 }
 
-// RemoveTempFile removes the given file if it exists.
-func RemoveTempFile(filePath string) error {
-	_, err := os.Stat(filePath)
-	if err == nil {
-		return os.Remove(filePath)
-	}
-
-	if errors.Is(err, os.ErrNotExist) {
-		return nil
-	}
-
-	return err
-}
-
 func PythonValuesToStrings(values *[]*actr.Value, quoteStrings bool) []string {
 	str := make([]string, len(*values))
 	for i, v := range *values {
@@ -89,32 +76,6 @@ func PythonValuesToStrings(values *[]*actr.Value, quoteStrings bool) []string {
 	}
 
 	return str
-}
-
-// checkForExecutable checks if an executable exists in the path.
-func checkForExecutable(exe string) (path string, err error) {
-	path, err = exec.LookPath(exe)
-	if err != nil {
-		err = fmt.Errorf("cannot find '%s' in your path", exe)
-		return "", err
-	}
-
-	return
-}
-
-// pythonCheckForPackage checks for the proper installation of the named package.
-func pythonCheckForPackage(python, packageName string) (err error) {
-	importCmd := fmt.Sprintf("import %s", packageName)
-
-	cmd := exec.Command(python, "-c", importCmd)
-
-	err = cmd.Run()
-	if err != nil {
-		err = fmt.Errorf("python package '%s' not found. Please ensure it is installed with pip or is in your PYTHONPATH env variable", packageName)
-		return
-	}
-
-	return
 }
 
 // identifyYourself outputs version info and the path to an executable.
