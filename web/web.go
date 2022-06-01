@@ -20,8 +20,8 @@ import (
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/version"
 
+	"github.com/asmaloney/gactar/util/clicontext"
 	"github.com/asmaloney/gactar/util/container"
-	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/validate"
 )
@@ -239,7 +239,7 @@ func (w Web) verifyFrameworkList(list []string) (err error) {
 func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers, frameworkNames []string) (resultMap frameworkRunResultMap) {
 	// ensure temp dir exists
 	// https://github.com/asmaloney/gactar/issues/103
-	filesystem.CreateTempDir(w.context)
+	clicontext.CreateTempDir(w.context)
 
 	resultMap = make(frameworkRunResultMap, len(frameworkNames))
 

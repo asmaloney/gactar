@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -21,8 +20,8 @@ import (
 	"github.com/asmaloney/gactar/version"
 	"github.com/asmaloney/gactar/web"
 
+	"github.com/asmaloney/gactar/util/clicontext"
 	"github.com/asmaloney/gactar/util/container"
-	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/validate"
 )
 
@@ -89,7 +88,7 @@ func main() {
 			}
 
 			// Create our temp dir. This will expand our "temp" to an absolute path.
-			err := createTempDir(c)
+			err := clicontext.CreateTempDir(c)
 			if err != nil {
 				return err
 			}
@@ -247,17 +246,6 @@ func handleDefault(ctx *cli.Context, frameworks framework.List) (err error) {
 		runCode(frameworks)
 	}
 	return
-}
-
-func createTempDir(ctx *cli.Context) (err error) {
-	path, err := filepath.Abs(ctx.Path("temp"))
-	if err != nil {
-		return
-	}
-
-	ctx.Set("temp", path)
-
-	return filesystem.CreateTempDir(ctx)
 }
 
 func generateCode(frameworks framework.List, files []string, outputDir string, runCode bool) (err error) {
