@@ -11,9 +11,9 @@ cd .. || exit
 python3 -m venv env
 
 # activate it
-source ./env/bin/activate
+. ./env/bin/activate
 
-echo "Using python3 from here:" `which python3`
+echo "Using python3 from here:" $(which python3)
 python3 --version
 
 # update pip
@@ -28,7 +28,7 @@ python3 ../scripts/get_implementations.py
 if [ $? -eq 0 ]; then
     echo "SUCCESS"
     echo "Your environment is set up."
-    echo "To load your virtual enviroment, run: source ./env/bin/activate"
+    echo "To get help on gactar's command line options, run: ./gactar help"
 else
     echo "INSTALLATION ERROR"
     echo "There was a problem setting up your environment. Please check the errors."
