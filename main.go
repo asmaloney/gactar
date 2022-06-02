@@ -17,13 +17,13 @@ import (
 	"github.com/asmaloney/gactar/framework/pyactr"
 	"github.com/asmaloney/gactar/framework/vanilla_actr"
 	"github.com/asmaloney/gactar/shell"
-	"github.com/asmaloney/gactar/version"
 	"github.com/asmaloney/gactar/web"
 
 	"github.com/asmaloney/gactar/util/clicontext"
 	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/validate"
+	"github.com/asmaloney/gactar/util/version"
 )
 
 // "embed" cannot use relative paths, so we must declare this at the top level and pass into web.

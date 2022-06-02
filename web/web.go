@@ -18,12 +18,12 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
-	"github.com/asmaloney/gactar/version"
 
 	"github.com/asmaloney/gactar/util/clicontext"
 	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/validate"
+	"github.com/asmaloney/gactar/util/version"
 )
 
 //go:embed build/*
