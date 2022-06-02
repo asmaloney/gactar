@@ -64,11 +64,11 @@ There are more details on each step below, but here's the short version:
 
 1. Activate the virtual environment:
 
-   `source ./env/bin/activate`
+   `. ./env/bin/activate`
 
 2. Run gactar:
 
-   `gactar -w`
+   `./gactar -w`
 
 3. Open your browser to the URL it outputs (e.g. http://localhost:8181)
 
@@ -196,7 +196,7 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
 2. You will need to activate the virtual environment by running this in the terminal before you run `gactar`:
 
    ```sh
-   source ./env/bin/activate
+   . ./env/bin/activate
    ```
 
    If it activated properly, your command line prompt will start with `(env)`. If you want to deactivate it, run `deactivate`.
