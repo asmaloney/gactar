@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.7.0] - (in progress)
+
+### Added
+
+- The `-env` option will let you use different virtual environments (the default is `./env` which is next to the gactar executable).
+
+### Changed
+
+- No longer need to run "source ./env/bin/activate" to activate the Python virtual environment. gactar will set the variables itself. ([#130](https://github.com/asmaloney/gactar/pull/130))
+- Don't create md5 files with the releases.
+
+### Fixed
+
+- Use "." instead of "source" in `setup.sh` since we are using "sh". This was breaking on Linux. ([#135](https://github.com/asmaloney/gactar/pull/135))
+- Clarify some documentation.
+
 ## [0.6.0](https://github.com/asmaloney/gactar/releases/tag/v0.6.0) - 2022-05-31
 
 ### Added

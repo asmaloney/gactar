@@ -44,13 +44,13 @@ There are more details on each step below, but here's the short version:
 
 ### Install
 
-0. (optional) Rename the folder that was just created (e.g. `gactar-v0.4.0-darwin-amd64`) to something shorter (e.g. `gactar`):
+0. (optional) Rename the folder that was just created (e.g. `gactar-v0.6.0-darwin-amd64`) to something shorter (e.g. `gactar`):
 
-   `mv gactar-v0.4.0-darwin-amd64 gactar`
+   `mv gactar-v0.6.0-darwin-amd64 gactar`
 
 1. Change to the folder :
 
-   `cd gactar-v0.4.0-darwin-amd64`
+   `cd gactar-v0.6.0-darwin-amd64`
 
    OR
 
@@ -203,7 +203,7 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
 
 ### (Optional - Linux & Windows) Install SBCL Lisp Compiler
 
-**Note:** On macOS, these steps are handled by running the [setup file](#setup-virtual-environment).
+**Note:** On macOS, these steps are handled by running the [setup script](#setup-virtual-environment).
 
 For now this is only automated on macOS because the required files are not easy to determine programmatically. It may be possible to improve this in the future for other operating systems.
 
