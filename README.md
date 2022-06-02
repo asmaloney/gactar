@@ -12,9 +12,9 @@ You can read the tech note **gactar: A Tool For Exploring ACT-R Modelling** [her
 
 Currently, `gactar` will take an [_amod_ file](#gactar-models) and generate code to run it on three different ACT-R implementations:
 
-- [pyactr](https://github.com/jakdot/pyactr) (python)
-- [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr) (python) - a.k.a. **_ccm_**
-- [ACT-R](https://github.com/asmaloney/ACT-R) (lisp) - a.k.a. **_vanilla_**
+- [pyactr](https://github.com/jakdot/pyactr) (Python)
+- [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr) (Python) - a.k.a. **_ccm_**
+- [ACT-R](https://github.com/asmaloney/ACT-R) (Lisp) - a.k.a. **_vanilla_**
 
 **Naming note:** When gactar was written, the `python_actr` implementation came from [CCMSuite3](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) and was referred to throughout gactar as `ccm`. Instead of changing everything to refer to `python_actr` I've decided to leave it as `ccm`. This helps avoid confusion between `python_actr` and `pyactr`.
 
@@ -158,9 +158,9 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
 
 1. Although the `gactar` executable itself is compiled for each platform, it requires **python3** to run the setup and to run the _ccm_ and _pyactr_ implementations. **python3** needs to be somewhere in your `PATH` environment variable.
 
-2. `gactar` requires one or more of the three implementations (_ccm_, _pyactr_, _vanilla_) be installed.
+2. `gactar` requires one or more of the three implementations (_ccm_, _pyactr_, _vanilla_) be installed. _ccm_ and _pyactr_ are both Python-based and will be installed using pip. _vanilla_ requires a Lisp compiler so some additional steps may be required depending on your platform (see below).
 
-`gactar` uses a python virtual environment to keep all the required python packages, lisp files, and other implementation files in one place so it does not affect the rest of your system. For more information about the virtual environment see the [python docs](https://docs.python.org/3/library/venv.html).
+`gactar` uses a Python virtual environment to keep all the required Python packages, Lisp files, and other implementation files in one place so it does not affect the rest of your system. For more information about the virtual environment see the [python docs](https://docs.python.org/3/library/venv.html).
 
 ### Download gactar Release
 
@@ -191,7 +191,7 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
    - install [pyactr](https://github.com/jakdot/pyactr) and [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr) using pip
    - download "vanilla" [ACT-R](https://github.com/asmaloney/ACT-R)
    - (macOS-only) download & install the [Steel Bank Common Lisp](http://www.sbcl.org/index.html) (sbcl) compiler
-   - (macOS-only) compile the ACT-R lisp files
+   - (macOS-only) compile the ACT-R Lisp files
 
 2. You will need to activate the virtual environment by running this in the terminal before you run `gactar`:
 
@@ -215,7 +215,7 @@ For now this is only automated on macOS because the required files are not easy 
    INSTALL_ROOT=/path/to/gactar/env/ ./install.sh
    ```
 
-3. Once it is successfully installed, go back to the 'env' directory and run the following command to compile the main actr files using the lisp compiler (setting the path to wherever the env directory is):
+3. Once it is successfully installed, go back to the 'env' directory and run the following command to compile the main actr files using the Lisp compiler (setting the path to wherever the env directory is):
    ```sh
    export SBCL_HOME=/path/to/env/lib/sbcl; sbcl --script actr/load-single-threaded-act-r.lisp
    ```
