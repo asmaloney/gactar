@@ -17,9 +17,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: wangyoucao577/go-release-action@v1.19
+      - uses: wangyoucao577/go-release-action@v1.28
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          md5sum: false
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           extra_files: doc examples scripts CHANGELOG.md CITATION.cff CONTRIBUTING.md LICENSE README.md
