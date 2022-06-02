@@ -22,6 +22,7 @@ import (
 
 	"github.com/asmaloney/gactar/util/clicontext"
 	"github.com/asmaloney/gactar/util/container"
+	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/validate"
 )
 
@@ -48,7 +49,7 @@ func main() {
 		Copyright:            "©2021 Andy Maloney",
 		EnableBashCompletion: true,
 		Flags: []cli.Flag{
-			&cli.StringFlag{Name: "env", Usage: "directory where ACT-R, pyactr, and other necessary files are installed", EnvVars: []string{"VIRTUAL_ENV"}},
+			&cli.StringFlag{Name: "env", Value: "./env", Usage: "directory where ACT-R, pyactr, and other necessary files are installed", EnvVars: []string{"VIRTUAL_ENV"}},
 
 			&cli.BoolFlag{Name: "debug", Aliases: []string{"d"}, Usage: "turn on debugging output"},
 			&cli.BoolFlag{Name: "ebnf", Usage: "output amod EBNF to stdout and quit"},
@@ -72,6 +73,12 @@ func main() {
 			&cli.IntFlag{Name: "port", Aliases: []string{"p"}, Category: "Mode: Web", Value: defaultPort, Usage: "port to run the web server on"},
 		},
 		Action: func(c *cli.Context) error {
+			err := setupVirtualEnvironment(c)
+			if err != nil {
+				fmt.Println(err.Error())
+				return err
+			}
+
 			if c.Bool("debug") {
 				amod.SetDebug(true)
 			}
@@ -88,7 +95,7 @@ func main() {
 			}
 
 			// Create our temp dir. This will expand our "temp" to an absolute path.
-			err := clicontext.CreateTempDir(c)
+			err = clicontext.CreateTempDir(c)
 			if err != nil {
 				return err
 			}
@@ -136,6 +143,28 @@ func main() {
 	// fmt.Println(app.ToMarkdown())
 
 	app.Run(os.Args)
+}
+
+// setupVirtualEnvironment will set our paths to our virtual environment path.
+func setupVirtualEnvironment(ctx *cli.Context) (err error) {
+	envPath, err := clicontext.ExpandPath(ctx, "env")
+	if err != nil {
+		return
+	}
+
+	if !filesystem.DirExists(envPath) {
+		err = fmt.Errorf("virtual environment %q does not exist", envPath)
+		return
+	}
+
+	os.Setenv("PATH", fmt.Sprintf("%s/bin:%s", envPath, os.Getenv("PATH")))
+	os.Setenv("VIRTUAL_ENV", envPath)
+
+	// set SBCL_HOME so the sbcl compiler can find its stuff
+	sbclPath := fmt.Sprintf("%s/lib/sbcl", envPath)
+	os.Setenv("SBCL_HOME", sbclPath)
+
+	return
 }
 
 func createFrameworks(cli *cli.Context) (frameworks framework.List, err error) {

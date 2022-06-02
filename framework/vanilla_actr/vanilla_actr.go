@@ -40,7 +40,7 @@ func New(ctx *cli.Context) (v *VanillaACTR, err error) {
 
 	v = &VanillaACTR{
 		tmpPath: ctx.Path("temp"),
-		envPath: ctx.String("env"),
+		envPath: os.Getenv("VIRTUAL_ENV"),
 	}
 
 	return
@@ -94,12 +94,6 @@ func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (result *fram
 
 	// run it!
 	cmd := exec.Command(runFile)
-
-	// set SBCL_HOME so compiler works
-	sbclPath := fmt.Sprintf("%s/lib/sbcl", v.envPath)
-	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env, fmt.Sprintf("SBCL_HOME=%s", sbclPath))
-
 	output, err := cmd.CombinedOutput()
 	output = removePreamble(output)
 	if err != nil {
