@@ -62,15 +62,11 @@ There are more details on each step below, but here's the short version:
 
 ### Run
 
-1. Activate the virtual environment:
-
-   `. ./env/bin/activate`
-
-2. Run gactar:
+1. Run gactar:
 
    `./gactar -w`
 
-3. Open your browser to the URL it outputs (e.g. http://localhost:8181)
+2. Open your browser to the URL it outputs (e.g. http://localhost:8181)
 
 ## Why gactar?
 
@@ -184,42 +180,23 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
 
 ### Setup Virtual Environment
 
-1. Run `./scripts/setup.sh`
-   This will do several things to set up your environment:
+Run `./scripts/setup.sh`
 
-   - create a [virtual environment](https://docs.python.org/3/library/venv.html) for the project in a directory called `env`
-   - install [pyactr](https://github.com/jakdot/pyactr) and [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr) using pip
-   - download "vanilla" [ACT-R](https://github.com/asmaloney/ACT-R)
-   - (macOS-only) download & install the [Steel Bank Common Lisp](http://www.sbcl.org/index.html) (sbcl) compiler
-   - (macOS-only) compile the ACT-R Lisp files
+This will do several things to set up your environment:
 
-2. You will need to activate the virtual environment by running this in the terminal before you run `gactar`:
+- create a [virtual environment](https://docs.python.org/3/library/venv.html) for the project in a directory called `env`
+- install [pyactr](https://github.com/jakdot/pyactr) and [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr) using pip
+- download "vanilla" [ACT-R](https://github.com/asmaloney/ACT-R)
+- (_macOS & Linux_) download & install the [Steel Bank Common Lisp](http://www.sbcl.org) (sbcl) compiler
+- (_macOS & Linux_) compile the ACT-R Lisp files
 
-   ```sh
-   . ./env/bin/activate
-   ```
+### (_Optional - Windows_) Install SBCL Lisp Compiler
 
-   If it activated properly, your command line prompt will start with `(env)`. If you want to deactivate it, run `deactivate`.
+**Note:** On macOS & Linux, these steps are handled by running the [setup script](#setup-virtual-environment).
 
-### (Optional - Linux & Windows) Install SBCL Lisp Compiler
+It looks like the [Windows version](http://www.sbcl.org/platform-table.html) uses an installer instead of providing a zip file. I don't know if this will allow us to put it in our virtual environment. If anyone wants to look into solving this, please [let me know](https://github.com/asmaloney/gactar/issues/136).
 
-**Note:** On macOS, these steps are handled by running the [setup script](#setup-virtual-environment).
-
-For now this is only automated on macOS because the required files are not easy to determine programmatically. It may be possible to improve this in the future for other operating systems.
-
-1. We are using the [Steel Bank Common Lisp](http://www.sbcl.org/index.html) (sbcl) compiler to compile and run our _vanilla_ framework. Download the correct version [from here](http://www.sbcl.org/platform-table.html) by finding your platform (OS and architecture) in the table and clicking its box. Put the file in the `env` directory and unpack it there.
-
-2. To install it in our environment, change to the new directory it created (e.g. `sbcl-1.2.11-x86-64-darwin`) and run this command (setting the path to wherever the env directory is):
-
-   ```sh
-   INSTALL_ROOT=/path/to/gactar/env/ ./install.sh
-   ```
-
-3. Once it is successfully installed, go back to the 'env' directory and run the following command to compile the main actr files using the Lisp compiler (setting the path to wherever the env directory is):
-   ```sh
-   export SBCL_HOME=/path/to/env/lib/sbcl; sbcl --script actr/load-single-threaded-act-r.lisp
-   ```
-   This will take a few moments to compile all the ACT-R files so it is ready to use.
+gactar will still work without this installed, but will not run _vanilla_ ACT-R.
 
 ## Running gactar
 

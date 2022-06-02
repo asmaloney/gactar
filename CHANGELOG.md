@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Added
 
 - The `-env` option will let you use different virtual environments (the default is `./env` which is next to the gactar executable).
+- (_Linux_) Setup will now try to automatically download and install the [SBCL Lisp compiler](http://www.sbcl.org).
 
 ### Changed
 
