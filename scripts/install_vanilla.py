@@ -87,23 +87,42 @@ def download_sbcl() -> str:
     arch = platform.machine()
 
     if system == 'Darwin':
-        print('Downloading and installing SBCL...')
         system = 'darwin'
-
-        version = '2.1.2'  # latest arm64 version
 
         if arch == 'x86_64':
             version = '1.2.11'  # latest x86_64 version
-            arch = 'x86-64'     # URL needs hyphen
+            arch = 'x86-64'     # URL requires hyphen
+        elif arch == 'arm64':
+            version = '2.1.2'  # latest arm64 version
+        else:
+            raise Exception(
+                f'ERROR: I don\'t know how to install the sbcl compiler for your architecture ({system} - {arch})\n'
+                '\tPlease submit an issue at https://github.com/asmaloney/gactar/issues.'
+            )
+    elif system == 'Linux':
+        system = 'linux'
 
-        dir_name = f'sbcl-{version}-{arch}-{system}'
+        if arch == 'x86_64':
+            version = '2.2.5'  # latest x86_64 version
+            arch = 'x86-64'     # URL requires hyphen
+        elif arch == 'arm64':
+            version = '1.4.2'  # latest arm64 version
+        else:
+            raise Exception(
+                f'ERROR: I don\'t know how to install the sbcl compiler for your architecture ({system} - {arch})\n'
+                '\tPlease submit an issue at https://github.com/asmaloney/gactar/issues.'
+            )
     else:
         raise Exception(
-            f'ERROR: I don\'t know how to install the sbcl compiler for your platform({system} - {arch})\n'
-            'Please see the gactar README for how to download and setup sbcl.'
+            f'ERROR: I don\'t know how to install the sbcl compiler for your platform ({system} - {arch})\n'
+            '\tPlease see the gactar README for how to download and setup sbcl.'
         )
 
-    # remove old file if it exists for some reason
+    print(f'Downloading and installing SBCL for {system} {arch}...')
+
+    dir_name = f'sbcl-{version}-{arch}-{system}'
+
+    # remove old file if it exists
     remove_dir(dir_name)
 
     # download sbcl
@@ -138,7 +157,7 @@ def install_vanilla(dir_name: str):
 
 if __name__ == "__main__":
     try:
-        # download_vanilla()
+        download_vanilla()
         dir_name = download_sbcl()
         install_vanilla(dir_name)
     except BaseException as err:
