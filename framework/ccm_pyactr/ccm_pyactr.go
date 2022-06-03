@@ -189,16 +189,16 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 	}
 
 	if len(additionalInit) > 0 {
-		c.Writeln("\t%s = Memory(%s, %s)", memory.GetModuleName(), memory.GetBufferName(), strings.Join(additionalInit, ", "))
+		c.Writeln("\t%s = Memory(%s, %s)", memory.ModuleName(), memory.BufferName(), strings.Join(additionalInit, ", "))
 	} else {
-		c.Writeln("\t%s = Memory(%s)", memory.GetModuleName(), memory.GetBufferName())
+		c.Writeln("\t%s = Memory(%s)", memory.ModuleName(), memory.BufferName())
 	}
 
 	c.Writeln("")
 
 	// Turn on DMSpreading if we have set "max_spread_strength"
 	if memory.MaxSpreadStrength != nil {
-		c.Writeln("\tspread = DMSpreading(%s, goal)", memory.GetModuleName())
+		c.Writeln("\tspread = DMSpreading(%s, goal)", memory.ModuleName())
 		c.Writeln("\tspread.strength = %s", numbers.Float64Str(*memory.MaxSpreadStrength))
 		c.Writeln("")
 	}
@@ -221,7 +221,7 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 		c.Writeln("\tdef init():")
 
 		for _, init := range c.model.Initializers {
-			initializer := init.Buffer.GetBufferName()
+			initializer := init.Buffer.BufferName()
 
 			// allow the user-set goal to override the initializer
 			if initializer == "goal" && (goal != nil) {
@@ -326,7 +326,7 @@ func (c *CCMPyACTR) outputPattern(pattern *actr.Pattern) {
 func (c *CCMPyACTR) outputMatch(match *actr.Match) {
 	var name string
 	if match.Buffer != nil {
-		name = match.Buffer.GetBufferName()
+		name = match.Buffer.BufferName()
 	}
 
 	chunkName := match.Pattern.Chunk.Name
@@ -376,9 +376,9 @@ func (c *CCMPyACTR) outputStatement(s *actr.Statement) {
 				value := convertSetValue(slot.Value)
 				slotAssignments = append(slotAssignments, fmt.Sprintf("_%d=%s", slot.SlotIndex, value))
 			}
-			c.Writeln("\t\t%s.modify(%s)", s.Set.Buffer.GetBufferName(), strings.Join(slotAssignments, ", "))
+			c.Writeln("\t\t%s.modify(%s)", s.Set.Buffer.BufferName(), strings.Join(slotAssignments, ", "))
 		} else {
-			c.Write("\t\t%s.set(", s.Set.Buffer.GetBufferName())
+			c.Write("\t\t%s.set(", s.Set.Buffer.BufferName())
 			c.outputPattern(s.Set.Pattern)
 			c.Writeln(")")
 		}

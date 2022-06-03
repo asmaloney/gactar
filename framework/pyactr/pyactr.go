@@ -247,7 +247,7 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 	p.Writeln("goal = %s.set_goal('goal')", p.className)
 	p.Writeln("")
 
-	imaginal := p.model.GetImaginal()
+	imaginal := p.model.ImaginalModule()
 	if imaginal != nil {
 		p.Writeln(`imaginal = %s.set_goal(name="imaginal", delay=%s)`, p.className, numbers.Float64Str(imaginal.Delay))
 		p.Writeln("")
@@ -256,8 +256,8 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 	// initialize
 	for _, init := range p.model.Initializers {
 		initializer := "dm"
-		if init.Buffer.GetBufferName() != "retrieval" {
-			initializer = init.Buffer.GetBufferName()
+		if init.Buffer.BufferName() != "retrieval" {
+			initializer = init.Buffer.BufferName()
 
 			// allow the user-set goal to override the initializer
 			if initializer == "goal" && (goal != nil) {
@@ -344,7 +344,7 @@ func (p *PyACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 }
 
 func (p *PyACTR) outputMatch(match *actr.Match) {
-	bufferName := match.Buffer.GetBufferName()
+	bufferName := match.Buffer.BufferName()
 	chunkName := match.Pattern.Chunk.Name
 
 	if actr.IsInternalChunkName(chunkName) {
@@ -394,7 +394,7 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patter
 func (p *PyACTR) outputStatement(production *actr.Production, s *actr.Statement) {
 	if s.Set != nil {
 		buffer := s.Set.Buffer
-		bufferName := buffer.GetBufferName()
+		bufferName := buffer.BufferName()
 
 		p.Write("\t=%s>\n", bufferName)
 
@@ -433,7 +433,7 @@ func (p *PyACTR) outputStatement(production *actr.Production, s *actr.Statement)
 		for index, val := range *s.Print.Values {
 			if val.Var != nil {
 				varIndex := production.VarIndexMap[*val.Var]
-				str[index] = fmt.Sprintf("%s.%s", varIndex.Buffer.GetBufferName(), varIndex.SlotName)
+				str[index] = fmt.Sprintf("%s.%s", varIndex.Buffer.BufferName(), varIndex.SlotName)
 			} else if val.Str != nil {
 				str[index] = fmt.Sprintf("'%s'", *val.Str)
 			} else if val.Number != nil {

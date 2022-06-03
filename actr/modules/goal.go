@@ -13,6 +13,6 @@ func NewGoal() *Goal {
 	}
 }
 
-func (g Goal) GetModuleName() string {
+func (g Goal) ModuleName() string {
 	return "goal"
 }

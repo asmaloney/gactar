@@ -58,7 +58,7 @@ func (model *Model) Initialize() {
 // LookupInitializer returns an initializer or nil if the buffer does not have one.
 func (model Model) LookupInitializer(buffer string) *Initializer {
 	for _, init := range model.Initializers {
-		if init.Buffer.GetBufferName() == buffer {
+		if init.Buffer.BufferName() == buffer {
 			return init
 		}
 	}
@@ -89,8 +89,8 @@ func (model *Model) CreateImaginal() *modules.Imaginal {
 	return imaginal
 }
 
-// GetImaginal gets the imaginal module (or returns nil if it does not exist).
-func (model Model) GetImaginal() *modules.Imaginal {
+// ImaginalModule gets the imaginal module (or returns nil if it does not exist).
+func (model Model) ImaginalModule() *modules.Imaginal {
 	module := model.LookupModule("imaginal")
 	if module == nil {
 		return nil
@@ -107,7 +107,7 @@ func (model Model) GetImaginal() *modules.Imaginal {
 // LookupModule looks up the named module in the model and returns it (or nil if it does not exist).
 func (model Model) LookupModule(moduleName string) modules.ModuleInterface {
 	for _, module := range model.Modules {
-		if module.GetModuleName() == moduleName {
+		if module.ModuleName() == moduleName {
 			return module
 		}
 	}
@@ -118,7 +118,7 @@ func (model Model) LookupModule(moduleName string) modules.ModuleInterface {
 // BufferNames returns a slice of valid buffers.
 func (model Model) BufferNames() (list []string) {
 	for _, module := range model.Modules {
-		name := module.GetBufferName()
+		name := module.BufferName()
 		if name != "" {
 			list = append(list, name)
 		}
@@ -130,7 +130,7 @@ func (model Model) BufferNames() (list []string) {
 // LookupBuffer looks up the named buffer in the model and returns it (or nil if it does not exist).
 func (model Model) LookupBuffer(bufferName string) buffer.BufferInterface {
 	for _, module := range model.Modules {
-		if module.GetBufferName() == bufferName {
+		if module.BufferName() == bufferName {
 			return module
 		}
 	}

@@ -7,5 +7,5 @@ import "github.com/asmaloney/gactar/actr/buffer"
 type ModuleInterface interface {
 	buffer.BufferInterface
 
-	GetModuleName() string
+	ModuleName() string
 }

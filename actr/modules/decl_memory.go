@@ -62,6 +62,6 @@ func NewDeclMemory() *DeclMemory {
 	}
 }
 
-func (d DeclMemory) GetModuleName() string {
+func (d DeclMemory) ModuleName() string {
 	return "memory"
 }

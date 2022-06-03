@@ -571,7 +571,7 @@ func addSetStatement(model *actr.Model, log *issueLog, set *setStatement, produc
 	}
 
 	if set.Slot != nil {
-		bufferName := buffer.GetBufferName()
+		bufferName := buffer.BufferName()
 
 		// find slot index in chunk
 		match := production.LookupMatchByBuffer(bufferName)
@@ -579,7 +579,7 @@ func addSetStatement(model *actr.Model, log *issueLog, set *setStatement, produc
 		s.Set.Chunk = match.Pattern.Chunk
 
 		slotName := *set.Slot
-		index := match.Pattern.Chunk.GetSlotIndex(slotName)
+		index := match.Pattern.Chunk.SlotIndex(slotName)
 		value := &actr.SetValue{}
 
 		if set.Value.Var != nil {
@@ -630,7 +630,7 @@ func addRecallStatement(model *actr.Model, log *issueLog, recall *recallStatemen
 	s := actr.Statement{
 		Recall: &actr.RecallStatement{
 			Pattern:    pattern,
-			MemoryName: model.Memory.GetModuleName(),
+			MemoryName: model.Memory.ModuleName(),
 		},
 	}
 

@@ -18,6 +18,6 @@ func NewImaginal() *Imaginal {
 	}
 }
 
-func (i Imaginal) GetModuleName() string {
+func (i Imaginal) ModuleName() string {
 	return "imaginal"
 }

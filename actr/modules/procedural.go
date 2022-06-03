@@ -16,6 +16,6 @@ func NewProcedural() *Procedural {
 	return &Procedural{BufferInterface: buffer.Buffer{}}
 }
 
-func (Procedural) GetModuleName() string {
+func (Procedural) ModuleName() string {
 	return "procedural"
 }
