@@ -39,7 +39,7 @@ func (chunk Chunk) HasSlot(slot string) bool {
 	return container.Contains(slot, chunk.SlotNames)
 }
 
-// GetSlotIndex returns the slot index (indexed from 1) of the slot name or -1 if not found.
-func (chunk Chunk) GetSlotIndex(slot string) int {
+// SlotIndex returns the slot index (indexed from 1) of the slot name or -1 if not found.
+func (chunk Chunk) SlotIndex(slot string) int {
 	return container.GetIndex1(slot, chunk.SlotNames)
 }

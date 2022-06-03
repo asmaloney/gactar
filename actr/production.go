@@ -87,7 +87,7 @@ type SetStatement struct {
 
 func (p Production) LookupMatchByBuffer(bufferName string) *Match {
 	for _, m := range p.Matches {
-		if m.Buffer.GetBufferName() == bufferName {
+		if m.Buffer.BufferName() == bufferName {
 			return m
 		}
 	}
@@ -112,7 +112,7 @@ func (p Production) LookupSetStatementByBuffer(bufferName string) *SetStatement 
 		return nil
 	}
 
-	if last.Set.Buffer.GetBufferName() == bufferName {
+	if last.Set.Buffer.BufferName() == bufferName {
 		return last.Set
 	}
 

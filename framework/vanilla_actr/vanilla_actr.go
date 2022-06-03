@@ -190,7 +190,7 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 		v.Writeln("\t:trace-detail high")
 	}
 
-	imaginal := v.model.GetImaginal()
+	imaginal := v.model.ImaginalModule()
 	if imaginal != nil {
 		v.Writeln("\t:do-not-harvest imaginal")
 		v.Writeln("\t:imaginal-delay %s", numbers.Float64Str(imaginal.Delay))
@@ -210,7 +210,7 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 
 	v.Writeln("(add-dm")
 	for i, init := range v.model.Initializers {
-		initializer := init.Buffer.GetBufferName()
+		initializer := init.Buffer.BufferName()
 
 		// allow the user-set goal to override the initializer
 		if initializer == "goal" && (goal != nil) {
@@ -272,7 +272,7 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 		// find our imaginal initializer and output it
 		for _, init := range v.model.Initializers {
 			if init.Buffer != nil {
-				initializer := init.Buffer.GetBufferName()
+				initializer := init.Buffer.BufferName()
 
 				if initializer != "imaginal" {
 					continue
@@ -325,7 +325,7 @@ func (v *VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 }
 
 func (v *VanillaACTR) outputMatch(match *actr.Match) {
-	bufferName := match.Buffer.GetBufferName()
+	bufferName := match.Buffer.BufferName()
 	chunkName := match.Pattern.Chunk.Name
 
 	if actr.IsInternalChunkName(chunkName) {
@@ -379,7 +379,7 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 	if s.Set != nil {
 		buffer := s.Set.Buffer
 
-		v.Writeln("\t=%s>", buffer.GetBufferName())
+		v.Writeln("\t=%s>", buffer.BufferName())
 
 		if s.Set.Slots != nil {
 			tabbedItems := framework.KeyValueList{}

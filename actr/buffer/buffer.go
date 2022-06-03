@@ -15,7 +15,7 @@ var ValidBufferStates = map[string]bool{
 }
 
 type BufferInterface interface {
-	GetBufferName() string
+	BufferName() string
 	AllowsMultipleInit() bool
 }
 
@@ -25,7 +25,7 @@ type Buffer struct {
 	MultipleInit bool
 }
 
-func (b Buffer) GetBufferName() string {
+func (b Buffer) BufferName() string {
 	return b.Name
 }
 
