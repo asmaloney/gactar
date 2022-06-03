@@ -8,11 +8,14 @@ All notable changes to this project will be documented in this file. The format 
 
 - The `-env` option will let you use different virtual environments (the default is `./env` which is next to the gactar executable).
 - (_Linux_) Setup will now try to automatically download and install the [SBCL Lisp compiler](http://www.sbcl.org).
+- Added _max_spread_strength_ config option to declarative **memory**. This turns on the spreading activation calculation & sets the maximum associative strength. ([#141](https://github.com/asmaloney/gactar/pull/141))
+- Added _spreading_activation_ config option to **goal**. This only takes effect if spreading activation is turned on via _max_spread_strength_ (see above). ([#148](https://github.com/asmaloney/gactar/pull/148))
 
 ### Changed
 
 - No longer need to run "source ./env/bin/activate" to activate the Python virtual environment. gactar will set the variables itself. ([#130](https://github.com/asmaloney/gactar/pull/130))
 - Don't create md5 files with the releases.
+- Rename "darwin" to "macOS" in releases.
 
 ### Fixed
 
