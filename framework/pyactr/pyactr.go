@@ -191,33 +191,38 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 	p.Writeln("")
 
 	memory := p.model.Memory
-	additionalInit := []string{}
+	p.Writeln("%s = actr.ACTRModel(", p.className)
 
 	// enable subsymbolic computations
-	additionalInit = append(additionalInit, "subsymbolic=True")
+	p.Writeln("\tsubsymbolic=True,")
 
 	if memory.LatencyFactor != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("latency_factor=%s", numbers.Float64Str(*memory.LatencyFactor)))
+		p.Writeln("\tlatency_factor=%s,", numbers.Float64Str(*memory.LatencyFactor))
 	}
 
 	if memory.LatencyExponent != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("latency_exponent=%s", numbers.Float64Str(*memory.LatencyExponent)))
+		p.Writeln("\tlatency_exponent=%s,", numbers.Float64Str(*memory.LatencyExponent))
 	}
 
 	if memory.RetrievalThreshold != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("retrieval_threshold=%s", numbers.Float64Str(*memory.RetrievalThreshold)))
+		p.Writeln("\tretrieval_threshold=%s,", numbers.Float64Str(*memory.RetrievalThreshold))
 	}
 
 	if memory.MaxSpreadStrength != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("strength_of_association=%s", numbers.Float64Str(*memory.MaxSpreadStrength)))
+		p.Writeln("\tstrength_of_association=%s,", numbers.Float64Str(*memory.MaxSpreadStrength))
+
+		goalActivation := p.model.Goal.SpreadingActivation
+		if goalActivation != nil {
+			p.Writeln("\tbuffer_spreading_activation={'g':%s},", numbers.Float64Str(*goalActivation))
+		}
 	}
 
 	procedural := p.model.Procedural
 	if procedural.DefaultActionTime != nil {
-		additionalInit = append(additionalInit, fmt.Sprintf("rule_firing=%s", numbers.Float64Str(*procedural.DefaultActionTime)))
+		p.Writeln("\trule_firing=%s,", numbers.Float64Str(*procedural.DefaultActionTime))
 	}
 
-	p.Writeln("%s = actr.ACTRModel(%s)", p.className, strings.Join(additionalInit, ", "))
+	p.Writeln(")")
 
 	if p.model.HasPrintStatement() {
 		p.Writeln("")
