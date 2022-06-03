@@ -142,9 +142,21 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 
 	c.outputAuthors()
 
+	memory := c.model.Memory
+
 	imports := []string{"ACTR", "Buffer", "Memory"}
 
 	c.Write("from python_actr import %s\n", strings.Join(imports, ", "))
+
+	additionalImports := []string{}
+
+	if memory.MaxSpreadStrength != nil {
+		additionalImports = append(additionalImports, "DMSpreading")
+	}
+
+	if len(additionalImports) > 0 {
+		c.Write("from python_actr import %s\n", strings.Join(additionalImports, ", "))
+	}
 
 	if c.model.LogLevel == "detail" {
 		c.Writeln("from python_actr import log, log_everything")
@@ -158,7 +170,6 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 		c.Writeln("\t%s = Buffer()", buffer)
 	}
 
-	memory := c.model.Memory
 	additionalInit := []string{}
 
 	if memory.LatencyFactor != nil {
@@ -184,6 +195,13 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 	}
 
 	c.Writeln("")
+
+	// Turn on DMSpreading if we have set "max_spread_strength"
+	if memory.MaxSpreadStrength != nil {
+		c.Writeln("\tspread = DMSpreading(%s, goal)", memory.GetModuleName())
+		c.Writeln("\tspread.strength = %s", numbers.Float64Str(*memory.MaxSpreadStrength))
+		c.Writeln("")
+	}
 
 	procedural := c.model.Procedural
 	if procedural.DefaultActionTime != nil {

@@ -208,6 +208,10 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 		additionalInit = append(additionalInit, fmt.Sprintf("retrieval_threshold=%s", numbers.Float64Str(*memory.RetrievalThreshold)))
 	}
 
+	if memory.MaxSpreadStrength != nil {
+		additionalInit = append(additionalInit, fmt.Sprintf("strength_of_association=%s", numbers.Float64Str(*memory.MaxSpreadStrength)))
+	}
+
 	procedural := p.model.Procedural
 	if procedural.DefaultActionTime != nil {
 		additionalInit = append(additionalInit, fmt.Sprintf("rule_firing=%s", numbers.Float64Str(*procedural.DefaultActionTime)))

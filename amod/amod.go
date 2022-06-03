@@ -318,6 +318,14 @@ func addMemory(model *actr.Model, log *issueLog, mem []*field) {
 
 			model.Memory.FinstTime = value.Number
 
+		case "max_spread_strength":
+			if value.Number == nil {
+				log.errorT(value.Tokens, "memory max_spread_strength '%s' must be a number", value.String())
+				continue
+			}
+
+			model.Memory.MaxSpreadStrength = value.Number
+
 		default:
 			log.errorTR(field.Tokens, 0, 1, "unrecognized field '%s' in memory config", field.Key)
 		}
