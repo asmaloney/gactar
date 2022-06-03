@@ -17,9 +17,9 @@ type Model struct {
 	Examples     []*Pattern
 	Chunks       []*Chunk
 	Modules      []modules.ModuleInterface
-	Memory       *modules.DeclMemory // memory is always present, so keep track of it instead of looking it up
-	Goal         *modules.Goal       // goal is always present, so keep track of it instead of looking it up
-	Procedural   *modules.Procedural // procedural is always present, so keep track of it instead of looking it up
+	Memory       *modules.DeclarativeMemory // memory is always present
+	Goal         *modules.Goal              // goal is always present
+	Procedural   *modules.Procedural        // procedural is always present
 	Initializers []*Initializer
 	Productions  []*Production
 	LogLevel     ACTRLogLevel
@@ -43,7 +43,7 @@ func (model *Model) Initialize() {
 
 	// Set up our built-in modules
 
-	model.Memory = modules.NewDeclMemory()
+	model.Memory = modules.NewDeclarativeMemory()
 	model.Modules = append(model.Modules, model.Memory)
 
 	model.Goal = modules.NewGoal()
