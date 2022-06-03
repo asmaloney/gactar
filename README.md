@@ -36,11 +36,22 @@ There are more details on each step below, but here's the short version:
 
 ### Requirements
 
-1. You need to have python 3 installed.
+1. **python 3** is required. You can check if you have it installed by opening a terminal and trying to run it:
+
+   ```sh
+   $ python3 --version
+   Python 3.9.13
+   ```
+
+2. (_Linux only_) Python virtual environments (**venv**) may not be installed by default. If you run into errors during setup, you may need to install the **python3-venv** package (possibly requiring sudo):
+
+   ```sh
+   apt-get install python3-venv
+   ```
 
 ### Download
 
-1. Download the latest [release](https://github.com/asmaloney/gactar/releases) for your platform & decompress the file.
+1. Download the latest [release](https://github.com/asmaloney/gactar/releases) for your platform & architecture (ARM64 if you have an ARM processor, AMD64 otherwise) and decompress the file.
 
 ### Install
 
@@ -153,6 +164,19 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
 ## Installation
 
 1. Although the `gactar` executable itself is compiled for each platform, it requires **python3** to run the setup and to run the _ccm_ and _pyactr_ implementations. **python3** needs to be somewhere in your `PATH` environment variable.
+
+   You can check if you have it installed by opening a terminal and trying to run it:
+
+   ```sh
+   $ python3 --version
+   Python 3.9.13
+   ```
+
+   (_Linux only_) Python virtual environments (**venv**) may not be installed by default. If you run into errors during setup, you may need to install the **python3-venv** package (possibly requiring sudo):
+
+   ```sh
+   apt-get install python3-venv
+   ```
 
 2. `gactar` requires one or more of the three implementations (_ccm_, _pyactr_, _vanilla_) be installed. _ccm_ and _pyactr_ are both Python-based and will be installed using pip. _vanilla_ requires a Lisp compiler so some additional steps may be required depending on your platform (see below).
 
