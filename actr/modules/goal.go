@@ -16,3 +16,7 @@ func NewGoal() *Goal {
 func (g Goal) ModuleName() string {
 	return "goal"
 }
+
+func (g *Goal) SetParam(param *Param) (err ParamError) {
+	return
+}

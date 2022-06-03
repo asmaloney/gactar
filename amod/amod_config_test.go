@@ -145,3 +145,18 @@ func Example_memoryFieldUnrecognized() {
 	// Output:
 	// ERROR: unrecognized field 'foo' in memory config (line 6, col 11)
 }
+
+func Example_proceduralFieldUnrecognized() {
+	generateToStdout(`
+	==model==
+	name: Test
+	==config==
+	modules {
+		procedural { foo: bar }
+	}
+	==init==
+	==productions==`)
+
+	// Output:
+	// ERROR: unrecognized field 'foo' in procedural config (line 6, col 15)
+}
