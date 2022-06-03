@@ -238,10 +238,10 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 	}
 	p.Writeln("")
 
-	p.Writeln("dm = %s.decmem", p.className)
+	p.Writeln("%s = %s.decmem", memory.ModuleName(), p.className)
 
 	if memory.FinstSize != nil {
-		p.Writeln("dm.finst = %d", *memory.FinstSize)
+		p.Writeln("%s.finst = %d", memory.ModuleName(), *memory.FinstSize)
 	}
 
 	p.Writeln("goal = %s.set_goal('goal')", p.className)
@@ -255,17 +255,15 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 
 	// initialize
 	for _, init := range p.model.Initializers {
-		initializer := "dm"
-		if init.Buffer.BufferName() != "retrieval" {
-			initializer = init.Buffer.BufferName()
+		module := init.Module
 
-			// allow the user-set goal to override the initializer
-			if initializer == "goal" && (goal != nil) {
-				continue
-			}
+		// allow the user-set goal to override the initializer
+		if module.ModuleName() == "goal" && (goal != nil) {
+			continue
 		}
+
 		p.Writeln("# amod line %d", init.AMODLineNumber)
-		p.Writeln("%s.add(actr.chunkstring(string='''", initializer)
+		p.Writeln("%s.add(actr.chunkstring(string='''", module.ModuleName())
 		p.outputPattern(init.Pattern, 1)
 		p.Writeln("'''))")
 	}

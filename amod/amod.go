@@ -315,7 +315,7 @@ func addInit(model *actr.Model, log *issueLog, init *initSection) {
 		}
 
 		name := initialization.Name
-		module := model.LookupModule(name)
+		moduleInterface := model.LookupModule(name)
 
 		for _, init := range initialization.InitPatterns {
 			pattern, err := createChunkPattern(model, log, init)
@@ -324,7 +324,7 @@ func addInit(model *actr.Model, log *issueLog, init *initSection) {
 			}
 
 			init := actr.Initializer{
-				Buffer:         module,
+				Module:         moduleInterface,
 				Pattern:        pattern,
 				AMODLineNumber: init.Tokens[0].Pos.Line,
 			}

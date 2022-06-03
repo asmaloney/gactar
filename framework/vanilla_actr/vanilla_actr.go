@@ -210,18 +210,20 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 
 	v.Writeln("(add-dm")
 	for i, init := range v.model.Initializers {
-		initializer := init.Buffer.BufferName()
+		module := init.Module
 
 		// allow the user-set goal to override the initializer
-		if initializer == "goal" && (goal != nil) {
+		if module.ModuleName() == "goal" && (goal != nil) {
 			continue
 		}
+
+		initializer := module.ModuleName()
 
 		if initializer == "imaginal" {
 			continue
 		}
 
-		if initializer == "retrieval" {
+		if initializer == "memory" {
 			v.Writeln(" ;; amod line %d", init.AMODLineNumber)
 			v.Writeln(" (fact_%d", i)
 		} else {
@@ -271,10 +273,8 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 
 		// find our imaginal initializer and output it
 		for _, init := range v.model.Initializers {
-			if init.Buffer != nil {
-				initializer := init.Buffer.BufferName()
-
-				if initializer != "imaginal" {
+			if init.Module != nil {
+				if init.Module.ModuleName() != "imaginal" {
 					continue
 				}
 

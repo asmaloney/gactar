@@ -26,7 +26,7 @@ type Model struct {
 }
 
 type Initializer struct {
-	Buffer         buffer.BufferInterface
+	Module         modules.ModuleInterface
 	Pattern        *Pattern
 	AMODLineNumber int // line number in the amod file of this initialization
 }
@@ -58,7 +58,7 @@ func (model *Model) Initialize() {
 // LookupInitializer returns an initializer or nil if the buffer does not have one.
 func (model Model) LookupInitializer(buffer string) *Initializer {
 	for _, init := range model.Initializers {
-		if init.Buffer.BufferName() == buffer {
+		if init.Module.BufferName() == buffer {
 			return init
 		}
 	}
