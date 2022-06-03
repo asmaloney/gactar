@@ -221,19 +221,19 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 		c.Writeln("\tdef init():")
 
 		for _, init := range c.model.Initializers {
-			initializer := init.Buffer.BufferName()
+			module := init.Module
 
 			// allow the user-set goal to override the initializer
-			if initializer == "goal" && (goal != nil) {
+			if module.ModuleName() == "goal" && (goal != nil) {
 				continue
 			}
 
 			c.Writeln("\t\t# amod line %d", init.AMODLineNumber)
 
-			if initializer == "retrieval" {
-				c.Write("\t\t%s.add(", "memory")
+			if module.AllowsMultipleInit() {
+				c.Write("\t\t%s.add(", module.ModuleName())
 			} else {
-				c.Write("\t\t%s.set(", initializer)
+				c.Write("\t\t%s.set(", module.ModuleName())
 			}
 
 			c.outputPattern(init.Pattern)
