@@ -249,7 +249,12 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 
 	imaginal := p.model.ImaginalModule()
 	if imaginal != nil {
-		p.Writeln(`imaginal = %s.set_goal(name="imaginal", delay=%s)`, p.className, numbers.Float64Str(imaginal.Delay))
+		p.Write(`imaginal = %s.set_goal(name="imaginal"`, p.className)
+		if imaginal.Delay != nil {
+			p.Write(", delay=%s", numbers.Float64Str(*imaginal.Delay))
+		}
+		p.Write(")")
+		p.Writeln("")
 		p.Writeln("")
 	}
 
