@@ -1,5 +1,7 @@
 package actr
 
+import "github.com/asmaloney/gactar/actr/buffer"
+
 // Production stores information on how to match buffers and perform some operations.
 // It uses a small language to modify states upon successful matches.
 type Production struct {
@@ -17,12 +19,12 @@ type Production struct {
 // VarIndex is used to track which buffer slot a variable refers to
 type VarIndex struct {
 	Var      string
-	Buffer   BufferInterface
+	Buffer   buffer.BufferInterface
 	SlotName string
 }
 
 type Match struct {
-	Buffer  BufferInterface
+	Buffer  buffer.BufferInterface
 	Pattern *Pattern
 }
 
@@ -78,7 +80,7 @@ type SetStatement struct {
 	Slots *[]SetSlot // (1) set this slot (optional)
 	Chunk *Chunk     // (1) if we are setting slots, point at the chunk they reference for easy lookup
 
-	Buffer BufferInterface // (1 & 2) buffer we are manipulating
+	Buffer buffer.BufferInterface // (1 & 2) buffer we are manipulating
 
 	Pattern *Pattern // (2) pattern if we are setting the whole buffer
 }

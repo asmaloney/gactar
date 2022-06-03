@@ -3,6 +3,7 @@ package amod
 import (
 	"github.com/alecthomas/participle/v2/lexer"
 	"github.com/asmaloney/gactar/actr"
+	"github.com/asmaloney/gactar/actr/buffer"
 
 	"github.com/asmaloney/gactar/util/issues"
 )
@@ -86,8 +87,8 @@ func validateMatch(match *match, model *actr.Model, log *issueLog, production *a
 	for _, item := range match.Items {
 		name := item.Name
 
-		buffer := model.LookupBuffer(name)
-		if buffer == nil {
+		bufferInterface := model.LookupBuffer(name)
+		if bufferInterface == nil {
 			log.errorTR(item.Tokens, 0, 1, "buffer '%s' not found in production '%s'", name, production.Name)
 			err = CompileError{}
 			continue
@@ -104,8 +105,10 @@ func validateMatch(match *match, model *actr.Model, log *issueLog, production *a
 			slot := *pattern.Slots[0]
 			slotItem := slot.Items[0].ID
 
-			if !actr.IsValidBufferState(*slotItem) {
-				log.errorT(slot.Tokens, "invalid _status '%s' for '%s' in production '%s' (should be %v)", *slotItem, name, production.Name, actr.ValidBufferStatesStr())
+			if !buffer.IsValidBufferState(*slotItem) {
+				log.errorT(slot.Tokens,
+					"invalid _status '%s' for '%s' in production '%s' (should be %v)",
+					*slotItem, name, production.Name, buffer.ValidBufferStatesStr())
 				err = CompileError{}
 			}
 		}
