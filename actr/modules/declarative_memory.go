@@ -44,8 +44,8 @@ type FinstParams struct {
 	FinstTime *float64
 }
 
-// DeclMemory is a module which provides declarative memory.
-type DeclMemory struct {
+// DeclarativeMemory is a module which provides declarative memory.
+type DeclarativeMemory struct {
 	buffer.BufferInterface
 
 	LatencyParams
@@ -56,12 +56,12 @@ type DeclMemory struct {
 	MaxSpreadStrength *float64
 }
 
-func NewDeclMemory() *DeclMemory {
-	return &DeclMemory{
+func NewDeclarativeMemory() *DeclarativeMemory {
+	return &DeclarativeMemory{
 		BufferInterface: buffer.Buffer{Name: "retrieval", MultipleInit: true},
 	}
 }
 
-func (d DeclMemory) ModuleName() string {
+func (d DeclarativeMemory) ModuleName() string {
 	return "memory"
 }
