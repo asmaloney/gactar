@@ -193,7 +193,9 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 	imaginal := v.model.ImaginalModule()
 	if imaginal != nil {
 		v.Writeln("\t:do-not-harvest imaginal")
-		v.Writeln("\t:imaginal-delay %s", numbers.Float64Str(imaginal.Delay))
+		if imaginal.Delay != nil {
+			v.Writeln("\t:imaginal-delay %s", numbers.Float64Str(*imaginal.Delay))
+		}
 	}
 	v.Writeln(")\n")
 
