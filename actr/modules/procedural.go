@@ -1,7 +1,9 @@
-package actr
+package modules
+
+import "github.com/asmaloney/gactar/actr/buffer"
 
 type Procedural struct {
-	BufferInterface // unused
+	buffer.BufferInterface // unused
 
 	// "default_action_time": time that it takes to fire a production (seconds)
 	// ccm: 0.05
@@ -11,7 +13,7 @@ type Procedural struct {
 }
 
 func NewProcedural() *Procedural {
-	return &Procedural{BufferInterface: Buffer{}}
+	return &Procedural{BufferInterface: buffer.Buffer{}}
 }
 
 func (Procedural) GetModuleName() string {

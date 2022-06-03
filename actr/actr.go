@@ -2,6 +2,11 @@
 // to a Framework to generate their code.
 package actr
 
+import (
+	"github.com/asmaloney/gactar/actr/buffer"
+	"github.com/asmaloney/gactar/actr/modules"
+)
+
 // Model represents a basic ACT-R model.
 // This is used as input to a Framework where it can be run or output to a file.
 // (This is incomplete w.r.t. all of ACT-R's capabilities.)
@@ -11,16 +16,17 @@ type Model struct {
 	Authors      []string
 	Examples     []*Pattern
 	Chunks       []*Chunk
-	Modules      []ModuleInterface
-	Memory       *DeclMemory // memory is always present, so keep track of it instead of looking it up
-	Procedural   *Procedural // procedural is always present, so keep track of it instead of looking it up
+	Modules      []modules.ModuleInterface
+	Memory       *modules.DeclMemory // memory is always present, so keep track of it instead of looking it up
+	Goal         *modules.Goal       // goal is always present, so keep track of it instead of looking it up
+	Procedural   *modules.Procedural // procedural is always present, so keep track of it instead of looking it up
 	Initializers []*Initializer
 	Productions  []*Production
 	LogLevel     ACTRLogLevel
 }
 
 type Initializer struct {
-	Buffer         BufferInterface
+	Buffer         buffer.BufferInterface
 	Pattern        *Pattern
 	AMODLineNumber int // line number in the amod file of this initialization
 }
@@ -35,13 +41,16 @@ func (model *Model) Initialize() {
 		},
 	}
 
-	model.Procedural = NewProcedural()
-	model.Modules = append(model.Modules, model.Procedural)
+	// Set up our built-in modules
 
-	model.Modules = append(model.Modules, NewGoal())
-
-	model.Memory = NewDeclMemory()
+	model.Memory = modules.NewDeclMemory()
 	model.Modules = append(model.Modules, model.Memory)
+
+	model.Goal = modules.NewGoal()
+	model.Modules = append(model.Modules, model.Goal)
+
+	model.Procedural = modules.NewProcedural()
+	model.Modules = append(model.Modules, model.Procedural)
 
 	model.LogLevel = "info"
 }
@@ -74,20 +83,20 @@ func (model Model) HasPrintStatement() bool {
 }
 
 // CreateImaginal creates the imaginal module and adds it to the list.
-func (model *Model) CreateImaginal() *Imaginal {
-	imaginal := NewImaginal()
+func (model *Model) CreateImaginal() *modules.Imaginal {
+	imaginal := modules.NewImaginal()
 	model.Modules = append(model.Modules, imaginal)
 	return imaginal
 }
 
 // GetImaginal gets the imaginal module (or returns nil if it does not exist).
-func (model Model) GetImaginal() *Imaginal {
+func (model Model) GetImaginal() *modules.Imaginal {
 	module := model.LookupModule("imaginal")
 	if module == nil {
 		return nil
 	}
 
-	imaginal, ok := module.(*Imaginal)
+	imaginal, ok := module.(*modules.Imaginal)
 	if !ok {
 		return nil
 	}
@@ -96,7 +105,7 @@ func (model Model) GetImaginal() *Imaginal {
 }
 
 // LookupModule looks up the named module in the model and returns it (or nil if it does not exist).
-func (model Model) LookupModule(moduleName string) ModuleInterface {
+func (model Model) LookupModule(moduleName string) modules.ModuleInterface {
 	for _, module := range model.Modules {
 		if module.GetModuleName() == moduleName {
 			return module
@@ -119,7 +128,7 @@ func (model Model) BufferNames() (list []string) {
 }
 
 // LookupBuffer looks up the named buffer in the model and returns it (or nil if it does not exist).
-func (model Model) LookupBuffer(bufferName string) BufferInterface {
+func (model Model) LookupBuffer(bufferName string) buffer.BufferInterface {
 	for _, module := range model.Modules {
 		if module.GetBufferName() == bufferName {
 			return module

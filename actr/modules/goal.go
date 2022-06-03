@@ -1,13 +1,15 @@
-package actr
+package modules
+
+import "github.com/asmaloney/gactar/actr/buffer"
 
 // Goal is a module which provides the ACT-R "goal" buffer.
 type Goal struct {
-	BufferInterface
+	buffer.BufferInterface
 }
 
 func NewGoal() *Goal {
 	return &Goal{
-		BufferInterface: &Buffer{Name: "goal", MultipleInit: false},
+		BufferInterface: &buffer.Buffer{Name: "goal", MultipleInit: false},
 	}
 }
 

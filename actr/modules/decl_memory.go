@@ -1,4 +1,6 @@
-package actr
+package modules
+
+import "github.com/asmaloney/gactar/actr/buffer"
 
 type LatencyParams struct {
 	// Setting these kinds of parameters is going to be tricky.
@@ -44,7 +46,7 @@ type FinstParams struct {
 
 // DeclMemory is a module which provides declarative memory.
 type DeclMemory struct {
-	BufferInterface
+	buffer.BufferInterface
 
 	LatencyParams
 	FinstParams
@@ -56,7 +58,7 @@ type DeclMemory struct {
 
 func NewDeclMemory() *DeclMemory {
 	return &DeclMemory{
-		BufferInterface: Buffer{Name: "retrieval", MultipleInit: true},
+		BufferInterface: buffer.Buffer{Name: "retrieval", MultipleInit: true},
 	}
 }
 
