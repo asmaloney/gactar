@@ -1,13 +1,9 @@
 package actr
 
-// DeclMemory is a module which provides declarative memory.
-type DeclMemory struct {
-	BufferInterface
-
+type LatencyParams struct {
 	// Setting these kinds of parameters is going to be tricky.
 	// The way each framework handles timing is different.
 
-	// Latency
 	// See "Retrieval time" in "ACT-R 7.26 Reference Manual" pg. 293
 
 	// "latency_factor": latency factor (F)
@@ -27,7 +23,9 @@ type DeclMemory struct {
 	// pyactr: 0.0
 	// vanilla: 0.0
 	RetrievalThreshold *float64
+}
 
+type FinstParams struct {
 	// finst ("fingers of instantiation")
 	// See "Declarative finsts" in "ACT-R 7.26 Reference Manual" pg. 293
 
@@ -42,6 +40,18 @@ type DeclMemory struct {
 	// pyactr: (unsupported?)
 	// vanilla: 3.0
 	FinstTime *float64
+}
+
+// DeclMemory is a module which provides declarative memory.
+type DeclMemory struct {
+	BufferInterface
+
+	LatencyParams
+	FinstParams
+
+	// "max_spread_strength": turns on the spreading activation calculation & sets the maximum associative strength
+	// (there are no defaults since setting it activates the capability)
+	MaxSpreadStrength *float64
 }
 
 func NewDeclMemory() *DeclMemory {

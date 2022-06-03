@@ -172,6 +172,10 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 		v.Writeln("\t:declarative-finst-span %s", numbers.Float64Str(*memory.FinstTime))
 	}
 
+	if memory.MaxSpreadStrength != nil {
+		v.Writeln("\t:mas %s", numbers.Float64Str(*memory.MaxSpreadStrength))
+	}
+
 	procedural := v.model.Procedural
 	if procedural.DefaultActionTime != nil {
 		v.Writeln("\t:dat %s", numbers.Float64Str(*procedural.DefaultActionTime))
