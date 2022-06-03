@@ -65,3 +65,69 @@ func NewDeclarativeMemory() *DeclarativeMemory {
 func (d DeclarativeMemory) ModuleName() string {
 	return "memory"
 }
+
+func (d *DeclarativeMemory) SetParam(param *Param) (err ParamError) {
+	value := param.Value
+
+	switch param.Key {
+	case "latency_factor":
+		if value.Number == nil {
+			return NumberRequired
+		}
+
+		if *value.Number < 0 {
+			return NumberMustBePositive
+		}
+
+		d.LatencyFactor = value.Number
+
+	case "latency_exponent":
+		if value.Number == nil {
+			return NumberRequired
+		}
+
+		if *value.Number < 0 {
+			return NumberMustBePositive
+		}
+
+		d.LatencyExponent = value.Number
+
+	case "retrieval_threshold":
+		if value.Number == nil {
+			return NumberRequired
+		}
+
+		d.RetrievalThreshold = value.Number
+
+	case "finst_size":
+		if value.Number == nil {
+			return NumberRequired
+		}
+
+		size := int(*value.Number)
+		if size < 0 {
+			return NumberMustBePositive
+		}
+
+		d.FinstSize = &size
+
+	case "finst_time":
+		if value.Number == nil {
+			return NumberRequired
+		}
+
+		d.FinstTime = value.Number
+
+	case "max_spread_strength":
+		if value.Number == nil {
+			return NumberRequired
+		}
+
+		d.MaxSpreadStrength = value.Number
+
+	default:
+		return UnrecognizedParam
+	}
+
+	return
+}

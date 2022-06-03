@@ -21,3 +21,25 @@ func NewImaginal() *Imaginal {
 func (i Imaginal) ModuleName() string {
 	return "imaginal"
 }
+
+func (i *Imaginal) SetParam(param *Param) (err ParamError) {
+	value := param.Value
+
+	switch param.Key {
+	case "delay":
+		if value.Number == nil {
+			return NumberRequired
+		}
+
+		if *value.Number < 0 {
+			return NumberMustBePositive
+		}
+
+		i.Delay = *value.Number
+
+	default:
+		return UnrecognizedParam
+	}
+
+	return
+}

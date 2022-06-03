@@ -8,9 +8,9 @@ import (
 	"github.com/alecthomas/participle/v2"
 
 	"github.com/asmaloney/gactar/actr"
+	"github.com/asmaloney/gactar/actr/modules"
 
 	"github.com/asmaloney/gactar/util/issues"
-	"github.com/asmaloney/gactar/util/numbers"
 )
 
 var debugging bool = false
@@ -227,138 +227,53 @@ func addModules(model *actr.Model, log *issueLog, modules []*module) {
 	}
 }
 
+func setModuleParams(module modules.ModuleInterface, log *issueLog, fields []*field) {
+	if len(fields) == 0 {
+		return
+	}
+
+	moduleName := module.ModuleName()
+
+	for _, field := range fields {
+		value := field.Value
+
+		err := module.SetParam(&modules.Param{
+			Key: field.Key,
+			Value: modules.Value{
+				ID:     value.ID,
+				Str:    value.Str,
+				Number: value.Number,
+			},
+		})
+
+		switch err {
+		case modules.NumberRequired:
+			log.errorT(value.Tokens, "%s %s '%s' must be a number", moduleName, field.Key, value.String())
+			continue
+
+		case modules.NumberMustBePositive:
+			log.errorT(value.Tokens, "%s %s '%s' must be a positive number", moduleName, field.Key, value.String())
+			continue
+
+		case modules.UnrecognizedParam:
+			log.errorTR(field.Tokens, 0, 1, "unrecognized field '%s' in %s config", field.Key, moduleName)
+			continue
+		}
+	}
+}
+
 func addImaginal(model *actr.Model, log *issueLog, fields []*field) {
 	imaginal := model.CreateImaginal()
 
-	for _, field := range fields {
-		value := field.Value
-
-		switch field.Key {
-		case "delay":
-			if value.Number == nil {
-				log.errorT(value.Tokens, "imaginal delay '%s' must be a number", value.String())
-				continue
-			}
-
-			if *value.Number < 0 {
-				log.errorT(value.Tokens, "imaginal delay '%s' must be a positive number", value.String())
-				continue
-			}
-
-			imaginal.Delay = *value.Number
-
-		default:
-			log.errorTR(field.Tokens, 0, 1, "unrecognized field '%s' in imaginal config", field.Key)
-		}
-	}
+	setModuleParams(imaginal, log, fields)
 }
 
-func addMemory(model *actr.Model, log *issueLog, mem []*field) {
-	if mem == nil {
-		return
-	}
-
-	for _, field := range mem {
-		value := field.Value
-
-		switch field.Key {
-		case "latency_factor":
-			if value.Number == nil {
-				log.errorT(value.Tokens, "memory latency_factor '%s' must be a number", value.String())
-				continue
-			}
-
-			if *value.Number < 0 {
-				log.errorT(value.Tokens, "memory latency_factor '%s' must be greater than 0", numbers.Float64Str(*value.Number))
-				continue
-			}
-
-			model.Memory.LatencyFactor = value.Number
-
-		case "latency_exponent":
-			if value.Number == nil {
-				log.errorT(value.Tokens, "memory latency_exponent '%s' must be a number", value.String())
-				continue
-			}
-
-			if *value.Number < 0 {
-				log.errorT(value.Tokens, "memory latency_exponent '%s' must be greater than 0", numbers.Float64Str(*value.Number))
-				continue
-			}
-
-			model.Memory.LatencyExponent = value.Number
-
-		case "retrieval_threshold":
-			if value.Number == nil {
-				log.errorT(value.Tokens, "memory retrieval_threshold '%s' must be a number", value.String())
-				continue
-			}
-
-			model.Memory.RetrievalThreshold = value.Number
-
-		case "finst_size":
-			if value.Number == nil {
-				log.errorT(value.Tokens, "memory finst_size '%s' must be a number", value.String())
-				continue
-			}
-
-			size := int(*value.Number)
-			if size < 1 {
-				log.errorT(value.Tokens, "memory finst_size '%d' must be greater than 0", size)
-				continue
-			}
-
-			model.Memory.FinstSize = &size
-
-		case "finst_time":
-			if value.Number == nil {
-				log.errorT(value.Tokens, "memory finst_time '%s' must be a number", value.String())
-				continue
-			}
-
-			model.Memory.FinstTime = value.Number
-
-		case "max_spread_strength":
-			if value.Number == nil {
-				log.errorT(value.Tokens, "memory max_spread_strength '%s' must be a number", value.String())
-				continue
-			}
-
-			model.Memory.MaxSpreadStrength = value.Number
-
-		default:
-			log.errorTR(field.Tokens, 0, 1, "unrecognized field '%s' in memory config", field.Key)
-		}
-	}
+func addMemory(model *actr.Model, log *issueLog, fields []*field) {
+	setModuleParams(model.Memory, log, fields)
 }
 
 func addProcedural(model *actr.Model, log *issueLog, fields []*field) {
-	if fields == nil {
-		return
-	}
-
-	for _, field := range fields {
-		value := field.Value
-
-		switch field.Key {
-		case "default_action_time":
-			if value.Number == nil {
-				log.errorT(value.Tokens, "procedural default_action_time '%s' must be a number", value.String())
-				continue
-			}
-
-			if *value.Number < 0 {
-				log.errorT(value.Tokens, "procedural default_action_time '%s' must be greater than 0", numbers.Float64Str(*value.Number))
-				continue
-			}
-
-			model.Procedural.DefaultActionTime = value.Number
-
-		default:
-			log.errorTR(field.Tokens, 0, 1, "unrecognized field '%s' in procedural config", field.Key)
-
-		}
-	}
+	setModuleParams(model.Procedural, log, fields)
 }
 
 func addChunks(model *actr.Model, log *issueLog, chunks []*chunkDecl) {
