@@ -215,6 +215,8 @@ func addModules(model *actr.Model, log *issueLog, modules []*module) {
 
 	for _, module := range modules {
 		switch module.Name {
+		case "goal":
+			addGoal(model, log, module.InitFields)
 		case "imaginal":
 			addImaginal(model, log, module.InitFields)
 		case "memory":
@@ -260,6 +262,10 @@ func setModuleParams(module modules.ModuleInterface, log *issueLog, fields []*fi
 			continue
 		}
 	}
+}
+
+func addGoal(model *actr.Model, log *issueLog, fields []*field) {
+	setModuleParams(model.Goal, log, fields)
 }
 
 func addImaginal(model *actr.Model, log *issueLog, fields []*field) {

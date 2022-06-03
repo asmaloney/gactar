@@ -200,6 +200,12 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 	if memory.MaxSpreadStrength != nil {
 		c.Writeln("\tspread = DMSpreading(%s, goal)", memory.ModuleName())
 		c.Writeln("\tspread.strength = %s", numbers.Float64Str(*memory.MaxSpreadStrength))
+
+		goalActivation := c.model.Goal.SpreadingActivation
+		if goalActivation != nil {
+			c.Writeln("\tspread.weight[%s] = %s", "goal", numbers.Float64Str(*goalActivation))
+		}
+
 		c.Writeln("")
 	}
 

@@ -174,6 +174,11 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 
 	if memory.MaxSpreadStrength != nil {
 		v.Writeln("\t:mas %s", numbers.Float64Str(*memory.MaxSpreadStrength))
+
+		goalActivation := v.model.Goal.SpreadingActivation
+		if goalActivation != nil {
+			v.Writeln("\t:ga %s", numbers.Float64Str(*goalActivation))
+		}
 	}
 
 	procedural := v.model.Procedural
