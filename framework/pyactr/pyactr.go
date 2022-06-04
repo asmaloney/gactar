@@ -384,13 +384,17 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patter
 			value = "~"
 		}
 
-		if item.Nil {
+		switch {
+		case item.Nil:
 			value += "nil"
-		} else if item.ID != nil {
+
+		case item.ID != nil:
 			value += fmt.Sprintf(`"%s"`, *item.ID)
-		} else if item.Num != nil {
+
+		case item.Num != nil:
 			value += *item.Num
-		} else if item.Var != nil {
+
+		case item.Var != nil:
 			value += "="
 			value += strings.TrimPrefix(*item.Var, "?")
 		}
@@ -400,7 +404,8 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patter
 }
 
 func (p *PyACTR) outputStatement(production *actr.Production, s *actr.Statement) {
-	if s.Set != nil {
+	switch {
+	case s.Set != nil:
 		buffer := s.Set.Buffer
 		bufferName := buffer.BufferName()
 
@@ -413,13 +418,17 @@ func (p *PyACTR) outputStatement(production *actr.Production, s *actr.Statement)
 			for _, slot := range *s.Set.Slots {
 				slotName := slot.Name
 
-				if slot.Value.Nil {
+				switch {
+				case slot.Value.Nil:
 					tabbedItems.Add(slotName, "nil")
-				} else if slot.Value.Var != nil {
+
+				case slot.Value.Var != nil:
 					tabbedItems.Add(slotName, fmt.Sprintf("=%s", *slot.Value.Var))
-				} else if slot.Value.Number != nil {
+
+				case slot.Value.Number != nil:
 					tabbedItems.Add(slotName, *slot.Value.Number)
-				} else if slot.Value.Str != nil {
+
+				case slot.Value.Str != nil:
 					tabbedItems.Add(slotName, fmt.Sprintf(`"%s"`, *slot.Value.Str))
 				}
 			}
@@ -427,11 +436,15 @@ func (p *PyACTR) outputStatement(production *actr.Production, s *actr.Statement)
 		} else if s.Set.Pattern != nil {
 			p.outputPattern(s.Set.Pattern, 2)
 		}
-	} else if s.Recall != nil {
+
+	case s.Recall != nil:
+		// Clear the buffer before we set it
+		// See: https://github.com/jakdot/pyactr/issues/9#issuecomment-940442787
 		p.Writeln("\t~retrieval>")
 		p.Writeln("\t+retrieval>")
 		p.outputPattern(s.Recall.Pattern, 2)
-	} else if s.Print != nil {
+
+	case s.Print != nil:
 		// Using "goal" here is arbitrary because of the way we monkey patch the python code.
 		// Our "print_text" statement handles its own formatting and lookup.
 		p.Writeln("\t!goal>")
@@ -439,18 +452,22 @@ func (p *PyACTR) outputStatement(production *actr.Production, s *actr.Statement)
 		str := make([]string, len(*s.Print.Values))
 
 		for index, val := range *s.Print.Values {
-			if val.Var != nil {
+			switch {
+			case val.Var != nil:
 				varIndex := production.VarIndexMap[*val.Var]
 				str[index] = fmt.Sprintf("%s.%s", varIndex.Buffer.BufferName(), varIndex.SlotName)
-			} else if val.Str != nil {
+
+			case val.Str != nil:
 				str[index] = fmt.Sprintf("'%s'", *val.Str)
-			} else if val.Number != nil {
+
+			case val.Number != nil:
 				str[index] = *val.Number
 			}
 		}
 
 		p.Writeln("\t\tprint_text \"%s\"", strings.Join(str, ", "))
-	} else if s.Clear != nil {
+
+	case s.Clear != nil:
 		for _, name := range s.Clear.BufferNames {
 			p.Writeln("\t~%s>", name)
 		}

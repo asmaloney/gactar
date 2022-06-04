@@ -462,11 +462,14 @@ func lexIdentifier(l *lexer_amod) stateFn {
 		// Perhaps not the best way to do this.
 		// I'm sure there's a char-by-char way we could implement which would be faster.
 		isKeyword := l.lookupKeyword(l.input[l.start:l.pos])
-		if isKeyword {
+		switch {
+		case isKeyword:
 			l.emit(lexemeKeyword)
-		} else if l.input[l.start] == '?' {
+
+		case l.input[l.start] == '?':
 			l.emit(lexemePatternVar)
-		} else {
+
+		default:
 			l.emit(lexemeIdentifier)
 		}
 	} else {

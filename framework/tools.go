@@ -61,15 +61,18 @@ func ParseInitialBuffers(model *actr.Model, initialBuffers InitialBuffers) (pars
 func PythonValuesToStrings(values *[]*actr.Value, quoteStrings bool) []string {
 	str := make([]string, len(*values))
 	for i, v := range *values {
-		if v.Var != nil {
+		switch {
+		case v.Var != nil:
 			str[i] = strings.TrimPrefix(*v.Var, "?")
-		} else if v.Str != nil {
+
+		case v.Str != nil:
 			if quoteStrings {
 				str[i] = fmt.Sprintf("'%s'", *v.Str)
 			} else {
 				str[i] = *v.Str
 			}
-		} else if v.Number != nil {
+
+		case v.Number != nil:
 			str[i] = *v.Number
 		}
 		// v.ID should not be possible because of validation

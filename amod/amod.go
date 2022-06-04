@@ -425,15 +425,20 @@ func createChunkPattern(model *actr.Model, log *issueLog, cp *pattern) (*actr.Pa
 				Negated: item.Not,
 			}
 
-			if item.Wildcard != nil {
+			switch {
+			case item.Wildcard != nil:
 				newItem.Wildcard = true
-			} else if item.Nil != nil {
+
+			case item.Nil != nil:
 				newItem.Nil = true
-			} else if item.ID != nil {
+
+			case item.ID != nil:
 				newItem.ID = item.ID
-			} else if item.Num != nil {
+
+			case item.Num != nil:
 				newItem.Num = item.Num
-			} else if item.Var != nil {
+
+			case item.Var != nil:
 				newItem.Var = item.Var
 			}
 
@@ -448,15 +453,20 @@ func createChunkPattern(model *actr.Model, log *issueLog, cp *pattern) (*actr.Pa
 func addStatement(model *actr.Model, log *issueLog, statement *statement, production *actr.Production) (err error) {
 	var s *actr.Statement
 
-	if statement.Set != nil {
+	switch {
+	case statement.Set != nil:
 		s, err = addSetStatement(model, log, statement.Set, production)
-	} else if statement.Recall != nil {
+
+	case statement.Recall != nil:
 		s, err = addRecallStatement(model, log, statement.Recall, production)
-	} else if statement.Clear != nil {
+
+	case statement.Clear != nil:
 		s, err = addClearStatement(model, log, statement.Clear, production)
-	} else if statement.Print != nil {
+
+	case statement.Print != nil:
 		s, err = addPrintStatement(model, log, statement.Print, production)
-	} else {
+
+	default:
 		err = fmt.Errorf("statement type not handled: %T", statement)
 		return err
 	}
@@ -503,15 +513,20 @@ func addSetStatement(model *actr.Model, log *issueLog, set *setStatement, produc
 		index := match.Pattern.Chunk.SlotIndex(slotName)
 		value := &actr.SetValue{}
 
-		if set.Value.Var != nil {
+		switch {
+		case set.Value.Var != nil:
 			varName := strings.TrimPrefix(*set.Value.Var, "?")
 			value.Var = &varName
-		} else if set.Value.Nil != nil {
+
+		case set.Value.Nil != nil:
 			value.Nil = *set.Value.Nil
-		} else if set.Value.Number != nil {
+
+		case set.Value.Number != nil:
 			value.Number = set.Value.Number
-		} else if set.Value.Str != nil {
+
+		case set.Value.Str != nil:
 			value.Str = set.Value.Str
+
 		}
 
 		newSlot := &actr.SetSlot{
@@ -595,13 +610,17 @@ func convertArgs(args []*arg) *[]*actr.Value {
 	for _, v := range args {
 		newValue := actr.Value{}
 
-		if v.Var != nil {
+		switch {
+		case v.Var != nil:
 			newValue.Var = v.Var
-		} else if v.ID != nil {
+
+		case v.ID != nil:
 			newValue.ID = v.ID
-		} else if v.Str != nil {
+
+		case v.Str != nil:
 			newValue.Str = v.Str
-		} else if v.Number != nil {
+
+		case v.Number != nil:
 			newValue.Number = v.Number
 		}
 

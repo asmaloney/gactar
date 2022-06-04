@@ -317,7 +317,8 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 
 	// Walk the do statements and add to var ref counts
 	for _, statement := range *do.Statements {
-		if statement.Set != nil {
+		switch {
+		case statement.Set != nil:
 			if statement.Set.Value != nil {
 				if statement.Set.Value.Var != nil {
 					varItem := *statement.Set.Value.Var
@@ -328,9 +329,11 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 			} else { // pattern
 				addPatternRefs(statement.Set.Pattern, false)
 			}
-		} else if statement.Recall != nil {
+
+		case statement.Recall != nil:
 			addPatternRefs(statement.Recall.Pattern, false)
-		} else if statement.Print != nil {
+
+		case statement.Print != nil:
 			for _, arg := range statement.Print.Args {
 				if arg.Var != nil {
 					varItem := *arg.Var

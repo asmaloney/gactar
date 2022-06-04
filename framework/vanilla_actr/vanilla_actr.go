@@ -365,13 +365,17 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patter
 			slot = "- "
 		}
 
-		if item.Nil {
+		switch {
+		case item.Nil:
 			value = "empty"
-		} else if item.ID != nil {
+
+		case item.ID != nil:
 			value = fmt.Sprintf(`"%s"`, *item.ID)
-		} else if item.Num != nil {
+
+		case item.Num != nil:
 			value = *item.Num
-		} else if item.Var != nil {
+
+		case item.Var != nil:
 			varName := strings.TrimPrefix(*item.Var, "?")
 			value = fmt.Sprintf("=%s", varName)
 		}
@@ -383,7 +387,8 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patter
 }
 
 func (v *VanillaACTR) outputStatement(s *actr.Statement) {
-	if s.Set != nil {
+	switch {
+	case s.Set != nil:
 		buffer := s.Set.Buffer
 
 		v.Writeln("\t=%s>", buffer.BufferName())
@@ -395,13 +400,17 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 			for _, slot := range *s.Set.Slots {
 				slotName := slot.Name
 
-				if slot.Value.Nil {
+				switch {
+				case slot.Value.Nil:
 					tabbedItems.Add(slotName, "empty")
-				} else if slot.Value.Var != nil {
+
+				case slot.Value.Var != nil:
 					tabbedItems.Add(slotName, fmt.Sprintf("=%s", *slot.Value.Var))
-				} else if slot.Value.Number != nil {
+
+				case slot.Value.Number != nil:
 					tabbedItems.Add(slotName, *slot.Value.Number)
-				} else if slot.Value.Str != nil {
+
+				case slot.Value.Str != nil:
 					tabbedItems.Add(slotName, fmt.Sprintf(`"%s"`, *slot.Value.Str))
 				}
 			}
@@ -409,13 +418,16 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 		} else if s.Set.Pattern != nil {
 			v.outputPattern(s.Set.Pattern, 2)
 		}
-	} else if s.Recall != nil {
+
+	case s.Recall != nil:
 		v.Writeln("\t+retrieval>")
 		v.outputPattern(s.Recall.Pattern, 2)
-	} else if s.Print != nil {
+
+	case s.Print != nil:
 		outputArgs := createOutputArgs(s.Print.Values)
 		v.Write("\t!output!\t(%s)\n", outputArgs)
-	} else if s.Clear != nil {
+
+	case s.Clear != nil:
 		for _, name := range s.Clear.BufferNames {
 			v.Writeln("\t-%s>", name)
 		}
@@ -430,13 +442,16 @@ func createOutputArgs(values *[]*actr.Value) string {
 	args := []string{}
 
 	for _, v := range *values {
-		if v.Var != nil {
+		switch {
+		case v.Var != nil:
 			formatStr += "~a"
 			varName := strings.TrimPrefix(*v.Var, "?")
 			args = append(args, fmt.Sprintf("=%s", varName))
-		} else if v.Str != nil {
+
+		case v.Str != nil:
 			formatStr += *v.Str
-		} else if v.Number != nil {
+
+		case v.Number != nil:
 			formatStr += *v.Number
 		}
 		// v.ID should not be possible because of validation

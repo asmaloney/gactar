@@ -29,15 +29,20 @@ func (p PatternSlot) String() (str string) {
 			str += "!"
 		}
 
-		if item.Wildcard {
+		switch {
+		case item.Wildcard:
 			str += "*"
-		} else if item.Nil {
+
+		case item.Nil:
 			str += "nil"
-		} else if item.ID != nil {
+
+		case item.ID != nil:
 			str += *item.ID
-		} else if item.Var != nil {
+
+		case item.Var != nil:
 			str += *item.Var
-		} else if item.Num != nil {
+
+		case item.Num != nil:
 			str += *item.Num
 		}
 	}
