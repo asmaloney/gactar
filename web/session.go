@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/asmaloney/gactar/framework"
+
+	"github.com/asmaloney/gactar/util/clicontext"
 )
 
 type Session struct {
@@ -69,6 +71,14 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 	data.Frameworks = w.normalizeFrameworkList(data.Frameworks)
 
 	err = w.verifyFrameworkList(data.Frameworks)
+	if err != nil {
+		encodeErrorResponse(rw, err)
+		return
+	}
+
+	// ensure temp dir exists
+	// https://github.com/asmaloney/gactar/issues/103
+	err = clicontext.CreateTempDir(w.context)
 	if err != nil {
 		encodeErrorResponse(rw, err)
 		return
