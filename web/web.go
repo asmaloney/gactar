@@ -156,10 +156,6 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		Frameworks []string `json:"frameworks,omitempty"` // list of frameworks to run on (if empty, "all")
 	}
 
-	type response struct {
-		Results json.RawMessage `json:"results"`
-	}
-
 	var data request
 	err := decodeBody(req, &data)
 	if err != nil {
@@ -187,6 +183,14 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	validate.Goal(model, initialGoal, log)
+
+	// ensure temp dir exists
+	// https://github.com/asmaloney/gactar/issues/103
+	err = clicontext.CreateTempDir(w.context)
+	if err != nil {
+		encodeErrorResponse(rw, err)
+		return
+	}
 
 	resultMap := w.runModel(model, initialBuffers, data.Frameworks)
 
@@ -237,10 +241,6 @@ func (w Web) verifyFrameworkList(list []string) (err error) {
 }
 
 func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers, frameworkNames []string) (resultMap frameworkRunResultMap) {
-	// ensure temp dir exists
-	// https://github.com/asmaloney/gactar/issues/103
-	clicontext.CreateTempDir(w.context)
-
 	resultMap = make(frameworkRunResultMap, len(frameworkNames))
 
 	var wg sync.WaitGroup
@@ -340,7 +340,10 @@ func decodeBody(req *http.Request, v interface{}) (err error) {
 
 func encodeResponse(rw http.ResponseWriter, v interface{}) {
 	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
-	json.NewEncoder(rw).Encode(v)
+	encodeErr := json.NewEncoder(rw).Encode(v)
+	if encodeErr != nil {
+		http.Error(rw, encodeErr.Error(), http.StatusInternalServerError)
+	}
 }
 
 func encodeErrorResponse(rw http.ResponseWriter, err error) {
@@ -353,13 +356,19 @@ func encodeErrorResponse(rw http.ResponseWriter, err error) {
 		},
 	}
 
-	json.NewEncoder(rw).Encode(errResponse)
+	encodeErr := json.NewEncoder(rw).Encode(errResponse)
+	if encodeErr != nil {
+		http.Error(rw, encodeErr.Error(), http.StatusInternalServerError)
+	}
 }
 
 func encodeIssueResponse(rw http.ResponseWriter, log *issues.Log) {
 	errResponse := runResult{Issues: log.AllIssues()}
 
-	json.NewEncoder(rw).Encode(errResponse)
+	encodeErr := json.NewEncoder(rw).Encode(errResponse)
+	if encodeErr != nil {
+		http.Error(rw, encodeErr.Error(), http.StatusInternalServerError)
+	}
 }
 
 // assetHandler returns an http.Handler that will serve files from
