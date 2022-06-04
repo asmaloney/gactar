@@ -23,7 +23,7 @@ func TestAddModel(t *testing.T) {
 	}
 
 	if webTest.hasSessions() {
-		t.Errorf("Did not remore session from list")
+		t.Errorf("Did not remove session from list")
 	}
 }
 

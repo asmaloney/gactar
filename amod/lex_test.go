@@ -8,6 +8,8 @@ import (
 )
 
 func TestNumber(t *testing.T) {
+	t.Parallel()
+
 	// https://github.com/asmaloney/gactar/issues/2
 	src := `0 0.3 5 55.6 .9`
 

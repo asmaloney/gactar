@@ -3,6 +3,8 @@ package issues
 import "testing"
 
 func TestAddEntryLocationNil(t *testing.T) {
+	t.Parallel()
+
 	log := New()
 
 	log.Warning(nil, "test warning")
@@ -15,6 +17,8 @@ func TestAddEntryLocationNil(t *testing.T) {
 }
 
 func TestAddEntryLocationEmpty(t *testing.T) {
+	t.Parallel()
+
 	log := New()
 
 	log.Warning(&Location{}, "test warning")

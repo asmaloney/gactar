@@ -6,6 +6,8 @@ import (
 )
 
 func TestMinimumModel(t *testing.T) {
+	t.Parallel()
+
 	src := `
 	==model==
 	name: Test
