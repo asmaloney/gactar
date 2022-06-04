@@ -396,7 +396,10 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 			validateDo(log, production)
 
 			for _, statement := range *production.Do.Statements {
-				addStatement(model, log, statement, &prod)
+				err := addStatement(model, log, statement, &prod)
+				if err != nil && !errors.As(err, &CompileError{}) {
+					log.Error(nil, err.Error())
+				}
 			}
 
 			validateVariableUsage(log, production.Match, production.Do)

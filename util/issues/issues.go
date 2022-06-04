@@ -75,9 +75,12 @@ func (l *Log) Error(location *Location, s string, a ...interface{}) {
 }
 
 // String returns the log contents as a string. Each entry ends in a newline.
-func (l *Log) String() string {
+func (l Log) String() string {
 	b := new(strings.Builder)
-	l.Write(b)
+	err := l.Write(b)
+	if err != nil {
+		return fmt.Sprintf("(could not write log to string: %s)", err.Error())
+	}
 	return b.String()
 }
 
@@ -95,7 +98,7 @@ func (l Log) FirstEntry() string {
 
 // Write will write the entire log. It will prepend INFO/ERROR and append
 // line numbers (if any) to each log entry.
-func (l Log) Write(w io.Writer) {
+func (l Log) Write(w io.Writer) error {
 	for _, entry := range l.issues {
 		var str string
 
@@ -116,8 +119,13 @@ func (l Log) Write(w io.Writer) {
 
 		str += "\n"
 
-		w.Write([]byte(str))
+		_, err := w.Write([]byte(str))
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func (el *Log) addEntry(location *Location, l level, e string, a ...interface{}) {
