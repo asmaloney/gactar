@@ -535,6 +535,6 @@ func lexQuotedString(l *lexer_amod) stateFn {
 
 // cleanData normalizes line endings
 func cleanData(data *string) {
-	*data = strings.Replace(*data, "\r\n", "\n", -1)
-	*data = strings.Replace(*data, "\r", "\n", -1)
+	*data = strings.ReplaceAll(*data, "\r\n", "\n")
+	*data = strings.ReplaceAll(*data, "\r", "\n")
 }
