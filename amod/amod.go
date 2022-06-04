@@ -9,6 +9,7 @@ import (
 
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/actr/modules"
+	"github.com/asmaloney/gactar/actr/params"
 
 	"github.com/asmaloney/gactar/util/issues"
 )
@@ -239,9 +240,9 @@ func setModuleParams(module modules.ModuleInterface, log *issueLog, fields []*fi
 	for _, field := range fields {
 		value := field.Value
 
-		err := module.SetParam(&modules.Param{
+		err := module.SetParam(&params.Param{
 			Key: field.Key,
-			Value: modules.Value{
+			Value: params.Value{
 				ID:     value.ID,
 				Str:    value.Str,
 				Number: value.Number,
@@ -249,15 +250,15 @@ func setModuleParams(module modules.ModuleInterface, log *issueLog, fields []*fi
 		})
 
 		switch err {
-		case modules.NumberRequired:
+		case params.NumberRequired:
 			log.errorT(value.Tokens, "%s %s '%s' must be a number", moduleName, field.Key, value.String())
 			continue
 
-		case modules.NumberMustBePositive:
+		case params.NumberMustBePositive:
 			log.errorT(value.Tokens, "%s %s '%s' must be a positive number", moduleName, field.Key, value.String())
 			continue
 
-		case modules.UnrecognizedParam:
+		case params.UnrecognizedParam:
 			log.errorTR(field.Tokens, 0, 1, "unrecognized field '%s' in %s config", field.Key, moduleName)
 			continue
 		}

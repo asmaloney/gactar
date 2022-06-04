@@ -1,6 +1,9 @@
 package modules
 
-import "github.com/asmaloney/gactar/actr/buffer"
+import (
+	"github.com/asmaloney/gactar/actr/buffer"
+	"github.com/asmaloney/gactar/actr/params"
+)
 
 // Goal is a module which provides the ACT-R "goal" buffer.
 type Goal struct {
@@ -23,23 +26,23 @@ func (g Goal) ModuleName() string {
 	return "goal"
 }
 
-func (g *Goal) SetParam(param *Param) (err ParamError) {
+func (g *Goal) SetParam(param *params.Param) (err params.ParamError) {
 	value := param.Value
 
 	switch param.Key {
 	case "spreading_activation":
 		if value.Number == nil {
-			return NumberRequired
+			return params.NumberRequired
 		}
 
 		if *value.Number < 0 {
-			return NumberMustBePositive
+			return params.NumberMustBePositive
 		}
 
 		g.SpreadingActivation = value.Number
 
 	default:
-		return UnrecognizedParam
+		return params.UnrecognizedParam
 	}
 
 	return

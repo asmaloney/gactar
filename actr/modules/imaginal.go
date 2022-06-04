@@ -1,6 +1,9 @@
 package modules
 
-import "github.com/asmaloney/gactar/actr/buffer"
+import (
+	"github.com/asmaloney/gactar/actr/buffer"
+	"github.com/asmaloney/gactar/actr/params"
+)
 
 // Imaginal is a module which provides the ACT-R "imaginal" buffer.
 type Imaginal struct {
@@ -23,23 +26,23 @@ func (i Imaginal) ModuleName() string {
 	return "imaginal"
 }
 
-func (i *Imaginal) SetParam(param *Param) (err ParamError) {
+func (i *Imaginal) SetParam(param *params.Param) (err params.ParamError) {
 	value := param.Value
 
 	switch param.Key {
 	case "delay":
 		if value.Number == nil {
-			return NumberRequired
+			return params.NumberRequired
 		}
 
 		if *value.Number < 0 {
-			return NumberMustBePositive
+			return params.NumberMustBePositive
 		}
 
 		i.Delay = value.Number
 
 	default:
-		return UnrecognizedParam
+		return params.UnrecognizedParam
 	}
 
 	return

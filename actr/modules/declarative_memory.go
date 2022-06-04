@@ -1,6 +1,9 @@
 package modules
 
-import "github.com/asmaloney/gactar/actr/buffer"
+import (
+	"github.com/asmaloney/gactar/actr/buffer"
+	"github.com/asmaloney/gactar/actr/params"
+)
 
 type LatencyParams struct {
 	// Setting these kinds of parameters is going to be tricky.
@@ -66,67 +69,67 @@ func (d DeclarativeMemory) ModuleName() string {
 	return "memory"
 }
 
-func (d *DeclarativeMemory) SetParam(param *Param) (err ParamError) {
+func (d *DeclarativeMemory) SetParam(param *params.Param) (err params.ParamError) {
 	value := param.Value
 
 	switch param.Key {
 	case "latency_factor":
 		if value.Number == nil {
-			return NumberRequired
+			return params.NumberRequired
 		}
 
 		if *value.Number < 0 {
-			return NumberMustBePositive
+			return params.NumberMustBePositive
 		}
 
 		d.LatencyFactor = value.Number
 
 	case "latency_exponent":
 		if value.Number == nil {
-			return NumberRequired
+			return params.NumberRequired
 		}
 
 		if *value.Number < 0 {
-			return NumberMustBePositive
+			return params.NumberMustBePositive
 		}
 
 		d.LatencyExponent = value.Number
 
 	case "retrieval_threshold":
 		if value.Number == nil {
-			return NumberRequired
+			return params.NumberRequired
 		}
 
 		d.RetrievalThreshold = value.Number
 
 	case "finst_size":
 		if value.Number == nil {
-			return NumberRequired
+			return params.NumberRequired
 		}
 
 		size := int(*value.Number)
 		if size < 0 {
-			return NumberMustBePositive
+			return params.NumberMustBePositive
 		}
 
 		d.FinstSize = &size
 
 	case "finst_time":
 		if value.Number == nil {
-			return NumberRequired
+			return params.NumberRequired
 		}
 
 		d.FinstTime = value.Number
 
 	case "max_spread_strength":
 		if value.Number == nil {
-			return NumberRequired
+			return params.NumberRequired
 		}
 
 		d.MaxSpreadStrength = value.Number
 
 	default:
-		return UnrecognizedParam
+		return params.UnrecognizedParam
 	}
 
 	return

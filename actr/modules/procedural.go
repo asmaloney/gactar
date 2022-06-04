@@ -1,6 +1,9 @@
 package modules
 
-import "github.com/asmaloney/gactar/actr/buffer"
+import (
+	"github.com/asmaloney/gactar/actr/buffer"
+	"github.com/asmaloney/gactar/actr/params"
+)
 
 type Procedural struct {
 	buffer.BufferInterface // unused
@@ -20,23 +23,23 @@ func (Procedural) ModuleName() string {
 	return "procedural"
 }
 
-func (p *Procedural) SetParam(param *Param) (err ParamError) {
+func (p *Procedural) SetParam(param *params.Param) (err params.ParamError) {
 	value := param.Value
 
 	switch param.Key {
 	case "default_action_time":
 		if value.Number == nil {
-			return NumberRequired
+			return params.NumberRequired
 		}
 
 		if *value.Number < 0 {
-			return NumberMustBePositive
+			return params.NumberMustBePositive
 		}
 
 		p.DefaultActionTime = value.Number
 
 	default:
-		return UnrecognizedParam
+		return params.UnrecognizedParam
 	}
 
 	return
