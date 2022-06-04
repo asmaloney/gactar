@@ -192,6 +192,10 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 		v.Writeln("\t:trace-detail high")
 	}
 
+	if v.model.TraceActivations {
+		v.Writeln("\t:act t")
+	}
+
 	imaginal := v.model.ImaginalModule()
 	if imaginal != nil {
 		v.Writeln("\t:do-not-harvest imaginal")

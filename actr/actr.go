@@ -5,24 +5,37 @@ package actr
 import (
 	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/modules"
+	"github.com/asmaloney/gactar/actr/params"
+	"github.com/asmaloney/gactar/util/container"
 )
+
+type options struct {
+	// "log_level": one of 'min', 'info', or 'detail'
+	LogLevel ACTRLogLevel
+
+	// "trace_activations": output detailed info about activations
+	TraceActivations bool
+}
 
 // Model represents a basic ACT-R model.
 // This is used as input to a Framework where it can be run or output to a file.
 // (This is incomplete w.r.t. all of ACT-R's capabilities.)
 type Model struct {
-	Name         string
-	Description  string
-	Authors      []string
-	Examples     []*Pattern
-	Chunks       []*Chunk
-	Modules      []modules.ModuleInterface
-	Memory       *modules.DeclarativeMemory // memory is always present
-	Goal         *modules.Goal              // goal is always present
-	Procedural   *modules.Procedural        // procedural is always present
+	Name        string
+	Description string
+	Authors     []string
+	Examples    []*Pattern
+
+	Modules    []modules.ModuleInterface
+	Memory     *modules.DeclarativeMemory // memory is always present
+	Goal       *modules.Goal              // goal is always present
+	Procedural *modules.Procedural        // procedural is always present
+	Chunks     []*Chunk
+
 	Initializers []*Initializer
 	Productions  []*Production
-	LogLevel     ACTRLogLevel
+
+	options
 }
 
 type Initializer struct {
@@ -136,4 +149,29 @@ func (model Model) LookupBuffer(bufferName string) buffer.BufferInterface {
 	}
 
 	return nil
+}
+
+func (model *Model) SetParam(param *params.Param) (options []string, err params.ParamError) {
+	value := param.Value
+
+	switch param.Key {
+	case "log_level":
+		if (value.Str == nil) || !ValidLogLevel(*value.Str) {
+			return ACTRLoggingLevels, params.InvalidOption
+		}
+
+		model.LogLevel = ACTRLogLevel(*value.Str)
+
+	case "trace_activations":
+		if (value.ID == nil) || !container.Contains(*value.ID, params.Boolean) {
+			return params.Boolean, params.InvalidOption
+		}
+
+		model.TraceActivations = params.BooleanStrToBool(*value.ID)
+
+	default:
+		return []string{}, params.UnrecognizedParam
+	}
+
+	return
 }

@@ -19,8 +19,13 @@ examples {
 
 ==config==
 
-// Turn on logging by setting 'log_level' to 'min', 'info' (default), or 'detail'
-gactar { log_level: 'detail' }
+gactar {
+    // Logging level can be 'min', 'info' (default), or 'detail'
+    log_level: 'detail'
+
+    // Show detailed information about activations (if available)
+    trace_activations: false
+}
 
 // Declare chunks and their layouts
 chunks {

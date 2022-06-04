@@ -1,5 +1,10 @@
 package params
 
+var Boolean = []string{
+	"true",
+	"false",
+}
+
 // Value mimics amod.fieldValue but without tokens.
 type Value struct {
 	ID     *string
@@ -19,5 +24,11 @@ const (
 	NumberRequired
 	NumberMustBePositive
 
+	InvalidOption
+
 	UnrecognizedParam
 )
+
+func BooleanStrToBool(b string) bool {
+	return b == "true"
+}
