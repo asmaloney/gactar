@@ -75,8 +75,7 @@ func main() {
 		Action: func(c *cli.Context) error {
 			err := setupVirtualEnvironment(c)
 			if err != nil {
-				fmt.Println(err.Error())
-				return err
+				return cli.Exit(err.Error(), 1)
 			}
 
 			if c.Bool("debug") {
@@ -89,29 +88,27 @@ func main() {
 			}
 
 			if c.Bool("web") && c.Bool("interactive") {
-				err := errors.New("cannot run 'web' and 'interactive' at the same time")
-				fmt.Println(err.Error())
-				return err
+				err := errors.New("error: cannot run 'web' and 'interactive' at the same time")
+				return cli.Exit(err.Error(), 1)
 			}
 
 			// Create our temp dir. This will expand our "temp" to an absolute path.
 			err = clicontext.CreateTempDir(c)
 			if err != nil {
-				return err
+				return cli.Exit(err.Error(), 1)
 			}
 
 			frameworks, err := createFrameworks(c)
 			if err != nil {
-				fmt.Println(err.Error())
-				return err
+				return cli.Exit(err.Error(), 1)
 			}
 
 			if c.Bool("web") {
 				err := handleWeb(c, frameworks)
 				if err != nil {
-					fmt.Println(err.Error())
-					return err
+					return cli.Exit(err.Error(), 1)
 				}
+				return nil
 			}
 
 			if c.Int("port") != defaultPort {
@@ -121,18 +118,16 @@ func main() {
 			if c.Bool("interactive") {
 				err := handleInteractive(c, frameworks)
 				if err != nil {
-					fmt.Println(err.Error())
-					return err
+					return cli.Exit(err.Error(), 1)
 				}
 
-				return err
+				return nil
 			}
 
 			// We are not interactive or web, so simply generate the output files.
 			err = handleDefault(c, frameworks)
 			if err != nil {
-				fmt.Println(err.Error())
-				return err
+				return cli.Exit(err.Error(), 1)
 			}
 
 			return nil
@@ -142,7 +137,7 @@ func main() {
 	// Used to output command line options for documentation.
 	// fmt.Println(app.ToMarkdown())
 
-	app.Run(os.Args)
+	app.Run(os.Args) //nolint - exits are handled with cli.Exit()
 }
 
 // setupVirtualEnvironment will set our paths to our virtual environment path.
