@@ -7,11 +7,37 @@ fi
 
 cd .. || exit
 
+# Windows
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+    # check if python3 command exists, make symbolic link to python.exe if not
+    if ! [ -x "$(command -v python3)" ]; then
+        cd ./scripts
+        touch symlink.bat
+        echo -e "@ECHO OFF" > symlink.bat
+        echo -e "FOR /F \"tokens=*\" %%g IN ('WHERE python') do (SET PY_PATH=%%g)" >> symlink.bat
+        echo -e "\nSET PY3_PATH=%PY_PATH:~0,-4%3.exe" >> symlink.bat
+        echo -e "\nmklink %PY3_PATH% %PY_PATH%" >> symlink.bat
+        cmd.exe /C symlink.bat
+        rm symlink.bat
+        if ! [ -x "$(command -v python3)" ]; then
+            echo "ERROR setting symbolic link."
+            exit 1
+        else
+            echo "Symbolic link set successfully."
+        fi
+        cd ..
+    fi
+fi
+
 # create the virtual env dir
 python3 -m venv env
 
 # activate it
-. ./env/bin/activate
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+    source ./env/Scripts/activate
+else
+    . ./env/bin/activate
+fi
 
 echo "Using python3 from here:" $(which python3)
 python3 --version
