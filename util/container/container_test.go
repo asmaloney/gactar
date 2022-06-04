@@ -3,6 +3,8 @@ package container
 import "testing"
 
 func TestContains(t *testing.T) {
+	t.Parallel()
+
 	list := []string{"a", "b", "c", "d"}
 
 	contains := Contains("a", list)
@@ -23,6 +25,8 @@ func TestContains(t *testing.T) {
 }
 
 func TestGetIndex1(t *testing.T) {
+	t.Parallel()
+
 	list := []string{"a", "b", "c", "d"}
 
 	index := GetIndex1("a", list)
@@ -49,6 +53,8 @@ func TestGetIndex1(t *testing.T) {
 }
 
 func TestUniqueAndSorted(t *testing.T) {
+	t.Parallel()
+
 	list := []string{"d", "b", "c", "b", "a", "c"}
 
 	list2 := UniqueAndSorted(list)
