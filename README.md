@@ -520,8 +520,13 @@ examples {
 
 ==config==
 
-// Turn on logging by setting 'log_level' to 'min', 'info' (default), or 'detail'
-gactar { log_level: 'detail' }
+gactar {
+    // Logging level can be 'min', 'info' (default), or 'detail'
+    log_level: 'detail'
+
+    // Show detailed information about activations (if available)
+    trace_activations: false
+}
 
 // Declare chunks and their layouts
 chunks {
@@ -682,7 +687,7 @@ This matches the `goal` buffer if it contains a `countFrom` chunk, the first two
 #### Example #3:
 
 ```
-goal [add: ? ?num2 ?count!?num2 ?sum]
+goal [add: * ?num2 ?count!?num2 ?sum]
 ```
 
 This matches the `goal` buffer if it contains an `add` chunk, the first slot is any value, and the third slot is not the same value as the second. It assigns `?num2` the contents of the second slot, `?count` the value of the third, and `?sum` the value of the fourth.
@@ -722,8 +727,8 @@ This production is called `increment`. It attempts to match the `goal` buffer to
 ```
 done {
     match {
-        goal [parsing_goal: ? ? ?parsed printing]
-        imaginal [sentence: nil ? ?]
+        goal [parsing_goal: * * ?parsed printing]
+        imaginal [sentence: nil * *]
     }
     do {
         print ?parsed

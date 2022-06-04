@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. The format 
 - (_Linux_) Setup will now try to automatically download and install the [SBCL Lisp compiler](http://www.sbcl.org).
 - Added _max_spread_strength_ config option to declarative **memory**. This turns on the spreading activation calculation & sets the maximum associative strength. ([#141](https://github.com/asmaloney/gactar/pull/141))
 - Added _spreading_activation_ config option to **goal**. This only takes effect if spreading activation is turned on via _max_spread_strength_ (see above). ([#148](https://github.com/asmaloney/gactar/pull/148))
+- Added _trace_activations_ config option to **gactar**. This turns on detailed info about activations if available (currently _pyactr_ and _vanilla_ support it). ([#160](https://github.com/asmaloney/gactar/pull/160))
 
 ### Changed
 
@@ -22,6 +23,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - Use "." instead of "source" in `setup.sh` since we are using "sh". This was breaking on Linux. ([#135](https://github.com/asmaloney/gactar/pull/135))
 - Clarify some documentation.
+- Generated Python code now conforms to [PEP8](https://peps.python.org/pep-0008/) style. ([#157](https://github.com/asmaloney/gactar/pull/157))
 
 ## [0.6.0](https://github.com/asmaloney/gactar/releases/tag/v0.6.0) - 2022-05-31
 
