@@ -61,11 +61,14 @@ type fieldValue struct {
 
 // Used for outputting errors
 func (f fieldValue) String() string {
-	if f.ID != nil {
+	switch {
+	case f.ID != nil:
 		return *f.ID
-	} else if f.Str != nil {
+
+	case f.Str != nil:
 		return *f.Str
-	} else if f.Number != nil {
+
+	case f.Number != nil:
 		return fmt.Sprintf("%f", *f.Number)
 	}
 

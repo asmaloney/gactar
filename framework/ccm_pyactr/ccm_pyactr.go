@@ -358,15 +358,20 @@ func patternSlotString(patternSlot *actr.PatternSlot) string {
 			str += "!"
 		}
 
-		if item.Wildcard {
+		switch {
+		case item.Wildcard:
 			str += "?"
-		} else if item.Nil {
+
+		case item.Nil:
 			str += "None"
-		} else if item.ID != nil {
+
+		case item.ID != nil:
 			str += *item.ID
-		} else if item.Var != nil {
+
+		case item.Var != nil:
 			str += *item.Var
-		} else if item.Num != nil {
+
+		case item.Num != nil:
 			str += *item.Num
 		}
 	}
@@ -375,7 +380,8 @@ func patternSlotString(patternSlot *actr.PatternSlot) string {
 }
 
 func (c *CCMPyACTR) outputStatement(s *actr.Statement) {
-	if s.Set != nil {
+	switch {
+	case s.Set != nil:
 		if s.Set.Slots != nil {
 			slotAssignments := []string{}
 			for _, slot := range *s.Set.Slots {
@@ -388,28 +394,35 @@ func (c *CCMPyACTR) outputStatement(s *actr.Statement) {
 			c.outputPattern(s.Set.Pattern)
 			c.Writeln(")")
 		}
-	} else if s.Recall != nil {
+
+	case s.Recall != nil:
 		c.Write("\t\t%s.request(", s.Recall.MemoryName)
 		c.outputPattern(s.Recall.Pattern)
 		c.Writeln(")")
-	} else if s.Clear != nil {
+
+	case s.Clear != nil:
 		for _, name := range s.Clear.BufferNames {
 			c.Writeln("\t\t%s.clear()", name)
 		}
-	} else if s.Print != nil {
+
+	case s.Print != nil:
 		values := framework.PythonValuesToStrings(s.Print.Values, true)
 		c.Writeln("\t\tprint(%s, sep='')", strings.Join(values, ", "))
 	}
 }
 
 func convertSetValue(s *actr.SetValue) string {
-	if s.Nil {
+	switch {
+	case s.Nil:
 		return "None"
-	} else if s.Var != nil {
+
+	case s.Var != nil:
 		return *s.Var
-	} else if s.Number != nil {
+
+	case s.Number != nil:
 		return *s.Number
-	} else if s.Str != nil {
+
+	case s.Str != nil:
 		return "'" + *s.Str + "'"
 	}
 
