@@ -8,8 +8,13 @@ description: "This model is based on pyactr's ch3_topdown_parser."
 
 ==config==
 
-// Turn on logging by setting 'log_level' to 'min', 'info' (default), or 'detail'
-gactar { log_level: 'info' }
+gactar {
+    // Logging level can be 'min', 'info' (default), or 'detail'
+    log_level: 'info'
+
+    // Show detailed information about activations (if available)
+    trace_activations: true
+}
 
 modules {
     // Require the imaginal buffer and set its delay

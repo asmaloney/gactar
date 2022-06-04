@@ -212,6 +212,10 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 		p.Writeln("    rule_firing=%s,", numbers.Float64Str(*procedural.DefaultActionTime))
 	}
 
+	if p.model.TraceActivations {
+		p.Writeln("    activation_trace=True,")
+	}
+
 	p.Writeln(")")
 
 	if p.model.HasPrintStatement() {
