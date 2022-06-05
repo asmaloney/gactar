@@ -43,14 +43,15 @@ Module Name: **memory**
 
 Buffer Name: **retrieval**
 
-| Config              | Type    | Description                                                                           | Mapping                                                                                                                                            |
-| ------------------- | ------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| latency_factor      | decimal | latency factor (F)                                                                    | ccm (latency): 0.05<br>pyactr (latency_factor): 0.1<br>vanilla (:lf): 1.0                                                                          |
-| latency_exponent    | decimal | latency exponent (f)                                                                  | ccm: (unsupported? Based on the formulae above and the code, it seems to be fixed at 1.0.)<br>pyactr (latency_exponent): 1.0<br>vanilla (:le): 1.0 |
-| retrieval_threshold | decimal | retrieval threshold (τ)                                                               | ccm (threshold): 0.0<br>pyactr (retrieval_threshold): 0.0<br>vanilla (:rt): 0.0                                                                    |
-| finst_size          | integer | how many chunks are retained in memory                                                | ccm (finst_size): 4<br>pyactr (DecMemBuffer.finst): 0<br>vanilla (:declarative-num-finsts): 4                                                      |
-| finst_time          | decimal | how long the finst lasts in memory                                                    | ccm (finst_time): 3.0<br>pyactr: (unsupported? Always ∞ I guess?)<br>vanilla (:declarative-finst-span): 3.0                                        |
-| max_spread_strength | decimal | turns on the spreading activation calculation & sets the maximum associative strength | ccm (DMSpreading submodule)<br>pyactr (strength_of_association)<br>vanilla (:mas)                                                                  |
+| Config              | Type    | Description                                                                           | Mapping                                                                                                                     |
+| ------------------- | ------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| finst_size          | integer | how many chunks are retained in memory                                                | ccm (finst_size): 4<br>pyactr (DecMemBuffer.finst): 0<br>vanilla (:declarative-num-finsts): 4                               |
+| finst_time          | decimal | how long the finst lasts in memory                                                    | ccm (finst_time): 3.0<br>pyactr: (unsupported? Always ∞ I guess?)<br>vanilla (:declarative-finst-span): 3.0                 |
+| instantaneous_noise | decimal | turns on noise calculation & sets instantaneous noise                                 | ccm (DMNoise submodule 'noise')<br>pyactr (instantaneous_noise)<br>vanilla (:ans)                                           |
+| latency_exponent    | decimal | latency exponent (f)                                                                  | ccm: (unsupported? Based on the code, it seems to be fixed at 1.0.)<br>pyactr (latency_exponent): 1.0<br>vanilla (:le): 1.0 |
+| latency_factor      | decimal | latency factor (F)                                                                    | ccm (latency): 0.05<br>pyactr (latency_factor): 0.1<br>vanilla (:lf): 1.0                                                   |
+| max_spread_strength | decimal | turns on the spreading activation calculation & sets the maximum associative strength | ccm (DMSpreading submodule)<br>pyactr (strength_of_association)<br>vanilla (:mas)                                           |
+| retrieval_threshold | decimal | retrieval threshold (τ)                                                               | ccm (threshold): 0.0<br>pyactr (retrieval_threshold): 0.0<br>vanilla (:rt): 0.0                                             |
 
 ### Goal
 

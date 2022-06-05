@@ -9,9 +9,10 @@ All notable changes to this project will be documented in this file. The format 
 - The `-env` option will let you use different virtual environments (the default is `./env` which is next to the gactar executable).
 - (_Linux_) Setup will now try to automatically download and install the [SBCL Lisp compiler](http://www.sbcl.org).
 - Added _max_spread_strength_ config option to declarative **memory**. This turns on the spreading activation calculation & sets the maximum associative strength. ([#141](https://github.com/asmaloney/gactar/pull/141))
+- Added _instantaneous_noise_ config option to declarative **memory**. This turns on the activation noise calculation & sets instantaneous noise. ([#162](https://github.com/asmaloney/gactar/pull/162))
 - Added _spreading_activation_ config option to **goal**. This only takes effect if spreading activation is turned on via _max_spread_strength_ (see above). ([#148](https://github.com/asmaloney/gactar/pull/148))
 - Added _trace_activations_ config option to **gactar**. This turns on detailed info about activations if available (currently _pyactr_ and _vanilla_ support it). ([#160](https://github.com/asmaloney/gactar/pull/160))
-- Documentation for which modules are available and their configuration options. (See [amod Config](./doc/amod%20Config.md).)
+- Added documentation for which modules are available and their configuration options. (See [amod Config](./doc/amod%20Config.md).)
 
 ### Changed
 
