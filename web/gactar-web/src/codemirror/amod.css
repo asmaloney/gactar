@@ -57,52 +57,38 @@
 
 .cm-s-amod .cm-comment {
   color: #a0a1a7;
+  font-style: italic;
 }
 
 .cm-s-amod .cm-bracket {
   color: #7f7f83;
 }
 
-.cm-s-amod .cm-built-in {
+.cm-s-amod .cm-global {
   color: #c18401;
 }
 
 .cm-s-amod .cm-keyword {
-  font-weight: normal;
-  font-style: normal;
-  text-decoration: none;
   color: #a626a4;
 }
 
-.cm-s-amod .cm-header {
+.cm-s-amod .cm-section {
   color: #3145b8;
   font-weight: 600;
 }
 
 .cm-s-amod .cm-string {
-  font-weight: normal;
-  font-style: normal;
-  text-decoration: none;
   color: #50a14f;
 }
 
 .cm-s-amod .cm-chunk-name {
-  font-weight: normal;
-  font-style: normal;
-  text-decoration: none;
   color: #0184bc;
 }
 
 .cm-s-amod .cm-wildcard {
-  font-weight: normal;
-  font-style: normal;
-  text-decoration: none;
   color: #c18401;
 }
 
 .cm-s-amod .cm-variable {
-  font-weight: normal;
-  font-style: normal;
-  text-decoration: none;
   color: #e45649;
 }
