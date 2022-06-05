@@ -220,32 +220,7 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 	}
 	v.Writeln("")
 
-	v.Writeln("(add-dm")
-	for i, init := range v.model.Initializers {
-		module := init.Module
-
-		// allow the user-set goal to override the initializer
-		if module.ModuleName() == "goal" && (goal != nil) {
-			continue
-		}
-
-		initializer := module.ModuleName()
-
-		if initializer == "imaginal" {
-			continue
-		}
-
-		if initializer == "memory" {
-			v.Writeln(" ;; amod line %d", init.AMODLineNumber)
-			v.Writeln(" (fact_%d", i)
-		} else {
-			v.Writeln(" ;; amod line %d", init.AMODLineNumber)
-			v.Writeln(" (%s", initializer)
-		}
-
-		v.outputPattern(init.Pattern, 1)
-		v.Writeln(" )")
-	}
+	v.writeInitializers(goal)
 
 	if goal != nil {
 		v.Writeln(" (goal")
@@ -255,29 +230,7 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 
 	v.Writeln(")\n")
 
-	// productions
-	for _, production := range v.model.Productions {
-		v.Writeln(";; amod line %d", production.AMODLineNumber)
-
-		v.Writeln("(P %s", production.Name)
-		if production.Description != nil {
-			v.Writeln("\t\"%s\"", *production.Description)
-		}
-
-		for _, match := range production.Matches {
-			v.outputMatch(match)
-		}
-
-		v.Writeln("\t==>")
-
-		if production.DoStatements != nil {
-			for _, statement := range production.DoStatements {
-				v.outputStatement(statement)
-			}
-		}
-
-		v.Writeln(")\n")
-	}
+	v.writeProductions()
 
 	if imaginal != nil {
 		v.Writeln(";; initialize our imaginal buffer")
@@ -322,10 +275,10 @@ func (v VanillaACTR) writeHeader() {
 		v.Write(";;; %s\n\n", v.model.Description)
 	}
 
-	v.outputAuthors()
+	v.writeAuthors()
 }
 
-func (v VanillaACTR) outputAuthors() {
+func (v VanillaACTR) writeAuthors() {
 	if len(v.model.Authors) == 0 {
 		return
 	}
@@ -337,6 +290,60 @@ func (v VanillaACTR) outputAuthors() {
 	}
 
 	v.Writeln("")
+}
+
+func (v VanillaACTR) writeInitializers(goal *actr.Pattern) {
+	v.Writeln("(add-dm")
+	for i, init := range v.model.Initializers {
+		module := init.Module
+
+		// allow the user-set goal to override the initializer
+		if module.ModuleName() == "goal" && (goal != nil) {
+			continue
+		}
+
+		initializer := module.ModuleName()
+
+		if initializer == "imaginal" {
+			continue
+		}
+
+		if initializer == "memory" {
+			v.Writeln(" ;; amod line %d", init.AMODLineNumber)
+			v.Writeln(" (fact_%d", i)
+		} else {
+			v.Writeln(" ;; amod line %d", init.AMODLineNumber)
+			v.Writeln(" (%s", initializer)
+		}
+
+		v.outputPattern(init.Pattern, 1)
+		v.Writeln(" )")
+	}
+}
+
+func (v VanillaACTR) writeProductions() {
+	for _, production := range v.model.Productions {
+		v.Writeln(";; amod line %d", production.AMODLineNumber)
+
+		v.Writeln("(P %s", production.Name)
+		if production.Description != nil {
+			v.Writeln("\t\"%s\"", *production.Description)
+		}
+
+		for _, match := range production.Matches {
+			v.outputMatch(match)
+		}
+
+		v.Writeln("\t==>")
+
+		if production.DoStatements != nil {
+			for _, statement := range production.DoStatements {
+				v.outputStatement(statement)
+			}
+		}
+
+		v.Writeln(")\n")
+	}
 }
 
 func (v VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int) {
