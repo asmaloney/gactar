@@ -10,9 +10,9 @@ type Goal struct {
 	buffer.BufferInterface
 
 	// "spreading_activation": see "Spreading Activation" in "ACT-R 7.26 Reference Manual" pg. 290
-	// ccm: 1.0
-	// pyactr: 1.0
-	// vanilla: 1.0
+	// 	ccm (DMSpreading.weight): 1.0
+	// 	pyactr (buffer_spreading_activation): 1.0
+	// 	vanilla (:ga): 1.0
 	SpreadingActivation *float64
 }
 

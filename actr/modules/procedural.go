@@ -9,9 +9,9 @@ type Procedural struct {
 	buffer.BufferInterface // unused
 
 	// "default_action_time": time that it takes to fire a production (seconds)
-	// ccm: 0.05
-	// pyactr: 0.05
-	// vanilla: 0.05
+	// 	ccm (production_time): 0.05
+	// 	pyactr (rule_firing): 0.05
+	// 	vanilla (:dat): 0.05
 	DefaultActionTime *float64
 }
 

@@ -10,9 +10,9 @@ type Imaginal struct {
 	buffer.BufferInterface
 
 	// "delay": how long it takes a request to the buffer to complete (seconds)
-	// ccm: 0.2
-	// pyactr: 0.2
-	// vanilla: 0.2
+	// 	ccm (ImaginalModule.delay): 0.2
+	// 	pyactr (Goal.delay): 0.2
+	// 	vanilla (:imaginal-delay): 0.2
 	Delay *float64
 }
 

@@ -5,28 +5,39 @@ import (
 	"github.com/asmaloney/gactar/actr/params"
 )
 
-type LatencyParams struct {
+type RetrievalTimeParams struct {
 	// Setting these kinds of parameters is going to be tricky.
-	// The way each framework handles timing is different.
+	// The way each framework handles timing seems to be different.
 
 	// See "Retrieval time" in "ACT-R 7.26 Reference Manual" pg. 293
 
+	// The time that it takes to respond to a request for a chunk is:
+	//		RT = F * exp( - f * A )
+	//		RT: The time to retrieve the chunk in seconds
+	//		A : The activation of the chunk which is being retrieved
+
+	// If there is no chunk found or the chunk with the highest activation
+	// is below the retrieval threshold, then the time required to indicate
+	// a failure to retrieve any chunk is:
+	// 		RT = F * exp( - f * τ )
+	// 		RT: The time until the failure is noted in seconds
+
 	// "latency_factor": latency factor (F)
-	// ccm: 0.05
-	// pyactr: 0.1
-	// vanilla: 1.0
+	// 	ccm (latency): 0.05
+	// 	pyactr (latency_factor): 0.1
+	// 	vanilla (:lf): 1.0
 	LatencyFactor *float64
 
 	// "latency_exponent": latency exponent (f)
-	// ccm: (unsupported?)
-	// pyactr: 1.0
-	// vanilla: 1.0
+	// 	ccm: (unsupported? Based on the formulae above and the code, it seems to be fixed at 1.0.)
+	// 	pyactr (latency_exponent): 1.0
+	// 	vanilla (:le): 1.0
 	LatencyExponent *float64
 
 	// "retrieval_threshold": retrieval threshold (τ)
-	// ccm: 0.0
-	// pyactr: 0.0
-	// vanilla: 0.0
+	// 	ccm (threshold): 0.0
+	// 	pyactr (retrieval_threshold): 0.0
+	// 	vanilla (:rt): 0.0
 	RetrievalThreshold *float64
 }
 
@@ -35,15 +46,15 @@ type FinstParams struct {
 	// See "Declarative finsts" in "ACT-R 7.26 Reference Manual" pg. 293
 
 	// "finst_size": how many chunks are retained in memory
-	// ccm: 4
-	// pyactr: 0 (sic)
-	// vanilla: 4
+	//	ccm (finst_size): 4
+	// 	pyactr (DecMemBuffer.finst): 0 (sic)
+	// 	vanilla (:declarative-num-finsts): 4
 	FinstSize *int
 
 	// "finst_time": how long the finst lasts in memory
-	// ccm: 3.0
-	// pyactr: (unsupported?)
-	// vanilla: 3.0
+	// 	ccm (finst_time): 3.0
+	// 	pyactr: (unsupported? Always ∞ I guess?)
+	// 	vanilla (:declarative-finst-span): 3.0
 	FinstTime *float64
 }
 
@@ -51,7 +62,7 @@ type FinstParams struct {
 type DeclarativeMemory struct {
 	buffer.BufferInterface
 
-	LatencyParams
+	RetrievalTimeParams
 	FinstParams
 
 	// "max_spread_strength": turns on the spreading activation calculation & sets the maximum associative strength
