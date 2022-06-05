@@ -171,12 +171,7 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 
 	p.writeHeader()
 
-	p.Writeln("import pyactr as actr")
-
-	if p.model.HasPrintStatement() {
-		// Import gactar's print handling
-		p.Writeln("import pyactr_print")
-	}
+	p.writeImports()
 
 	p.Writeln("")
 
@@ -261,20 +256,7 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 		p.Writeln("")
 	}
 
-	// initialize
-	for _, init := range p.model.Initializers {
-		module := init.Module
-
-		// allow the user-set goal to override the initializer
-		if module.ModuleName() == "goal" && (goal != nil) {
-			continue
-		}
-
-		p.Writeln("# amod line %d", init.AMODLineNumber)
-		p.Writeln("%s.add(actr.chunkstring(string='''", module.ModuleName())
-		p.outputPattern(init.Pattern, 1)
-		p.Writeln("'''))")
-	}
+	p.writeInitializers(goal)
 
 	// Add user-set goal if any
 	if goal != nil {
@@ -285,40 +267,12 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 
 	p.Writeln("")
 
-	// productions
-	for _, production := range p.model.Productions {
-		if production.Description != nil {
-			p.Writeln("# %s", *production.Description)
-		}
-
-		p.Writeln("# amod line %d", production.AMODLineNumber)
-
-		p.Writeln("%s.productionstring(name='%s', string='''", p.className, production.Name)
-		for _, match := range production.Matches {
-			p.outputMatch(match)
-		}
-
-		p.Writeln("     ==>")
-
-		if production.DoStatements != nil {
-			for _, statement := range production.DoStatements {
-				p.outputStatement(production, statement)
-			}
-		}
-
-		p.Write("''')\n\n")
-	}
+	p.writeProductions()
 
 	p.Writeln("")
 
 	// ...add our code to run
-	p.Writeln("# Main")
-	p.Writeln("if __name__ == '__main__':")
-	p.Writeln("    sim = %s.simulation()", p.className)
-	p.Writeln("    sim.run()")
-	// TODO: Add some intelligent output when logging level is info or detail
-	p.Writeln("    if goal.test_buffer('full') is True:")
-	p.Writeln("        print('final goal: ' + str(goal.pop()))")
+	p.writeMain()
 
 	return
 }
@@ -355,10 +309,10 @@ func (p PyACTR) writeHeader() {
 		p.Write("# %s\n\n", p.model.Description)
 	}
 
-	p.outputAuthors()
+	p.writeAuthors()
 }
 
-func (p PyACTR) outputAuthors() {
+func (p PyACTR) writeAuthors() {
 	if len(p.model.Authors) == 0 {
 		return
 	}
@@ -370,6 +324,66 @@ func (p PyACTR) outputAuthors() {
 	}
 
 	p.Writeln("")
+}
+
+func (p PyACTR) writeImports() {
+	p.Writeln("import pyactr as actr")
+
+	if p.model.HasPrintStatement() {
+		// Import gactar's print handling
+		p.Writeln("import pyactr_print")
+	}
+}
+
+func (p PyACTR) writeInitializers(goal *actr.Pattern) {
+	for _, init := range p.model.Initializers {
+		module := init.Module
+
+		// allow the user-set goal to override the initializer
+		if module.ModuleName() == "goal" && (goal != nil) {
+			continue
+		}
+
+		p.Writeln("# amod line %d", init.AMODLineNumber)
+		p.Writeln("%s.add(actr.chunkstring(string='''", module.ModuleName())
+		p.outputPattern(init.Pattern, 1)
+		p.Writeln("'''))")
+	}
+}
+
+func (p PyACTR) writeProductions() {
+	for _, production := range p.model.Productions {
+		if production.Description != nil {
+			p.Writeln("# %s", *production.Description)
+		}
+
+		p.Writeln("# amod line %d", production.AMODLineNumber)
+
+		p.Writeln("%s.productionstring(name='%s', string='''", p.className, production.Name)
+		for _, match := range production.Matches {
+			p.outputMatch(match)
+		}
+
+		p.Writeln("     ==>")
+
+		if production.DoStatements != nil {
+			for _, statement := range production.DoStatements {
+				p.outputStatement(production, statement)
+			}
+		}
+
+		p.Write("''')\n\n")
+	}
+}
+
+func (p PyACTR) writeMain() {
+	p.Writeln("# Main")
+	p.Writeln("if __name__ == '__main__':")
+	p.Writeln("    sim = %s.simulation()", p.className)
+	p.Writeln("    sim.run()")
+	// TODO: Add some intelligent output when logging level is info or detail
+	p.Writeln("    if goal.test_buffer('full') is True:")
+	p.Writeln("        print('final goal: ' + str(goal.pop()))")
 }
 
 func (p PyACTR) outputPattern(pattern *actr.Pattern, tabs int) {

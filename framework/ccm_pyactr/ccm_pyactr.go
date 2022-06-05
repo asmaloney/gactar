@@ -156,32 +156,7 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 
 	memory := c.model.Memory
 
-	imports := []string{"ACTR", "Buffer", "Memory"}
-
-	c.Write("from python_actr import %s\n", strings.Join(imports, ", "))
-
-	additionalImports := []string{}
-
-	if memory.MaxSpreadStrength != nil {
-		additionalImports = append(additionalImports, "DMSpreading")
-	}
-
-	if memory.InstantaneousNoise != nil {
-		additionalImports = append(additionalImports, "DMNoise")
-	}
-
-	if len(additionalImports) > 0 {
-		c.Write("from python_actr import %s\n", strings.Join(additionalImports, ", "))
-	}
-
-	if c.model.LogLevel == "detail" {
-		c.Writeln("from python_actr import log, log_everything")
-	}
-
-	if c.model.TraceActivations {
-		c.Writeln("")
-		c.Writeln(fmt.Sprintf("from %s import ActivateTrace", gactarActivateTraceFileName))
-	}
+	c.writeImports()
 
 	c.Write("\n\n")
 
@@ -254,31 +229,9 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 		c.Writeln("")
 	}
 
-	if len(c.model.Initializers) > 0 {
-		c.Writeln("    def init():")
+	c.writeInitializers(goal)
 
-		for _, init := range c.model.Initializers {
-			module := init.Module
-
-			// allow the user-set goal to override the initializer
-			if module.ModuleName() == "goal" && (goal != nil) {
-				continue
-			}
-
-			c.Writeln("        # amod line %d", init.AMODLineNumber)
-
-			if module.AllowsMultipleInit() {
-				c.Write("        %s.add(", module.ModuleName())
-			} else {
-				c.Write("        %s.set(", module.ModuleName())
-			}
-
-			c.outputPattern(init.Pattern)
-			c.Writeln(")")
-		}
-
-		c.Writeln("")
-	}
+	c.Writeln("")
 
 	// Add user-set goal if any
 	if goal != nil {
@@ -287,45 +240,11 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 		c.Write(")\n\n")
 	}
 
-	for _, production := range c.model.Productions {
-		if production.Description != nil {
-			c.Writeln("    # %s", *production.Description)
-		}
-
-		c.Writeln("    # amod line %d", production.AMODLineNumber)
-
-		c.Write("    def %s(", production.Name)
-
-		numMatches := len(production.Matches)
-		for i, match := range production.Matches {
-			c.outputMatch(match)
-
-			if i != numMatches-1 {
-				c.Write(", ")
-			}
-		}
-
-		c.Writeln("):")
-
-		if production.DoStatements != nil {
-			for _, statement := range production.DoStatements {
-				c.outputStatement(statement)
-			}
-		}
-
-		c.Write("\n")
-	}
+	c.writeProductions()
 
 	c.Writeln("")
-	c.Writeln("if __name__ == \"__main__\":")
-	c.Writeln(fmt.Sprintf("    model = %s()", c.className))
 
-	if c.model.LogLevel == "detail" {
-		c.Writeln("    log(summary=1)")
-		c.Writeln("    log_everything(model)")
-	}
-
-	c.Writeln("    model.run()")
+	c.writeMain()
 
 	return
 }
@@ -363,10 +282,10 @@ func (c CCMPyACTR) writeHeader() {
 		c.Write("# %s\n\n", c.model.Description)
 	}
 
-	c.outputAuthors()
+	c.writeAuthors()
 }
 
-func (c CCMPyACTR) outputAuthors() {
+func (c CCMPyACTR) writeAuthors() {
 	if len(c.model.Authors) == 0 {
 		return
 	}
@@ -378,6 +297,108 @@ func (c CCMPyACTR) outputAuthors() {
 	}
 
 	c.Writeln("")
+}
+
+func (c CCMPyACTR) writeImports() {
+	memory := c.model.Memory
+
+	imports := []string{"ACTR", "Buffer", "Memory"}
+
+	c.Write("from python_actr import %s\n", strings.Join(imports, ", "))
+
+	additionalImports := []string{}
+
+	if memory.MaxSpreadStrength != nil {
+		additionalImports = append(additionalImports, "DMSpreading")
+	}
+
+	if memory.InstantaneousNoise != nil {
+		additionalImports = append(additionalImports, "DMNoise")
+	}
+
+	if len(additionalImports) > 0 {
+		c.Write("from python_actr import %s\n", strings.Join(additionalImports, ", "))
+	}
+
+	if c.model.LogLevel == "detail" {
+		c.Writeln("from python_actr import log, log_everything")
+	}
+
+	if c.model.TraceActivations {
+		c.Writeln("")
+		c.Writeln(fmt.Sprintf("from %s import ActivateTrace", gactarActivateTraceFileName))
+	}
+}
+
+func (c CCMPyACTR) writeInitializers(goal *actr.Pattern) {
+	if len(c.model.Initializers) == 0 {
+		return
+	}
+
+	c.Writeln("    def init():")
+
+	for _, init := range c.model.Initializers {
+		module := init.Module
+
+		// allow the user-set goal to override the initializer
+		if module.ModuleName() == "goal" && (goal != nil) {
+			continue
+		}
+
+		c.Writeln("        # amod line %d", init.AMODLineNumber)
+
+		if module.AllowsMultipleInit() {
+			c.Write("        %s.add(", module.ModuleName())
+		} else {
+			c.Write("        %s.set(", module.ModuleName())
+		}
+
+		c.outputPattern(init.Pattern)
+		c.Writeln(")")
+	}
+}
+
+func (c CCMPyACTR) writeProductions() {
+	for _, production := range c.model.Productions {
+		if production.Description != nil {
+			c.Writeln("    # %s", *production.Description)
+		}
+
+		c.Writeln("    # amod line %d", production.AMODLineNumber)
+
+		c.Write("    def %s(", production.Name)
+
+		numMatches := len(production.Matches)
+		for i, match := range production.Matches {
+			c.outputMatch(match)
+
+			if i != numMatches-1 {
+				c.Write(", ")
+			}
+		}
+
+		c.Writeln("):")
+
+		if production.DoStatements != nil {
+			for _, statement := range production.DoStatements {
+				c.outputStatement(statement)
+			}
+		}
+
+		c.Write("\n")
+	}
+}
+
+func (c CCMPyACTR) writeMain() {
+	c.Writeln("if __name__ == \"__main__\":")
+	c.Writeln(fmt.Sprintf("    model = %s()", c.className))
+
+	if c.model.LogLevel == "detail" {
+		c.Writeln("    log(summary=1)")
+		c.Writeln("    log_everything(model)")
+	}
+
+	c.Writeln("    model.run()")
 }
 
 func (c CCMPyACTR) outputPattern(pattern *actr.Pattern) {
