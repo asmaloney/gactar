@@ -1,7 +1,9 @@
 package ccm_pyactr
 
 import (
+	_ "embed"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -16,6 +18,11 @@ import (
 	"github.com/asmaloney/gactar/util/numbers"
 	"github.com/asmaloney/gactar/util/version"
 )
+
+//go:embed gactar_ccm_activate_trace.py
+var gactarActivateTraceFile string
+
+const gactarActivateTraceFileName = "gactar_ccm_activate_trace"
 
 var Info framework.Info = framework.Info{
 	Name:           "ccm",
@@ -114,6 +121,14 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 
 	goal := patterns["goal"]
 
+	// If our model is tracing activations, then write out our support file
+	if c.model.TraceActivations {
+		err = writeTraceSupportFile(path)
+		if err != nil {
+			return
+		}
+	}
+
 	outputFileName = fmt.Sprintf("%s.py", c.className)
 	if path != "" {
 		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
@@ -159,6 +174,11 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 		c.Writeln("from python_actr import log, log_everything")
 	}
 
+	if c.model.TraceActivations {
+		c.Writeln("")
+		c.Writeln(fmt.Sprintf("from %s import ActivateTrace", gactarActivateTraceFileName))
+	}
+
 	c.Write("\n\n")
 
 	c.Writeln("class %s(ACTR):", c.className)
@@ -189,6 +209,10 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 		c.Writeln("    %s = Memory(%s, %s)", memory.ModuleName(), memory.BufferName(), strings.Join(additionalInit, ", "))
 	} else {
 		c.Writeln("    %s = Memory(%s)", memory.ModuleName(), memory.BufferName())
+	}
+
+	if c.model.TraceActivations {
+		c.Writeln("    trace = ActivateTrace(%s)", memory.ModuleName())
 	}
 
 	c.Writeln("")
@@ -292,6 +316,27 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 	}
 
 	c.Writeln("    model.run()")
+
+	return
+}
+
+// writeTraceSupportFile will write out a Python file to add minimal activation trace support.
+func writeTraceSupportFile(path string) (err error) {
+	supportFileName := fmt.Sprintf("%s.py", gactarActivateTraceFileName)
+	if path != "" {
+		supportFileName = fmt.Sprintf("%s/%s", path, supportFileName)
+	}
+
+	file, err := os.OpenFile(supportFileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0660)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(gactarActivateTraceFile)
+	if err != nil {
+		return
+	}
 
 	return
 }
