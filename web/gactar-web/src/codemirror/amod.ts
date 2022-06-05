@@ -27,16 +27,17 @@ CodeMirror.defineMode('amod', function () {
     recall: true,
     set: true,
     to: true,
-    write: true,
+    true: true,
+    false: true, // ;-)
+    nil: true,
+    '!nil': true,
   }
 
-  const builtIns = {
+  const builtInGlobals = {
     goal: true,
     imaginal: true,
     memory: true,
     procedural: true,
-    nil: true,
-    '!nil': true,
     retrieval: true,
   }
 
@@ -80,12 +81,10 @@ CodeMirror.defineMode('amod', function () {
     }
 
     if (ch === '?') {
-      if (state.inPattern) {
-        stream.backUp(1)
+      stream.backUp(1)
 
-        if (stream.match(variable_regex)) {
-          return 'variable'
-        }
+      if (stream.match(variable_regex)) {
+        return 'variable'
       }
     }
 
@@ -98,7 +97,7 @@ CodeMirror.defineMode('amod', function () {
       stream.backUp(1)
 
       if (stream.match(section_regex)) {
-        return 'header'
+        return 'section'
       }
 
       stream.next()
@@ -109,8 +108,8 @@ CodeMirror.defineMode('amod', function () {
     const cur = stream.current()
     if (cur in keywords) {
       return 'keyword'
-    } else if (cur in builtIns) {
-      return 'built-in'
+    } else if (cur in builtInGlobals) {
+      return 'global'
     } else if (state.startPattern) {
       state.startPattern = false
       state.inPattern = true
