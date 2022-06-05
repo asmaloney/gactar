@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file. The format 
 - No longer need to run "source ./env/bin/activate" to activate the Python virtual environment. gactar will set the variables itself. ([#130](https://github.com/asmaloney/gactar/pull/130))
 - Don't create md5 files with the releases.
 - Rename "darwin" to "macOS" in releases.
+- Don't try to install _pyactr_ if running Python 3.10+. It is currently not supported. ([see issue #137](https://github.com/asmaloney/gactar/issues/137))
 - (_Windows_) Improved setup script: create symlink for _python3_ and fix _activate_ script path. (@ren-oz) ([#149](https://github.com/asmaloney/gactar/pull/149))
 
 ### Fixed

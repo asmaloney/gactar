@@ -71,6 +71,8 @@ There are more details on each step below, but here's the short version:
 
    `./scripts/setup.sh`
 
+   **Note:** _pyactr_ [currently requires Python < 3.10](https://github.com/asmaloney/gactar/issues/137), so it will not be installed if you are using the most recent version of Python.
+
 ### Run
 
 1. Run gactar:
