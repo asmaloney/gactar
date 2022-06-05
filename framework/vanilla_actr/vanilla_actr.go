@@ -178,6 +178,10 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 		}
 	}
 
+	if memory.InstantaneousNoise != nil {
+		v.Writeln("\t:ans %s", numbers.Float64Str(*memory.InstantaneousNoise))
+	}
+
 	procedural := v.model.Procedural
 	if procedural.DefaultActionTime != nil {
 		v.Writeln("\t:dat %s", numbers.Float64Str(*procedural.DefaultActionTime))

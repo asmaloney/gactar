@@ -71,6 +71,13 @@ type DeclarativeMemory struct {
 	//	pyactr (strength_of_association)
 	//	vanilla (:mas)
 	MaxSpreadStrength *float64
+
+	// "instantaneous_noise": turns on the activation noise calculation & sets instantaneous noise
+	// (there are no defaults since setting it activates the capability)
+	// 	ccm (DMNoise submodule 'noise')
+	// 	pyactr (instantaneous_noise)
+	// 	vanilla (:ans)
+	InstantaneousNoise *float64
 }
 
 func NewDeclarativeMemory() *DeclarativeMemory {
@@ -141,6 +148,17 @@ func (d *DeclarativeMemory) SetParam(param *params.Param) (err params.ParamError
 		}
 
 		d.MaxSpreadStrength = value.Number
+
+	case "instantaneous_noise":
+		if value.Number == nil {
+			return params.NumberRequired
+		}
+
+		if *value.Number < 0 {
+			return params.NumberMustBePositive
+		}
+
+		d.InstantaneousNoise = value.Number
 
 	default:
 		return params.UnrecognizedParam

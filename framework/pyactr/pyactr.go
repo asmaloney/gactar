@@ -207,6 +207,10 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 		}
 	}
 
+	if memory.InstantaneousNoise != nil {
+		p.Writeln("    instantaneous_noise=%s,", numbers.Float64Str(*memory.InstantaneousNoise))
+	}
+
 	procedural := p.model.Procedural
 	if procedural.DefaultActionTime != nil {
 		p.Writeln("    rule_firing=%s,", numbers.Float64Str(*procedural.DefaultActionTime))

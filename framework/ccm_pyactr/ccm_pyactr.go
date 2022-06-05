@@ -166,6 +166,10 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 		additionalImports = append(additionalImports, "DMSpreading")
 	}
 
+	if memory.InstantaneousNoise != nil {
+		additionalImports = append(additionalImports, "DMNoise")
+	}
+
 	if len(additionalImports) > 0 {
 		c.Write("from python_actr import %s\n", strings.Join(additionalImports, ", "))
 	}
@@ -227,6 +231,12 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 			c.Writeln("    spread.weight[%s] = %s", "goal", numbers.Float64Str(*goalActivation))
 		}
 
+		c.Writeln("")
+	}
+
+	// Turn on DMNoise if we have set "instantaneous_noise"
+	if memory.InstantaneousNoise != nil {
+		c.Writeln("    DMNoise(%s, noise=%s)", memory.ModuleName(), numbers.Float64Str(*memory.InstantaneousNoise))
 		c.Writeln("")
 	}
 
