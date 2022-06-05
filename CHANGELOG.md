@@ -11,12 +11,13 @@ All notable changes to this project will be documented in this file. The format 
 - Added _max_spread_strength_ config option to declarative **memory**. This turns on the spreading activation calculation & sets the maximum associative strength. ([#141](https://github.com/asmaloney/gactar/pull/141))
 - Added _spreading_activation_ config option to **goal**. This only takes effect if spreading activation is turned on via _max_spread_strength_ (see above). ([#148](https://github.com/asmaloney/gactar/pull/148))
 - Added _trace_activations_ config option to **gactar**. This turns on detailed info about activations if available (currently _pyactr_ and _vanilla_ support it). ([#160](https://github.com/asmaloney/gactar/pull/160))
+- Documentation for which modules are available and their configuration options. (See [amod Config](./doc/amod%20Config.md).)
 
 ### Changed
 
-- No longer need to run "source ./env/bin/activate" to activate the Python virtual environment. gactar will set the variables itself. ([#130](https://github.com/asmaloney/gactar/pull/130))
+- No longer need to run `source ./env/bin/activate` to activate the Python virtual environment. gactar will set the variables itself. ([#130](https://github.com/asmaloney/gactar/pull/130))
 - Don't create md5 files with the releases.
-- Rename "darwin" to "macOS" in releases.
+- Rename `darwin` to `macOS` in releases.
 - Don't try to install _pyactr_ if running Python 3.10+. It is currently not supported. ([see issue #137](https://github.com/asmaloney/gactar/issues/137))
 - (_Windows_) Improved setup script: create symlink for _python3_ and fix _activate_ script path. (@ren-oz) ([#149](https://github.com/asmaloney/gactar/pull/149))
 

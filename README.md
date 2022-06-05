@@ -597,6 +597,10 @@ You can find other examples of `amod` files in the [examples folder](examples).
 
 The EBNF ([Extended Backus–Naur form](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form)) grammar for the amod file format may be found [here](doc/amod%20EBNF.txt).
 
+### Config Section
+
+For amod configuration options and a list of supported modules, please see [amod Config](./doc/amod%20Config.md).
+
 ### Buffers
 
 In ACT-R, a buffer is the interface between modules, such as the goal & declarative memory modules, and the production system. At any point in time, each buffer either stores one instance of a _chunk_ (see next section) or it is empty.
