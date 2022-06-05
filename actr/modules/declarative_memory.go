@@ -67,6 +67,9 @@ type DeclarativeMemory struct {
 
 	// "max_spread_strength": turns on the spreading activation calculation & sets the maximum associative strength
 	// (there are no defaults since setting it activates the capability)
+	//	ccm (DMSpreading submodule)
+	//	pyactr (strength_of_association)
+	//	vanilla (:mas)
 	MaxSpreadStrength *float64
 }
 
