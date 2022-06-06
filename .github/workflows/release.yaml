@@ -16,6 +16,10 @@ jobs:
             goarch: arm64
 
     steps:
+      - name: Get repo & tag
+        run: |
+          echo "RELEASE_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+          echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
       - name: OS darwin
         if: matrix.goos == 'darwin'
         run: echo "OS_NAME=macOS" >> $GITHUB_ENV
@@ -30,4 +34,4 @@ jobs:
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           extra_files: doc examples scripts CHANGELOG.md CITATION.cff CONTRIBUTING.md LICENSE README.md
-          asset_name: '${BINARY_NAME}-${RELEASE_TAG}-${{ env.OS_NAME }}-${{ matrix.goarch }}'
+          asset_name: '${REPOSITORY_NAME}-${RELEASE_TAG}-${{ env.OS_NAME }}-${{ matrix.goarch }}'
