@@ -207,11 +207,18 @@ type setStatement struct {
 	Tokens []lexer.Token
 }
 
+type stopStatement struct {
+	Stop string `parser:"'stop':Keyword"`
+
+	Tokens []lexer.Token
+}
+
 type statement struct {
 	Clear  *clearStatement  `parser:"  @@"`
 	Print  *printStatement  `parser:"| @@"`
 	Recall *recallStatement `parser:"| @@"`
 	Set    *setStatement    `parser:"| @@"`
+	Stop   *stopStatement   `parser:"| @@"`
 
 	Tokens []lexer.Token
 }

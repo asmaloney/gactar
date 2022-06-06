@@ -496,6 +496,9 @@ func (c CCMPyACTR) outputStatement(s *actr.Statement) {
 	case s.Print != nil:
 		values := framework.PythonValuesToStrings(s.Print.Values, true)
 		c.Writeln("        print(%s, sep='')", strings.Join(values, ", "))
+
+	case s.Stop != nil:
+		c.Writeln("        self.stop()")
 	}
 }
 

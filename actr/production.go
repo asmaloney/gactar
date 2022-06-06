@@ -33,6 +33,7 @@ type Statement struct {
 	Print  *PrintStatement
 	Recall *RecallStatement
 	Set    *SetStatement
+	Stop   *StopStatement
 }
 
 // ClearStatement clears a list of buffers.
@@ -83,6 +84,10 @@ type SetStatement struct {
 	Buffer buffer.BufferInterface // (1 & 2) buffer we are manipulating
 
 	Pattern *Pattern // (2) pattern if we are setting the whole buffer
+}
+
+// StopStatement outputs a stop command. There are no parameters.
+type StopStatement struct {
 }
 
 func (p Production) LookupMatchByBuffer(bufferName string) *Match {

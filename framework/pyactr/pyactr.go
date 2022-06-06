@@ -518,6 +518,10 @@ func (p PyACTR) outputStatement(production *actr.Production, s *actr.Statement) 
 		for _, name := range s.Clear.BufferNames {
 			p.Writeln("     ~%s>", name)
 		}
+
+	case s.Stop != nil:
+		// to stop in pyactr, clear the goal buffer
+		p.Writeln("     ~goal>")
 	}
 }
 

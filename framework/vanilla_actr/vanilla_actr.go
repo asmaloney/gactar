@@ -458,6 +458,9 @@ func (v VanillaACTR) outputStatement(s *actr.Statement) {
 		for _, name := range s.Clear.BufferNames {
 			v.Writeln("\t-%s>", name)
 		}
+
+	case s.Stop != nil:
+		v.Writeln("\t!stop!")
 	}
 }
 

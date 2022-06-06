@@ -488,6 +488,9 @@ func addStatement(model *actr.Model, log *issueLog, statement *statement, produc
 	case statement.Print != nil:
 		s, err = addPrintStatement(model, log, statement.Print, production)
 
+	case statement.Stop != nil:
+		s, err = addStopStatement(model, log, statement.Stop, production)
+
 	default:
 		err = fmt.Errorf("statement type not handled: %T", statement)
 		return err
@@ -624,6 +627,12 @@ func addPrintStatement(model *actr.Model, log *issueLog, print *printStatement, 
 	s := actr.Statement{Print: &p}
 
 	return &s, nil
+}
+
+func addStopStatement(model *actr.Model, log *issueLog, stop *stopStatement, production *actr.Production) (*actr.Statement, error) {
+	return &actr.Statement{
+		Stop: &actr.StopStatement{},
+	}, nil
 }
 
 func convertArgs(args []*arg) *[]*actr.Value {
