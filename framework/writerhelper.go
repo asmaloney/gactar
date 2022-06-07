@@ -9,7 +9,6 @@ import (
 )
 
 type WriterHelper struct {
-	File      *os.File
 	Contents  *bytes.Buffer
 	TabWriter *tabwriter.Writer
 }
@@ -24,24 +23,24 @@ type keyValue struct {
 	value string
 }
 
-func (w *WriterHelper) InitWriterHelper(outputFileName string) (err error) {
-	w.File, err = os.OpenFile(outputFileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0770)
-	if err != nil {
-		return
-	}
-
+func (w *WriterHelper) InitWriterHelper() (err error) {
 	w.Contents = new(bytes.Buffer)
 	w.TabWriter = tabwriter.NewWriter(w.Contents, 0, 4, 1, '\t', 0)
 
 	return
 }
 
-func (w *WriterHelper) CloseWriterHelper() (err error) {
-	_, writeErr := w.File.Write(w.Contents.Bytes())
+func (w *WriterHelper) WriteFile(outputFileName string) (err error) {
+	file, err := os.OpenFile(outputFileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0770)
+	if err != nil {
+		return
+	}
+
+	_, writeErr := file.Write(w.Contents.Bytes())
 
 	// If we have a write error, we still want to try to Close().
 
-	closeErr := w.File.Close()
+	closeErr := file.Close()
 	if closeErr != nil {
 		// If we also had an error on Close(), return both errors
 		if writeErr != nil {
@@ -52,9 +51,6 @@ func (w *WriterHelper) CloseWriterHelper() (err error) {
 	} else {
 		err = writeErr
 	}
-
-	w.File = nil
-	w.TabWriter = nil
 
 	return
 }

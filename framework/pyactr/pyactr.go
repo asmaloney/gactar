@@ -124,14 +124,8 @@ func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (result *framework
 	return
 }
 
+// WriteModel converts the internal actr.Model to Python and writes it to a file.
 func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
-	patterns, err := framework.ParseInitialBuffers(p.model, initialBuffers)
-	if err != nil {
-		return
-	}
-
-	goal := patterns["goal"]
-
 	// If our model has a print statement, then write out our support file
 	if p.model.HasPrintStatement() {
 		err = writePrintSupportFile(path, "pyactr_print.py")
@@ -150,18 +144,32 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 		return "", err
 	}
 
-	err = p.InitWriterHelper(outputFileName)
+	_, err = p.generateCode(path, initialBuffers)
 	if err != nil {
 		return
 	}
-	defer func() {
-		writerErr := p.CloseWriterHelper()
-		if err == nil {
-			err = writerErr
-		} else if writerErr != nil {
-			err = fmt.Errorf("%s; %w", err.Error(), writerErr)
-		}
-	}()
+
+	err = p.WriteFile(outputFileName)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// generateCode converts the internal actr.Model to Python code.
+func (p *PyACTR) generateCode(path string, initialBuffers framework.InitialBuffers) (code []byte, err error) {
+	patterns, err := framework.ParseInitialBuffers(p.model, initialBuffers)
+	if err != nil {
+		return
+	}
+
+	goal := patterns["goal"]
+
+	err = p.InitWriterHelper()
+	if err != nil {
+		return
+	}
 
 	p.writeHeader()
 
@@ -268,6 +276,7 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 	// ...add our code to run
 	p.writeMain()
 
+	code = p.GetContents()
 	return
 }
 
