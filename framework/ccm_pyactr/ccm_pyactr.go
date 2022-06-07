@@ -45,18 +45,14 @@ type CCMPyACTR struct {
 
 // New simply creates a new CCMPyACTR instance and sets the tmp path.
 func New(ctx *cli.Context) (c *CCMPyACTR, err error) {
-
 	c = &CCMPyACTR{tmpPath: ctx.Path("temp")}
 
+	err = framework.Setup(&Info)
 	return
 }
 
 func (CCMPyACTR) Info() *framework.Info {
 	return &Info
-}
-
-func (c *CCMPyACTR) Initialize() (err error) {
-	return framework.Setup(&Info)
 }
 
 func (CCMPyACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
