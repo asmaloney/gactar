@@ -13,15 +13,13 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
-	"github.com/asmaloney/gactar/framework/ccm_pyactr"
-	"github.com/asmaloney/gactar/framework/pyactr"
-	"github.com/asmaloney/gactar/framework/vanilla_actr"
 	"github.com/asmaloney/gactar/shell"
 	"github.com/asmaloney/gactar/web"
 
 	"github.com/asmaloney/gactar/util/clicontext"
 	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/filesystem"
+	"github.com/asmaloney/gactar/util/frameworkutil"
 	"github.com/asmaloney/gactar/util/validate"
 	"github.com/asmaloney/gactar/util/version"
 )
@@ -169,32 +167,13 @@ func createFrameworks(cli *cli.Context) (frameworks framework.List, err error) {
 		return
 	}
 
-	list = container.UniqueAndSorted(list)
-
-	if list[0] == "all" {
-		list = framework.ValidNamedFrameworks()
+	// If the user asked for "all", then clear the list.
+	// frameworkutil.CreateFrameworks() will create all valid ones.
+	if container.Contains("all", list) {
+		list = []string{}
 	}
 
-	frameworks = make(framework.List, len(list))
-
-	for _, f := range list {
-		var createErr error
-		switch f {
-		case "ccm":
-			frameworks["ccm"], createErr = ccm_pyactr.New(cli)
-		case "pyactr":
-			frameworks["pyactr"], createErr = pyactr.New(cli)
-		case "vanilla":
-			frameworks["vanilla"], createErr = vanilla_actr.New(cli)
-		default:
-			err = fmt.Errorf("unknown framework: %s", f)
-			return framework.List{}, err
-		}
-
-		if createErr != nil {
-			fmt.Println(createErr.Error())
-		}
-	}
+	frameworks = frameworkutil.CreateFrameworks(cli, list)
 
 	if len(frameworks) == 0 {
 		err = fmt.Errorf("could not create any frameworks - please check your installation")

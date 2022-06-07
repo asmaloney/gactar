@@ -1,40 +1,21 @@
 package web
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
-	"github.com/asmaloney/gactar/framework"
-	"github.com/asmaloney/gactar/framework/ccm_pyactr"
-	"github.com/asmaloney/gactar/framework/pyactr"
-	"github.com/asmaloney/gactar/framework/vanilla_actr"
+	"github.com/asmaloney/gactar/util/frameworkutil"
+	"github.com/urfave/cli/v2"
 )
 
 var webTest *Web = nil
 
 func TestMain(m *testing.M) {
-	list := framework.ValidFrameworks[1:]
+	ctx := cli.NewContext(nil, nil, nil)
 
-	frameworks := make(framework.List, len(list))
+	frameworks := frameworkutil.CreateFrameworks(ctx, nil)
 
-	for _, f := range list {
-		var createErr error
-		switch f {
-		case "ccm":
-			frameworks["ccm"], createErr = ccm_pyactr.New(nil)
-		case "pyactr":
-			frameworks["pyactr"], createErr = pyactr.New(nil)
-		case "vanilla":
-			frameworks["vanilla"], createErr = vanilla_actr.New(nil)
-		}
-
-		if createErr != nil {
-			fmt.Println(createErr.Error())
-		}
-	}
-
-	webTest, _ = Initialize(nil, frameworks, nil)
+	webTest, _ = Initialize(ctx, frameworks, nil)
 
 	exitVal := m.Run()
 
