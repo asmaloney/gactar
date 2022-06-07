@@ -42,12 +42,7 @@ func Initialize(cli *cli.Context, frameworks framework.List) (s *Shell, err erro
 
 	s.preamble()
 
-	for name, framework := range frameworks {
-		err = framework.Initialize()
-		if err != nil {
-			return nil, err
-		}
-
+	for name, _ := range frameworks {
 		s.activeFrameworks[name] = true
 	}
 

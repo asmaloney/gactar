@@ -35,8 +35,6 @@ type RunResult struct {
 type Framework interface {
 	Info() *Info
 
-	Initialize() (err error)
-
 	ValidateModel(model *actr.Model) (log *issues.Log)
 	SetModel(model *actr.Model) (err error)
 	Model() (model *actr.Model)

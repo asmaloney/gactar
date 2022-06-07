@@ -44,18 +44,14 @@ type PyACTR struct {
 
 // New simply creates a new PyACTR instance and sets the tmp path from the context.
 func New(ctx *cli.Context) (p *PyACTR, err error) {
-
 	p = &PyACTR{tmpPath: ctx.Path("temp")}
 
+	err = framework.Setup(&Info)
 	return
 }
 
 func (PyACTR) Info() *framework.Info {
 	return &Info
-}
-
-func (p *PyACTR) Initialize() (err error) {
-	return framework.Setup(&Info)
 }
 
 func (PyACTR) ValidateModel(model *actr.Model) (log *issues.Log) {

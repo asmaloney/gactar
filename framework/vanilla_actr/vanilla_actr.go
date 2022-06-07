@@ -37,21 +37,17 @@ type VanillaACTR struct {
 
 // New simply creates a new VanillaACTR instance and sets some paths from the context.
 func New(ctx *cli.Context) (v *VanillaACTR, err error) {
-
 	v = &VanillaACTR{
 		tmpPath: ctx.Path("temp"),
 		envPath: os.Getenv("VIRTUAL_ENV"),
 	}
 
+	err = framework.Setup(&Info)
 	return
 }
 
 func (VanillaACTR) Info() *framework.Info {
 	return &Info
-}
-
-func (v *VanillaACTR) Initialize() (err error) {
-	return framework.Setup(&Info)
 }
 
 func (VanillaACTR) ValidateModel(model *actr.Model) (log *issues.Log) {

@@ -75,15 +75,6 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 		currentSessionID: 1,
 	}
 
-	for name, f := range w.actrFrameworks {
-		err = f.Initialize()
-		if err != nil {
-			fmt.Println(err.Error())
-			delete(w.actrFrameworks, name)
-			err = nil
-		}
-	}
-
 	if len(w.actrFrameworks) == 0 {
 		err := fmt.Errorf("could not initialize any frameworks - please check your installation")
 		return w, err
