@@ -75,7 +75,7 @@ terminateAddition {
     }
     do {
         print ?sum
-        clear goal
+        stop
     }
 }
 

@@ -55,7 +55,7 @@ goal [countFrom: 2 5 starting]
 ==productions==
 
 // Name of the production
-start {
+begin {
     // Optional description
     description: 'Starting point - first production to match'
     
@@ -82,12 +82,12 @@ increment {
     }
 }
 
-stop {
+end {
     match {
         goal [countFrom: ?x ?x counting]
     }
     do {
         print ?x
-        clear goal
+        stop
     }
 }

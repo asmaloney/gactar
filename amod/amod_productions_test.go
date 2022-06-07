@@ -10,7 +10,10 @@ func Example_production() {
 	==productions==
 	start {
 		match { goal [foo: ?blat] }
-		do { print ?blat }
+		do {
+			print ?blat
+			stop
+		}
 	}`)
 
 	// Output:
