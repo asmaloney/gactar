@@ -106,8 +106,33 @@ func (c *CCMPyACTR) Run(initialBuffers framework.InitialBuffers) (result *framew
 	return
 }
 
-// WriteModel converts the internal actr.Model to python and writes it to a file.
+// WriteModel converts the internal actr.Model to Python and writes it to a file.
 func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
+	outputFileName = fmt.Sprintf("%s.py", c.className)
+	if path != "" {
+		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
+	}
+
+	err = filesystem.RemoveFile(outputFileName)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = c.generateCode(path, initialBuffers)
+	if err != nil {
+		return
+	}
+
+	err = c.WriteFile(outputFileName)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// generateCode converts the internal actr.Model to Python code.
+func (c *CCMPyACTR) generateCode(path string, initialBuffers framework.InitialBuffers) (code []byte, err error) {
 	patterns, err := framework.ParseInitialBuffers(c.model, initialBuffers)
 	if err != nil {
 		return
@@ -123,28 +148,10 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 		}
 	}
 
-	outputFileName = fmt.Sprintf("%s.py", c.className)
-	if path != "" {
-		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
-	}
-
-	err = filesystem.RemoveFile(outputFileName)
-	if err != nil {
-		return "", err
-	}
-
-	err = c.InitWriterHelper(outputFileName)
+	err = c.InitWriterHelper()
 	if err != nil {
 		return
 	}
-	defer func() {
-		writerErr := c.CloseWriterHelper()
-		if err == nil {
-			err = writerErr
-		} else if writerErr != nil {
-			err = fmt.Errorf("%s; %w", err.Error(), writerErr)
-		}
-	}()
 
 	c.writeHeader()
 
@@ -240,6 +247,7 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 
 	c.writeMain()
 
+	code = c.GetContents()
 	return
 }
 

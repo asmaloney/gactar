@@ -100,14 +100,8 @@ func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (result *fram
 	return
 }
 
+// WriteModel converts the internal actr.Model to Lisp and writes it to a file.
 func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
-	patterns, err := framework.ParseInitialBuffers(v.model, initialBuffers)
-	if err != nil {
-		return
-	}
-
-	goal := patterns["goal"]
-
 	outputFileName = fmt.Sprintf("%s.lisp", v.modelName)
 	if path != "" {
 		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
@@ -118,18 +112,32 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 		return "", err
 	}
 
-	err = v.InitWriterHelper(outputFileName)
+	_, err = v.generateCode(path, initialBuffers)
 	if err != nil {
 		return
 	}
-	defer func() {
-		writerErr := v.CloseWriterHelper()
-		if err == nil {
-			err = writerErr
-		} else if writerErr != nil {
-			err = fmt.Errorf("%s; %w", err.Error(), writerErr)
-		}
-	}()
+
+	err = v.WriteFile(outputFileName)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// generateCode converts the internal actr.Model to Lisp code.
+func (v *VanillaACTR) generateCode(path string, initialBuffers framework.InitialBuffers) (code []byte, err error) {
+	patterns, err := framework.ParseInitialBuffers(v.model, initialBuffers)
+	if err != nil {
+		return
+	}
+
+	goal := patterns["goal"]
+
+	err = v.InitWriterHelper()
+	if err != nil {
+		return
+	}
 
 	v.writeHeader()
 
@@ -254,6 +262,7 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 
 	v.Writeln(")")
 
+	code = v.GetContents()
 	return
 }
 
@@ -498,28 +507,25 @@ func createOutputArgs(values *[]*actr.Value) string {
 
 // createRunFile creates a lisp program to load ACTR and our model and then run them.
 func (v VanillaACTR) createRunFile(modelFile string) (outputFile string, err error) {
-	outputFile = fmt.Sprintf("%s_run.lisp", v.modelName)
-	if v.tmpPath != "" {
-		outputFile = fmt.Sprintf("%s/%s", v.tmpPath, outputFile)
-	}
-
-	err = v.InitWriterHelper(outputFile)
+	err = v.InitWriterHelper()
 	if err != nil {
 		return
 	}
-	defer func() {
-		writerErr := v.CloseWriterHelper()
-		if err == nil {
-			err = writerErr
-		} else if writerErr != nil {
-			err = fmt.Errorf("%s; %w", err.Error(), writerErr)
-		}
-	}()
 
 	v.Writeln("#!%s/bin/sbcl --script", v.envPath)
 	v.Writeln(`(load "%s/actr/load-single-threaded-act-r.lisp")`, v.envPath)
 	v.Writeln(`(load "%s")`, modelFile)
 	v.Writeln(`(run 10.0)`)
+
+	outputFile = fmt.Sprintf("%s_run.lisp", v.modelName)
+	if v.tmpPath != "" {
+		outputFile = fmt.Sprintf("%s/%s", v.tmpPath, outputFile)
+	}
+
+	err = v.WriteFile(outputFile)
+	if err != nil {
+		return
+	}
 
 	return
 }
