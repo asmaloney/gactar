@@ -1,15 +1,26 @@
 package framework
 
 import (
+	"time"
+
 	"github.com/asmaloney/gactar/actr"
 
 	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/issues"
+	"github.com/asmaloney/gactar/util/version"
 )
 
-// ValidFrameworks lists the valid options for choosing frameworks on the command line and in the
-// interactive case. Make sure "all" is the first entry as we use [1:] to get the rest.
-var ValidFrameworks = []string{"all", "ccm", "pyactr", "vanilla"}
+var (
+	// ValidFrameworks lists the valid options for choosing frameworks on the command line and in the
+	// interactive case. Make sure "all" is the first entry as we use [1:] to get the rest.
+	ValidFrameworks = []string{"all", "ccm", "pyactr", "vanilla"}
+
+	// GactarVersion stores the current build version. It is a var so we can replace it in testing.
+	GactarVersion = version.BuildVersion
+
+	// TimeNow stores the time.Now function so we can replace it in testing.
+	TimeNow = time.Now
+)
 
 // Info provides basic info to set up a framework.
 type Info struct {
