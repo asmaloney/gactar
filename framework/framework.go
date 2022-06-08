@@ -52,6 +52,7 @@ type Framework interface {
 
 	Run(initialBuffers InitialBuffers) (result *RunResult, err error)
 	WriteModel(path string, initialBuffers InitialBuffers) (outputFileName string, err error)
+	GenerateCode(initialBuffers InitialBuffers) (code []byte, err error)
 }
 
 type List map[string]Framework

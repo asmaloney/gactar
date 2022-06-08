@@ -45,6 +45,11 @@ func New(ctx *cli.Context) (p *PyACTR, err error) {
 	p = &PyACTR{tmpPath: ctx.Path("temp")}
 
 	err = framework.Setup(&Info)
+	if err != nil {
+		p = nil
+		return
+	}
+
 	return
 }
 
@@ -144,7 +149,7 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 		return "", err
 	}
 
-	_, err = p.generateCode(path, initialBuffers)
+	_, err = p.GenerateCode(initialBuffers)
 	if err != nil {
 		return
 	}
@@ -157,8 +162,8 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 	return
 }
 
-// generateCode converts the internal actr.Model to Python code.
-func (p *PyACTR) generateCode(path string, initialBuffers framework.InitialBuffers) (code []byte, err error) {
+// GenerateCode converts the internal actr.Model to Python code.
+func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []byte, err error) {
 	patterns, err := framework.ParseInitialBuffers(p.model, initialBuffers)
 	if err != nil {
 		return

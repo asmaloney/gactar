@@ -41,6 +41,11 @@ func New(ctx *cli.Context) (v *VanillaACTR, err error) {
 	}
 
 	err = framework.Setup(&Info)
+	if err != nil {
+		v = nil
+		return
+	}
+
 	return
 }
 
@@ -112,7 +117,7 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 		return "", err
 	}
 
-	_, err = v.generateCode(path, initialBuffers)
+	_, err = v.GenerateCode(initialBuffers)
 	if err != nil {
 		return
 	}
@@ -125,8 +130,8 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 	return
 }
 
-// generateCode converts the internal actr.Model to Lisp code.
-func (v *VanillaACTR) generateCode(path string, initialBuffers framework.InitialBuffers) (code []byte, err error) {
+// GenerateCode converts the internal actr.Model to Lisp code.
+func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []byte, err error) {
 	patterns, err := framework.ParseInitialBuffers(v.model, initialBuffers)
 	if err != nil {
 		return
