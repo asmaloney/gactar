@@ -1,7 +1,9 @@
 package framework
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -13,6 +15,42 @@ import (
 )
 
 // Some tools for working with our frameworks
+
+// Reads a file, generates a model, validates it, and generates code from it for a given framework.
+// This is useful for testing.
+func GenerateCodeFromFile(fw Framework, inputFile string, initialBuffers InitialBuffers) (code []byte, err error) {
+	amodCode, err := os.ReadFile(inputFile)
+	if err != nil {
+		return
+	}
+
+	model, log, err := amod.GenerateModel(string(amodCode))
+	if err != nil {
+		fmt.Print(log)
+		return
+	}
+
+	log = fw.ValidateModel(model)
+	if log.HasIssues() {
+		if log.HasError() {
+			fmt.Print(log)
+			err = errors.New("model validation failed")
+			return
+		}
+	}
+
+	err = fw.SetModel(model)
+	if err != nil {
+		return
+	}
+
+	code, err = fw.GenerateCode(initialBuffers)
+	if err != nil {
+		return
+	}
+
+	return
+}
 
 // Setup will check that the executable exists and then use it to identify itself.
 func Setup(info *Info) (err error) {
