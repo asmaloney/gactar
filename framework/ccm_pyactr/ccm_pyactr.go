@@ -46,6 +46,11 @@ func New(ctx *cli.Context) (c *CCMPyACTR, err error) {
 	c = &CCMPyACTR{tmpPath: ctx.Path("temp")}
 
 	err = framework.Setup(&Info)
+	if err != nil {
+		c = nil
+		return
+	}
+
 	return
 }
 
@@ -108,6 +113,14 @@ func (c *CCMPyACTR) Run(initialBuffers framework.InitialBuffers) (result *framew
 
 // WriteModel converts the internal actr.Model to Python and writes it to a file.
 func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
+	// If our model is tracing activations, then write out our support file
+	if c.model.TraceActivations {
+		err = writeTraceSupportFile(path)
+		if err != nil {
+			return
+		}
+	}
+
 	outputFileName = fmt.Sprintf("%s.py", c.className)
 	if path != "" {
 		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
@@ -118,7 +131,7 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 		return "", err
 	}
 
-	_, err = c.generateCode(path, initialBuffers)
+	_, err = c.GenerateCode(initialBuffers)
 	if err != nil {
 		return
 	}
@@ -131,22 +144,14 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 	return
 }
 
-// generateCode converts the internal actr.Model to Python code.
-func (c *CCMPyACTR) generateCode(path string, initialBuffers framework.InitialBuffers) (code []byte, err error) {
+// GenerateCode converts the internal actr.Model to Python code.
+func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []byte, err error) {
 	patterns, err := framework.ParseInitialBuffers(c.model, initialBuffers)
 	if err != nil {
 		return
 	}
 
 	goal := patterns["goal"]
-
-	// If our model is tracing activations, then write out our support file
-	if c.model.TraceActivations {
-		err = writeTraceSupportFile(path)
-		if err != nil {
-			return
-		}
-	}
 
 	err = c.InitWriterHelper()
 	if err != nil {
