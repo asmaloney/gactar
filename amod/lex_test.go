@@ -39,10 +39,27 @@ func TestInvalidSection(t *testing.T) {
 
 	token, err := l.Next()
 	if err != nil {
-		t.Errorf(" error getting next token: %s", err.Error())
+		t.Errorf("error getting next token: %s", err.Error())
 	}
+
 	if token.Type != lexer.TokenType(lexemeChar) {
 		t.Errorf("expected to lex '%s' as int (%d) - got type %d", token.Value, lexemeChar, token.Type)
+	}
+}
+
+func TestUnterminatedQuote(t *testing.T) {
+	t.Parallel()
+
+	l := lex("test", `"a string`)
+
+	_, err := l.Next()
+
+	expected := "ERROR on line 1 at position 8: unterminated quoted string"
+
+	if err == nil {
+		t.Errorf("expected error: %q", expected)
+	} else if err.Error() != expected {
+		t.Errorf("expected error: %q but got %q", expected, err.Error())
 	}
 }
 
