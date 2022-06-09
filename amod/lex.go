@@ -353,7 +353,7 @@ func lexStart(l *lexer_amod) stateFn {
 			l.backup()
 			return lexComment
 		}
-		l.backup()
+		l.emit(lexemeChar)
 
 	case r == '"' || r == '\'':
 		l.backup()
