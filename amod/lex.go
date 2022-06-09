@@ -22,6 +22,17 @@ type lexer_def struct {
 // LexerDefinition provides the interface for the participle parser
 var LexerDefinition lexer.Definition = lexer_def{}
 
+// LexError is returned for errors we have while lexing.
+type LexError struct {
+	Line     int
+	Position int
+	Value    string
+}
+
+func (err LexError) Error() string {
+	return fmt.Sprintf("ERROR on line %d at position %d: %s", err.Line, err.Position, err.Value)
+}
+
 type lexemeType int
 type lexeme struct {
 	typ   lexemeType
@@ -176,7 +187,11 @@ func (l *lexer_amod) Next() (tok lexer.Token, err error) {
 	}
 
 	if next.typ == lexemeError {
-		err = fmt.Errorf("ERROR on line %d at position %d: %s", next.line, next.pos, next.value)
+		err = LexError{
+			Line:     next.line,
+			Position: next.pos,
+			Value:    next.value,
+		}
 		return
 	}
 
