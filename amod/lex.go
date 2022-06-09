@@ -445,6 +445,12 @@ func lexSection(l *lexer_amod) stateFn {
 		return lexStart
 	}
 
+	// We didn't match a section, so emit two '=' and lex optional space
+	l.pos += 1
+	l.emit(lexemeChar)
+	l.pos += 1
+	l.emit(lexemeChar)
+
 	return lexSpace
 }
 

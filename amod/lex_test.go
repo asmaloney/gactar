@@ -31,3 +31,17 @@ func TestNumber(t *testing.T) {
 		}
 	}
 }
+
+func TestInvalidSection(t *testing.T) {
+	t.Parallel()
+
+	l := lex("test", "==invalid==")
+
+	token, err := l.Next()
+	if err != nil {
+		t.Errorf(" error getting next token: %s", err.Error())
+	}
+	if token.Type != lexer.TokenType(lexemeChar) {
+		t.Errorf("expected to lex '%s' as int (%d) - got type %d", token.Value, lexemeChar, token.Type)
+	}
+}
