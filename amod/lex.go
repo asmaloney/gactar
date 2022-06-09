@@ -419,7 +419,14 @@ func lexSpace(l *lexer_amod) stateFn {
 func lexComment(l *lexer_amod) stateFn {
 	l.pos += len(commentDelim)
 	i := strings.Index(l.input[l.pos:], "\n")
-	l.pos += i
+
+	// If we are at the end of file there may not be a newline,
+	// so take the rest of the input.
+	if i == -1 {
+		l.pos = len(l.input)
+	} else {
+		l.pos += i
+	}
 
 	l.emit(lexemeComment)
 
