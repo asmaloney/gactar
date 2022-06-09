@@ -328,13 +328,13 @@ func lexStart(l *lexer_amod) stateFn {
 		return lexSpace
 
 	case isDigit(r) || r == '.':
-		l.backup()
 		return lexNumber
 
 	case (r == '+') || (r == '-'):
-		if isDigit(l.peek()) {
-			l.backup()
-			return lexNumber
+		p := l.peek()
+		if isDigit(p) || p == '.' {
+			// eat the +/- char and let the previous case handle a number
+			break
 		}
 		l.emit(lexemeChar)
 
@@ -518,17 +518,24 @@ func lexIdentifier(l *lexer_amod) stateFn {
 }
 
 func lexNumber(l *lexer_amod) stateFn {
-	l.accept("+-.")
-
+	current := l.input[l.pos-1]
 	digits := "0123456789"
+
+	// used to determine if we added anything to our buffer
+	savePos := l.pos
 
 	l.acceptRun(digits)
 
-	if l.accept(".") {
+	if current != '.' && l.accept(".") {
 		l.acceptRun(digits)
 	}
 
-	l.emit(lexemeNumber)
+	// If we only found '.' without any numbers before or after, return it as a char
+	if (current == '.') && (l.pos == savePos) {
+		l.emit(lexemeChar)
+	} else {
+		l.emit(lexemeNumber)
+	}
 
 	return lexStart
 }
