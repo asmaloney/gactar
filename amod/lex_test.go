@@ -45,3 +45,15 @@ func TestInvalidSection(t *testing.T) {
 		t.Errorf("expected to lex '%s' as int (%d) - got type %d", token.Value, lexemeChar, token.Type)
 	}
 }
+
+func TestForwardSlashNotComment(t *testing.T) {
+	t.Parallel()
+
+	l := lex("test", "/foo")
+
+	_, err := l.Next()
+
+	if err != nil {
+		t.Errorf("unexpected error: %q", err.Error())
+	}
+}
