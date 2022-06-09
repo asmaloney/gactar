@@ -45,7 +45,8 @@ func FuzzExampleModels(f *testing.F) {
 	f.Fuzz(func(t *testing.T, orig string) {
 		_, err := parse(strings.NewReader(orig))
 		if err != nil &&
-			!strings.Contains(err.Error(), "must match at least once") && // participle.parseError is not public, so hack it for now...
+			!strings.Contains(err.Error(), " must match at least once") && // participle.parseError is not public, so hack it for now...
+			!strings.Contains(err.Error(), ": invalid syntax") && // participle.parseError is not public, so hack it for now...
 			!errors.As(err, &participle.UnexpectedTokenError{}) &&
 			!errors.As(err, &LexError{}) {
 			t.Errorf("Error: %s\nInput: %q", err.Error(), orig)
