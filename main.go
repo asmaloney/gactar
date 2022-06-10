@@ -10,17 +10,16 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
-	"github.com/asmaloney/gactar/shell"
-	"github.com/asmaloney/gactar/web"
+	"github.com/asmaloney/gactar/modes/defaultmode"
+	"github.com/asmaloney/gactar/modes/shell"
+	"github.com/asmaloney/gactar/modes/web"
 
 	"github.com/asmaloney/gactar/util/clicontext"
 	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/frameworkutil"
-	"github.com/asmaloney/gactar/util/validate"
 	"github.com/asmaloney/gactar/util/version"
 )
 
@@ -212,107 +211,15 @@ func handleInteractive(ctx *cli.Context, frameworks framework.List) (err error) 
 }
 
 func handleDefault(ctx *cli.Context, frameworks framework.List) (err error) {
-	cli.ShowVersion(ctx)
-
-	// Check if files exist first
-	files := ctx.Args().Slice()
-
-	if len(files) == 0 {
-		err = fmt.Errorf("error: no input files specified on command line")
-		return
-	}
-
-	existingFiles := files[:0]
-	for _, file := range files {
-		if _, err := os.Stat(file); errors.Is(err, os.ErrNotExist) {
-			fmt.Printf("error: file does not exist - %q\n", file)
-			continue
-		}
-
-		existingFiles = append(existingFiles, file)
-	}
-
-	if len(existingFiles) == 0 {
-		err = fmt.Errorf("error: no files to process")
-		return
-	}
-
-	tempPath := ctx.Path("temp")
-	fmt.Printf("Intermediate file path: %q\n", tempPath)
-
-	err = generateCode(frameworks, existingFiles, tempPath, ctx.Bool("run"))
+	s, err := defaultmode.Initialize(ctx, frameworks)
 	if err != nil {
 		return err
 	}
 
-	if ctx.Bool("run") {
-		runCode(frameworks)
-	}
-	return
-}
-
-func generateCode(frameworks framework.List, files []string, outputDir string, runCode bool) (err error) {
-	modelMap := map[string]*actr.Model{}
-
-	for _, file := range files {
-		fmt.Printf("Generating model for %s\n", file)
-		model, log, err := amod.GenerateModelFromFile(file)
-		if err != nil {
-			fmt.Print(log)
-			continue
-		}
-
-		// When using "-r" the goal must be initialized in the code.
-		validate.Goal(model, "", log)
-
-		fmt.Print(log)
-
-		modelMap[file] = model
-	}
-
-	if len(modelMap) == 0 {
-		err = errors.New("no valid models to run")
-		return
-	}
-
-	for _, f := range frameworks {
-		for file, model := range modelMap {
-			fmt.Printf("\t- generating code for %s\n", file)
-
-			log := f.ValidateModel(model)
-			fmt.Print(log)
-			if log.HasError() {
-				continue
-			}
-
-			err = f.SetModel(model)
-			if err != nil {
-				fmt.Println(err.Error())
-				continue
-			}
-
-			fileName, err := f.WriteModel(outputDir, framework.InitialBuffers{})
-			if err != nil {
-				fmt.Println(err.Error())
-				continue
-			}
-			fmt.Printf("\t- written to %s\n", fileName)
-		}
+	err = s.Start()
+	if err != nil {
+		return err
 	}
 
 	return
-}
-
-func runCode(frameworks framework.List) {
-	for _, f := range frameworks {
-		result, err := f.Run(framework.InitialBuffers{})
-		if err != nil {
-			fmt.Println(err.Error())
-			continue
-		}
-
-		fmt.Printf("== %s ==\n", f.Info().Name)
-		fmt.Println(string(result.Output))
-		fmt.Println()
-	}
 }
