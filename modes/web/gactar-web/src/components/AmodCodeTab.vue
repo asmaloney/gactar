@@ -5,11 +5,10 @@
         <b-field class="is-pulled-right" grouped>
           <b-dropdown aria-role="list">
             <template #trigger="{}">
-              <b-button
-                label="Load Example"
-                type="is-info is-light"
-                :icon-right="'caret-square-down'"
-              />
+              <b-button type="is-info is-light">
+                Load Example
+                <span class="far fa-caret-square-down icon-space-left" />
+              </b-button>
             </template>
 
             <b-dropdown-item
