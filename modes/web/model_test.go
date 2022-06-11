@@ -30,11 +30,11 @@ func TestAddModel(t *testing.T) {
 func TestLoadModelHandler(t *testing.T) {
 	session := webTest.newSession()
 
-	src := `==model==
+	src := `~~ model ~~
 	name: Test
-	==config==
-	==init==
-	==productions==`
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~`
 	replacer := strings.NewReplacer(
 		"\t", "",
 		"\n", "\\n",

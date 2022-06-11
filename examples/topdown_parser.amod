@@ -1,4 +1,4 @@
-==model==
+~~ model ~~
 
 // The name of the model
 name: topdown
@@ -6,7 +6,7 @@ name: topdown
 // Description of the model
 description: "This model is based on pyactr's ch3_topdown_parser."
 
-==config==
+~~ config ~~
 
 gactar {
     // Logging level can be 'min', 'info' (default), or 'detail'
@@ -28,7 +28,7 @@ chunks {
     [word: form category]
 }
 
-==init==
+~~ init ~~
 
 // Initialize the memory
 memory {
@@ -43,7 +43,7 @@ goal [parsing_goal: S nil nil parsing]
 // Set our default imaginal buffer
 imaginal [sentence: Mary likes Bill]
 
-==productions==
+~~ productions ~~
 
 // Name of the production
 expandS {

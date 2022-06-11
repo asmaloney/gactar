@@ -1,4 +1,4 @@
-==model==
+~~ model ~~
 
 // The name of the model (used when generating code and for error messages)
 name: count
@@ -17,7 +17,7 @@ examples {
     [countFrom: 1 7 starting]
 }
 
-==config==
+~~ config ~~
 
 gactar {
     // Logging level can be 'min', 'info' (default), or 'detail'
@@ -33,7 +33,7 @@ chunks {
     [countFrom: start end status]
 }
 
-==init==
+~~ init ~~
 
 // Initialize the memory
 memory {
@@ -52,7 +52,7 @@ memory {
 // Default goal
 goal [countFrom: 2 5 starting]
 
-==productions==
+~~ productions ~~
 
 // Name of the production
 begin {

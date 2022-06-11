@@ -1,4 +1,4 @@
-==model==
+~~ model ~~
 
 // The name of the model (used when generating code and for error messages)
 name: addition2
@@ -11,7 +11,7 @@ examples {
     [add_pair: 3 6 4 7 nil nil nil]
 }
 
-==config==
+~~ config ~~
 
 gactar {
     // Logging level can be 'min', 'info' (default), or 'detail'
@@ -27,7 +27,7 @@ chunks {
     [add_pair: ten1 one1 ten2 one2 ten_ans one_ans carry]
 }
 
-==init==
+~~ init ~~
 
 // Initialize the memory
 memory {
@@ -40,7 +40,7 @@ memory {
 // Default goal
 goal [add_pair: 3 6 4 7 nil nil nil]
 
-==productions==
+~~ productions ~~
 
 // Name of the production
 startPair {

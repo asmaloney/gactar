@@ -1,4 +1,4 @@
-==model==
+~~ model ~~
 
 // The name of the model (used when generating code and for error messages)
 name: semantic
@@ -13,7 +13,7 @@ examples {
     [isMember: canary fish nil]
 }
 
-==config==
+~~ config ~~
 
 gactar {
     // Logging level can be 'min', 'info' (default), or 'detail'
@@ -29,7 +29,7 @@ chunks {
     [property: object attribute value]
 }
 
-==init==
+~~ init ~~
 
 // Initialize the memory
 memory {
@@ -44,7 +44,7 @@ memory {
 // Default goal
 goal [isMember: shark animal nil]
 
-==productions==
+~~ productions ~~
 
 // Name of the production
 initialRetrieval {

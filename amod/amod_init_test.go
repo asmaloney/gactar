@@ -2,32 +2,32 @@ package amod
 
 func Example_initializer1() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks {
 		[remember: person]
 		[author: person object]
 	}
-	==init==
+	~~ init ~~
 	memory {
 		[remember: me]
 		[author: me software]
 	}
-	==productions==`)
+	~~ productions ~~`)
 
 	// Output:
 }
 
 func Example_initializer2() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [author: person object year] }
-	==init==
+	~~ init ~~
 	goal [author: Fred Book 1972]
-	==productions==`)
+	~~ productions ~~`)
 
 	// Output:
 }
@@ -35,13 +35,13 @@ func Example_initializer2() {
 func Example_initializer3() {
 	// memory with one init is allowed
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [author: person object year] }
-	==init==
+	~~ init ~~
 	memory [author: Jane Book 1982]
-	==productions==`)
+	~~ productions ~~`)
 
 	// Output:
 }
@@ -49,13 +49,13 @@ func Example_initializer3() {
 func Example_initializerInvalidSlots() {
 	// Check invalid number of slots in init
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [author: person object year] }
-	==init==
+	~~ init ~~
 	memory { [author: me software] }
-	==productions==`)
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: invalid chunk - 'author' expects 3 slots (line 7, col 10)
@@ -64,12 +64,12 @@ func Example_initializerInvalidSlots() {
 func Example_initializerInvalidChunk1() {
 	// Check memory with invalid chunk
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
-	==init==
+	~~ config ~~
+	~~ init ~~
 	memory { [author: me software] }
-	==productions==`)
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: could not find chunk named 'author' (line 6, col 11)
@@ -78,12 +78,12 @@ func Example_initializerInvalidChunk1() {
 func Example_initializerInvalidChunk2() {
 	// Check buffer with invalid chunk
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
-	==init==
+	~~ config ~~
+	~~ init ~~
 	goal [author: Fred Book 1972]
-	==productions==`)
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: could not find chunk named 'author' (line 6, col 7)
@@ -92,13 +92,13 @@ func Example_initializerInvalidChunk2() {
 func Example_initializerUnknownBuffer() {
 	// Check unknown buffer
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [author: person object year] }
-	==init==
+	~~ init ~~
 	something [author: Fred Book 1972]
-	==productions==`)
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: module 'something' not found in initialization (line 7, col 1)
@@ -107,13 +107,13 @@ func Example_initializerUnknownBuffer() {
 func Example_initializerMultipleInits() {
 	// Check buffer with multiple inits
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [author: person object year] }
-	==init==
+	~~ init ~~
 	goal { [author: Fred Book 1972] [author: Jane Book 1982] }
-	==productions==`)
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: module 'goal' should only have one pattern in initialization (line 7, col 1)
