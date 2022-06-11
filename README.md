@@ -40,7 +40,7 @@ There are more details on each step below, but here's the short version:
 
    ```sh
    $ python3 --version
-   Python 3.9.13
+   Python 3.10.4
    ```
 
 2. (_Linux only_) Python virtual environments (**venv**) may not be installed by default. If you run into errors during setup, you may need to install the **python3-venv** package (possibly requiring sudo):
@@ -171,7 +171,7 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
 
    ```sh
    $ python3 --version
-   Python 3.9.13
+   Python 3.10.4
    ```
 
    (_Linux only_) Python virtual environments (**venv**) may not be installed by default. If you run into errors during setup, you may need to install the **python3-venv** package (possibly requiring sudo):
@@ -213,16 +213,7 @@ This will do several things to set up your environment:
 - create a [virtual environment](https://docs.python.org/3/library/venv.html) for the project in a directory called `env`
 - install [pyactr](https://github.com/jakdot/pyactr) and [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr) using pip
 - download "vanilla" [ACT-R](https://github.com/asmaloney/ACT-R)
-- (_macOS & Linux_) download & install the [Steel Bank Common Lisp](http://www.sbcl.org) (sbcl) compiler
-- (_macOS & Linux_) compile the ACT-R Lisp files
-
-### (_Optional - Windows_) Install SBCL Lisp Compiler
-
-**Note:** On macOS & Linux, these steps are handled by running the [setup script](#setup-virtual-environment).
-
-It looks like the [Windows version](http://www.sbcl.org/platform-table.html) uses an installer instead of providing a zip file. I don't know if this will allow us to put it in our virtual environment. If anyone wants to look into solving this, please [let me know](https://github.com/asmaloney/gactar/issues/136).
-
-gactar will still work without this installed, but will not run _vanilla_ ACT-R.
+- download the [Clozure Common Lisp compiler](https://ccl.clozure.com/) (ccl) compiler
 
 ## Running gactar
 
@@ -280,9 +271,9 @@ gactar includes a web server and will use your browser as a user interface.
 
 ```
 (env)$ ./gactar -w
-ccm: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
-pyactr: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
-vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
+ccm: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
+pyactr: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
+vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664 from /path/to/gactar/env/ccl/dx86cl64
 Serving gactar on http://localhost:8181
 ```
 
@@ -311,15 +302,15 @@ This will generate code for all active frameworks and optionally run the models.
 gactar version v0.4.0
 Intermediate file path: "gactar-temp"
 Generating model for examples/count.amod
-pyactr: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
-	- generating code for examples/count.amod
-	- written to gactar-temp/pyactr_count.py
-vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
-	- generating code for examples/count.amod
-	- written to gactar-temp/vanilla_count.lisp
-ccm: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
+ccm: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
 	- generating code for examples/count.amod
 	- written to gactar-temp/ccm_count.py
+pyactr: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
+	- generating code for examples/count.amod
+	- written to gactar-temp/pyactr_count.py
+vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664 from /path/to/gactar/env/ccl/dx86cl64
+	- generating code for examples/count.amod
+	- written to gactar-temp/vanilla_count.lisp
 ```
 
 You can choose which frameworks to use with `-framework` or `-f` like this:
@@ -329,10 +320,10 @@ You can choose which frameworks to use with `-framework` or `-f` like this:
 gactar version v0.4.0
 Intermediate file path: "gactar-temp"
 Generating model for examples/count.amod
-ccm: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
+ccm: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
 	- generating code for examples/count.amod
 	- written to gactar-temp/ccm_count.py
-vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
+vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664 from /path/to/gactar/env/ccl/dx86cl64
 	- generating code for examples/count.amod
 	- written to gactar-temp/vanilla_count.lisp
 ```
@@ -344,7 +335,7 @@ You can write the files to a different location using `-temp`:
 gactar version v0.4.0
 Intermediate file path: "intermediate"
 Generating model for examples/count.amod
-ccm: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
+ccm: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
 	- generating code for examples/count.amod
 	- written to intermediate/ccm_count.py
 ```
@@ -356,7 +347,7 @@ You can also choose to run the models using `-run` or `-r`:
 gactar version v0.4.0
 Intermediate file path: "intermediate"
 Generating model for examples/count.amod
-ccm: Using Python 3.9.13 from /path/to/gactar/env/bin/python3
+ccm: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
 	- generating code for examples/count.amod
 	- written to intermediate/ccm_count.py
 == ccm ==
@@ -378,9 +369,9 @@ gactar provides a simple interactive command-line mode to load and run models.
 gactar version v0.4.0
 Type 'help' for a list of commands.
 To exit, type 'exit' or 'quit'.
-ccm: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
-pyactr: Using Python 3.9.12 from /path/to/gactar/env/bin/python3
-vanilla: Using SBCL 1.2.11 from /path/to/gactar/env/bin/sbcl
+ccm: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
+pyactr: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
+vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664 from /path/to/gactar/env/ccl/dx86cl64
 > help
   exit:        exits the program
   frameworks:  choose frameworks to run (e.g. "ccm pyactr", "all")
@@ -709,6 +700,7 @@ The _do_ section in the productions tells the system what actions to take if the
 | **recall** _(pattern)_                                                   | **recall** [car: ?colour]               |
 | **set** _(buffer name)_._(slot name)_ **to** _(string or var or number)_ | **set** goal.wall_colour **to** ?colour |
 | **set** _(buffer name)_ **to** _(pattern)_                               | **set** goal **to** [start: 6 nil]      |
+| **stop**                                                                 | **stop**                                |
 
 ### Example Production #1
 

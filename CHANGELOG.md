@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.8.0] - (in progress)
+
+### Added
+
+- Added a new statement to the amod language: **stop**. ([#170](https://github.com/asmaloney/gactar/pull/170))
+
+### Changed
+
+- Removed developer packages (autopep8 & pylint) from general installation of pip packages. These may be installed by running these commands in the gactar directory:
+  ```sh
+  $ . ./env/bin/activate
+  (env) $ pip install -r ./scripts/requirements-dev.txt
+  ```
+- Reduce binary size by turning off some cli documentation tools.
+- Replace [Steel Bank Common Lisp compiler](http://www.sbcl.org) (sbcl) with the [Clozure Common Lisp compiler](https://ccl.clozure.com/) (ccl). ([#191](https://github.com/asmaloney/gactar/pull/191))
+
+### Fixed
+
+- Update [pyactr to 0.3.1](https://pypi.org/project/pyactr/) to fix compatibility problems with Python 3.10.
+- Several amod lexing issues were fixed:
+  - Invalid section names would hang gactar. ([#181](https://github.com/asmaloney/gactar/pull/181))
+  - An amod file ending in a comment without a newline would hang gactar. ([#184](https://github.com/asmaloney/gactar/pull/184))
+  - A malformed comment like "/ Some comment" would hang gactar.
+  - Fixed handling of numbers (and errors with numbers) such as: `+., +.9, 0., .42.5`.
+- Fixed the "Load Example" icon on Safari. ([#189](https://github.com/asmaloney/gactar/pull/189))
+
 ## [0.7.0](https://github.com/asmaloney/gactar/releases/tag/v0.7.0) - 2022-06-06
 
 ### Added
