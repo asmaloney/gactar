@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/urfave/cli/v2"
@@ -17,11 +18,41 @@ import (
 	"github.com/asmaloney/gactar/util/numbers"
 )
 
+func init() {
+	// We only support 64-bit. Nobody still uses 32-bit, right?
+	osArch := fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)
+	if runtime.GOARCH == "386" {
+		fmt.Println("ERROR: I don't know how to set the Clozure Common Lisp compiler for", osArch)
+		return
+	}
+
+	cclExecutable := ""
+
+	// These executable names come from the CCL release tarballs.
+	switch runtime.GOOS {
+	case "darwin":
+		cclExecutable = "dx86cl64"
+
+	case "linux":
+		cclExecutable = "lx86cl64"
+
+	case "windows":
+		cclExecutable = "wx86cl64"
+
+	default:
+		fmt.Println("ERROR: I don't know how to set the Clozure Common Lisp compiler for", osArch)
+		return
+	}
+
+	// Store the name of the cclExecutable - it's different depending on platform & architecture.
+	Info.ExecutableName = cclExecutable
+}
+
 var Info framework.Info = framework.Info{
-	Name:           "vanilla",
-	Language:       "commonlisp",
-	FileExtension:  "lisp",
-	ExecutableName: "sbcl",
+	Name:          "vanilla",
+	Language:      "commonlisp",
+	FileExtension: "lisp",
+	// ExecutableName: have to set this in init()
 }
 
 type VanillaACTR struct {
@@ -91,8 +122,13 @@ func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (result *fram
 		return
 	}
 
+	if Info.ExecutableName == "" {
+		err = fmt.Errorf("Clozure Common Lisp executable not set - can't run vanilla")
+		return
+	}
+
 	// run it!
-	cmd := exec.Command(runFile)
+	cmd := exec.Command(Info.ExecutableName, "--batch", "--quiet", "--load", runFile) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	output = removePreamble(output)
 	if err != nil {
@@ -517,9 +553,11 @@ func (v VanillaACTR) createRunFile(modelFile string) (outputFile string, err err
 		return
 	}
 
-	v.Writeln("#!%s/bin/sbcl --script", v.envPath)
 	v.Writeln(`(load "%s/actr/load-single-threaded-act-r.lisp")`, v.envPath)
 	v.Writeln(`(load "%s")`, modelFile)
+
+	// TODO: We should be able to set this somewhere.
+	// 10.0 is an arbitrary length of time.
 	v.Writeln(`(run 10.0)`)
 
 	outputFile = fmt.Sprintf("%s_run.lisp", v.modelName)

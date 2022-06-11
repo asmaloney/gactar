@@ -1,11 +1,9 @@
-"""The install_vanilla module will download & install ACT-R (Lisp) and the SBCL Lisp compiler if possible."""
+"""The install_vanilla module will download & install ACT-R (Lisp) and the Clozure Common Lisp compiler."""
 import os
 import platform
 import shutil
-import subprocess
 import sys
 
-import pathlib
 import requests
 
 # I am not a python person! I'm using python rather than shell script for portability
@@ -80,86 +78,42 @@ def download_vanilla():
     os.chdir('..')
 
 
-def download_sbcl() -> str:
-    """Download the SBCL (Lisp) compiler and install in the correct location."""
-    # See: http://www.sbcl.org/platform-table.html
-    system = platform.system()
-    arch = platform.machine()
+def download_ccl():
+    """Download the Clozure Common Lisp compiler."""
+    # See: https://github.com/Clozure/ccl
+    system = platform.system().lower()
 
-    if system == 'Darwin':
-        system = 'darwin'
-
-        if arch == 'x86_64':
-            version = '1.2.11'  # latest x86_64 version
-            arch = 'x86-64'     # URL requires hyphen
-        elif arch == 'arm64':
-            version = '2.1.2'  # latest arm64 version
-        else:
-            raise Exception(
-                f'ERROR: I don\'t know how to install the sbcl compiler for your architecture ({system} - {arch})\n'
-                '\tPlease submit an issue at https://github.com/asmaloney/gactar/issues.'
-            )
-    elif system == 'Linux':
-        system = 'linux'
-
-        if arch == 'x86_64':
-            version = '2.2.5'  # latest x86_64 version
-            arch = 'x86-64'     # URL requires hyphen
-        elif arch == 'arm64':
-            version = '1.4.2'  # latest arm64 version
-        else:
-            raise Exception(
-                f'ERROR: I don\'t know how to install the sbcl compiler for your architecture ({system} - {arch})\n'
-                '\tPlease submit an issue at https://github.com/asmaloney/gactar/issues.'
-            )
-    else:
+    if system != 'darwin' and system != 'linux' and system != 'windows':
         raise Exception(
-            f'ERROR: I don\'t know how to install the sbcl compiler for your platform ({system} - {arch})\n'
-            '\tPlease see the gactar README for how to download and setup sbcl.'
+            f'ERROR: I don\'t know how to install the Clozure Common Lisp compiler for your platform ({system})\n'
+            '\tPlease see the gactar README for how to download and setup ccl.'
         )
 
-    print(f'Downloading and installing SBCL for {system} {arch}...')
+    version = '1.12.1'
+    extension = 'tar.gz'
 
-    dir_name = f'sbcl-{version}-{arch}-{system}'
+    if system == 'windows':
+        extension = 'zip'
+
+    print(
+        f'Downloading and installing Clozure Common Lisp v{version} for {system}...')
+
+    dir_name = f'ccl-{version}-{system}x86'
 
     # remove old file if it exists
     remove_dir(dir_name)
 
-    # download sbcl
-    url = f'https://prdownloads.sourceforge.net/sbcl/{dir_name}-binary.tar.bz2'
+    # download ccl
+    url = f'https://github.com/Clozure/ccl/releases/download/v{version}/{dir_name}.{extension}'
 
     compressed_file = download_url(url)
     unpack_file(compressed_file)
-
-    return dir_name
-
-
-def install_vanilla(dir_name: str):
-    print(f'Installing from {dir_name}')
-
-    base_dir = pathlib.Path().resolve()
-
-    # run the install
-    os.environ['INSTALL_ROOT'] = str(base_dir)
-    os.chdir(dir_name)
-    subprocess.run(['./install.sh'], check=True, env=os.environ)
-    os.chdir(base_dir)
-
-    # compile the actr files
-    os.unsetenv('INSTALL_ROOT')
-    os.environ['SBCL_HOME'] = str(base_dir / 'lib/sbcl')
-    subprocess.run(['./bin/sbcl', '--script',
-                    'actr/load-single-threaded-act-r.lisp'], check=True, env=os.environ)
-
-    # clean up
-    remove_dir(dir_name)
 
 
 if __name__ == "__main__":
     try:
         download_vanilla()
-        dir_name = download_sbcl()
-        install_vanilla(dir_name)
+        download_ccl()
     except BaseException as err:
         print(err)
         sys.exit()
