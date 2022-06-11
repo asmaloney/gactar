@@ -25,10 +25,17 @@ import (
 //		paste in the generated EBNF above, click "Convert" and then click "View Diagram"
 
 type amodFile struct {
-	Model       *modelSection      `parser:"'==model==' @@"`
-	Config      *configSection     `parser:"'==config==' (@@)?"`
-	Init        *initSection       `parser:"'==init==' (@@)?"`
-	Productions *productionSection `parser:"'==productions==' (@@)?"`
+	ModelHeader string        `parser:"@SectionDelim 'model' @SectionDelim"`
+	Model       *modelSection `parser:"@@"`
+
+	ConfigHeader string         `parser:"@SectionDelim 'config' @SectionDelim"`
+	Config       *configSection `parser:"(@@)?"`
+
+	InitHeader string       `parser:"@SectionDelim 'init' @SectionDelim"`
+	Init       *initSection `parser:"(@@)?"`
+
+	ProductionsHeader string             `parser:"@SectionDelim 'productions' @SectionDelim"`
+	Productions       *productionSection `parser:"(@@)?"`
 
 	Tokens []lexer.Token
 }

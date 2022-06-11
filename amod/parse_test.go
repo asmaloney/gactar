@@ -14,11 +14,11 @@ func TestMinimumModel(t *testing.T) {
 	t.Parallel()
 
 	src := `
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
-	==init==
-	==productions==`
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~`
 
 	_, err := parse(strings.NewReader(src))
 

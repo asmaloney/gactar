@@ -2,12 +2,12 @@ package amod
 
 func Example_production() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: ?blat] }
 		do {
@@ -21,12 +21,12 @@ func Example_production() {
 
 func Example_productionWildcard() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing1 thing2] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: ?blat *] }
 		do { print ?blat }
@@ -39,12 +39,12 @@ func Example_productionNotWildcard() {
 	// Odd error message.
 	// See: https://github.com/asmaloney/gactar/issues/124
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing1 thing2] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: ?blat !*] }
 		do { print ?blat }
@@ -56,12 +56,12 @@ func Example_productionNotWildcard() {
 
 func Example_productionUnusedVar1() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: ?blat] }
 		do { set goal to [foo: ding] }
@@ -75,12 +75,12 @@ func Example_productionUnusedVar2() {
 	// Check that using a var twice in a buffer match does not get
 	// marked as unused.
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing1 thing2] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: ?blat ?blat] }
 		do { set goal to [foo: ding] }
@@ -91,11 +91,11 @@ func Example_productionUnusedVar2() {
 
 func Example_productionInvalidMemory() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
-	==init==
-	==productions==
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { another_goal [add: * ?one1 * ?one2 * None?ans *] }
 		do { print 'foo' }
@@ -107,12 +107,12 @@ func Example_productionInvalidMemory() {
 
 func Example_productionClearStatement() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: blat] }
 		do { clear goal }
@@ -123,12 +123,12 @@ func Example_productionClearStatement() {
 
 func Example_productionClearStatementInvalidBuffer() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: blat] }
 		do { clear some_buffer }
@@ -141,12 +141,12 @@ func Example_productionClearStatementInvalidBuffer() {
 func Example_productionSetStatementPattern() {
 	// Check setting to pattern
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		description: "This is a description"
 		match { goal [foo: blat] }
@@ -159,12 +159,12 @@ func Example_productionSetStatementPattern() {
 func Example_productionSetStatementVar() {
 	// Check setting to var
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: ?blat] }
 		do { set goal.thing to ?blat }
@@ -176,9 +176,9 @@ func Example_productionSetStatementVar() {
 func Example_productionSetStatementNil() {
 	// Check setting to nil
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	modules {
 		imaginal { delay: 0.2 }
 	}
@@ -186,8 +186,8 @@ func Example_productionSetStatementNil() {
 		[foo: thing]
 		[ack: knowledge]
 	}
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match {
 			goal [foo: blat]
@@ -205,12 +205,12 @@ func Example_productionSetStatementNil() {
 func Example_productionSetStatementNonBuffer() {
 	// Check setting to non-existent buffer in set statement
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: blat] }
 		do { set foo.bar to 'blat' }
@@ -224,13 +224,13 @@ func Example_productionSetStatementNonBuffer() {
 func Example_productionSetStatementNonBuffer2() {
 	// Check setting to buffer not used in the match
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	modules { imaginal { delay: 0.2 } }
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: blat] }
 		do { set imaginal.bar to 'blat' }
@@ -243,12 +243,12 @@ func Example_productionSetStatementNonBuffer2() {
 func Example_productionSetStatementInvalidSlot() {
 	// Check setting to buffer not used in the match
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: blat] }
 		do { set goal.bar to 'blat' }
@@ -261,12 +261,12 @@ func Example_productionSetStatementInvalidSlot() {
 func Example_productionSetStatementNonVar1() {
 	// Check setting to non-existent var
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: blat] }
 		do { set goal.thing to ?ding }
@@ -278,12 +278,12 @@ func Example_productionSetStatementNonVar1() {
 
 func Example_productionSetStatementNonVar2() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: blat] }
 		do { set goal to [foo: ?ding] }
@@ -295,12 +295,12 @@ func Example_productionSetStatementNonVar2() {
 
 func Example_productionSetStatementCompoundVar() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: ?ding] }
 		do { set goal to [foo: ?ding!5] }
@@ -314,12 +314,12 @@ func Example_productionSetStatementAssignNonPattern() {
 	// Check setting buffer to non-pattern
 	// https://github.com/asmaloney/gactar/issues/28
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: blat] }
 		do { set goal to 6 }
@@ -331,12 +331,12 @@ func Example_productionSetStatementAssignNonPattern() {
 
 func Example_productionSetStatementAssignNonsense() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: blat] }
 		do { set goal to blat }
@@ -350,12 +350,12 @@ func Example_productionSetStatementAssignPattern() {
 	// Check assignment of pattern to slot
 	// https://github.com/asmaloney/gactar/issues/17
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: blat] }
 		do { set goal.thing to [foo: ding] }
@@ -367,12 +367,12 @@ func Example_productionSetStatementAssignPattern() {
 
 func Example_productionRecallStatement() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing1 thing2] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: ?next *] }
 		do { recall [foo: ?next *] }
@@ -383,12 +383,12 @@ func Example_productionRecallStatement() {
 
 func Example_productionRecallStatementMultiple() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing1 thing2] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: ?next *] }
 		do {
@@ -403,12 +403,12 @@ func Example_productionRecallStatementMultiple() {
 
 func Example_productionRecallStatementInvalidPattern() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing1 thing2] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: ?next *] }
 		do { recall [foo: ?next * bar] }
@@ -420,12 +420,12 @@ func Example_productionRecallStatementInvalidPattern() {
 
 func Example_productionRecallStatementVarNotFound() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing] [bar: other thing] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: blat] }
 		do { recall [bar: ?next *] }
@@ -437,12 +437,12 @@ func Example_productionRecallStatementVarNotFound() {
 
 func Example_productionMultipleStatement() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing1 thing2] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: ?next ?other] }
 		do {
@@ -456,11 +456,11 @@ func Example_productionMultipleStatement() {
 
 func Example_productionChunkNotFound() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
-	==init==
-	==productions==
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: error] }
 		do { print 42 }
@@ -472,12 +472,12 @@ func Example_productionChunkNotFound() {
 
 func Example_productionPrintStatement1() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing1 thing2] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [foo: * ?other] }
 		do { print 42, ?other, "blat" }
@@ -489,12 +489,12 @@ func Example_productionPrintStatement1() {
 func Example_productionPrintStatement2() {
 	// Test print with vars from two different buffers
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [foo: thing1 thing2] }
-	==init==
-	==productions==
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match {
 			goal [foo: * ?other]
@@ -510,11 +510,11 @@ func Example_productionPrintStatement3() {
 	// print without args
 	// https://github.com/asmaloney/gactar/issues/7
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
-	==init==
-	==productions==
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { retrieval [_status: error] }
 		do { print }
@@ -525,11 +525,11 @@ func Example_productionPrintStatement3() {
 
 func Example_productionPrintStatementInvalidID() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
-	==init==
-	==productions==
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { retrieval [_status: error] }
 		do { print fooID }
@@ -541,11 +541,11 @@ func Example_productionPrintStatementInvalidID() {
 
 func Example_productionPrintStatementInvalidVar() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
-	==init==
-	==productions==
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { retrieval [_status: error] }
 		do { print ?fooVar }
@@ -557,11 +557,11 @@ func Example_productionPrintStatementInvalidVar() {
 
 func Example_productionPrintStatementWildcard() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
-	==init==
-	==productions==
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { retrieval [_status: error] }
 		do { print * }
@@ -573,11 +573,11 @@ func Example_productionPrintStatementWildcard() {
 
 func Example_productionMatchInternal() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
-	==init==
-	==productions==
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { retrieval [_status: error] }
 		do { print 42 }
@@ -588,11 +588,11 @@ func Example_productionMatchInternal() {
 
 func Example_productionMatchInternalSlots() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
-	==init==
-	==productions==
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { retrieval [_status: busy error] }
 		do { print 42 }
@@ -604,11 +604,11 @@ func Example_productionMatchInternalSlots() {
 
 func Example_productionMatchInternalInvalidStatus1() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
-	==init==
-	==productions==
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { goal [_status: something] }
 		do { print 42 }
@@ -620,11 +620,11 @@ func Example_productionMatchInternalInvalidStatus1() {
 
 func Example_productionMatchInternalInvalidStatus2() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
-	==init==
-	==productions==
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
 	start {
 		match { retrieval [_status: something] }
 		do { print 42 }

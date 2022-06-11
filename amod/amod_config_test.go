@@ -2,12 +2,12 @@ package amod
 
 func Example_gactarUnrecognizedField() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	gactar { foo: bar }
-	==init==
-	==productions==`)
+	~~ init ~~
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: unrecognized field in gactar section: 'foo' (line 5, col 10)
@@ -15,12 +15,12 @@ func Example_gactarUnrecognizedField() {
 
 func Example_gactarUnrecognizedLogLevel() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	gactar { log_level: bar }
-	==init==
-	==productions==`)
+	~~ init ~~
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: log_level ('bar') must be one of "min, info, detail" (line 5, col 21)
@@ -28,24 +28,24 @@ func Example_gactarUnrecognizedLogLevel() {
 
 func Example_gactarTraceActivations() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	gactar { trace_activations: true }
-	==init==
-	==productions==`)
+	~~ init ~~
+	~~ productions ~~`)
 
 	// Output:
 }
 
 func Example_gactarTraceActivationsNonBool() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	gactar { trace_activations: 6.0 }
-	==init==
-	==productions==`)
+	~~ init ~~
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: trace_activations ('6.000000') must be one of "true, false" (line 5, col 29)
@@ -53,12 +53,12 @@ func Example_gactarTraceActivationsNonBool() {
 
 func Example_chunkReservedName() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks { [_internal: foo bar] }
-	==init==
-	==productions==`)
+	~~ init ~~
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: cannot use reserved chunk name '_internal' (chunks beginning with '_' are reserved) (line 5, col 11)
@@ -66,15 +66,15 @@ func Example_chunkReservedName() {
 
 func Example_chunkDuplicateName() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	chunks {
     	[something: foo bar]
     	[something: foo bar]
 	}
-	==init==
-	==productions==`)
+	~~ init ~~
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: duplicate chunk name: 'something' (line 7, col 6)
@@ -82,28 +82,28 @@ func Example_chunkDuplicateName() {
 
 func Example_modules() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	modules {
 		imaginal { delay: 0.2 }
 	}
-	==init==
-	==productions==`)
+	~~ init ~~
+	~~ productions ~~`)
 
 	// Output:
 }
 
 func Example_modulesUnrecognized() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	modules {
 		foo { delay: 0.2 }
 	}
-	==init==
-	==productions==`)
+	~~ init ~~
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: unrecognized module in config: 'foo' (line 6, col 2)
@@ -111,29 +111,29 @@ func Example_modulesUnrecognized() {
 
 func Example_imaginalFields() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	modules {
 		imaginal { delay: 0.2 }
 		memory { latency_factor: 0.5 }
 	}
-	==init==
-	==productions==`)
+	~~ init ~~
+	~~ productions ~~`)
 
 	// Output:
 }
 
 func Example_imaginalFieldType() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	modules {
 		imaginal { delay: "gack" }
 	}
-	==init==
-	==productions==`)
+	~~ init ~~
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: imaginal delay 'gack' must be a number (line 6, col 20)
@@ -141,14 +141,14 @@ func Example_imaginalFieldType() {
 
 func Example_imaginalFieldRange() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	modules {
 		imaginal { delay: -0.5 }
 	}
-	==init==
-	==productions==`)
+	~~ init ~~
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: imaginal delay '-0.500000' must be a positive number (line 6, col 20)
@@ -156,14 +156,14 @@ func Example_imaginalFieldRange() {
 
 func Example_imaginalFieldUnrecognized() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	modules {
 		imaginal { foo: bar }
 	}
-	==init==
-	==productions==`)
+	~~ init ~~
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: unrecognized field 'foo' in imaginal config (line 6, col 13)
@@ -171,14 +171,14 @@ func Example_imaginalFieldUnrecognized() {
 
 func Example_memoryFieldUnrecognized() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	modules {
 		memory { foo: bar }
 	}
-	==init==
-	==productions==`)
+	~~ init ~~
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: unrecognized field 'foo' in memory config (line 6, col 11)
@@ -186,14 +186,14 @@ func Example_memoryFieldUnrecognized() {
 
 func Example_proceduralFieldUnrecognized() {
 	generateToStdout(`
-	==model==
+	~~ model ~~
 	name: Test
-	==config==
+	~~ config ~~
 	modules {
 		procedural { foo: bar }
 	}
-	==init==
-	==productions==`)
+	~~ init ~~
+	~~ productions ~~`)
 
 	// Output:
 	// ERROR: unrecognized field 'foo' in procedural config (line 6, col 15)

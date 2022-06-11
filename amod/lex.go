@@ -34,6 +34,70 @@ func (err LexError) Error() string {
 }
 
 type lexemeType int
+
+const (
+	lexemeError lexemeType = iota
+
+	lexemeSpace
+	LexemeEOF
+
+	lexemeComment
+	lexemeIdentifier
+	lexemeKeyword
+	lexemeNumber
+	lexemeString
+	lexemeChar
+
+	lexemeEquality
+	lexemeInequality
+
+	lexemeSectionDelim
+
+	lexemePatternDelim
+	lexemePatternSpace
+	lexemePatternVar
+	lexemePatternWildcard
+)
+
+func (l lexemeType) String() string {
+	switch l {
+	case lexemeError:
+		return "error"
+	case lexemeSpace:
+		return "space"
+	case LexemeEOF:
+		return "EOF"
+	case lexemeComment:
+		return "comment"
+	case lexemeIdentifier:
+		return "identifier"
+	case lexemeKeyword:
+		return "keyword"
+	case lexemeNumber:
+		return "number"
+	case lexemeString:
+		return "string"
+	case lexemeChar:
+		return "char"
+	case lexemeEquality:
+		return "equality"
+	case lexemeInequality:
+		return "inequality"
+	case lexemeSectionDelim:
+		return "section delimiter"
+	case lexemePatternDelim:
+		return "pattern delimiter"
+	case lexemePatternSpace:
+		return "pattern space"
+	case lexemePatternVar:
+		return "pattern var"
+	case lexemePatternWildcard:
+		return "pattern wildcard"
+	}
+
+	return "unknown"
+}
+
 type lexeme struct {
 	typ   lexemeType
 	value string
@@ -59,38 +123,9 @@ type lexer_amod struct {
 type stateFn func(*lexer_amod) stateFn
 
 const (
-	lexemeError lexemeType = iota
-
-	lexemeSpace
-	LexemeEOF
-
-	lexemeComment
-	lexemeIdentifier
-	lexemeKeyword
-	lexemeNumber
-	lexemeString
-	lexemeChar
-
-	lexemePatternDelim
-	lexemePatternSpace
-	lexemePatternVar
-	lexemePatternWildcard
-
-	lexemeSectionModel
-	lexemeSectionConfig
-	lexemeSectionInit
-	lexemeSectionProductions
-)
-
-const (
 	eof = -1
 
 	commentDelim = "//"
-
-	sectionModel       = "==model=="
-	sectionConfig      = "==config=="
-	sectionInit        = "==init=="
-	sectionProductions = "==productions=="
 )
 
 var keywords []string = []string{
@@ -121,6 +156,9 @@ func (lexer_def) Symbols() map[string]lexer.TokenType {
 		"Number":          lexer.TokenType(lexemeNumber),
 		"String":          lexer.TokenType(lexemeString),
 		"Char":            lexer.TokenType(lexemeChar),
+		"Equality":        lexer.TokenType(lexemeEquality),
+		"Inequality":      lexer.TokenType(lexemeInequality),
+		"SectionDelim":    lexer.TokenType(lexemeSectionDelim),
 		"PatternDelim":    lexer.TokenType(lexemePatternDelim),
 		"PatternSpace":    lexer.TokenType(lexemePatternSpace),
 		"PatternVar":      lexer.TokenType(lexemePatternVar),
@@ -196,7 +234,7 @@ func (l *lexer_amod) Next() (tok lexer.Token, err error) {
 	}
 
 	if debugging {
-		fmt.Printf("TOK (%d, %d-%d): %+v (%d)\n", pos.Line, pos.Column, pos.Column+len(tok.Value), tok, tok.Type)
+		fmt.Printf("TOK (%d, %d-%d):\t%+v (%s)\n", pos.Line, pos.Column, pos.Column+len(tok.Value), tok, next.typ.String())
 	}
 	return
 }
@@ -343,10 +381,19 @@ func lexStart(l *lexer_amod) stateFn {
 
 	case r == '=':
 		if l.nextIs('=') {
-			l.backup()
-			return lexSection
+			l.next()
+			l.emit(lexemeEquality)
+		} else {
+			l.emit(lexemeChar)
 		}
-		l.emit(lexemeChar)
+
+	case r == '!':
+		if l.nextIs('=') {
+			l.next()
+			l.emit(lexemeInequality)
+		} else {
+			l.emit(lexemeChar)
+		}
 
 	case r == '/':
 		if l.nextIs('/') {
@@ -381,6 +428,14 @@ func lexStart(l *lexer_amod) stateFn {
 		}
 
 		l.emit(lexemeChar)
+
+	case r == '~':
+		if l.nextIs('~') {
+			l.next()
+			l.emit(lexemeSectionDelim)
+		} else {
+			l.emit(lexemeChar)
+		}
 
 	case r <= unicode.MaxASCII && unicode.IsPrint(r):
 		l.emit(lexemeChar)
@@ -432,48 +487,6 @@ func lexComment(l *lexer_amod) stateFn {
 
 	eatSpace(l)
 	return lexStart
-}
-
-func lexSection(l *lexer_amod) stateFn {
-	i := strings.Index(l.input[l.pos:], sectionModel)
-	if i == 0 {
-		l.pos += len(sectionModel)
-		l.emit(lexemeSectionModel)
-		eatSpace(l)
-		return lexStart
-	}
-
-	i = strings.Index(l.input[l.pos:], sectionConfig)
-	if i == 0 {
-		l.pos += len(sectionConfig)
-		l.emit(lexemeSectionConfig)
-		eatSpace(l)
-		return lexStart
-	}
-
-	i = strings.Index(l.input[l.pos:], sectionInit)
-	if i == 0 {
-		l.pos += len(sectionInit)
-		l.emit(lexemeSectionInit)
-		eatSpace(l)
-		return lexStart
-	}
-
-	i = strings.Index(l.input[l.pos:], sectionProductions)
-	if i == 0 {
-		l.pos += len(sectionProductions)
-		l.emit(lexemeSectionProductions)
-		eatSpace(l)
-		return lexStart
-	}
-
-	// We didn't match a section, so emit two '=' and lex optional space
-	l.pos += 1
-	l.emit(lexemeChar)
-	l.pos += 1
-	l.emit(lexemeChar)
-
-	return lexSpace
 }
 
 func lexIdentifier(l *lexer_amod) stateFn {

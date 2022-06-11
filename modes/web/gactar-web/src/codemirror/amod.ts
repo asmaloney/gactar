@@ -9,7 +9,7 @@ interface State {
 }
 
 CodeMirror.defineMode('amod', function () {
-  const section_regex = /^={2}(model|config|init|productions)={2}/
+  const section_regex = /^~{2}\s*(model|config|init|productions)\s*~{2}/
   const variable_regex = /[?][a-zA-Z0-9_]*/
 
   const keywords = {
@@ -94,7 +94,7 @@ CodeMirror.defineMode('amod', function () {
       return 'bracket'
     }
 
-    if (ch === '=') {
+    if (ch === '~') {
       stream.backUp(1)
 
       if (stream.match(section_regex)) {
