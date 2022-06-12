@@ -19,6 +19,22 @@ func Example_production() {
 	// Output:
 }
 
+func Example_productionNoDo() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [foo: ?blat] }
+	}`)
+
+	// Output:
+	// ERROR: unexpected token "}" (expected Do "}") (line 10, col 1)
+}
+
 func Example_productionWhenClause() {
 	generateToStdout(`
 	~~ model ~~
@@ -73,8 +89,7 @@ func Example_productionWhenClauseComparisonToSelf() {
 	~~ productions ~~
 	start {
 		match {
-			goal [foo: ?blat]
-				when ( ?blat == ?blat )
+			goal [foo: ?blat] when ( ?blat == ?blat )
 		}
 		do {
 			print ?blat
@@ -83,7 +98,51 @@ func Example_productionWhenClauseComparisonToSelf() {
 	}`)
 
 	// Output:
-	// ERROR: cannot compare a variable to itself '?blat' (line 11, col 20)
+	// ERROR: cannot compare a variable to itself '?blat' (line 10, col 37)
+}
+
+func Example_productionWhenClauseInvalidVarLHS() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match {
+			goal [foo: ?blat] when ( ?ding == 42 )
+		}
+		do {
+			print ?blat
+			stop
+		}
+	}`)
+
+	// Output:
+	// ERROR: unknown variable ?ding in where clause (line 10, col 28)
+}
+
+func Example_productionWhenClauseInvalidVarRHS() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match {
+			goal [foo: ?blat] when ( ?blat != ?ding )
+		}
+		do {
+			print ?blat
+			stop
+		}
+	}`)
+
+	// Output:
+	// ERROR: unknown variable ?ding in where clause (line 10, col 37)
 }
 
 func Example_productionWildcard() {
