@@ -19,7 +19,11 @@
           expanded
           :type="'is-boxed'"
         >
-          <amod-code-tab @codeChange="codeChange" @showError="showError" />
+          <amod-code-tab
+            :amod-issues="amodIssues"
+            @codeChange="codeChange"
+            @showError="showError"
+          />
 
           <template v-for="tab in tabs">
             <framework-code-tab
@@ -106,6 +110,8 @@ type CodeMap = { [key: string]: string }
 type FrameworkInfoMap = { [key: string]: FrameworkInfo }
 
 interface Data {
+  amodIssues: IssueList
+
   activeTab: number
   baseTabs: Tab[]
   code: CodeMap
@@ -127,6 +133,8 @@ export default Vue.extend({
 
   data(): Data {
     return {
+      amodIssues: [],
+
       activeTab: 0,
       baseTabs: [],
 
@@ -314,6 +322,8 @@ export default Vue.extend({
     },
 
     showIssues(list: IssueList) {
+      Vue.set(this, 'amodIssues', list)
+
       const issueTexts = issuesToArray(list)
 
       this.results += issueTexts.join('\n') + '\n\n'

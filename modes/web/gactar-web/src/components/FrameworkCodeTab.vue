@@ -28,7 +28,7 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 
-import { FrameworkInfo } from '@/api'
+import { FrameworkInfo } from '../api'
 
 import CodeMirror from './CodeMirror.vue'
 import SaveButton from './SaveButton.vue'
