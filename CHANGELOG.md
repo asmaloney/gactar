@@ -17,6 +17,20 @@ All notable changes to this project will be documented in this file. The format 
   ```
 - Reduce binary size by turning off some cli documentation tools.
 - Replace [Steel Bank Common Lisp compiler](http://www.sbcl.org) (sbcl) with the [Clozure Common Lisp compiler](https://ccl.clozure.com/) (ccl). ([#191](https://github.com/asmaloney/gactar/pull/191))
+- Grammar changes:
+  - Replace `==` in sections headers with `~~` and allow spaces. ([#192](https://github.com/asmaloney/gactar/pull/192))
+  - Add a `when` clause to replace the complicated internal format. ([#193](https://github.com/asmaloney/gactar/pull/193))
+    ```
+    match {
+        goal [add: * ?num2 ?count!?num2 ?sum]
+    }
+    ```
+    becomes:
+    ```
+    match {
+        goal [add: * ?num2 ?count ?sum] when (?count != ?num2)
+    }
+    ```
 
 ### Fixed
 

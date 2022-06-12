@@ -100,7 +100,7 @@ Result:
       "name": "vanilla",
       "language": "commonlisp",
       "fileExtension": "lisp",
-      "executableName": "sbcl"
+      "executableName": "dx86cl64"
     }
   ]
 }

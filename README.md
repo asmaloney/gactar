@@ -55,13 +55,13 @@ There are more details on each step below, but here's the short version:
 
 ### Install
 
-0. (optional) Rename the folder that was just created (e.g. `gactar-v0.6.0-darwin-amd64`) to something shorter (e.g. `gactar`):
+0. (optional) Rename the folder that was just created (e.g. `gactar-v0.8.0-macOS-amd64`) to something shorter (e.g. `gactar`):
 
-   `mv gactar-v0.6.0-darwin-amd64 gactar`
+   `mv gactar-v0.8.0-macOS-amd64 gactar`
 
 1. Change to the folder :
 
-   `cd gactar-v0.6.0-darwin-amd64`
+   `cd gactar-v0.8.0-macOS-amd64`
 
    OR
 
@@ -186,11 +186,9 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
 
 ### Download gactar Release
 
-1. Download the latest [release](https://github.com/asmaloney/gactar/releases) for your platform.
+1. Download the latest [release](https://github.com/asmaloney/gactar/releases) for your platform & architecture (ARM64 if you have an ARM processor, AMD64 otherwise) and decompress the file.
 
-2. Decompress the file using the appropriate tool for your platform.
-
-3. You should end up with a folder named something like `gactar-v<version>-<platform>-<architecture>` (e.g. `gactar-v0.4.0-darwin-amd64`) containing the following files & folders:
+2. You should end up with a folder named something like `gactar-v<version>-<platform>-<architecture>` (e.g. `gactar-v0.8.0-macOS-amd64`) containing the following files & folders:
 
    |                 |                                                                              |
    | --------------- | ---------------------------------------------------------------------------- |
@@ -492,7 +490,7 @@ gactar models are written using the _amod_ format which is designed to be an eas
 Here is an example of a gactar model:
 
 ```
-==model==
+~~ model ~~
 
 // The name of the model (used when generating code and for error messages)
 name: count
@@ -511,7 +509,7 @@ examples {
     [countFrom: 1 3 starting]
 }
 
-==config==
+~~ config ~~
 
 gactar {
     // Logging level can be 'min', 'info' (default), or 'detail'
@@ -527,7 +525,7 @@ chunks {
     [countFrom: start end status]
 }
 
-==init==
+~~ init ~~
 
 // Initialize the memory
 memory {
@@ -541,10 +539,10 @@ memory {
 // Default goal
 goal [countFrom: 2 5 starting]
 
-==productions==
+~~ productions ~~
 
 // Name of the production
-start {
+begin {
     // Optional description
     description: 'Starting point - first production to match'
 
@@ -571,13 +569,13 @@ increment {
     }
 }
 
-stop {
+end {
     match {
         goal [countFrom: ?x ?x counting]
     }
     do {
         print ?x
-        clear goal
+        stop
     }
 }
 ```
@@ -661,9 +659,11 @@ The production name is used to trace the output when running a model.
 
 #### match
 
-The _match_ section matches buffers by _pattern_. These patterns match the chunks previously declared in the _config_ section and are parsed to ensure their format is consistent. The syntax of these patterns is inspired by&mdash;but not the same as&mdash;the _ccm_ implementation of ACT-R.
+The _match_ section matches buffers by _pattern_. These patterns match the chunks previously declared in the _config_ section and are parsed to ensure their format is consistent.
 
-Variables in production matches are preceded by `?` (e.g. `?object`). On its own `?` denotes a wildcard (i.e. "match anything"). Using `!` negates the logic.
+Variables in production matches are preceded by `?` (e.g. `?object`). `*` denotes a wildcard (i.e. "match anything"). Using `!` negates the logic.
+
+Every match has an optional _when_ clause to add constraints to variable matches (see [example #3](#example-3) below).
 
 #### Example #1:
 
@@ -684,7 +684,7 @@ This matches the `goal` buffer if it contains a `countFrom` chunk, the first two
 #### Example #3:
 
 ```
-goal [add: * ?num2 ?count!?num2 ?sum]
+goal [add: * ?num2 ?count ?sum] when (?count != ?num2)
 ```
 
 This matches the `goal` buffer if it contains an `add` chunk, the first slot is any value, and the third slot is not the same value as the second. It assigns `?num2` the contents of the second slot, `?count` the value of the third, and `?sum` the value of the fourth.
