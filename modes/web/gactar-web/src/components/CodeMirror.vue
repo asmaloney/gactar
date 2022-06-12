@@ -40,7 +40,7 @@ export default Vue.extend({
       type: Boolean,
       default: false,
     },
-    framework: {
+    editorID: {
       type: String,
       required: true,
     },
@@ -49,7 +49,7 @@ export default Vue.extend({
   data(): Data {
     return {
       editor: null,
-      id: 'id-' + this.framework,
+      id: 'id-' + this.editorID,
       code: this.amodCode,
     }
   },

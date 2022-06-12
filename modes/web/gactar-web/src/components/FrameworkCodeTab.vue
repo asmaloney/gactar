@@ -1,14 +1,14 @@
 <template>
-  <b-tab-item class="code-tab" :label="framework">
+  <b-tab-item class="code-tab" :label="framework.name">
     <div class="columns buttons">
       <div class="column">
-        <strong>{{ defaultFileName }}.{{ fileExtension }}</strong> (generated
-        code)
+        <strong>{{ defaultFileName }}.{{ framework.fileExtension }}</strong>
+        (generated for {{ framework.executableName }})
         <b-field class="is-pulled-right">
           <save-button
             :code="code"
             :default-name="defaultFileName"
-            :file-extension="fileExtension"
+            :file-extension="framework.fileExtension"
           />
         </b-field>
       </div>
@@ -18,15 +18,17 @@
       :key="count"
       :ref="refName"
       :amod-code="code"
-      :mode="mode"
-      :framework="framework"
+      :mode="framework.language"
+      :editorID="framework.name"
       :read-only="true"
     />
   </b-tab-item>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { PropType } from 'vue'
+
+import { FrameworkInfo } from '@/api'
 
 import CodeMirror from './CodeMirror.vue'
 import SaveButton from './SaveButton.vue'
@@ -46,16 +48,8 @@ export default Vue.extend({
       type: String,
       required: true,
     },
-    mode: {
-      type: String,
-      required: true,
-    },
-    fileExtension: {
-      type: String,
-      required: true,
-    },
     framework: {
-      type: String,
+      type: Object as PropType<FrameworkInfo>,
       required: true,
     },
     modelName: {
@@ -68,8 +62,8 @@ export default Vue.extend({
     return {
       fileToLoad: null,
 
-      accept: '.' + this.mode + ',text/plain',
-      refName: 'code-editor-' + this.mode,
+      accept: '.' + this.framework.language + ',text/plain',
+      refName: 'code-editor-' + this.framework.language,
 
       // This is used to prevent caching of the code-mirror data.
       // See https://stackoverflow.com/questions/48400302/vue-js-not-updating-props-in-child-when-parent-component-is-changing-the-propert
@@ -79,7 +73,7 @@ export default Vue.extend({
 
   computed: {
     defaultFileName(): string {
-      return this.framework + '_' + this.modelName
+      return this.framework.name + '_' + this.modelName
     },
   },
 

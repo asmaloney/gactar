@@ -46,7 +46,7 @@
       ref="code-editor"
       :amod-code="amodCode"
       mode="amod"
-      framework="amod"
+      editorID="amod"
       @editorCodeChange="editorCodeChange"
     />
   </b-tab-item>
