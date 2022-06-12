@@ -22,17 +22,15 @@
           <amod-code-tab @codeChange="codeChange" @showError="showError" />
 
           <template v-for="tab in tabs">
-            <code-tab
+            <framework-code-tab
               v-if="tab.displayed"
-              :key="tab.id"
-              :value="tab.id"
-              :framework="tab.id"
-              :mode="tab.mode"
-              :file-extension="tab.fileExtension"
+              :key="tab.framework.name"
+              :value="tab.framework.name"
+              :framework="tab.framework"
               :model-name="tab.modelName"
-              :code="code[tab.id]"
+              :code="code[tab.framework.name]"
             >
-            </code-tab>
+            </framework-code-tab>
           </template>
         </b-tabs>
       </div>
@@ -45,13 +43,13 @@
               v-model="selectedFrameworks"
               type="is-info"
               size="is-small"
-              :native-value="tab.id"
-              :key="tab.id"
+              :native-value="tab.framework.name"
+              :key="tab.framework.name"
               expanded
               class="ml-1 mr-1"
               @input="frameworkChanged"
             >
-              <span>{{ tab.id }}</span>
+              <span>{{ tab.framework.name }}</span>
             </b-checkbox-button>
           </b-field>
         </div>
@@ -95,12 +93,11 @@ import api, {
 import { commentString, issuesToArray } from './utils'
 
 import AmodCodeTab from './components/AmodCodeTab.vue'
-import CodeTab from './components/CodeTab.vue'
+import FrameworkCodeTab from './components/FrameworkCodeTab.vue'
 
 interface Tab {
-  id: string
-  mode: string
-  fileExtension: string
+  framework: FrameworkInfo
+
   modelName: string
   displayed: boolean
 }
@@ -126,7 +123,7 @@ interface Data {
 const selectedFrameworksStorageName = 'gactar.selected-frameworks'
 
 export default Vue.extend({
-  components: { AmodCodeTab, CodeTab },
+  components: { AmodCodeTab, FrameworkCodeTab },
 
   data(): Data {
     return {
@@ -181,7 +178,7 @@ export default Vue.extend({
 
     hideTabsNotInUse() {
       this.baseTabs.forEach((tab: Tab) => {
-        if (!this.selectedFrameworks.includes(tab.id)) {
+        if (!this.selectedFrameworks.includes(tab.framework.name)) {
           tab.displayed = false
         }
       })
@@ -194,9 +191,7 @@ export default Vue.extend({
           list.forEach((info: FrameworkInfo) => {
             // create tab info for each language present on the server
             const tab: Tab = {
-              id: info.name,
-              mode: info.language,
-              fileExtension: info.fileExtension,
+              framework: info,
               modelName: '',
               displayed: false,
             }
@@ -298,7 +293,9 @@ export default Vue.extend({
           )
         }
 
-        const index = this.tabs.findIndex((obj: Tab) => obj.id == framework)
+        const index = this.tabs.findIndex(
+          (obj: Tab) => obj.framework.name == framework
+        )
         if (index != -1) {
           this.tabs[index].modelName = result.modelName
 
