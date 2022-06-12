@@ -134,21 +134,15 @@ type initSection struct {
 	Tokens []lexer.Token
 }
 
-type patternSlotItem struct {
-	Not      bool    `parser:"(@('!':Char)?"`
+type patternSlot struct {
+	Space1   string  `parser:"@PatternSpace?"`
+	Not      bool    `parser:"((@('!':Char)?"`
 	Nil      *bool   `parser:"( @('nil':Keyword)"`
 	ID       *string `parser:"| @Ident"`
 	Num      *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
 	Var      *string `parser:"| @PatternVar ))"`
-	Wildcard *string `parser:"| @PatternWildcard"`
-
-	Tokens []lexer.Token
-}
-
-type patternSlot struct {
-	Space1 string             `parser:"@PatternSpace?"`
-	Items  []*patternSlotItem `parser:"@@+"`
-	Space2 string             `parser:"@PatternSpace?"`
+	Wildcard *string `parser:"| @PatternWildcard)"`
+	Space2   string  `parser:"@PatternSpace?"`
 
 	Tokens []lexer.Token
 }
@@ -162,9 +156,34 @@ type pattern struct {
 	Tokens []lexer.Token
 }
 
+type comparisonOperator struct {
+	Equal    *string `parser:"( @Equality"`
+	NotEqual *string `parser:"| @Inequality )"`
+
+	Tokens []lexer.Token
+}
+
+type whenExpression struct {
+	OpenParen  string              `parser:"'('"` // not used - must be set for parse
+	LHS        string              `parser:"@PatternVar"`
+	Comparison *comparisonOperator `parser:"@@"`
+	RHS        *arg                `parser:"@@"`
+	CloseParen string              `parser:"')'"` // not used - must be set for parse
+
+	Tokens []lexer.Token
+}
+
+type whenClause struct {
+	When        string             `parser:"'when':Keyword"`
+	Expressions *[]*whenExpression `parser:"@@ ('and' @@)*"`
+
+	Tokens []lexer.Token
+}
+
 type matchItem struct {
-	Name    string   `parser:"@Ident"`
-	Pattern *pattern `parser:"@@"`
+	Name    string      `parser:"@Ident"`
+	Pattern *pattern    `parser:"@@"`
+	When    *whenClause `parser:"@@?"`
 
 	Tokens []lexer.Token
 }

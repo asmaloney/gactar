@@ -445,29 +445,40 @@ func (c CCMPyACTR) outputMatch(match *actr.Match) {
 	}
 }
 
-func patternSlotString(patternSlot *actr.PatternSlot) string {
+func patternSlotString(slot *actr.PatternSlot) string {
 	var str string
 
-	for _, item := range patternSlot.Items {
-		if item.Negated {
-			str += "!"
-		}
+	if slot.Negated {
+		str += "!"
+	}
 
-		switch {
-		case item.Wildcard:
-			str += "?"
+	switch {
+	case slot.Wildcard:
+		str += "?"
 
-		case item.Nil:
-			str += "None"
+	case slot.Nil:
+		str += "None"
 
-		case item.ID != nil:
-			str += *item.ID
+	case slot.ID != nil:
+		str += *slot.ID
 
-		case item.Var != nil:
-			str += *item.Var
+	case slot.Var != nil:
+		str += *slot.Var.Name
 
-		case item.Num != nil:
-			str += *item.Num
+	case slot.Num != nil:
+		str += *slot.Num
+	}
+
+	// Check for constraints on a var and output them
+	if slot.Var != nil {
+		if len(slot.Var.Constraints) > 0 {
+			for _, constraint := range slot.Var.Constraints {
+				if constraint.Comparison == actr.NotEqual {
+					str += "!"
+				}
+
+				str += constraint.RHS.String()
+			}
 		}
 	}
 

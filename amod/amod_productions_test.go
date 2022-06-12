@@ -19,6 +19,73 @@ func Example_production() {
 	// Output:
 }
 
+func Example_productionWhenClause() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match {
+			goal [foo: ?blat] when ( ?blat == "foo" )
+		}
+		do {
+			print ?blat
+			stop
+		}
+	}`)
+
+	// Output:
+}
+
+func Example_productionWhenClauseNegatedAndConstrained() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match {
+			goal [foo: !?blat]
+				when ( ?blat == "foo" )
+		}
+		do {
+			print ?blat
+			stop
+		}
+	}`)
+
+	// Output:
+	// ERROR: cannot further constrain a negated variable '?blat' (line 11, col 11)
+}
+
+func Example_productionWhenClauseComparisonToSelf() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match {
+			goal [foo: ?blat]
+				when ( ?blat == ?blat )
+		}
+		do {
+			print ?blat
+			stop
+		}
+	}`)
+
+	// Output:
+	// ERROR: cannot compare a variable to itself '?blat' (line 11, col 20)
+}
+
 func Example_productionWildcard() {
 	generateToStdout(`
 	~~ model ~~
@@ -291,23 +358,6 @@ func Example_productionSetStatementNonVar2() {
 
 	// Output:
 	// ERROR: set statement variable '?ding' not found in matches for production 'start' (line 10, col 25)
-}
-
-func Example_productionSetStatementCompoundVar() {
-	generateToStdout(`
-	~~ model ~~
-	name: Test
-	~~ config ~~
-	chunks { [foo: thing] }
-	~~ init ~~
-	~~ productions ~~
-	start {
-		match { goal [foo: ?ding] }
-		do { set goal to [foo: ?ding!5] }
-	}`)
-
-	// Output:
-	// ERROR: cannot set 'goal.thing' to compound var in production 'start' (line 10, col 25)
 }
 
 func Example_productionSetStatementAssignNonPattern() {

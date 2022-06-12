@@ -377,36 +377,55 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 			continue
 		}
 
-		for _, item := range production.Match.Items {
-			pattern, err := createChunkPattern(model, log, item.Pattern)
+		for _, match := range production.Match.Items {
+			pattern, err := createChunkPattern(model, log, match.Pattern)
 			if err != nil {
 				continue
 			}
 
-			name := item.Name
-			match := actr.Match{
+			name := match.Name
+			actrMatch := actr.Match{
 				Buffer:  model.LookupBuffer(name),
 				Pattern: pattern,
 			}
 
-			prod.Matches = append(prod.Matches, &match)
+			prod.Matches = append(prod.Matches, &actrMatch)
 
 			for index, slot := range pattern.Slots {
-				item := slot.Items[0]
-
-				if item.Var == nil {
+				if slot.Var == nil {
 					continue
 				}
 
 				// Track the buffer and slot name the variable refers to
-				varItem := *item.Var
-				if _, ok := prod.VarIndexMap[varItem]; !ok {
+				varItem := slot.Var
+				name := *slot.Var.Name
+				if _, ok := prod.VarIndexMap[name]; !ok {
 					varIndex := actr.VarIndex{
 						Var:      varItem,
-						Buffer:   match.Buffer,
+						Buffer:   actrMatch.Buffer,
 						SlotName: pattern.Chunk.SlotName(index),
 					}
-					prod.VarIndexMap[varItem] = varIndex
+					prod.VarIndexMap[name] = varIndex
+				}
+			}
+
+			if match.When != nil {
+				for _, expr := range *match.When.Expressions {
+					comparison := actr.Equal
+
+					if expr.Comparison.NotEqual != nil {
+						comparison = actr.NotEqual
+					}
+
+					actrConstraint := actr.Constraint{
+						LHS:        &expr.LHS,
+						Comparison: comparison,
+						RHS:        convertArg(expr.RHS),
+					}
+
+					// Add the constraint on the pattern var
+					patternVar := prod.VarIndexMap[expr.LHS]
+					patternVar.Var.Constraints = append(patternVar.Var.Constraints, &actrConstraint)
 				}
 			}
 		}
@@ -439,34 +458,29 @@ func createChunkPattern(model *actr.Model, log *issueLog, cp *pattern) (*actr.Pa
 		Chunk: chunk,
 	}
 
-	for _, s := range cp.Slots {
-		slot := actr.PatternSlot{}
-
-		for _, item := range s.Items {
-			newItem := &actr.PatternSlotItem{
-				Negated: item.Not,
-			}
-
-			switch {
-			case item.Wildcard != nil:
-				newItem.Wildcard = true
-
-			case item.Nil != nil:
-				newItem.Nil = true
-
-			case item.ID != nil:
-				newItem.ID = item.ID
-
-			case item.Num != nil:
-				newItem.Num = item.Num
-
-			case item.Var != nil:
-				newItem.Var = item.Var
-			}
-
-			slot.AddItem(newItem)
+	for _, slot := range cp.Slots {
+		actrSlot := actr.PatternSlot{
+			Negated: slot.Not,
 		}
-		pattern.AddSlot(&slot)
+
+		switch {
+		case slot.Wildcard != nil:
+			actrSlot.Wildcard = true
+
+		case slot.Nil != nil:
+			actrSlot.Nil = true
+
+		case slot.ID != nil:
+			actrSlot.ID = slot.ID
+
+		case slot.Num != nil:
+			actrSlot.Num = slot.Num
+
+		case slot.Var != nil:
+			actrSlot.Var = &actr.PatternVar{Name: slot.Var}
+		}
+
+		pattern.AddSlot(&actrSlot)
 	}
 
 	return &pattern, nil
@@ -635,27 +649,33 @@ func addStopStatement(model *actr.Model, log *issueLog, stop *stopStatement, pro
 	}, nil
 }
 
+func convertArg(v *arg) (actrValue *actr.Value) {
+	actrValue = &actr.Value{}
+
+	switch {
+	case v.Var != nil:
+		actrValue.Var = v.Var
+
+	case v.ID != nil:
+		actrValue.ID = v.ID
+
+	case v.Str != nil:
+		actrValue.Str = v.Str
+
+	case v.Number != nil:
+		actrValue.Number = v.Number
+	}
+
+	return
+}
+
 func convertArgs(args []*arg) *[]*actr.Value {
 	actrValues := []*actr.Value{}
 
 	for _, v := range args {
-		newValue := actr.Value{}
+		newValue := convertArg(v)
 
-		switch {
-		case v.Var != nil:
-			newValue.Var = v.Var
-
-		case v.ID != nil:
-			newValue.ID = v.ID
-
-		case v.Str != nil:
-			newValue.Str = v.Str
-
-		case v.Number != nil:
-			newValue.Number = v.Number
-		}
-
-		actrValues = append(actrValues, &newValue)
+		actrValues = append(actrValues, newValue)
 	}
 
 	return &actrValues

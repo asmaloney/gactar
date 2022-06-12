@@ -76,7 +76,7 @@ directVerify {
 chainCategory {
     match {
         goal [isMember: ?obj1 ?cat pending]
-        retrieval [property: ?obj1 category ?obj2!?cat]
+        retrieval [property: ?obj1 category ?obj2] when (?obj2 != ?cat)
     }
     do {
         set goal.object to ?obj2
