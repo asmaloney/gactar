@@ -325,22 +325,16 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 		if r, ok := varRefCount[w.LHS]; ok {
 			r.count++
 		} else {
-			tokens := w.Tokens
-			varRefCount[w.LHS] = &ref{
-				location: tokensToLocation(tokens),
-				count:    1,
-			}
+			log.errorTR(w.Tokens, 1, 2, "unknown variable %s in where clause", w.LHS)
+			return
 		}
 
 		if w.RHS.Var != nil {
 			if r, ok := varRefCount[*w.RHS.Var]; ok {
 				r.count++
 			} else {
-				tokens := w.Tokens
-				varRefCount[*w.RHS.Var] = &ref{
-					location: tokensToLocation(tokens),
-					count:    1,
-				}
+				log.errorT(w.RHS.Tokens, "unknown variable %s in where clause", *w.RHS.Var)
+				return
 			}
 		}
 	}
@@ -361,35 +355,37 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 	}
 
 	// Walk the do statements and add to var ref counts
-	for _, statement := range *do.Statements {
-		switch {
-		case statement.Set != nil:
-			if statement.Set.Value != nil {
-				if statement.Set.Value.Var != nil {
-					varItem := *statement.Set.Value.Var
-					if r, ok := varRefCount[varItem]; ok {
-						r.count++
+	if do != nil {
+		for _, statement := range *do.Statements {
+			switch {
+			case statement.Set != nil:
+				if statement.Set.Value != nil {
+					if statement.Set.Value.Var != nil {
+						varItem := *statement.Set.Value.Var
+						if r, ok := varRefCount[varItem]; ok {
+							r.count++
+						}
+					}
+				} else { // pattern
+					addPatternRefs(statement.Set.Pattern, false)
+				}
+
+			case statement.Recall != nil:
+				addPatternRefs(statement.Recall.Pattern, false)
+
+			case statement.Print != nil:
+				for _, arg := range statement.Print.Args {
+					if arg.Var != nil {
+						varItem := *arg.Var
+						if r, ok := varRefCount[varItem]; ok {
+							r.count++
+						}
 					}
 				}
-			} else { // pattern
-				addPatternRefs(statement.Set.Pattern, false)
+
+			default:
+				// statement does not use variables
 			}
-
-		case statement.Recall != nil:
-			addPatternRefs(statement.Recall.Pattern, false)
-
-		case statement.Print != nil:
-			for _, arg := range statement.Print.Args {
-				if arg.Var != nil {
-					varItem := *arg.Var
-					if r, ok := varRefCount[varItem]; ok {
-						r.count++
-					}
-				}
-			}
-
-		default:
-			// statement does not use variables
 		}
 	}
 

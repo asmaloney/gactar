@@ -419,24 +419,27 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 					}
 
 					// Add the constraint on the pattern var
-					patternVar := prod.VarIndexMap[expr.LHS]
+					patternVar, ok := prod.VarIndexMap[expr.LHS]
+					if !ok {
+						// This is an error, but it is captured in validateVariableUsage() below
+						continue
+					}
+
 					patternVar.Var.Constraints = append(patternVar.Var.Constraints, &actrConstraint)
 				}
 			}
 		}
 
-		if production.Do.Statements != nil {
-			validateDo(log, production)
+		validateDo(log, production)
 
-			for _, statement := range *production.Do.Statements {
-				err := addStatement(model, log, statement, &prod)
-				if err != nil && !errors.As(err, &CompileError{}) {
-					log.Error(nil, err.Error())
-				}
+		for _, statement := range *production.Do.Statements {
+			err := addStatement(model, log, statement, &prod)
+			if err != nil && !errors.As(err, &CompileError{}) {
+				log.Error(nil, err.Error())
 			}
-
-			validateVariableUsage(log, production.Match, production.Do)
 		}
+
+		validateVariableUsage(log, production.Match, production.Do)
 
 		model.Productions = append(model.Productions, &prod)
 	}
