@@ -1,57 +1,50 @@
 package actr
 
-// We need to take apart patterns such as [add: ?num1 ?num2 ?count!?num2 ?sum]
-// so we can verify variable use.
-
 type Pattern struct {
 	Chunk *Chunk
 	Slots []*PatternSlot
 }
 
-type PatternSlot struct {
-	Items []*PatternSlotItem
+type PatternVar struct {
+	Name        *string
+	Constraints []*Constraint // any constraints on this var
 }
 
-type PatternSlotItem struct {
+type PatternSlot struct {
 	// The item is one of the following:
 	Nil      bool
 	Wildcard bool
-	ID       *string
-	Var      *string
-	Num      *string // we don't need to treat this as a number anywhere, so keep as a string
+
+	ID  *string
+	Var *PatternVar
+	Num *string // we don't need to treat this as a number anywhere, so keep as a string
 
 	Negated bool // this item is negated
 }
 
 func (p PatternSlot) String() (str string) {
-	for _, item := range p.Items {
-		if item.Negated {
-			str += "!"
-		}
+	if p.Negated {
+		str += "!"
+	}
 
-		switch {
-		case item.Wildcard:
-			str += "*"
+	switch {
+	case p.Wildcard:
+		str += "*"
 
-		case item.Nil:
-			str += "nil"
+	case p.Nil:
+		str += "nil"
 
-		case item.ID != nil:
-			str += *item.ID
+	case p.ID != nil:
+		str += *p.ID
 
-		case item.Var != nil:
-			str += *item.Var
+	case p.Var != nil:
+		str += *p.Var.Name
 
-		case item.Num != nil:
-			str += *item.Num
-		}
+	case p.Num != nil:
+		str += *p.Num
 	}
 
 	return
-}
-
-func (p *PatternSlot) AddItem(item *PatternSlotItem) {
-	p.Items = append(p.Items, item)
 }
 
 func (p Pattern) String() (str string) {
@@ -75,16 +68,14 @@ func (p *Pattern) AddSlot(slot *PatternSlot) {
 	p.Slots = append(p.Slots, slot)
 }
 
-func (p Pattern) LookupVariable(varName string) *PatternSlotItem {
+func (p Pattern) LookupVariable(varName string) *PatternVar {
 	for _, slot := range p.Slots {
-		for _, item := range slot.Items {
-			if item.Var == nil {
-				continue
-			}
+		if slot.Var == nil {
+			continue
+		}
 
-			if *item.Var == varName {
-				return item
-			}
+		if *slot.Var.Name == varName {
+			return slot.Var
 		}
 	}
 

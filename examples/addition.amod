@@ -81,7 +81,7 @@ terminateAddition {
 
 incrementSum {
     match {
-        goal [add: * ?num2 ?count!?num2 ?sum]
+        goal [add: * ?num2 ?count ?sum] when (?count != ?num2)
         retrieval [count: ?sum ?next]
     }
     do {

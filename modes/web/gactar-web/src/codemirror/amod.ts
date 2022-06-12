@@ -13,6 +13,7 @@ CodeMirror.defineMode('amod', function () {
   const variable_regex = /[?][a-zA-Z0-9_]*/
 
   const keywords = {
+    and: true,
     authors: true,
     chunks: true,
     clear: true,
@@ -28,6 +29,7 @@ CodeMirror.defineMode('amod', function () {
     set: true,
     stop: true,
     to: true,
+    when: true,
     true: true,
     false: true, // ;-)
     nil: true,

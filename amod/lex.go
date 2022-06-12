@@ -129,6 +129,7 @@ const (
 )
 
 var keywords []string = []string{
+	"and",
 	"chunks",
 	"clear",
 	"description",
@@ -144,6 +145,7 @@ var keywords []string = []string{
 	"set",
 	"stop",
 	"to",
+	"when",
 }
 
 // Symbols provides a mapping from participle strings to our lexemes

@@ -103,13 +103,33 @@ func validateMatch(match *match, model *actr.Model, log *issueLog, production *a
 		// check _status chunks to ensure they have one of the allowed tests
 		if pattern.ChunkName == "_status" {
 			slot := *pattern.Slots[0]
-			slotItem := slot.Items[0].ID
+			slotItem := slot.ID
 
 			if !buffer.IsValidBufferState(*slotItem) {
 				log.errorT(slot.Tokens,
 					"invalid _status '%s' for '%s' in production '%s' (should be %v)",
 					*slotItem, name, production.Name, buffer.ValidBufferStatesStr())
 				err = CompileError{}
+			}
+		}
+
+		// If we have constraints, check them
+		if item.When != nil {
+			for _, expr := range *item.When.Expressions {
+				// Check that we haven't negated it in the pattern and then tried to constrain it further
+				for _, slot := range pattern.Slots {
+					if slot.Not && slot.Var != nil {
+						if expr.LHS == *slot.Var {
+							log.errorTR(expr.Tokens, 1, 2, "cannot further constrain a negated variable '%s'", expr.LHS)
+							break
+						}
+					}
+				}
+
+				// Check that we aren't comparing to ourselves
+				if expr.RHS.Var != nil && expr.LHS == *expr.RHS.Var {
+					log.errorT(expr.RHS.Tokens, "cannot compare a variable to itself '%s'", expr.LHS)
+				}
 			}
 		}
 	}
@@ -193,29 +213,20 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *issueLog, p
 		chunk := model.LookupChunk(chunkName)
 
 		for slotIndex, slot := range set.Pattern.Slots {
-			if len(slot.Items) > 1 {
-				log.errorT(slot.Tokens, "cannot set '%s.%v' to compound var in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
-				err = CompileError{}
-
+			if slot.Var == nil {
 				continue
 			}
 
-			// we only have one item
-			item := slot.Items[0]
-			if item.Var == nil {
-				continue
-			}
-
-			if item.Wildcard != nil {
-				log.errorT(item.Tokens, "cannot set '%s.%v' to wildcard ('*') in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
+			if slot.Wildcard != nil {
+				log.errorT(slot.Tokens, "cannot set '%s.%v' to wildcard ('*') in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
 				err = CompileError{}
 				continue
 			}
 
-			varItem := *item.Var
+			varItem := *slot.Var
 			match := production.LookupMatchByVariable(varItem)
 			if match == nil {
-				log.errorT(item.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
+				log.errorT(slot.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
 				err = CompileError{}
 			}
 		}
@@ -310,9 +321,43 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 		}
 	}
 
+	addWhenClauseRefs := func(w *whenExpression) {
+		if r, ok := varRefCount[w.LHS]; ok {
+			r.count++
+		} else {
+			tokens := w.Tokens
+			varRefCount[w.LHS] = &ref{
+				location: tokensToLocation(tokens),
+				count:    1,
+			}
+		}
+
+		if w.RHS.Var != nil {
+			if r, ok := varRefCount[*w.RHS.Var]; ok {
+				r.count++
+			} else {
+				tokens := w.Tokens
+				varRefCount[*w.RHS.Var] = &ref{
+					location: tokensToLocation(tokens),
+					count:    1,
+				}
+			}
+		}
+	}
+
 	// Walk the matches and store var ref counts
-	for _, item := range match.Items {
-		addPatternRefs(item.Pattern, true)
+	for _, match := range match.Items {
+		addPatternRefs(match.Pattern, true)
+
+		if match.When != nil {
+			when := match.When
+
+			if when.Expressions != nil {
+				for _, expr := range *when.Expressions {
+					addWhenClauseRefs(expr)
+				}
+			}
+		}
 	}
 
 	// Walk the do statements and add to var ref counts
@@ -342,8 +387,10 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 					}
 				}
 			}
+
+		default:
+			// statement does not use variables
 		}
-		// clear statement does not use variables
 	}
 
 	// Any var with only one reference should be wildcard ("*"), so add info to log
@@ -357,10 +404,8 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 // Get a slice of all the vars referenced in a pattern
 func varsFromPattern(pattern *pattern) (vars []varAndIndex) {
 	for i, slot := range pattern.Slots {
-		for _, slotItem := range slot.Items {
-			if slotItem.Var != nil {
-				vars = append(vars, varAndIndex{text: *slotItem.Var, index: i})
-			}
+		if slot.Var != nil {
+			vars = append(vars, varAndIndex{text: *slot.Var, index: i})
 		}
 	}
 

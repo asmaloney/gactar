@@ -423,37 +423,59 @@ func (v VanillaACTR) outputMatch(match *actr.Match) {
 	}
 }
 
-func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patternSlot *actr.PatternSlot) {
-	for _, item := range patternSlot.Items {
-		if item.Wildcard {
-			return
+func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, slot *actr.PatternSlot) {
+	if slot.Wildcard {
+		return
+	}
+
+	value := ""
+	slotStr := ""
+
+	if slot.Negated {
+		slotStr = "- "
+	}
+
+	switch {
+	case slot.Nil:
+		value = "empty"
+
+	case slot.ID != nil:
+		value = fmt.Sprintf(`"%s"`, *slot.ID)
+
+	case slot.Num != nil:
+		value = *slot.Num
+
+	case slot.Var != nil:
+		varName := strings.TrimPrefix(*slot.Var.Name, "?")
+		value = fmt.Sprintf("=%s", varName)
+	}
+
+	slotStr += slotName
+
+	tabbedItems.Add(slotStr, value)
+
+	// Check for constraints on a var and output them
+	if slot.Var != nil {
+		if len(slot.Var.Constraints) > 0 {
+			for _, constraint := range slot.Var.Constraints {
+				slotStr := ""
+
+				if constraint.Comparison == actr.NotEqual {
+					slotStr = "- "
+				}
+
+				slotStr += slotName
+
+				if constraint.RHS.Var != nil {
+					varName := strings.TrimPrefix(*constraint.RHS.Var, "?")
+					value = fmt.Sprintf("=%s", varName)
+
+					tabbedItems.Add(slotStr, value)
+				} else {
+					tabbedItems.Add(slotStr, constraint.RHS.String())
+				}
+			}
 		}
-
-		value := ""
-		slot := ""
-
-		if item.Negated {
-			slot = "- "
-		}
-
-		switch {
-		case item.Nil:
-			value = "empty"
-
-		case item.ID != nil:
-			value = fmt.Sprintf(`"%s"`, *item.ID)
-
-		case item.Num != nil:
-			value = *item.Num
-
-		case item.Var != nil:
-			varName := strings.TrimPrefix(*item.Var, "?")
-			value = fmt.Sprintf("=%s", varName)
-		}
-
-		slot += slotName
-
-		tabbedItems.Add(slot, value)
 	}
 }
 

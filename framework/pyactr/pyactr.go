@@ -428,33 +428,55 @@ func (p PyACTR) outputMatch(match *actr.Match) {
 	}
 }
 
-func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, patternSlot *actr.PatternSlot) {
-	for _, item := range patternSlot.Items {
-		if item.Wildcard {
-			return
+func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, slot *actr.PatternSlot) {
+	if slot.Wildcard {
+		return
+	}
+
+	var value string
+	if slot.Negated {
+		value = "~"
+	}
+
+	switch {
+	case slot.Nil:
+		value += "nil"
+
+	case slot.ID != nil:
+		value += fmt.Sprintf(`"%s"`, *slot.ID)
+
+	case slot.Num != nil:
+		value += *slot.Num
+
+	case slot.Var != nil:
+		value += "="
+		value += strings.TrimPrefix(*slot.Var.Name, "?")
+	}
+
+	tabbedItems.Add(slotName, value)
+
+	// Check for constraints on a var and output them
+	if slot.Var != nil {
+		if len(slot.Var.Constraints) > 0 {
+			for _, constraint := range slot.Var.Constraints {
+				// default to equality
+				value := ""
+
+				if constraint.Comparison == actr.NotEqual {
+					value = "~"
+				}
+
+				if constraint.RHS.Var != nil {
+					value += "="
+					value += strings.TrimPrefix(*constraint.RHS.Var, "?")
+
+				} else {
+					value += constraint.RHS.String()
+				}
+
+				tabbedItems.Add(slotName, value)
+			}
 		}
-
-		var value string
-		if item.Negated {
-			value = "~"
-		}
-
-		switch {
-		case item.Nil:
-			value += "nil"
-
-		case item.ID != nil:
-			value += fmt.Sprintf(`"%s"`, *item.ID)
-
-		case item.Num != nil:
-			value += *item.Num
-
-		case item.Var != nil:
-			value += "="
-			value += strings.TrimPrefix(*item.Var, "?")
-		}
-
-		tabbedItems.Add(slotName, value)
 	}
 }
 

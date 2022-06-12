@@ -1,6 +1,10 @@
 package actr
 
-import "github.com/asmaloney/gactar/actr/buffer"
+import (
+	"fmt"
+
+	"github.com/asmaloney/gactar/actr/buffer"
+)
 
 // Production stores information on how to match buffers and perform some operations.
 // It uses a small language to modify states upon successful matches.
@@ -18,9 +22,37 @@ type Production struct {
 
 // VarIndex is used to track which buffer slot a variable refers to
 type VarIndex struct {
-	Var      string
+	Var      *PatternVar
 	Buffer   buffer.BufferInterface
 	SlotName string
+}
+
+type Comparison int
+
+const (
+	Equal Comparison = iota
+	NotEqual
+)
+
+func (c Comparison) String() string {
+	switch c {
+	case Equal:
+		return "=="
+	case NotEqual:
+		return "!="
+	}
+
+	return "unknown"
+}
+
+type Constraint struct {
+	LHS        *string
+	Comparison Comparison
+	RHS        *Value
+}
+
+func (c Constraint) String() string {
+	return fmt.Sprintf("%s %s %s", *c.LHS, c.Comparison, c.RHS)
 }
 
 type Match struct {
@@ -47,6 +79,21 @@ type Value struct {
 	ID     *string
 	Str    *string
 	Number *string
+}
+
+func (v Value) String() string {
+	switch {
+	case v.Var != nil:
+		return *v.Var
+	case v.ID != nil:
+		return *v.ID
+	case v.Str != nil:
+		return *v.Str
+	case v.Number != nil:
+		return *v.Number
+	}
+
+	return "unknown"
 }
 
 // PrintStatement outputs the string, id, or number to stdout.
