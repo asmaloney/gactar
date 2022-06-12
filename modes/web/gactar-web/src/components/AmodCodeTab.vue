@@ -45,6 +45,7 @@
       :key="count"
       ref="code-editor"
       :amod-code="amodCode"
+      :amod-issues="amodIssues"
       mode="amod"
       editorID="amod"
       @editorCodeChange="editorCodeChange"
@@ -53,9 +54,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { PropType } from 'vue'
 
-import api, { ExampleList } from '../api'
+import api, { ExampleList, IssueList } from '../api'
 
 import CodeMirror from './CodeMirror.vue'
 import SaveButton from './SaveButton.vue'
@@ -72,6 +73,13 @@ const codeEditorStorageName = 'gactar.code-editor'
 
 export default Vue.extend({
   components: { CodeMirror, SaveButton },
+
+  props: {
+    amodIssues: {
+      type: Array as PropType<IssueList>,
+      required: false,
+    },
+  },
 
   data(): Data {
     return {

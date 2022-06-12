@@ -25,5 +25,13 @@ module.exports = {
     },
   },
   plugins: ['@typescript-eslint'],
-  rules: {},
+  rules: {
+    '@typescript-eslint/ban-ts-comment': [
+      'error',
+      {
+        'ts-ignore': 'allow-with-description',
+        'ts-expect-error': 'allow-with-description',
+      },
+    ],
+  },
 }

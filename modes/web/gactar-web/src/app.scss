@@ -1,6 +1,7 @@
 @import 'bulma/bulma';
 @import 'buefy/src/scss/buefy';
 @import 'codemirror/lib/codemirror.css';
+@import 'codemirror/addon/lint/lint.css';
 @import './codemirror/amod.css';
 
 $tab-border-color: #dbdbdb;
