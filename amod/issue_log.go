@@ -37,15 +37,6 @@ func tokensToLocation(t []lexer.Token) *issues.Location {
 
 	tokens := trimCommentsFromRange(t)
 
-	// If we are in the middle of a pattern, we might have pattern spaces,
-	// so remove from beginning & end.
-	if tokens[0].Type == lexer.TokenType(lexemePatternSpace) {
-		tokens = tokens[1:]
-	}
-	if tokens[len(tokens)-1].Type == lexer.TokenType(lexemePatternSpace) {
-		tokens = tokens[:len(tokens)-1]
-	}
-
 	// first & last may end being the same - that's ok
 	firstToken := tokens[0]
 	lastToken := tokens[len(tokens)-1]

@@ -89,19 +89,11 @@ type field struct {
 	Tokens []lexer.Token
 }
 
-type chunkSlot struct {
-	Space1 string `parser:"@PatternSpace?"`
-	Slot   string `parser:"@Ident"`
-	Space2 string `parser:"@PatternSpace?"`
-
-	Tokens []lexer.Token
-}
-
 type chunkDecl struct {
-	StartBracket string       `parser:"'['"` // not used - must be set for parse
-	Name         string       `parser:"@Ident ':'"`
-	Slots        []*chunkSlot `parser:"@@+"`
-	EndBracket   string       `parser:"']'"` // not used - must be set for parse
+	StartBracket string   `parser:"'['"` // not used - must be set for parse
+	Name         string   `parser:"@Ident ':'"`
+	Slots        []string `parser:"@Ident+"`
+	EndBracket   string   `parser:"']'"` // not used - must be set for parse
 
 	Tokens []lexer.Token
 }
@@ -135,14 +127,12 @@ type initSection struct {
 }
 
 type patternSlot struct {
-	Space1   string  `parser:"@PatternSpace?"`
 	Not      bool    `parser:"((@('!':Char)?"`
 	Nil      *bool   `parser:"( @('nil':Keyword)"`
 	ID       *string `parser:"| @Ident"`
 	Num      *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
 	Var      *string `parser:"| @PatternVar ))"`
 	Wildcard *string `parser:"| @PatternWildcard)"`
-	Space2   string  `parser:"@PatternSpace?"`
 
 	Tokens []lexer.Token
 }

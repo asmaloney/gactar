@@ -54,7 +54,6 @@ const (
 	lexemeSectionDelim
 
 	lexemePatternDelim
-	lexemePatternSpace
 	lexemePatternVar
 	lexemePatternWildcard
 )
@@ -87,8 +86,6 @@ func (l lexemeType) String() string {
 		return "section delimiter"
 	case lexemePatternDelim:
 		return "pattern delimiter"
-	case lexemePatternSpace:
-		return "pattern space"
 	case lexemePatternVar:
 		return "pattern var"
 	case lexemePatternWildcard:
@@ -162,7 +159,6 @@ func (lexer_def) Symbols() map[string]lexer.TokenType {
 		"Inequality":      lexer.TokenType(lexemeInequality),
 		"SectionDelim":    lexer.TokenType(lexemeSectionDelim),
 		"PatternDelim":    lexer.TokenType(lexemePatternDelim),
-		"PatternSpace":    lexer.TokenType(lexemePatternSpace),
 		"PatternVar":      lexer.TokenType(lexemePatternVar),
 		"PatternWildcard": lexer.TokenType(lexemePatternWildcard),
 	}
@@ -356,11 +352,6 @@ func isDigit(r rune) bool {
 func lexStart(l *lexer_amod) stateFn {
 	switch r := l.next(); {
 	case isSpace(r):
-		if l.inPattern {
-			eatSpace(l)
-			l.emit(lexemePatternSpace)
-			return lexStart
-		}
 		if isNewline(r) {
 			l.lastNewlinePos = l.pos + 1
 			l.line++
