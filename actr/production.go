@@ -75,6 +75,7 @@ type ClearStatement struct {
 
 // Value holds something that may be printed.
 type Value struct {
+	Nil    *bool // set this to nil
 	Var    *string
 	ID     *string
 	Str    *string
@@ -83,6 +84,8 @@ type Value struct {
 
 func (v Value) String() string {
 	switch {
+	case v.Nil != nil:
+		return "nil"
 	case v.Var != nil:
 		return *v.Var
 	case v.ID != nil:
@@ -107,17 +110,10 @@ type RecallStatement struct {
 	MemoryName string
 }
 
-type SetValue struct {
-	Nil    bool    // set this to nil
-	Var    *string // OR Var
-	Number *string // OR this number (no need to store as actual number at the moment)
-	Str    *string // OR this string
-}
-
 type SetSlot struct {
 	Name      string
 	SlotIndex int // (this slot index in the chunk)
-	Value     *SetValue
+	Value     *Value
 }
 
 // SetStatement will set a slot or the entire contents of the named buffer to a string or a pattern.

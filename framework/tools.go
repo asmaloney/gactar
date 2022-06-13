@@ -96,29 +96,6 @@ func ParseInitialBuffers(model *actr.Model, initialBuffers InitialBuffers) (pars
 	return
 }
 
-func PythonValuesToStrings(values *[]*actr.Value, quoteStrings bool) []string {
-	str := make([]string, len(*values))
-	for i, v := range *values {
-		switch {
-		case v.Var != nil:
-			str[i] = strings.TrimPrefix(*v.Var, "?")
-
-		case v.Str != nil:
-			if quoteStrings {
-				str[i] = fmt.Sprintf("'%s'", *v.Str)
-			} else {
-				str[i] = *v.Str
-			}
-
-		case v.Number != nil:
-			str[i] = *v.Number
-		}
-		// v.ID should not be possible because of validation
-	}
-
-	return str
-}
-
 // identifyYourself outputs version info and the path to an executable.
 func identifyYourself(frameworkName, exeName string) (err error) {
 	cmd := exec.Command(exeName, "--version")

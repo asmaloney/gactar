@@ -276,9 +276,14 @@ func validateClearStatement(clear *clearStatement, model *actr.Model, log *issue
 func validatePrintStatement(print *printStatement, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
 	if print.Args != nil {
 		for _, arg := range print.Args {
-			if arg.ID != nil {
+			switch {
+			case arg.Nil != nil:
+				log.errorT(arg.Tokens, "cannot use nil in print statement")
+
+			case arg.ID != nil:
 				log.errorT(arg.Tokens, "cannot use ID '%s' in print statement", *arg.ID)
-			} else if arg.Var != nil {
+
+			case arg.Var != nil:
 				varItem := *arg.Var
 				match := production.LookupMatchByVariable(varItem)
 				if match == nil {

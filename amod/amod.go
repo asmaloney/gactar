@@ -548,15 +548,18 @@ func addSetStatement(model *actr.Model, log *issueLog, set *setStatement, produc
 
 		slotName := *set.Slot
 		index := match.Pattern.Chunk.SlotIndex(slotName)
-		value := &actr.SetValue{}
+		value := &actr.Value{}
 
 		switch {
+		case set.Value.Nil != nil:
+			value.Nil = set.Value.Nil
+
 		case set.Value.Var != nil:
 			varName := strings.TrimPrefix(*set.Value.Var, "?")
 			value.Var = &varName
 
-		case set.Value.Nil != nil:
-			value.Nil = *set.Value.Nil
+		case set.Value.ID != nil:
+			value.ID = set.Value.ID
 
 		case set.Value.Number != nil:
 			value.Number = set.Value.Number
@@ -651,6 +654,9 @@ func convertArg(v *arg) (actrValue *actr.Value) {
 	actrValue = &actr.Value{}
 
 	switch {
+	case v.Nil != nil:
+		actrValue.Nil = v.Nil
+
 	case v.Var != nil:
 		actrValue.Var = v.Var
 
