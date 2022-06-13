@@ -127,6 +127,7 @@ const (
 
 var keywords []string = []string{
 	"and",
+	"authors",
 	"chunks",
 	"clear",
 	"description",
