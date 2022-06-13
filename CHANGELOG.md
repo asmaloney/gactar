@@ -2,11 +2,12 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.8.0] - (in progress)
+## [0.8.0](https://github.com/asmaloney/gactar/releases/tag/v0.8.0) - 2022-06-13
 
 ### Added
 
 - Added a new statement to the amod language: **stop**. ([#170](https://github.com/asmaloney/gactar/pull/170))
+- Web UI now highlights any errors in the code editor. ([#197](https://github.com/asmaloney/gactar/pull/197))
 
 ### Changed
 
