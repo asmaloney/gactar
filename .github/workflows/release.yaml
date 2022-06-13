@@ -31,5 +31,7 @@ jobs:
           md5sum: false
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
+          build_flags: -tags urfave_cli_no_docs
+          ldflags: -X "github.com/asmaloney/gactar/util/version.BuildVersion=${{ env.RELEASE_TAG }}"
           extra_files: doc examples scripts CHANGELOG.md CITATION.cff CONTRIBUTING.md LICENSE README.md
           asset_name: '${{ env.REPOSITORY_NAME }}-${{ env.RELEASE_TAG }}-${{ env.OS_NAME }}-${{ matrix.goarch }}'
