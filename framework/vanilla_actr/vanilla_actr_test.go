@@ -2,6 +2,7 @@ package vanilla_actr
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -22,9 +23,14 @@ func init() {
 
 func TestCodeGeneration(t *testing.T) {
 	ctx := cli.NewContext(nil, nil, nil)
-	fw, _ := New(ctx)
 
+	// Make sure we can find the compiler.
+	// Since this is just for testing, we can hardcode it.
+	os.Setenv("VIRTUAL_ENV", "../../env")
+
+	fw, err := New(ctx)
 	if fw == nil {
+		fmt.Println(err.Error())
 		t.Skip("vanilla framework not active")
 	}
 

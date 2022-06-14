@@ -149,8 +149,6 @@ func setupVirtualEnvironment(ctx *cli.Context) (err error) {
 		return
 	}
 
-	// add our env and our ccl paths
-	os.Setenv("PATH", fmt.Sprintf("%[1]s/bin:%[1]s/ccl:%[2]s", envPath, os.Getenv("PATH")))
 	os.Setenv("VIRTUAL_ENV", envPath)
 
 	return

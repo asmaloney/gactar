@@ -71,6 +71,9 @@ func New(ctx *cli.Context) (v *VanillaACTR, err error) {
 		envPath: os.Getenv("VIRTUAL_ENV"),
 	}
 
+	// Add path to ccl so we can find it everywhere
+	os.Setenv("PATH", fmt.Sprintf("%[1]s/bin:%[1]s/ccl:%[2]s", v.envPath, os.Getenv("PATH")))
+
 	err = framework.Setup(&Info)
 	if err != nil {
 		v = nil
