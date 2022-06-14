@@ -50,7 +50,8 @@ type modelSection struct {
 }
 
 type arg struct {
-	Var    *string `parser:"( @PatternVar"`
+	Nil    *bool   `parser:"( @('nil':Keyword)"`
+	Var    *string `parser:"| @PatternVar"`
 	ID     *string `parser:"| @Ident"`
 	Str    *string `parser:"| @String"`
 	Number *string `parser:"| @Number)"`
@@ -202,23 +203,14 @@ type recallStatement struct {
 	Tokens []lexer.Token
 }
 
-type setValue struct {
-	Nil    *bool   `parser:"( @('nil':Keyword)"`
-	Var    *string `parser:"| @PatternVar"`
-	Str    *string `parser:"| @String"`
-	Number *string `parser:"| @Number)"`
-
-	Tokens []lexer.Token
-}
-
 type setStatement struct {
 	Set        string  `parser:"'set'"` // not used, but must be visible for parse to work
 	BufferName string  `parser:"@Ident"`
 	Slot       *string `parser:"('.' @Ident)?"`
 
-	To      string    `parser:"'to'"` // not used, but must be visible for parse to work
-	Value   *setValue `parser:"( @@"`
-	Pattern *pattern  `parser:"| @@)"`
+	To      string   `parser:"'to'"` // not used, but must be visible for parse to work
+	Value   *arg     `parser:"( @@"`
+	Pattern *pattern `parser:"| @@)"`
 
 	Tokens []lexer.Token
 }

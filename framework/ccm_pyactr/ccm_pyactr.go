@@ -477,7 +477,7 @@ func patternSlotString(slot *actr.PatternSlot) string {
 					str += "!"
 				}
 
-				str += constraint.RHS.String()
+				str += convertValue(constraint.RHS)
 			}
 		}
 	}
@@ -491,7 +491,7 @@ func (c CCMPyACTR) outputStatement(s *actr.Statement) {
 		if s.Set.Slots != nil {
 			slotAssignments := []string{}
 			for _, slot := range *s.Set.Slots {
-				value := convertSetValue(slot.Value)
+				value := convertValue(slot.Value)
 				slotAssignments = append(slotAssignments, fmt.Sprintf("_%d=%s", slot.SlotIndex, value))
 			}
 			c.Writeln("        %s.modify(%s)", s.Set.Buffer.BufferName(), strings.Join(slotAssignments, ", "))
@@ -512,7 +512,7 @@ func (c CCMPyACTR) outputStatement(s *actr.Statement) {
 		}
 
 	case s.Print != nil:
-		values := framework.PythonValuesToStrings(s.Print.Values, true)
+		values := pythonValuesToStrings(s.Print.Values, true)
 		c.Writeln("        print(%s, sep='')", strings.Join(values, ", "))
 
 	case s.Stop != nil:
@@ -520,13 +520,16 @@ func (c CCMPyACTR) outputStatement(s *actr.Statement) {
 	}
 }
 
-func convertSetValue(s *actr.SetValue) string {
+func convertValue(s *actr.Value) string {
 	switch {
-	case s.Nil:
+	case s.Nil != nil:
 		return "None"
 
 	case s.Var != nil:
 		return *s.Var
+
+	case s.ID != nil:
+		return "'" + *s.ID + "'"
 
 	case s.Number != nil:
 		return *s.Number
@@ -536,4 +539,27 @@ func convertSetValue(s *actr.SetValue) string {
 	}
 
 	return ""
+}
+
+func pythonValuesToStrings(values *[]*actr.Value, quoteStrings bool) []string {
+	str := make([]string, len(*values))
+	for i, v := range *values {
+		switch {
+		case v.Var != nil:
+			str[i] = strings.TrimPrefix(*v.Var, "?")
+
+		case v.Str != nil:
+			if quoteStrings {
+				str[i] = fmt.Sprintf("'%s'", *v.Str)
+			} else {
+				str[i] = *v.Str
+			}
+
+		case v.Number != nil:
+			str[i] = *v.Number
+		}
+		// v.ID && v.Nil should not be possible because of validation
+	}
+
+	return str
 }

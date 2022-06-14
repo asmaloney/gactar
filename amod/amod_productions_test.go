@@ -56,6 +56,27 @@ func Example_productionWhenClause() {
 	// Output:
 }
 
+func Example_productionWhenClauseCompareNil() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match {
+			goal [foo: ?blat] when ( ?blat == nil )
+		}
+		do {
+			print ?blat
+			stop
+		}
+	}`)
+
+	// Output:
+}
+
 func Example_productionWhenClauseNegatedAndConstrained() {
 	generateToStdout(`
 	~~ model ~~
@@ -299,6 +320,23 @@ func Example_productionSetStatementVar() {
 	// Output:
 }
 
+func Example_productionSetStatementID() {
+	// Check setting to var
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [foo: thing] }
+		do { set goal.thing to thing }
+	}`)
+
+	// Output:
+}
+
 func Example_productionSetStatementNil() {
 	// Check setting to nil
 	generateToStdout(`
@@ -436,23 +474,6 @@ func Example_productionSetStatementAssignNonPattern() {
 
 	// Output:
 	// ERROR: buffer 'goal' must be set to a pattern in production 'start' (line 10, col 19)
-}
-
-func Example_productionSetStatementAssignNonsense() {
-	generateToStdout(`
-	~~ model ~~
-	name: Test
-	~~ config ~~
-	chunks { [foo: thing] }
-	~~ init ~~
-	~~ productions ~~
-	start {
-		match { goal [foo: blat] }
-		do { set goal to blat }
-	}`)
-
-	// Output:
-	// ERROR: unexpected token "blat" (expected (SetValue | Pattern)) (line 10, col 19)
 }
 
 func Example_productionSetStatementAssignPattern() {
@@ -646,6 +667,22 @@ func Example_productionPrintStatementInvalidID() {
 
 	// Output:
 	// ERROR: cannot use ID 'fooID' in print statement (line 9, col 13)
+}
+
+func Example_productionPrintStatementInvalidNil() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { retrieval [_status: error] }
+		do { print nil }
+	}`)
+
+	// Output:
+	// ERROR: cannot use nil in print statement (line 9, col 13)
 }
 
 func Example_productionPrintStatementInvalidVar() {
