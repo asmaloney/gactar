@@ -2,6 +2,7 @@ package ccm_pyactr
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -22,9 +23,10 @@ func init() {
 
 func TestCodeGeneration(t *testing.T) {
 	ctx := cli.NewContext(nil, nil, nil)
-	fw, _ := New(ctx)
+	fw, err := New(ctx)
 
 	if fw == nil {
+		fmt.Println(err.Error())
 		t.Skip("ccm framework not active")
 	}
 

@@ -1,0 +1,98 @@
+~~ model ~~
+
+// The name of the model (used when generating code and for error messages)
+name: semantic
+
+// Description of the model (currently output as a comment in the generated code)
+description: 'This model is based on the ccm u1_semantic.py tutorial.'
+
+// Examples of starting goals to use when running the model
+examples {
+    [isMember: shark fish nil]
+    [isMember: shark animal nil]
+    [isMember: canary fish nil]
+}
+
+~~ config ~~
+
+gactar {
+    // Logging level can be 'min', 'info' (default), or 'detail'
+    log_level: 'detail'
+
+    // Show detailed information about activations (if available)
+    trace_activations: true
+}
+
+// Declare chunks and their layouts
+chunks {
+    [isMember: object category judgment]
+    [property: object attribute value]
+}
+
+~~ init ~~
+
+// Initialize the memory
+memory {
+    [property: shark dangerous true]
+    [property: shark locomotion swimming]
+    [property: shark category fish]
+    [property: fish category animal]
+    [property: bird category animal]
+    [property: canary category bird]
+}
+
+// Default goal
+goal [isMember: shark animal nil]
+
+~~ productions ~~
+
+// Name of the production
+initialRetrieval {
+    // Optional description
+    description: 'Starting point - first production to match'
+    
+    // Buffers to match
+    match {
+        goal [isMember: ?obj * nil]
+    }
+    // Steps to execute
+    do {
+        set goal.judgment to 'pending'
+        recall [property: ?obj category *]
+    }
+}
+
+directVerify {
+    match {
+        goal [isMember: ?obj ?cat pending]
+        retrieval [property: ?obj category ?cat]
+    }
+    do {
+        set goal.judgment to 'yes'
+        print 'Yes'
+        stop
+    }
+}
+
+chainCategory {
+    match {
+        goal [isMember: ?obj1 ?cat pending]
+        retrieval [property: ?obj1 category ?obj2] when (?obj2 != ?cat)
+    }
+    do {
+        set goal.object to ?obj2
+        recall [property: ?obj2 category *]
+    }
+}
+
+fail {
+    match {
+        goal [isMember: * * pending]
+        retrieval [_status: error]
+    }
+    do {
+        set goal.judgment to 'no'
+        print 'No'
+        stop
+    }
+}
