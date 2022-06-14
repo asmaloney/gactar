@@ -41,7 +41,7 @@ func Initialize(ctx *cli.Context, frameworks framework.List) (d *DefaultMode, er
 
 	existingFiles := files[:0]
 	for _, file := range files {
-		if _, err := os.Stat(file); errors.Is(err, os.ErrNotExist) {
+		if _, fileErr := os.Stat(file); errors.Is(fileErr, os.ErrNotExist) {
 			fmt.Printf("error: file does not exist - %q\n", file)
 			continue
 		}
@@ -77,8 +77,8 @@ func generateCode(frameworks framework.List, files []string, outputDir string, r
 
 	for _, file := range files {
 		fmt.Printf("Generating model for %s\n", file)
-		model, log, err := amod.GenerateModelFromFile(file)
-		if err != nil {
+		model, log, modelErr := amod.GenerateModelFromFile(file)
+		if modelErr != nil {
 			fmt.Print(log)
 			continue
 		}

@@ -24,33 +24,30 @@ func CreateFrameworks(ctx *cli.Context, names []string) (list framework.List) {
 	list = framework.List{}
 
 	for _, f := range names {
-		var createErr error
+		var fw framework.Framework
+		var err error
+
 		switch f {
 		case "ccm":
-			ccm, createErr := ccm_pyactr.New(ctx)
-			if createErr == nil {
-				list["ccm"] = ccm
-			}
+			fw, err = ccm_pyactr.New(ctx)
 
 		case "pyactr":
-			pyactr, createErr := pyactr.New(ctx)
-			if createErr == nil {
-				list["pyactr"] = pyactr
-			}
+			fw, err = pyactr.New(ctx)
 
 		case "vanilla":
-			vanilla, createErr := vanilla_actr.New(ctx)
-			if createErr == nil {
-				list["vanilla"] = vanilla
-			}
+			fw, err = vanilla_actr.New(ctx)
 
 		default:
 			fmt.Printf("unknown framework: %s\n", f)
+			return
 		}
 
-		if createErr != nil {
-			fmt.Println(createErr.Error())
+		if err != nil {
+			fmt.Println(err.Error())
+			return
 		}
+
+		list[f] = fw
 	}
 
 	return

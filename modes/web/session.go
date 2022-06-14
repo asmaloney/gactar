@@ -56,14 +56,14 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 
 	session := w.lookupSession(data.SessionID)
 	if session == nil {
-		err := fmt.Errorf("invalid session id '%d'", data.SessionID)
+		err = fmt.Errorf("invalid session id '%d'", data.SessionID)
 		encodeErrorResponse(rw, err)
 		return
 	}
 
 	model := session.lookupModel(data.ModelID)
 	if model == nil {
-		err := fmt.Errorf("invalid model id '%d'", data.ModelID)
+		err = fmt.Errorf("invalid model id '%d'", data.ModelID)
 		encodeErrorResponse(rw, err)
 		return
 	}

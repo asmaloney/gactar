@@ -85,7 +85,7 @@ func main() {
 			}
 
 			if c.Bool("web") && c.Bool("interactive") {
-				err := errors.New("error: cannot run 'web' and 'interactive' at the same time")
+				err = errors.New("error: cannot run 'web' and 'interactive' at the same time")
 				return cli.Exit(err.Error(), 1)
 			}
 
@@ -101,7 +101,7 @@ func main() {
 			}
 
 			if c.Bool("web") {
-				err := handleWeb(c, frameworks)
+				err = handleWeb(c, frameworks)
 				if err != nil {
 					return cli.Exit(err.Error(), 1)
 				}
@@ -113,7 +113,7 @@ func main() {
 			}
 
 			if c.Bool("interactive") {
-				err := handleInteractive(c, frameworks)
+				err = handleInteractive(c, frameworks)
 				if err != nil {
 					return cli.Exit(err.Error(), 1)
 				}
