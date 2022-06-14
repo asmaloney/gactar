@@ -20,13 +20,13 @@ type varAndIndex struct {
 func validateChunk(model *actr.Model, log *issueLog, chunk *chunkDecl) (err error) {
 	if actr.IsInternalChunkName(chunk.Name) {
 		log.errorTR(chunk.Tokens, 1, 2, "cannot use reserved chunk name '%s' (chunks beginning with '_' are reserved)", chunk.Name)
-		return CompileError{}
+		return ErrCompile
 	}
 
 	c := model.LookupChunk(chunk.Name)
 	if c != nil {
 		log.errorTR(chunk.Tokens, 1, 2, "duplicate chunk name: '%s'", chunk.Name)
-		return CompileError{}
+		return ErrCompile
 	}
 
 	return nil
@@ -38,18 +38,18 @@ func validateInitialization(model *actr.Model, log *issueLog, init *initializati
 
 	if module == nil {
 		log.errorTR(init.Tokens, 0, 1, "module '%s' not found in initialization", name)
-		return CompileError{}
+		return ErrCompile
 	}
 
 	if !module.AllowsMultipleInit() && len(init.InitPatterns) > 1 {
 		log.errorTR(init.Tokens, 0, 1, "module '%s' should only have one pattern in initialization", name)
-		return CompileError{}
+		return ErrCompile
 	}
 
 	for _, init := range init.InitPatterns {
 		pattern_err := validatePattern(model, log, init)
 		if pattern_err != nil {
-			err = CompileError{}
+			err = ErrCompile
 			continue
 		}
 	}
@@ -63,7 +63,7 @@ func validatePattern(model *actr.Model, log *issueLog, pattern *pattern) (err er
 	chunk := model.LookupChunk(chunkName)
 	if chunk == nil {
 		log.errorTR(pattern.Tokens, 1, 2, "could not find chunk named '%s'", chunkName)
-		return CompileError{}
+		return ErrCompile
 	}
 
 	if len(pattern.Slots) != chunk.NumSlots {
@@ -72,7 +72,7 @@ func validatePattern(model *actr.Model, log *issueLog, pattern *pattern) (err er
 			s = "slot"
 		}
 		log.errorT(pattern.Tokens, "invalid chunk - '%s' expects %d %s", chunkName, chunk.NumSlots, s)
-		return CompileError{}
+		return ErrCompile
 	}
 
 	return
@@ -90,14 +90,14 @@ func validateMatch(match *match, model *actr.Model, log *issueLog, production *a
 		bufferInterface := model.LookupBuffer(name)
 		if bufferInterface == nil {
 			log.errorTR(item.Tokens, 0, 1, "buffer '%s' not found in production '%s'", name, production.Name)
-			err = CompileError{}
+			err = ErrCompile
 			continue
 		}
 
 		pattern := item.Pattern
 		pattern_err := validatePattern(model, log, pattern)
 		if pattern_err != nil {
-			err = CompileError{}
+			err = ErrCompile
 		}
 
 		// check _status chunks to ensure they have one of the allowed tests
@@ -109,7 +109,7 @@ func validateMatch(match *match, model *actr.Model, log *issueLog, production *a
 				log.errorT(slot.Tokens,
 					"invalid _status '%s' for '%s' in production '%s' (should be %v)",
 					*slotItem, name, production.Name, buffer.ValidBufferStatesStr())
-				err = CompileError{}
+				err = ErrCompile
 			}
 		}
 
@@ -167,7 +167,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *issueLog, p
 	buffer := model.LookupBuffer(bufferName)
 	if buffer == nil {
 		log.errorTR(set.Tokens, 1, 2, "buffer '%s' not found", bufferName)
-		err = CompileError{}
+		err = ErrCompile
 	}
 
 	if set.Slot != nil {
@@ -175,21 +175,21 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *issueLog, p
 		slotName := *set.Slot
 		if set.Pattern != nil {
 			log.errorTR(set.Tokens, 1, 3, "cannot set a slot ('%s.%s') to a pattern in production '%s'", bufferName, slotName, production.Name)
-			err = CompileError{}
+			err = ErrCompile
 			return
 		}
 
 		match := production.LookupMatchByBuffer(bufferName)
 		if match == nil {
 			log.errorTR(set.Tokens, 1, 2, "match buffer '%s' not found in production '%s'", bufferName, production.Name)
-			err = CompileError{}
+			err = ErrCompile
 			return
 		}
 
 		chunk := match.Pattern.Chunk
 		if !chunk.HasSlot(slotName) {
 			log.errorTR(set.Tokens, 3, 4, "slot '%s' does not exist in chunk '%s' for match buffer '%s' in production '%s'", slotName, chunk.Name, bufferName, production.Name)
-			err = CompileError{}
+			err = ErrCompile
 		}
 
 		if set.Value.Var != nil {
@@ -198,14 +198,14 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *issueLog, p
 			match := production.LookupMatchByVariable(varItem)
 			if match == nil {
 				log.errorT(set.Value.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
-				err = CompileError{}
+				err = ErrCompile
 			}
 		}
 	} else {
 		// we have the form "set <buffer> to <pattern>"
 		if set.Value != nil {
 			log.errorT(set.Value.Tokens, "buffer '%s' must be set to a pattern in production '%s'", bufferName, production.Name)
-			err = CompileError{}
+			err = ErrCompile
 			return
 		}
 
@@ -219,7 +219,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *issueLog, p
 
 			if slot.Wildcard != nil {
 				log.errorT(slot.Tokens, "cannot set '%s.%v' to wildcard ('*') in production '%s'", bufferName, chunk.SlotName(slotIndex), production.Name)
-				err = CompileError{}
+				err = ErrCompile
 				continue
 			}
 
@@ -227,7 +227,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *issueLog, p
 			match := production.LookupMatchByVariable(varItem)
 			if match == nil {
 				log.errorT(slot.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
-				err = CompileError{}
+				err = ErrCompile
 			}
 		}
 	}
@@ -239,7 +239,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *issueLog, p
 func validateRecallStatement(recall *recallStatement, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
 	pattern_err := validatePattern(model, log, recall.Pattern)
 	if pattern_err != nil {
-		err = CompileError{}
+		err = ErrCompile
 	}
 
 	vars := varsFromPattern(recall.Pattern)
@@ -248,7 +248,7 @@ func validateRecallStatement(recall *recallStatement, model *actr.Model, log *is
 		match := production.LookupMatchByVariable(v.text)
 		if match == nil {
 			log.errorT(recall.Pattern.Slots[v.index].Tokens, "recall statement variable '%s' not found in matches for production '%s'", v.text, production.Name)
-			err = CompileError{}
+			err = ErrCompile
 		}
 	}
 
@@ -264,7 +264,7 @@ func validateClearStatement(clear *clearStatement, model *actr.Model, log *issue
 		if buffer == nil {
 			log.errorT(clear.Tokens, "buffer '%s' not found in production '%s'", name, production.Name)
 
-			err = CompileError{}
+			err = ErrCompile
 			continue
 		}
 	}
@@ -292,7 +292,7 @@ func validatePrintStatement(print *printStatement, model *actr.Model, log *issue
 					} else {
 						log.errorT(arg.Tokens, "print statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
 					}
-					err = CompileError{}
+					err = ErrCompile
 				}
 			}
 		}

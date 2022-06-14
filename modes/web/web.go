@@ -75,11 +75,6 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 		currentSessionID: 1,
 	}
 
-	if len(w.actrFrameworks) == 0 {
-		err := fmt.Errorf("could not initialize any frameworks - please check your installation")
-		return w, err
-	}
-
 	http.HandleFunc("/api/version", w.getVersionHandler)
 	http.HandleFunc("/api/frameworks", w.getFrameworksHandler)
 	http.HandleFunc("/api/run", w.runModelHandler)
@@ -217,13 +212,13 @@ func (w Web) normalizeFrameworkList(list []string) (normalized []string) {
 func (w Web) verifyFrameworkList(list []string) (err error) {
 	for _, name := range list {
 		if !framework.IsValidFramework(name) {
-			err = fmt.Errorf("invalid framework name: %q", name)
+			err = &ErrInvalidFrameworkName{Name: name}
 			return
 		}
 
 		// we have a valid name, check if it is active
 		if _, ok := w.actrFrameworks[name]; !ok {
-			err = fmt.Errorf("framework %q is not active on server", name)
+			err = &ErrFrameworkNotActive{Name: name}
 			return
 		}
 	}
@@ -296,7 +291,7 @@ func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers
 
 func runModelOnFramework(model *actr.Model, initialBuffers framework.InitialBuffers, f framework.Framework) (result *framework.RunResult, err error) {
 	if model == nil {
-		err = fmt.Errorf("no model loaded")
+		err = ErrNoModel
 		return
 	}
 
@@ -315,8 +310,7 @@ func runModelOnFramework(model *actr.Model, initialBuffers framework.InitialBuff
 
 func decodeBody(req *http.Request, v interface{}) (err error) {
 	if req.Body == nil {
-		err = fmt.Errorf("empty request body")
-		return err
+		return ErrEmptyRequestBody
 	}
 
 	decoder := json.NewDecoder(req.Body)

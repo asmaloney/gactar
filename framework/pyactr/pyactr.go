@@ -89,7 +89,7 @@ func (PyACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
 
 func (p *PyACTR) SetModel(model *actr.Model) (err error) {
 	if model.Name == "" {
-		err = fmt.Errorf("model is missing name")
+		err = framework.ErrModelMissingName
 		return
 	}
 
@@ -120,7 +120,7 @@ func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (result *framework
 	output, err := cmd.CombinedOutput()
 	output = removeWarning(output)
 	if err != nil {
-		err = fmt.Errorf("%s", string(output))
+		err = &framework.ErrExecuteCommand{Output: output}
 		return
 	}
 

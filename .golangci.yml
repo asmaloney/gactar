@@ -5,6 +5,7 @@ linters:
     - exportloopref
     - goconst
     - gocritic
+    - goerr113
     - goprintffuncname
     - gosec
     - maintidx
