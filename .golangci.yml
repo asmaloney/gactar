@@ -1,0 +1,21 @@
+linters:
+  enable:
+    - bodyclose
+    - dupl
+    - exportloopref
+    - goconst
+    - gocritic
+    - goprintffuncname
+    - gosec
+    - maintidx
+    - prealloc
+    - thelper
+    - unconvert
+    - unparam
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  goconst:
+    min-len: 8
+    min-occurrences: 3
