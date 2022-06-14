@@ -71,7 +71,7 @@ func (CCMPyACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
 // SetModel sets our model and saves the python class name we are going to use.
 func (c *CCMPyACTR) SetModel(model *actr.Model) (err error) {
 	if model.Name == "" {
-		err = fmt.Errorf("model is missing name")
+		err = framework.ErrModelMissingName
 		return
 	}
 
@@ -102,7 +102,7 @@ func (c *CCMPyACTR) Run(initialBuffers framework.InitialBuffers) (result *framew
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		err = fmt.Errorf("%s", string(output))
+		err = &framework.ErrExecuteCommand{Output: output}
 		return
 	}
 

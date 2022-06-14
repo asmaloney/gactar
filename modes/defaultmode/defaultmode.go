@@ -8,8 +8,15 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
+	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/validate"
 	"github.com/urfave/cli/v2"
+)
+
+var (
+	ErrNoInputFiles     = errors.New("no input files specified on command line")
+	ErrNoFilesToProcess = errors.New("no files to process")
+	ErrNoValidModels    = errors.New("no valid models to run")
 )
 
 type DefaultMode struct {
@@ -35,14 +42,14 @@ func Initialize(ctx *cli.Context, frameworks framework.List) (d *DefaultMode, er
 	files := ctx.Args().Slice()
 
 	if len(files) == 0 {
-		err = fmt.Errorf("error: no input files specified on command line")
-		return
+		return nil, ErrNoInputFiles
 	}
 
 	existingFiles := files[:0]
 	for _, file := range files {
 		if _, fileErr := os.Stat(file); errors.Is(fileErr, os.ErrNotExist) {
-			fmt.Printf("error: file does not exist - %q\n", file)
+			fileErr = &filesystem.ErrFileDoesNotExist{FileName: file}
+			fmt.Printf("error: %s\n", fileErr)
 			continue
 		}
 
@@ -50,8 +57,7 @@ func Initialize(ctx *cli.Context, frameworks framework.List) (d *DefaultMode, er
 	}
 
 	if len(existingFiles) == 0 {
-		err = fmt.Errorf("error: no files to process")
-		return
+		return nil, ErrNoFilesToProcess
 	}
 
 	d.fileList = existingFiles
@@ -92,8 +98,7 @@ func generateCode(frameworks framework.List, files []string, outputDir string, r
 	}
 
 	if len(modelMap) == 0 {
-		err = errors.New("no valid models to run")
-		return
+		return ErrNoValidModels
 	}
 
 	for _, f := range frameworks {

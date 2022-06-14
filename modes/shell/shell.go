@@ -3,6 +3,7 @@ package shell
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -18,6 +19,28 @@ import (
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/validate"
 )
+
+var (
+	ErrLoadRequiresName    = errors.New("'load' requires a file name")
+	ErrNoFrameworkSelected = errors.New("no frameworks selected")
+	ErrNoModel             = errors.New("no model loaded")
+)
+
+type ErrInvalidFramework struct {
+	Name string
+}
+
+func (e *ErrInvalidFramework) Error() string {
+	return fmt.Sprintf("%q is not a valid framework", e.Name)
+}
+
+type ErrUnrecognizedCommand struct {
+	Command string
+}
+
+func (e *ErrUnrecognizedCommand) Error() string {
+	return fmt.Sprintf("unrecognized command: %q", e.Command)
+}
 
 type command struct {
 	description string
@@ -113,9 +136,7 @@ func (s *Shell) runCommand(c string) (err error) {
 		return
 	}
 
-	err = fmt.Errorf("unrecognized command: '%s'", cmd)
-
-	return
+	return &ErrUnrecognizedCommand{Command: cmd}
 }
 
 func (s *Shell) cmdFramework(fNames string) (err error) {
@@ -131,7 +152,8 @@ func (s *Shell) cmdFramework(fNames string) (err error) {
 
 	for _, name := range names {
 		if !s.actrFrameworks.Exists(name) {
-			err = fmt.Errorf("'%s' is not a valid framework. Valid values: %v", name, s.actrFrameworks.Names())
+			err = &ErrInvalidFramework{Name: name}
+			err = fmt.Errorf("%w. Valid values: %v", err, s.actrFrameworks.Names())
 			return
 		}
 
@@ -139,7 +161,7 @@ func (s *Shell) cmdFramework(fNames string) (err error) {
 	}
 
 	if len(s.activeFrameworks) == 0 {
-		err = fmt.Errorf("no frameworks selected. Valid values: %v", framework.ValidFrameworks)
+		err = fmt.Errorf("%w. Valid values: %v", ErrNoFrameworkSelected, framework.ValidFrameworks)
 		return
 	}
 
@@ -159,8 +181,7 @@ func (s *Shell) cmdHistory(string) (err error) {
 
 func (s *Shell) cmdLoad(fileName string) (err error) {
 	if fileName == "" {
-		err = fmt.Errorf("'load' requires a file name")
-		return
+		return ErrLoadRequiresName
 	}
 
 	model, log, err := amod.GenerateModelFromFile(fileName)
@@ -208,8 +229,7 @@ func (s *Shell) cmdReset(string) (err error) {
 
 func (s *Shell) cmdRun(initialGoal string) (err error) {
 	if s.currentModel == nil {
-		err = fmt.Errorf("no model loaded")
-		return
+		return ErrNoModel
 	}
 
 	log := issues.New()

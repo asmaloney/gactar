@@ -23,9 +23,21 @@ import (
 	"github.com/asmaloney/gactar/util/version"
 )
 
-// "embed" cannot use relative paths, so we must declare this at the top level and pass into web.
-//go:embed examples/*.amod
-var amodExamples embed.FS
+var (
+	// "embed" cannot use relative paths, so we must declare this at the top level and pass into web.
+	//go:embed examples/*.amod
+	amodExamples embed.FS
+
+	ErrNoFrameworks = errors.New("could not create any frameworks - please check your installation")
+)
+
+type ErrCmdLine struct {
+	Message string
+}
+
+func (e *ErrCmdLine) Error() string {
+	return fmt.Sprintf("error: %s", e.Message)
+}
 
 func main() {
 	defaultPort := 8181
@@ -85,7 +97,7 @@ func main() {
 			}
 
 			if c.Bool("web") && c.Bool("interactive") {
-				err = errors.New("error: cannot run 'web' and 'interactive' at the same time")
+				err = &ErrCmdLine{Message: "cannot run 'web' and 'interactive' at the same time"}
 				return cli.Exit(err.Error(), 1)
 			}
 
@@ -124,7 +136,8 @@ func main() {
 			// We are not interactive or web, so simply generate the output files.
 			err = handleDefault(c, frameworks)
 			if err != nil {
-				return cli.Exit(err.Error(), 1)
+				clErr := &ErrCmdLine{Message: err.Error()}
+				return cli.Exit(clErr.Error(), 1)
 			}
 
 			return nil
@@ -145,7 +158,8 @@ func setupVirtualEnvironment(ctx *cli.Context) (err error) {
 	}
 
 	if !filesystem.DirExists(envPath) {
-		err = fmt.Errorf("virtual environment %q does not exist", envPath)
+		err = &ErrCmdLine{Message: "virtual environment does not exist"}
+		err = fmt.Errorf("%w: %q", err, envPath)
 		return
 	}
 
@@ -157,7 +171,7 @@ func setupVirtualEnvironment(ctx *cli.Context) (err error) {
 func createFrameworks(cli *cli.Context) (frameworks framework.List, err error) {
 	list := cli.StringSlice("framework")
 	if len(list) == 0 {
-		err = fmt.Errorf("no frameworks specified on command line")
+		err = &ErrCmdLine{Message: "no frameworks specified on command line"}
 		return
 	}
 
@@ -170,8 +184,7 @@ func createFrameworks(cli *cli.Context) (frameworks framework.List, err error) {
 	frameworks = frameworkutil.CreateFrameworks(cli, list)
 
 	if len(frameworks) == 0 {
-		err = fmt.Errorf("could not create any frameworks - please check your installation")
-		return framework.List{}, err
+		return framework.List{}, ErrNoFrameworks
 	}
 
 	return

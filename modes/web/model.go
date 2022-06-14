@@ -1,12 +1,11 @@
 package web
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
+	"github.com/asmaloney/gactar/framework"
 )
 
 var currentModelID = 1
@@ -54,7 +53,7 @@ func (w *Web) loadModelHandler(rw http.ResponseWriter, req *http.Request) {
 func (w *Web) loadModel(sessionID int, amodFile string) (model *Model, err error) {
 	session := w.lookupSession(sessionID)
 	if session == nil {
-		err = fmt.Errorf("invalid session id '%d'", sessionID)
+		err = &ErrInvalidSessionID{ID: sessionID}
 		return
 	}
 
@@ -77,7 +76,7 @@ func (w *Web) loadModel(sessionID int, amodFile string) (model *Model, err error
 func generateModel(amodFile string) (model *actr.Model, err error) {
 	model, log, err := amod.GenerateModel(amodFile)
 	if err != nil {
-		err = errors.New(log.String())
+		err = &framework.ErrModelGenerationFailed{Log: log}
 		return
 	}
 

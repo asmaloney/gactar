@@ -94,7 +94,7 @@ func (VanillaACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
 
 func (v *VanillaACTR) SetModel(model *actr.Model) (err error) {
 	if model.Name == "" {
-		err = fmt.Errorf("model is missing name")
+		err = framework.ErrModelMissingName
 		return
 	}
 
@@ -126,7 +126,7 @@ func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (result *fram
 	}
 
 	if Info.ExecutableName == "" {
-		err = fmt.Errorf("Clozure Common Lisp executable not set - can't run vanilla")
+		err = &framework.ErrExecutableNotSet{Name: "Clozure Common Lisp"}
 		return
 	}
 
@@ -135,7 +135,7 @@ func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (result *fram
 	output, err := cmd.CombinedOutput()
 	output = removePreamble(output)
 	if err != nil {
-		err = fmt.Errorf("%s", string(output))
+		err = &framework.ErrExecuteCommand{Output: output}
 		return
 	}
 

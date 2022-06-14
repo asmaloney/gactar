@@ -7,6 +7,22 @@ import (
 	"os/exec"
 )
 
+type ErrFileDoesNotExist struct {
+	FileName string
+}
+
+func (e *ErrFileDoesNotExist) Error() string {
+	return fmt.Sprintf("file does not exist: %q", e.FileName)
+}
+
+type ErrExeNotFound struct {
+	ExeName string
+}
+
+func (e *ErrExeNotFound) Error() string {
+	return fmt.Sprintf("cannot find %q in your path", e.ExeName)
+}
+
 func DirExists(path string) bool {
 	stat, err := os.Stat(path)
 	return !os.IsNotExist(err) && stat.IsDir()
@@ -25,7 +41,7 @@ func CreateDir(path string) (err error) {
 func CheckForExecutable(exe string) (path string, err error) {
 	path, err = exec.LookPath(exe)
 	if err != nil {
-		err = fmt.Errorf("cannot find '%s' in your path", exe)
+		err = &ErrExeNotFound{ExeName: exe}
 		return "", err
 	}
 

@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/asmaloney/gactar/framework"
@@ -56,14 +55,14 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 
 	session := w.lookupSession(data.SessionID)
 	if session == nil {
-		err = fmt.Errorf("invalid session id '%d'", data.SessionID)
+		err = &ErrInvalidSessionID{ID: data.SessionID}
 		encodeErrorResponse(rw, err)
 		return
 	}
 
 	model := session.lookupModel(data.ModelID)
 	if model == nil {
-		err = fmt.Errorf("invalid model id '%d'", data.ModelID)
+		err = &ErrInvalidModelID{ID: data.ModelID}
 		encodeErrorResponse(rw, err)
 		return
 	}
@@ -172,7 +171,7 @@ func (w *Web) endSession(id int) error {
 		}
 	}
 
-	return fmt.Errorf("invalid session id '%d'", id)
+	return &ErrInvalidSessionID{ID: id}
 }
 
 func (w Web) hasSessions() bool {

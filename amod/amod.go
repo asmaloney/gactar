@@ -14,18 +14,20 @@ import (
 	"github.com/asmaloney/gactar/util/issues"
 )
 
-var debugging bool = false
+var (
+	debugging bool = false
 
-type ParseError struct{}
+	ErrParse               = errors.New("failed to parse amod file")
+	ErrCompile             = errors.New("failed to compile amod file")
+	ErrStatementNotHandled = errors.New("statement type not handled")
+)
 
-func (e ParseError) Error() string {
-	return "Failed to parse amod file"
+type ErrParseChunk struct {
+	Message string
 }
 
-type CompileError struct{}
-
-func (e CompileError) Error() string {
-	return "Failed to compile amod file"
+func (e *ErrParseChunk) Error() string {
+	return fmt.Sprintf("cannot parse chunk: %s", e.Message)
 }
 
 // SetDebug turns debugging on and off. This will output the tokens as they are generated.
@@ -60,7 +62,7 @@ func GenerateModel(buffer string) (model *actr.Model, iLog *issues.Log, err erro
 			log.Error(&issues.Location{}, err.Error())
 		}
 
-		err = ParseError{}
+		err = ErrParse
 		return
 	}
 
@@ -87,7 +89,7 @@ func GenerateModelFromFile(fileName string) (model *actr.Model, iLog *issues.Log
 			log.Error(&issues.Location{}, err.Error())
 		}
 
-		err = ParseError{}
+		err = ErrParse
 		return
 	}
 
@@ -119,7 +121,7 @@ func ParseChunk(model *actr.Model, chunk string) (*actr.Pattern, error) {
 	if err != nil {
 		pErr, ok := err.(participle.Error)
 		if ok {
-			err = errors.New(pErr.Message())
+			err = &ErrParseChunk{Message: pErr.Message()}
 		}
 
 		return nil, err
@@ -127,7 +129,7 @@ func ParseChunk(model *actr.Model, chunk string) (*actr.Pattern, error) {
 
 	err = validatePattern(model, log, &p)
 	if err != nil {
-		err = errors.New(log.FirstEntry())
+		err = &ErrParseChunk{Message: log.FirstEntry()}
 		return nil, err
 	}
 
@@ -150,7 +152,7 @@ func generateModel(amod *amodFile, log *issueLog) (model *actr.Model, err error)
 	addProductions(model, log, amod.Productions)
 
 	if log.HasError() {
-		return nil, CompileError{}
+		return nil, ErrCompile
 	}
 
 	return
@@ -434,7 +436,7 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 
 		for _, statement := range *production.Do.Statements {
 			err := addStatement(model, log, statement, &prod)
-			if err != nil && !errors.As(err, &CompileError{}) {
+			if err != nil && !errors.Is(err, ErrCompile) {
 				log.Error(nil, err.Error())
 			}
 		}
@@ -449,7 +451,7 @@ func createChunkPattern(model *actr.Model, log *issueLog, cp *pattern) (*actr.Pa
 	chunk := model.LookupChunk(cp.ChunkName)
 	if chunk == nil {
 		log.errorTR(cp.Tokens, 1, 2, "could not find chunk named '%s'", cp.ChunkName)
-		return nil, CompileError{}
+		return nil, ErrCompile
 	}
 
 	pattern := actr.Pattern{
@@ -504,8 +506,7 @@ func addStatement(model *actr.Model, log *issueLog, statement *statement, produc
 		s, err = addStopStatement(model, log, statement.Stop, production)
 
 	default:
-		err = fmt.Errorf("statement type not handled: %T", statement)
-		return err
+		return ErrStatementNotHandled
 	}
 
 	if err != nil {

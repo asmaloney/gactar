@@ -1,7 +1,6 @@
 package framework
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -33,8 +32,7 @@ func GenerateCodeFromFile(fw Framework, inputFile string, initialBuffers Initial
 	log = fw.ValidateModel(model)
 	if log.HasIssues() {
 		if log.HasError() {
-			fmt.Print(log)
-			err = errors.New("model validation failed")
+			err = &ErrModelValidationFailed{Log: log}
 			return
 		}
 	}
@@ -80,13 +78,16 @@ func ParseInitialBuffers(model *actr.Model, initialBuffers InitialBuffers) (pars
 	for bufferName, bufferInit := range initialBuffers {
 		buffer := model.LookupBuffer(bufferName)
 		if buffer == nil {
-			err = fmt.Errorf("ERROR cannot initialize buffer '%s' - not found in model '%s'", bufferName, model.Name)
+			err = &ErrBufferNotFound{
+				BufferName: bufferName,
+				ModelName:  model.Name,
+			}
 			return
 		}
 
 		pattern, parseErr := amod.ParseChunk(model, bufferInit)
 		if parseErr != nil {
-			err = fmt.Errorf("ERROR in initial buffer  '%s' - %s", bufferName, parseErr)
+			err = fmt.Errorf("in initial buffer '%s' - %w", bufferName, parseErr)
 			return
 		}
 
