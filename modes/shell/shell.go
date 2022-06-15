@@ -30,7 +30,7 @@ type ErrInvalidFramework struct {
 	Name string
 }
 
-func (e *ErrInvalidFramework) Error() string {
+func (e ErrInvalidFramework) Error() string {
 	return fmt.Sprintf("%q is not a valid framework", e.Name)
 }
 
@@ -38,7 +38,7 @@ type ErrUnrecognizedCommand struct {
 	Command string
 }
 
-func (e *ErrUnrecognizedCommand) Error() string {
+func (e ErrUnrecognizedCommand) Error() string {
 	return fmt.Sprintf("unrecognized command: %q", e.Command)
 }
 
