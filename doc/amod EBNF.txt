@@ -56,7 +56,8 @@ ComparisonOperator
          ::= equality
            | inequality
 
-Arg      ::= patternvar
+Arg      ::= 'nil'
+           | patternvar
            | ident
            | string
            | number
@@ -80,9 +81,4 @@ RecallStatement
          ::= 'recall' Pattern
 
 SetStatement
-         ::= 'set' ident ( '.' ident )? 'to' ( SetValue | Pattern )
-
-SetValue ::= 'nil'
-           | patternvar
-           | string
-           | number
+         ::= 'set' ident ( '.' ident )? 'to' ( Arg | Pattern )
