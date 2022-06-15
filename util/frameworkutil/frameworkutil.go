@@ -39,12 +39,12 @@ func CreateFrameworks(ctx *cli.Context, names []string) (list framework.List) {
 
 		default:
 			fmt.Printf("unknown framework: %s\n", f)
-			return
+			continue
 		}
 
 		if err != nil {
 			fmt.Println(err.Error())
-			return
+			continue
 		}
 
 		list[f] = fw
