@@ -14,6 +14,7 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
 
+	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/numbers"
@@ -38,7 +39,7 @@ func init() {
 		cclExecutable = "lx86cl64"
 
 	case "windows":
-		cclExecutable = "wx86cl64"
+		cclExecutable = "wx86cl64.exe"
 
 	default:
 		fmt.Println("ERROR: I don't know how to set the Clozure Common Lisp compiler for", osArch)
@@ -137,7 +138,7 @@ func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (result *fram
 	output, err := cmd.CombinedOutput()
 	output = removePreamble(output)
 	if err != nil {
-		err = &framework.ErrExecuteCommand{Output: output}
+		err = &executil.ErrExecuteCommand{Output: output}
 		return
 	}
 
