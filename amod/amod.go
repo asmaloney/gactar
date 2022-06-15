@@ -26,7 +26,7 @@ type ErrParseChunk struct {
 	Message string
 }
 
-func (e *ErrParseChunk) Error() string {
+func (e ErrParseChunk) Error() string {
 	return fmt.Sprintf("cannot parse chunk: %s", e.Message)
 }
 

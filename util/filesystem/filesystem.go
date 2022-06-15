@@ -11,7 +11,7 @@ type ErrFileDoesNotExist struct {
 	FileName string
 }
 
-func (e *ErrFileDoesNotExist) Error() string {
+func (e ErrFileDoesNotExist) Error() string {
 	return fmt.Sprintf("file does not exist: %q", e.FileName)
 }
 
@@ -19,7 +19,7 @@ type ErrExeNotFound struct {
 	ExeName string
 }
 
-func (e *ErrExeNotFound) Error() string {
+func (e ErrExeNotFound) Error() string {
 	return fmt.Sprintf("cannot find %q in your path", e.ExeName)
 }
 
