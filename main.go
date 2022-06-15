@@ -82,11 +82,6 @@ func main() {
 			&cli.IntFlag{Name: "port", Aliases: []string{"p"}, Category: "Mode: Web", Value: defaultPort, Usage: "port to run the web server on"},
 		},
 		Action: func(c *cli.Context) error {
-			err := setupVirtualEnvironment(c)
-			if err != nil {
-				return cli.Exit(err.Error(), 1)
-			}
-
 			if c.Bool("debug") {
 				amod.SetDebug(true)
 			}
@@ -97,7 +92,12 @@ func main() {
 			}
 
 			if c.Bool("web") && c.Bool("interactive") {
-				err = &ErrCmdLine{Message: "cannot run 'web' and 'interactive' at the same time"}
+				err := &ErrCmdLine{Message: "cannot run 'web' and 'interactive' at the same time"}
+				return cli.Exit(err.Error(), 1)
+			}
+
+			err := setupVirtualEnvironment(c)
+			if err != nil {
 				return cli.Exit(err.Error(), 1)
 			}
 
