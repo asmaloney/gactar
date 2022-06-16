@@ -17,10 +17,11 @@ func (e ErrFileDoesNotExist) Error() string {
 
 type ErrExeNotFound struct {
 	ExeName string
+	Path    string
 }
 
 func (e ErrExeNotFound) Error() string {
-	return fmt.Sprintf("cannot find %q in your path", e.ExeName)
+	return fmt.Sprintf("cannot find %q in your path:\n%q", e.ExeName, e.Path)
 }
 
 func DirExists(path string) bool {
@@ -41,7 +42,7 @@ func CreateDir(path string) (err error) {
 func CheckForExecutable(exe string) (path string, err error) {
 	path, err = exec.LookPath(exe)
 	if err != nil {
-		err = &ErrExeNotFound{ExeName: exe}
+		err = &ErrExeNotFound{ExeName: exe, Path: os.Getenv("PATH")}
 		return "", err
 	}
 

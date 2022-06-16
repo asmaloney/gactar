@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"strings"
@@ -72,7 +73,8 @@ func New(ctx *cli.Context) (v *VanillaACTR, err error) {
 	}
 
 	// Add path to ccl so we can find it everywhere
-	os.Setenv("PATH", fmt.Sprintf("%[1]s/bin:%[1]s/ccl:%[2]s", v.envPath, os.Getenv("PATH")))
+	cclPath := filepath.Join(v.envPath, "ccl")
+	os.Setenv("PATH", fmt.Sprintf("%s%c%s", cclPath, os.PathListSeparator, os.Getenv("PATH")))
 
 	err = framework.Setup(&Info)
 	if err != nil {
