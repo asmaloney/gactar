@@ -21,6 +21,7 @@
 ;; amod line 29
 (chunk-type property object attribute value)
 
+;; initialize our declarative memory
 (add-dm
  ;; amod line 36
  (fact_0

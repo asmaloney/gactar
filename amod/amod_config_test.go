@@ -144,6 +144,23 @@ func Example_modules() {
 	// Output:
 }
 
+func Example_modulesMultipleBuffers() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	modules { 
+		extra_buffers {
+			buffer1 {}
+			buffer2 {}
+		} 
+	}
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+}
+
 func Example_modulesUnrecognized() {
 	generateToStdout(`
 	~~ model ~~

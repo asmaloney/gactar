@@ -20,7 +20,7 @@ gactar {
     log_level: 'detail'
 
     // Show detailed information about activations (if available)
-    trace_activations: true
+    trace_activations: false
 }
 
 // Declare chunks and their layouts

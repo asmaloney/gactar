@@ -139,3 +139,43 @@ func Example_initializerMultipleInits() {
 	// Output:
 	// ERROR: module "goal" should only have one pattern in initialization of buffer "goal" (line 7, col 8)
 }
+
+func Example_initializerMultipleBuffers() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	modules { 
+		extra_buffers {
+			buffer1 {}
+			buffer2 {}
+		} 
+	}
+	chunks { [author: person object year] }
+	~~ init ~~
+	extra_buffers {
+		buffer1 [author: Fred Book 1972]
+		buffer2 [author: Jane Book 1984]
+	}
+	~~ productions ~~`)
+
+	// Output:
+}
+
+func Example_initializerNoBuffers() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	modules { extra_buffers{} }
+	chunks { [author: person object year] }
+	~~ init ~~
+	extra_buffers {
+		[author: Jane Book 1984]
+		[author: Xe Book 1999]
+	}
+	~~ productions ~~`)
+
+	// Output:
+	// ERROR: module 'extra_buffers' does not have any buffers (line 8, col 1)
+}
