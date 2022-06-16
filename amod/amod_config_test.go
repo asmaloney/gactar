@@ -26,6 +26,56 @@ func Example_gactarUnrecognizedLogLevel() {
 	// ERROR: log_level ('bar') must be one of "min, info, detail" (line 5, col 21)
 }
 
+func Example_gactarUnrecognizedNestedValue() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	gactar { foo {} }
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+	// ERROR: unrecognized field in gactar section: 'foo' (line 5, col 10)
+}
+
+func Example_gactarFieldNotANestedValue() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	gactar { log_level {} }
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+	// ERROR: log_level ('<nested field>') must be one of "min, info, detail" (line 5, col 21)
+}
+
+func Example_gactarCommaSeparator() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	gactar { log_level: 'detail', trace_activations: true }
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+}
+
+func Example_gactarSpaceSeparator() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	gactar { log_level: 'detail' trace_activations: true }
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+}
+
 func Example_gactarTraceActivations() {
 	generateToStdout(`
 	~~ model ~~

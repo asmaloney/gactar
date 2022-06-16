@@ -7,7 +7,7 @@ import (
 
 // Goal is a module which provides the ACT-R "goal" buffer.
 type Goal struct {
-	buffer.BufferInterface
+	Module
 
 	// "spreading_activation": see "Spreading Activation" in "ACT-R 7.26 Reference Manual" pg. 290
 	// 	ccm (DMSpreading.weight): 1.0
@@ -18,12 +18,13 @@ type Goal struct {
 
 func NewGoal() *Goal {
 	return &Goal{
-		BufferInterface: &buffer.Buffer{Name: "goal", MultipleInit: false},
+		Module: Module{
+			Name: "goal",
+			Buffers: []buffer.Buffer{
+				{Name: "goal", MultipleInit: false},
+			},
+		},
 	}
-}
-
-func (g Goal) ModuleName() string {
-	return "goal"
 }
 
 func (g *Goal) SetParam(param *params.Param) (err params.ParamError) {

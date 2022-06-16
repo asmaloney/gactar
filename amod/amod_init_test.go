@@ -46,6 +46,27 @@ func Example_initializer3() {
 	// Output:
 }
 
+func Example_initializer4() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks {
+		[remember: person]
+		[author: person object]
+	}
+	~~ init ~~
+	memory {
+		retrieval {
+			[remember: me]
+			[author: me software]
+		}
+	}
+	~~ productions ~~`)
+
+	// Output:
+}
+
 func Example_initializerInvalidSlots() {
 	// Check invalid number of slots in init
 	generateToStdout(`
@@ -116,5 +137,5 @@ func Example_initializerMultipleInits() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: module 'goal' should only have one pattern in initialization (line 7, col 1)
+	// ERROR: module "goal" should only have one pattern in initialization of buffer "goal" (line 7, col 8)
 }

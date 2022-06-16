@@ -355,10 +355,11 @@ func (c CCMPyACTR) writeInitializers(goal *actr.Pattern) {
 
 		c.Writeln("        # amod line %d", init.AMODLineNumber)
 
-		if module.AllowsMultipleInit() {
+		buffer := init.Buffer
+		if buffer.AllowsMultipleInit() {
 			c.Write("        %s.add(", module.ModuleName())
 		} else {
-			c.Write("        %s.set(", module.ModuleName())
+			c.Write("        %s.set(", buffer.BufferName())
 		}
 
 		c.outputPattern(init.Pattern)

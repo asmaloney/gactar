@@ -7,7 +7,7 @@ import (
 
 // Imaginal is a module which provides the ACT-R "imaginal" buffer.
 type Imaginal struct {
-	buffer.BufferInterface
+	Module
 
 	// "delay": how long it takes a request to the buffer to complete (seconds)
 	// 	ccm (ImaginalModule.delay): 0.2
@@ -18,12 +18,13 @@ type Imaginal struct {
 
 func NewImaginal() *Imaginal {
 	return &Imaginal{
-		BufferInterface: buffer.Buffer{Name: "imaginal", MultipleInit: false},
+		Module: Module{
+			Name: "imaginal",
+			Buffers: []buffer.Buffer{
+				{Name: "imaginal", MultipleInit: false},
+			},
+		},
 	}
-}
-
-func (i Imaginal) ModuleName() string {
-	return "imaginal"
 }
 
 func (i *Imaginal) SetParam(param *params.Param) (err params.ParamError) {

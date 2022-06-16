@@ -8,6 +8,7 @@ import (
 	"github.com/alecthomas/participle/v2"
 
 	"github.com/asmaloney/gactar/actr"
+	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/modules"
 	"github.com/asmaloney/gactar/actr/params"
 
@@ -196,19 +197,13 @@ func addGACTAR(model *actr.Model, log *issueLog, list []*field) {
 	for _, field := range list {
 		value := field.Value
 
-		options, err := model.SetParam(&params.Param{
-			Key: field.Key,
-			Value: params.Value{
-				ID:     value.ID,
-				Str:    value.Str,
-				Number: value.Number,
-			},
-		})
+		param := fieldToParam(field)
+		options, err := model.SetParam(param)
 
 		if err != params.NoError {
 			switch err {
 			case params.InvalidOption:
-				log.errorT(value.Tokens, "%s ('%s') must be one of %q", field.Key, value.String(), strings.Join(options, ", "))
+				log.errorTR(value.Tokens, 1, 1, "%s ('%s') must be one of %q", field.Key, value.String(), strings.Join(options, ", "))
 				continue
 
 			case params.UnrecognizedParam:
@@ -229,7 +224,7 @@ func addModules(model *actr.Model, log *issueLog, modules []*module) {
 	}
 
 	for _, module := range modules {
-		switch module.Name {
+		switch module.ModuleName {
 		case "goal":
 			addGoal(model, log, module.InitFields)
 		case "imaginal":
@@ -239,7 +234,7 @@ func addModules(model *actr.Model, log *issueLog, modules []*module) {
 		case "procedural":
 			addProcedural(model, log, module.InitFields)
 		default:
-			log.errorT(module.Tokens, "unrecognized module in config: '%s'", module.Name)
+			log.errorT(module.Tokens, "unrecognized module in config: '%s'", module.ModuleName)
 		}
 	}
 }
@@ -254,23 +249,17 @@ func setModuleParams(module modules.ModuleInterface, log *issueLog, fields []*fi
 	for _, field := range fields {
 		value := field.Value
 
-		err := module.SetParam(&params.Param{
-			Key: field.Key,
-			Value: params.Value{
-				ID:     value.ID,
-				Str:    value.Str,
-				Number: value.Number,
-			},
-		})
+		param := fieldToParam(field)
+		err := module.SetParam(param)
 
 		if err != params.NoError {
 			switch err {
 			case params.NumberRequired:
-				log.errorT(value.Tokens, "%s %s '%s' must be a number", moduleName, field.Key, value.String())
+				log.errorTR(value.Tokens, 1, 1, "%s %s '%s' must be a number", moduleName, field.Key, value.String())
 				continue
 
 			case params.NumberMustBePositive:
-				log.errorT(value.Tokens, "%s %s '%s' must be a positive number", moduleName, field.Key, value.String())
+				log.errorTR(value.Tokens, 1, 1, "%s %s '%s' must be a positive number", moduleName, field.Key, value.String())
 				continue
 
 			case params.UnrecognizedParam:
@@ -325,6 +314,22 @@ func addChunks(model *actr.Model, log *issueLog, chunks []*chunkDecl) {
 	}
 }
 
+func addInitializers(model *actr.Model, log *issueLog, module modules.ModuleInterface, buffer buffer.BufferInterface, pattern *pattern) {
+	actrPattern, err := createChunkPattern(model, log, pattern)
+	if err != nil {
+		return
+	}
+
+	init := actr.Initializer{
+		Module:         module,
+		Buffer:         buffer,
+		Pattern:        actrPattern,
+		AMODLineNumber: pattern.Tokens[0].Pos.Line,
+	}
+
+	model.Initializers = append(model.Initializers, &init)
+}
+
 func addInit(model *actr.Model, log *issueLog, init *initSection) {
 	if init == nil {
 		return
@@ -336,22 +341,21 @@ func addInit(model *actr.Model, log *issueLog, init *initSection) {
 			continue
 		}
 
-		name := initialization.Name
+		name := initialization.ModuleName
 		moduleInterface := model.LookupModule(name)
 
-		for _, init := range initialization.InitPatterns {
-			pattern, err := createChunkPattern(model, log, init)
-			if err != nil {
-				continue
+		if len(initialization.InitPatterns) > 0 {
+			for _, initPattern := range initialization.InitPatterns {
+				addInitializers(model, log, moduleInterface, moduleInterface.OnlyBuffer(), initPattern)
 			}
+		} else if len(initialization.BufferInitPatterns) > 0 {
+			for _, bufferInit := range initialization.BufferInitPatterns {
+				buff := model.LookupBuffer(bufferInit.BufferName)
 
-			init := actr.Initializer{
-				Module:         moduleInterface,
-				Pattern:        pattern,
-				AMODLineNumber: init.Tokens[0].Pos.Line,
+				for _, initPattern := range bufferInit.InitPatterns {
+					addInitializers(model, log, moduleInterface, buff, initPattern)
+				}
 			}
-
-			model.Initializers = append(model.Initializers, &init)
 		}
 	}
 }
@@ -444,6 +448,32 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 		validateVariableUsage(log, production.Match, production.Do)
 
 		model.Productions = append(model.Productions, &prod)
+	}
+}
+
+func fieldToParam(f *field) *params.Param {
+	value := f.Value
+
+	if f.Value.OpenBrace != nil {
+		var param *params.Param
+
+		if value.Field != nil {
+			param = fieldToParam(value.Field)
+		}
+
+		return &params.Param{
+			Key:   f.Key,
+			Value: params.Value{Field: param},
+		}
+	}
+
+	return &params.Param{
+		Key: f.Key,
+		Value: params.Value{
+			ID:     value.ID,
+			Str:    value.Str,
+			Number: value.Number,
+		},
 	}
 }
 

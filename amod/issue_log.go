@@ -60,7 +60,11 @@ func tokenRangeToLocation(t []lexer.Token, start, end int) *issues.Location {
 		return nil
 	}
 
-	if start < 0 || end < 1 || start == end || end < start {
+	if start == end {
+		return tokensToLocation([]lexer.Token{t[start]})
+	}
+
+	if start < 0 || end < 1 || end < start {
 		fmt.Printf("Internal error (tokenRangeToLocation): start (%d) and/or end (%d) incorrect. Using full range.\n", start, end)
 		return tokensToLocation(t)
 	}
@@ -81,6 +85,10 @@ func tokenRangeToLocation(t []lexer.Token, start, end int) *issues.Location {
 // trimCommentsFromRange will remove any comment tokens from the beginning and end of the range.
 // This is necessary because participle will include them with the Tokens in a struct.
 func trimCommentsFromRange(t []lexer.Token) (tokens []lexer.Token) {
+	if len(t) == 1 {
+		return t
+	}
+
 	begin := 0
 	for _, token := range t {
 		if token.Type == lexer.TokenType(lexemeComment) {
