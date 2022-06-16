@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -165,7 +166,8 @@ func setupVirtualEnvironment(ctx *cli.Context) (err error) {
 
 	fmt.Printf("Using virtual environment: %q\n", envPath)
 
-	os.Setenv("PATH", fmt.Sprintf("%s/bin:%s", envPath, os.Getenv("PATH")))
+	binPath := filepath.Join(envPath, "bin")
+	os.Setenv("PATH", fmt.Sprintf("%s%c%s", binPath, os.PathListSeparator, os.Getenv("PATH")))
 	os.Setenv("VIRTUAL_ENV", envPath)
 
 	return
