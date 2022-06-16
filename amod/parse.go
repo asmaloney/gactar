@@ -85,7 +85,7 @@ func (f fieldValue) String() string {
 
 type field struct {
 	Key   string     `parser:"@Ident ':'"`
-	Value fieldValue `parser:"@@ (',')?"`
+	Value fieldValue `parser:"@@"`
 
 	Tokens []lexer.Token
 }
@@ -101,13 +101,13 @@ type chunkDecl struct {
 
 type module struct {
 	Name       string   `parser:"@Ident"`
-	InitFields []*field `parser:"'{' @@* '}'"`
+	InitFields []*field `parser:"'{' @@ (','? @@)* '}'"`
 
 	Tokens []lexer.Token
 }
 
 type configSection struct {
-	GACTAR     []*field     `parser:"('gactar' '{' @@* '}')?"`
+	GACTAR     []*field     `parser:"('gactar' '{' @@ (','? @@)* '}')?"`
 	Modules    []*module    `parser:"('modules' '{' @@* '}')?"`
 	ChunkDecls []*chunkDecl `parser:"('chunks' '{' @@* '}')?"`
 
