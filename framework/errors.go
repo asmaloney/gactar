@@ -28,14 +28,6 @@ func (e ErrExecutableNotSet) Error() string {
 	return fmt.Sprintf("executable not set for %q", e.Name)
 }
 
-type ErrExecuteCommand struct {
-	Output []byte
-}
-
-func (e ErrExecuteCommand) Error() string {
-	return fmt.Sprintf("execution failed:\n%s", string(e.Output))
-}
-
 type ErrModelGenerationFailed struct {
 	Log *issues.Log
 }

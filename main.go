@@ -12,6 +12,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/asmaloney/gactar/amod"
+	"github.com/asmaloney/gactar/commands/setup"
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/modes/defaultmode"
 	"github.com/asmaloney/gactar/modes/shell"
@@ -58,6 +59,49 @@ func main() {
 		},
 		Copyright:            "©2021 Andy Maloney",
 		EnableBashCompletion: true,
+		Commands: []*cli.Command{
+			{
+				Name:  "env",
+				Usage: "setup & maintain an environment",
+				Subcommands: []*cli.Command{
+					{
+						Name:  "setup",
+						Usage: "setup an environment",
+						Flags: []cli.Flag{
+							&cli.PathFlag{
+								Name:    "path",
+								Aliases: []string{"p"},
+								Value:   "./env",
+								Usage:   "directory for env files (it will be created if it does not exist)",
+							},
+						},
+						Action: func(c *cli.Context) error {
+							path, err := clicontext.ExpandPath(c, "path")
+							if err != nil {
+								fmt.Println(err.Error())
+								return err
+							}
+
+							err = setup.Setup(path)
+							if err != nil {
+								fmt.Println(err.Error())
+								return err
+							}
+
+							return nil
+						},
+					},
+					{
+						Name:  "doctor",
+						Usage: "check an environment for problems",
+						Action: func(c *cli.Context) error {
+							fmt.Println("TODO: check an environment for problems: ", c.Args().First())
+							return nil
+						},
+					},
+				},
+			},
+		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{Name: "env", Value: "./env", Usage: "directory where ACT-R, pyactr, and other necessary files are installed", EnvVars: []string{"VIRTUAL_ENV"}},
 

@@ -13,6 +13,7 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
 
+	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/numbers"
@@ -120,7 +121,7 @@ func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (result *framework
 	output, err := cmd.CombinedOutput()
 	output = removeWarning(output)
 	if err != nil {
-		err = &framework.ErrExecuteCommand{Output: output}
+		err = &executil.ErrExecuteCommand{Output: output}
 		return
 	}
 

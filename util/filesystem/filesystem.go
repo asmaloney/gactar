@@ -3,6 +3,9 @@ package filesystem
 import (
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 )
@@ -34,6 +37,24 @@ func CreateDir(path string) (err error) {
 	if err != nil && !os.IsExist(err) {
 		return
 	}
+
+	return
+}
+
+func DownloadFile(url *url.URL, filePath string) (err error) {
+	resp, err := http.Get(url.String())
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	out, err := os.Create(filePath)
+	if err != nil {
+		return
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, resp.Body)
 
 	return
 }
