@@ -60,7 +60,7 @@ type FinstParams struct {
 
 // DeclarativeMemory is a module which provides declarative memory.
 type DeclarativeMemory struct {
-	buffer.BufferInterface
+	Module
 
 	RetrievalTimeParams
 	FinstParams
@@ -82,12 +82,18 @@ type DeclarativeMemory struct {
 
 func NewDeclarativeMemory() *DeclarativeMemory {
 	return &DeclarativeMemory{
-		BufferInterface: buffer.Buffer{Name: "retrieval", MultipleInit: true},
+		Module: Module{
+			Name: "memory",
+			Buffers: []buffer.Buffer{
+				{Name: "retrieval", MultipleInit: true},
+			},
+		},
 	}
 }
 
-func (d DeclarativeMemory) ModuleName() string {
-	return "memory"
+// We only have one buffer, so this is a convenience function to get its name.
+func (d DeclarativeMemory) BufferName() string {
+	return d.Buffers[0].Name
 }
 
 func (d *DeclarativeMemory) SetParam(param *params.Param) (err params.ParamError) {

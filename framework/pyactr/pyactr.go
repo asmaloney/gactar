@@ -69,17 +69,18 @@ func (PyACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
 		numPrintStatements := 0
 		if production.DoStatements != nil {
 			for _, statement := range production.DoStatements {
-				if statement.Print != nil {
-					numPrintStatements++
-					if numPrintStatements > 1 {
-						location := issues.Location{
-							Line:        production.AMODLineNumber,
-							ColumnStart: 0,
-							ColumnEnd:   0,
-						}
-						log.Warning(&location, "pyactr currently only supports one print statement per production (in '%s')", production.Name)
-						continue
+				if statement.Print == nil {
+					continue
+				}
+
+				numPrintStatements++
+				if numPrintStatements > 1 {
+					location := issues.Location{
+						Line:        production.AMODLineNumber,
+						ColumnStart: 0,
+						ColumnEnd:   0,
 					}
+					log.Warning(&location, "pyactr currently only supports one print statement per production (in '%s')", production.Name)
 				}
 			}
 		}
@@ -244,6 +245,7 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 	}
 	p.Writeln("")
 
+	// modules
 	p.Writeln("%s = %s.decmem", memory.ModuleName(), p.className)
 
 	if memory.FinstSize != nil {
@@ -251,6 +253,7 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 	}
 
 	p.Writeln("goal = %s.set_goal('goal')", p.className)
+
 	p.Writeln("")
 
 	imaginal := p.model.ImaginalModule()

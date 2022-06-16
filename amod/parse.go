@@ -60,9 +60,14 @@ type arg struct {
 }
 
 type fieldValue struct {
-	ID     *string  `parser:"( @Ident"`
+	Colon  string   `parser:"(':'"`
+	ID     *string  `parser:"(  @Ident"`
 	Str    *string  `parser:"| @String"`
-	Number *float64 `parser:"| @Number)"`
+	Number *float64 `parser:"| @Number )"`
+
+	// We can't capture an empty field "{}", so capture the open brace to tell us it's a nested field
+	OpenBrace *string `parser:"| @('{')"`
+	Field     *field  `parser:"@@? '}' )"`
 
 	Tokens []lexer.Token
 }
@@ -78,13 +83,16 @@ func (f fieldValue) String() string {
 
 	case f.Number != nil:
 		return fmt.Sprintf("%f", *f.Number)
+
+	case f.OpenBrace != nil:
+		return "<nested field>"
 	}
 
 	return "<error>"
 }
 
 type field struct {
-	Key   string     `parser:"@Ident ':'"`
+	Key   string     `parser:"@Ident"`
 	Value fieldValue `parser:"@@"`
 
 	Tokens []lexer.Token
@@ -100,8 +108,8 @@ type chunkDecl struct {
 }
 
 type module struct {
-	Name       string   `parser:"@Ident"`
-	InitFields []*field `parser:"'{' @@ (','? @@)* '}'"`
+	ModuleName string   `parser:"@Ident"`
+	InitFields []*field `parser:"'{' (@@ (','? @@)*)? '}'"`
 
 	Tokens []lexer.Token
 }
@@ -114,9 +122,17 @@ type configSection struct {
 	Tokens []lexer.Token
 }
 
-type initialization struct {
-	Name         string     `parser:"@Ident"`
+type bufferInitializer struct {
+	BufferName   string     `parser:"@Ident"`
 	InitPatterns []*pattern `parser:"( '{' @@+ '}' | @@ )"`
+
+	Tokens []lexer.Token
+}
+
+type initialization struct {
+	ModuleName         string               `parser:"@Ident"`
+	InitPatterns       []*pattern           `parser:"( '{' @@+ '}' | @@"`
+	BufferInitPatterns []*bufferInitializer `parser:"| '{' @@+ '}' )"`
 
 	Tokens []lexer.Token
 }

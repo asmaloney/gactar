@@ -10,6 +10,7 @@ type Value struct {
 	ID     *string
 	Str    *string
 	Number *float64
+	Field  *Param
 }
 
 type Param struct {

@@ -32,25 +32,60 @@ func validateChunk(model *actr.Model, log *issueLog, chunk *chunkDecl) (err erro
 	return nil
 }
 
-func validateInitialization(model *actr.Model, log *issueLog, init *initialization) (err error) {
-	name := init.Name
-	module := model.LookupModule(name)
-
-	if module == nil {
-		log.errorTR(init.Tokens, 0, 1, "module '%s' not found in initialization", name)
+func validateBufferInitialization(model *actr.Model, log *issueLog, moduleName string, buffer buffer.BufferInterface, patterns []*pattern) (err error) {
+	if !buffer.AllowsMultipleInit() && len(patterns) > 1 {
+		log.errorTR(patterns[0].Tokens, 0, 1, "module %q should only have one pattern in initialization of buffer %q", moduleName, buffer.BufferName())
 		return ErrCompile
 	}
 
-	if !module.AllowsMultipleInit() && len(init.InitPatterns) > 1 {
-		log.errorTR(init.Tokens, 0, 1, "module '%s' should only have one pattern in initialization", name)
-		return ErrCompile
-	}
-
-	for _, init := range init.InitPatterns {
-		pattern_err := validatePattern(model, log, init)
+	for _, initPattern := range patterns {
+		pattern_err := validatePattern(model, log, initPattern)
 		if pattern_err != nil {
 			err = ErrCompile
 			continue
+		}
+	}
+
+	return
+}
+
+func validateInitialization(model *actr.Model, log *issueLog, init *initialization) (err error) {
+	moduleName := init.ModuleName
+	module := model.LookupModule(moduleName)
+
+	if module == nil {
+		log.errorTR(init.Tokens, 0, 1, "module '%s' not found in initialization", moduleName)
+		return ErrCompile
+	}
+
+	numBuffers := module.NumBuffers()
+	if numBuffers == 0 {
+		log.errorTR(init.Tokens, 0, 1, "module '%s' does not have any buffers", moduleName)
+		return ErrCompile
+	}
+
+	if len(init.InitPatterns) > 0 {
+		if numBuffers > 1 {
+			log.errorTR(init.Tokens, 0, 1, "module '%s' has more than one buffer - specify the buffer name", moduleName)
+			return ErrCompile
+		}
+
+		err = validateBufferInitialization(model, log, moduleName, module.OnlyBuffer(), init.InitPatterns)
+		if err != nil {
+			err = ErrCompile
+		}
+	} else if len(init.BufferInitPatterns) > 0 {
+		for _, bufferInit := range init.BufferInitPatterns {
+			buff := model.LookupBuffer(bufferInit.BufferName)
+			if buff == nil {
+				log.errorTR(init.Tokens, 0, 1, "could not find buffer %q in module '%s' ", bufferInit.BufferName, moduleName)
+				return ErrCompile
+			}
+
+			err = validateBufferInitialization(model, log, moduleName, buff, bufferInit.InitPatterns)
+			if err != nil {
+				err = ErrCompile
+			}
 		}
 	}
 
