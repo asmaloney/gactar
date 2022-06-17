@@ -37,6 +37,7 @@ CodeMirror.defineMode('amod', function () {
   }
 
   const builtInGlobals = {
+    extra_buffers: true,
     goal: true,
     imaginal: true,
     memory: true,
