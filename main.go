@@ -57,7 +57,7 @@ func main() {
 				Email: "asmaloney@gmail.com",
 			},
 		},
-		Copyright:            "©2021 Andy Maloney",
+		Copyright:            "©2022 Andy Maloney",
 		EnableBashCompletion: true,
 		Commands: []*cli.Command{
 			{
@@ -74,6 +74,7 @@ func main() {
 								Value:   "./env",
 								Usage:   "directory for env files (it will be created if it does not exist)",
 							},
+							&cli.BoolFlag{Name: "dev", Usage: "install any dev packages"},
 						},
 						Action: func(c *cli.Context) error {
 							path, err := clicontext.ExpandPath(c, "path")
@@ -82,7 +83,8 @@ func main() {
 								return err
 							}
 
-							err = setup.Setup(path)
+							dev := c.Bool("dev")
+							err = setup.Setup(path, dev)
 							if err != nil {
 								fmt.Println(err.Error())
 								return err
