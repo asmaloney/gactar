@@ -1,3 +1,5 @@
+// Package ccm_pyactr provides functions to output the internal actr data structures in Python suitable
+// for running using CCM's python_actr package, and to run those models using Python.
 package ccm_pyactr
 
 import (
@@ -172,6 +174,8 @@ func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code 
 	for _, buffer := range c.model.BufferNames() {
 		c.Writeln("    %s = Buffer()", buffer)
 	}
+
+	c.Writeln("")
 
 	additionalInit := []string{}
 

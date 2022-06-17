@@ -1,3 +1,5 @@
+// Package vanilla_actr provides functions to output the internal actr data structures in Lisp
+// suitable for running using the ACT-R code, and to run those models on the Clozure Common Lisp compiler.
 package vanilla_actr
 
 import (
@@ -188,7 +190,27 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 
 	v.writeHeader()
 
-	v.Write("(clear-all)\n\n")
+	v.Writeln("(clear-all)")
+
+	v.Writeln("")
+
+	// add any extra buffers
+	extraBuffers := v.model.LookupModule("extra_buffers")
+	if extraBuffers != nil {
+		v.Writeln(`(require-compiled "GOAL-STYLE-MODULE")`)
+		v.Writeln("")
+		v.Writeln(";; define a goal-style module for each extra buffer")
+		for _, buff := range extraBuffers.BufferNames() {
+			v.Writeln(
+				`(define-module %[1]s (%[1]s) nil
+	:version "1.0"
+	:documentation "Extra buffer: %[1]s"
+	:query goal-style-query
+	:request goal-style-request
+	:buffer-mod goal-style-mod-request)
+	`, buff)
+		}
+	}
 
 	v.Writeln("(define-model %s\n", v.modelName)
 
@@ -271,35 +293,7 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 
 	v.writeInitializers(goal)
 
-	if goal != nil {
-		v.Writeln(" (goal")
-		v.outputPattern(goal, 1)
-		v.Writeln(" )")
-	}
-
-	v.Writeln(")\n")
-
 	v.writeProductions()
-
-	if imaginal != nil {
-		v.Writeln(";; initialize our imaginal buffer")
-		v.Writeln("(define-chunks (imaginal-init")
-
-		// find our imaginal initializer and output it
-		for _, init := range v.model.Initializers {
-			if init.Module != nil {
-				if init.Module.ModuleName() != "imaginal" {
-					continue
-				}
-
-				v.outputPattern(init.Pattern, 1)
-			}
-		}
-		v.Writeln("))")
-
-		v.Writeln(`(set-buffer-chunk 'imaginal 'imaginal-init )`)
-		v.Writeln("")
-	}
 
 	// Useful for debugging - output the contents of the imaginal buffer and the dm
 	// v.Writeln("(buffer-chunk imaginal)")
@@ -342,32 +336,67 @@ func (v VanillaACTR) writeAuthors() {
 	v.Writeln("")
 }
 
+func (v VanillaACTR) writeBufferInitializer(bufferName string, lineNumber int, pattern *actr.Pattern) {
+	v.Writeln(";; initialize our %q buffer", bufferName)
+	if lineNumber != 0 {
+		v.Writeln(";; amod line %d", lineNumber)
+	}
+	v.Writeln("(set-buffer-chunk '%s '(", bufferName)
+	v.outputPattern(pattern, 1)
+	v.Writeln("))")
+	v.Writeln("")
+}
+
 func (v VanillaACTR) writeInitializers(goal *actr.Pattern) {
+	// First write out or declarative memory
+	v.Writeln(";; initialize our declarative memory")
 	v.Writeln("(add-dm")
 	for i, init := range v.model.Initializers {
-		module := init.Module
+		moduleName := init.Module.ModuleName()
 
-		// allow the user-set goal to override the initializer
-		if module.ModuleName() == "goal" && (goal != nil) {
-			continue
-		}
-
-		initializer := module.ModuleName()
-
-		if initializer == "imaginal" {
-			continue
-		}
-
-		if initializer == "memory" {
+		if moduleName == "memory" {
 			v.Writeln(" ;; amod line %d", init.AMODLineNumber)
 			v.Writeln(" (fact_%d", i)
-		} else {
-			v.Writeln(" ;; amod line %d", init.AMODLineNumber)
-			v.Writeln(" (%s", initializer)
-		}
 
-		v.outputPattern(init.Pattern, 1)
-		v.Writeln(" )")
+			v.outputPattern(init.Pattern, 1)
+			v.Writeln(" )")
+		} else if moduleName == "goal" {
+			// allow the user-set goal to override the initializer
+			if goal != nil {
+				v.Writeln(" ;; goal set by user")
+				v.Writeln(" (goal")
+				v.outputPattern(goal, 1)
+				v.Writeln(" )")
+			} else {
+				v.Writeln(" ;; amod line %d", init.AMODLineNumber)
+				v.Writeln(" (goal")
+				v.outputPattern(init.Pattern, 1)
+				v.Writeln(" )")
+			}
+		}
+	}
+
+	v.Writeln(")\n")
+
+	// now everything else
+	for _, init := range v.model.Initializers {
+		module := init.Module
+		moduleName := module.ModuleName()
+
+		switch {
+		case moduleName == "memory":
+			continue
+
+		case moduleName == "goal":
+			continue
+
+		// for extra buffers, we use the buffer name
+		case moduleName == "extra_buffers":
+			v.writeBufferInitializer(init.Buffer.BufferName(), init.AMODLineNumber, init.Pattern)
+
+		default:
+			v.writeBufferInitializer(moduleName, init.AMODLineNumber, init.Pattern)
+		}
 	}
 }
 

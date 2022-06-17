@@ -96,6 +96,13 @@ func (model Model) HasPrintStatement() bool {
 	return false
 }
 
+// CreateExtraBuffers creates the "extra_buffers" module and adds it to the list.
+func (model *Model) CreateExtraBuffers() *modules.ExtraBuffers {
+	eb := modules.NewExtraBuffers()
+	model.Modules = append(model.Modules, eb)
+	return eb
+}
+
 // CreateImaginal creates the imaginal module and adds it to the list.
 func (model *Model) CreateImaginal() *modules.Imaginal {
 	imaginal := modules.NewImaginal()

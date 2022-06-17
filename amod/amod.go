@@ -225,6 +225,8 @@ func addModules(model *actr.Model, log *issueLog, modules []*module) {
 
 	for _, module := range modules {
 		switch module.ModuleName {
+		case "extra_buffers":
+			addExtraBuffers(model, log, module.InitFields)
 		case "goal":
 			addGoal(model, log, module.InitFields)
 		case "imaginal":
@@ -272,6 +274,12 @@ func setModuleParams(module modules.ModuleInterface, log *issueLog, fields []*fi
 			}
 		}
 	}
+}
+
+func addExtraBuffers(model *actr.Model, log *issueLog, fields []*field) {
+	eb := model.CreateExtraBuffers()
+
+	setModuleParams(eb, log, fields)
 }
 
 func addGoal(model *actr.Model, log *issueLog, fields []*field) {

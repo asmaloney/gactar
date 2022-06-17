@@ -1,3 +1,5 @@
+// Package pyactr provides functions to output the internal actr data structures in Python suitable
+// for running using the pyactr package, and to run those models using Python.
 package pyactr
 
 import (
@@ -254,18 +256,26 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 
 	p.Writeln("goal = %s.set_goal('goal')", p.className)
 
-	p.Writeln("")
-
 	imaginal := p.model.ImaginalModule()
 	if imaginal != nil {
 		p.Write(`imaginal = %s.set_goal(name="imaginal"`, p.className)
 		if imaginal.Delay != nil {
 			p.Write(", delay=%s", numbers.Float64Str(*imaginal.Delay))
 		}
-		p.Write(")")
-		p.Writeln("")
-		p.Writeln("")
+		p.Writeln(")")
 	}
+
+	// add any extra buffers
+	extraBuffers := p.model.LookupModule("extra_buffers")
+	if extraBuffers != nil {
+		p.Writeln("")
+		p.Writeln("# define a goal-style buffer for each extra buffer")
+		for _, buff := range extraBuffers.BufferNames() {
+			p.Writeln("%[1]s = %[2]s.set_goal('%[1]s')", buff, p.className)
+		}
+	}
+
+	p.Writeln("")
 
 	p.writeInitializers(goal)
 
@@ -357,9 +367,17 @@ func (p PyACTR) writeInitializers(goal *actr.Pattern) {
 		}
 
 		p.Writeln("# amod line %d", init.AMODLineNumber)
-		p.Writeln("%s.add(actr.chunkstring(string='''", module.ModuleName())
-		p.outputPattern(init.Pattern, 1)
-		p.Writeln("'''))")
+
+		if module.ModuleName() == "extra_buffers" {
+			p.Writeln("%s.add(actr.chunkstring(string='''", init.Buffer.BufferName())
+			p.outputPattern(init.Pattern, 1)
+			p.Writeln("'''))")
+
+		} else {
+			p.Writeln("%s.add(actr.chunkstring(string='''", module.ModuleName())
+			p.outputPattern(init.Pattern, 1)
+			p.Writeln("'''))")
+		}
 	}
 }
 

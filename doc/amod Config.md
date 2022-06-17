@@ -34,10 +34,17 @@ modules {
     goal {
         spreading_activation: 1.0
     }
+
+    extra_buffers {
+        foo {}
+        bar {}
+    }
 }
 ```
 
 ### Declarative Memory
+
+This is the standard ACT-R declarative memory module.
 
 Module Name: **memory**
 
@@ -55,6 +62,8 @@ Buffer Name: **retrieval**
 
 ### Goal
 
+This is the standard ACT-R goal module.
+
 Module Name: **goal**
 
 Buffer Name: **goal**
@@ -64,6 +73,8 @@ Buffer Name: **goal**
 | spreading_activation | decimal | see "Spreading Activation" in "ACT-R 7.26 Reference Manual" pg. 290 | ccm (DMSpreading.weight): 1.0<br>pyactr (buffer_spreading_activation): 1.0<br>vanilla (:ga): 1.0 |
 
 ### Imaginal
+
+This is the standard ACT-R imaginal module.
 
 Module Name: **imaginal**
 
@@ -75,6 +86,8 @@ Buffer Name: **imaginal**
 
 ### Procedural
 
+This is the standard ACT-R procedural module.
+
 Module Name: **procedural**
 
 Buffer Name: _none_
@@ -82,3 +95,15 @@ Buffer Name: _none_
 | Config              | Type    | Description                                       | Mapping                                                                           |
 | ------------------- | ------- | ------------------------------------------------- | --------------------------------------------------------------------------------- |
 | default_action_time | decimal | time that it takes to fire a production (seconds) | ccm (production_time): 0.05<br>pyactr (rule_firing): 0.05<br>vanilla (:dat): 0.05 |
+
+### Extra Buffers
+
+This is a gactar-specific module used to add new buffers to the model. According to ACT-R, buffers should only be added through modules, however some implementations allow declaring them wherever you want.
+
+Module Name: **extra_buffers**
+
+Buffer Names: _specified in configuration_
+
+| Config           | Description                                                                                            |
+| ---------------- | ------------------------------------------------------------------------------------------------------ |
+| _buffer name_ {} | the name of the new buffer (with "{}" to allow the possibility of buffer config options in the future) |

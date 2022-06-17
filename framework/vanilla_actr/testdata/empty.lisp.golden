@@ -14,6 +14,7 @@
 )
 
 
+;; initialize our declarative memory
 (add-dm
 )
 
