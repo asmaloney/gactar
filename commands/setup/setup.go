@@ -34,7 +34,7 @@ func (e ErrExecuteCommand) Error() string {
 	return fmt.Sprintf("execution failed:\n%s", string(e.Output))
 }
 
-func Setup(envPath string) (err error) {
+func Setup(envPath string, dev bool) (err error) {
 	fmt.Println("Setup an environment: ", envPath)
 
 	// Check if it already exists and error out
@@ -62,14 +62,14 @@ func Setup(envPath string) (err error) {
 		return err
 	}
 
-	err = setupPython(envPath)
+	err = setupPython(envPath, dev)
 	if err != nil {
 		fmt.Println(err.Error())
 		err = nil
 		// Don't return - we can still try to set up the Lisp compiler
 	}
 
-	err = setupLisp(envPath)
+	err = setupLisp(envPath, dev)
 	if err != nil {
 		fmt.Println(err.Error())
 		err = nil
@@ -78,7 +78,7 @@ func Setup(envPath string) (err error) {
 	return
 }
 
-func setupPython(envPath string) (err error) {
+func setupPython(envPath string, dev bool) (err error) {
 	fmt.Println()
 	fmt.Println("Setting up Python\n---")
 
@@ -116,7 +116,16 @@ func setupPython(envPath string) (err error) {
 
 	// Install our requirements
 	fmt.Println("> Installing pip packages...")
-	output, err = executil.ExecCommandWithCombinedOutput("pip", "install", "-r", "../install/requirements.txt")
+
+	requirementsFile := "requirements.txt"
+	if dev {
+		requirementsFile = "requirements-dev.txt"
+	}
+
+	output, err = executil.ExecCommandWithCombinedOutput(
+		"pip", "install", "-r",
+		fmt.Sprintf("../install/%s", requirementsFile),
+	)
 	if err != nil {
 		return
 	}
@@ -126,7 +135,7 @@ func setupPython(envPath string) (err error) {
 	return
 }
 
-func setupLisp(envPath string) (err error) {
+func setupLisp(envPath string, dev bool) (err error) {
 	fmt.Println()
 	fmt.Println("Setting up Lisp\n---")
 
