@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build and copy": "vite build && rm -rf ../build/* && mkdir ../build/assets && cd dist && cp -rpf favicon.ico images index.html ../../build && cp -rpf assets/*.br ../../build/assets",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src"
   },
   "dependencies": {
@@ -30,6 +31,7 @@
     "sass": "^1.52.3",
     "typescript": "~4.7.3",
     "vite": "^2.9.12",
+    "vite-plugin-compression": "^0.5.1",
     "vite-plugin-vue2": "^2.0.1",
     "vue-axios": "^3.4.1"
   },

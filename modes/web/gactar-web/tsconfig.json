@@ -22,6 +22,6 @@
   "vueCompilerOptions": {
     "experimentalCompatMode": 2
   },
-  "include": ["src/**/*", ".eslintrc.js"],
+  "include": ["src/**/*", ".eslintrc.js", "vite.config.ts"],
   "exclude": ["node_modules", "dist"]
 }
