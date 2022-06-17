@@ -10,6 +10,14 @@ import (
 	"os/exec"
 )
 
+type ErrDirDoesNotExist struct {
+	DirName string
+}
+
+func (e ErrDirDoesNotExist) Error() string {
+	return fmt.Sprintf("directory does not exist: %q", e.DirName)
+}
+
 type ErrFileDoesNotExist struct {
 	FileName string
 }

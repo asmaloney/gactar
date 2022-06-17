@@ -6,7 +6,6 @@ import (
 	_ "embed"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/urfave/cli/v2"
@@ -101,15 +100,13 @@ func (c *CCMPyACTR) Run(initialBuffers framework.InitialBuffers) (result *framew
 		GeneratedCode: c.GetContents(),
 	}
 
-	cmd := exec.Command("python3", runFile)
-
-	output, err := cmd.CombinedOutput()
+	output, err := executil.ExecCommand("python3", runFile)
 	if err != nil {
 		err = &executil.ErrExecuteCommand{Output: output}
 		return
 	}
 
-	result.Output = output
+	result.Output = []byte(output)
 
 	return
 }
