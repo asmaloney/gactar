@@ -96,8 +96,29 @@ func main() {
 					{
 						Name:  "doctor",
 						Usage: "check an environment for problems",
+						Flags: []cli.Flag{
+							&cli.PathFlag{
+								Name:    "path",
+								Aliases: []string{"p"},
+								Value:   "./env",
+								Usage:   "environment to check",
+							},
+						},
 						Action: func(c *cli.Context) error {
-							fmt.Println("TODO: check an environment for problems: ", c.Args().First())
+							path, err := clicontext.ExpandPath(c, "path")
+							if err != nil {
+								fmt.Println(err.Error())
+								return err
+							}
+
+							err = setup.Doctor(path)
+							if err != nil {
+								fmt.Println(err.Error())
+								return err
+							}
+
+							fmt.Println("Health check passed. Go forth and model.")
+
 							return nil
 						},
 					},

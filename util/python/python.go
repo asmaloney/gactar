@@ -26,7 +26,21 @@ func (e *ErrPythonPackageNotFound) Error() string {
 	return fmt.Sprintf("python package %q not found. Please ensure it is installed with pip or is in your PYTHONPATH env variable", e.PackageName)
 }
 
-func FindPython3() (path string, err error) {
+func FindPython3(outputDetails bool) (path string, err error) {
+	defer func() {
+		if outputDetails && err == nil {
+			fmt.Printf("> Found python: %q\n", path)
+
+			output, execErr := executil.ExecCommand(path, "--version")
+			if execErr != nil {
+				err = &executil.ErrExecuteCommand{Output: output}
+				return
+			}
+
+			fmt.Printf("> %s", string(output))
+		}
+	}()
+
 	// See if it exists as "python3"
 	path, err = exec.LookPath("python3")
 	if err == nil {
@@ -40,15 +54,14 @@ func FindPython3() (path string, err error) {
 	}
 
 	// We have "a python" now we need to check its version
-	cmd := exec.Command(path, "--version")
-	output, err := cmd.CombinedOutput()
+	output, err := executil.ExecCommand(path, "--version")
 	if err != nil {
 		err = &executil.ErrExecuteCommand{Output: output}
 		return
 	}
 
 	r := regexp.MustCompile(`(?i)^Python (\d+)\.\d+\.\d+`)
-	match := r.FindStringSubmatch(string(output))
+	match := r.FindStringSubmatch(output)
 	if match == nil || len(match) < 2 {
 		err = ErrPython3NotFound
 		return

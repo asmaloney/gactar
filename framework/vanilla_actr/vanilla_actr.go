@@ -5,7 +5,6 @@ package vanilla_actr
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -19,6 +18,7 @@ import (
 	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/issues"
+	"github.com/asmaloney/gactar/util/lisp"
 	"github.com/asmaloney/gactar/util/numbers"
 )
 
@@ -30,26 +30,14 @@ func init() {
 		return
 	}
 
-	cclExecutable := ""
-
-	// These executable names come from the CCL release tarballs.
-	switch runtime.GOOS {
-	case "darwin":
-		cclExecutable = "dx86cl64"
-
-	case "linux":
-		cclExecutable = "lx86cl64"
-
-	case "windows":
-		cclExecutable = "wx86cl64.exe"
-
-	default:
-		fmt.Println("ERROR: I don't know how to set the Clozure Common Lisp compiler for", osArch)
+	cclExecutableName, err := lisp.GetExecutableName()
+	if err != nil {
+		fmt.Println(err.Error())
 		return
 	}
 
 	// Store the name of the cclExecutable - it's different depending on platform & architecture.
-	Info.ExecutableName = cclExecutable
+	Info.ExecutableName = cclExecutableName
 }
 
 var Info framework.Info = framework.Info{
@@ -136,15 +124,14 @@ func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (result *fram
 	}
 
 	// run it!
-	cmd := exec.Command(Info.ExecutableName, "--batch", "--quiet", "--load", runFile) //nolint:gosec
-	output, err := cmd.CombinedOutput()
+	output, err := executil.ExecCommand(Info.ExecutableName, "--batch", "--quiet", "--load", runFile)
 	output = removePreamble(output)
 	if err != nil {
 		err = &executil.ErrExecuteCommand{Output: output}
 		return
 	}
 
-	result.Output = output
+	result.Output = []byte(output)
 
 	return
 }
@@ -634,14 +621,12 @@ func (v VanillaACTR) createRunFile(modelFile string) (outputFile string, err err
 }
 
 // removePreamble will remove the long preamble whenever ACT-R is loaded.
-func removePreamble(text []byte) []byte {
-	str := string(text)
-
+func removePreamble(text string) string {
 	r := regexp.MustCompile(`(?s).+######### This is a single threaded build #########(.+)`)
-	matches := r.FindAllStringSubmatch(str, -1)
+	matches := r.FindAllStringSubmatch(text, -1)
 	if len(matches) == 1 {
-		str = strings.TrimSpace(matches[0][1])
+		text = strings.TrimSpace(matches[0][1])
 	}
 
-	return []byte(str)
+	return text
 }

@@ -6,18 +6,18 @@ import (
 )
 
 type ErrExecuteCommand struct {
-	Output []byte
+	Output string
 }
 
 func (e ErrExecuteCommand) Error() string {
-	return fmt.Sprintf("execution failed:\n%s", string(e.Output))
+	return fmt.Sprintf("execution failed:\n%s", e.Output)
 }
 
-func ExecCommandWithCombinedOutput(name string, arg ...string) (output string, err error) {
+func ExecCommand(name string, arg ...string) (output string, err error) {
 	cmd := exec.Command(name, arg...)
 	outputBytes, err := cmd.CombinedOutput()
 	if err != nil {
-		err = &ErrExecuteCommand{Output: outputBytes}
+		err = &ErrExecuteCommand{Output: string(outputBytes)}
 		return
 	}
 

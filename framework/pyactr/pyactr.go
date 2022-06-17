@@ -6,7 +6,6 @@ import (
 	_ "embed"
 	"fmt"
 	"os"
-	"os/exec"
 	"regexp"
 	"strings"
 
@@ -119,16 +118,14 @@ func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (result *framework
 	}
 
 	// run it!
-	cmd := exec.Command("python3", runFile)
-
-	output, err := cmd.CombinedOutput()
+	output, err := executil.ExecCommand("python3", runFile)
 	output = removeWarning(output)
 	if err != nil {
 		err = &executil.ErrExecuteCommand{Output: output}
 		return
 	}
 
-	result.Output = output
+	result.Output = []byte(output)
 
 	return
 }
@@ -581,14 +578,12 @@ func (p PyACTR) outputStatement(production *actr.Production, s *actr.Statement) 
 }
 
 // removeWarning will remove the long warning whenever pyactr is run without tkinter.
-func removeWarning(text []byte) []byte {
-	str := string(text)
-
+func removeWarning(text string) string {
 	r := regexp.MustCompile(`(?s).+warnings.warn\("Simulation GUI is set to False."\)(.+)`)
-	matches := r.FindAllStringSubmatch(str, -1)
+	matches := r.FindAllStringSubmatch(text, -1)
 	if len(matches) == 1 {
-		str = strings.TrimSpace(matches[0][1])
+		text = strings.TrimSpace(matches[0][1])
 	}
 
-	return []byte(str)
+	return text
 }

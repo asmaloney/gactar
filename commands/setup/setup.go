@@ -35,7 +35,8 @@ func (e ErrExecuteCommand) Error() string {
 }
 
 func Setup(envPath string, dev bool) (err error) {
-	fmt.Println("Setup an environment: ", envPath)
+	fmt.Println("gactar Environment Setup\n---")
+	fmt.Printf("Setting up an environment: %q\n", envPath)
 
 	// Check if it already exists and error out
 	if filesystem.DirExists(envPath) {
@@ -82,23 +83,14 @@ func setupPython(envPath string, dev bool) (err error) {
 	fmt.Println()
 	fmt.Println("Setting up Python\n---")
 
-	// Run some python 3
-	path, err := python.FindPython3()
+	path, err := python.FindPython3(true)
 	if err != nil {
 		return
 	}
-
-	fmt.Printf("> Found python3: %q\n", path)
-	output, err := executil.ExecCommandWithCombinedOutput(path, "--version")
-	if err != nil {
-		return
-	}
-
-	fmt.Print(output)
 
 	// Set up virtual environment
 	fmt.Printf("> Setting up virtual environment: %q\n", path)
-	_, err = executil.ExecCommandWithCombinedOutput(path, "-m", "venv", envPath)
+	_, err = executil.ExecCommand(path, "-m", "venv", envPath)
 	if err != nil {
 		return
 	}
@@ -107,7 +99,7 @@ func setupPython(envPath string, dev bool) (err error) {
 
 	// Upgrade pip
 	fmt.Println("> Upgrading pip...")
-	output, err = executil.ExecCommandWithCombinedOutput("pip", "install", "--upgrade", "pip", "wheel")
+	output, err := executil.ExecCommand("pip", "install", "--upgrade", "pip", "wheel")
 	if err != nil {
 		return
 	}
@@ -122,7 +114,7 @@ func setupPython(envPath string, dev bool) (err error) {
 		requirementsFile = "requirements-dev.txt"
 	}
 
-	output, err = executil.ExecCommandWithCombinedOutput(
+	output, err = executil.ExecCommand(
 		"pip", "install", "-r",
 		fmt.Sprintf("../install/%s", requirementsFile),
 	)
