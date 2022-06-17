@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite'
+
+import compress from 'vite-plugin-compression'
 import { createVuePlugin as vue } from 'vite-plugin-vue2'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [compress({ algorithm: 'brotliCompress' }), vue()],
 
   server: {
     // This lets us run gactar to serve the endpoints, but run the UI through

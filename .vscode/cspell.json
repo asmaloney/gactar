@@ -11,6 +11,7 @@
     "autorefresh",
     "axios",
     "backends",
+    "brotli",
     "chdir",
     "chunkstring",
     "chunktype",
@@ -39,6 +40,7 @@
     "PYTHONPATH",
     "Quickstart",
     "SBCL",
+    "statigz",
     "subsymbolic",
     "testdata",
     "tkinter",
@@ -46,6 +48,7 @@
     "unsetenv",
     "Untar",
     "urfave",
+    "vearutop",
     "venv",
     "Writeln"
   ],

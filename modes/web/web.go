@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
+	"log"
 	"net/http"
 	"os"
 	"path"
@@ -14,6 +15,8 @@ import (
 	"sync"
 
 	"github.com/urfave/cli/v2"
+	"github.com/vearutop/statigz"
+	"github.com/vearutop/statigz/brotli"
 
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
@@ -87,7 +90,7 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 	initSessions(w)
 	initModels(w)
 
-	mainHandler := assetHandler(&mainAssets, "", "build")
+	mainHandler := compressedAssetHandler(&mainAssets, "", "build")
 	http.HandleFunc("/", mainHandler.ServeHTTP)
 
 	return
@@ -373,4 +376,22 @@ func assetHandler(assets *embed.FS, stripPrefix, prepend string) http.Handler {
 	})
 
 	return http.StripPrefix(stripPrefix, http.FileServer(http.FS(handler)))
+}
+
+// compressedAssetHandler returns an http.Handler that will serve files from
+// the given embed.FS using statigz to serve compressed files.
+func compressedAssetHandler(assets *embed.FS, stripPrefix, prepend string) http.Handler {
+	var serverFS fs.ReadDirFS = assets
+
+	if prepend != "" {
+		sub, err := fs.Sub(assets, prepend)
+		if err != nil {
+			log.Fatal(err)
+			return nil
+		}
+
+		serverFS = sub.(fs.ReadDirFS)
+	}
+
+	return statigz.FileServer(serverFS, brotli.AddEncoding)
 }
