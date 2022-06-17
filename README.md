@@ -1,6 +1,6 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/asmaloney/gactar)](https://github.com/asmaloney/gactar/releases/latest) [![PkgGoDev](https://pkg.go.dev/badge/github.com/asmaloney/gactar)](https://pkg.go.dev/github.com/asmaloney/gactar) [![GitHub](https://img.shields.io/github/license/asmaloney/gactar)](LICENSE) ![Build](https://github.com/asmaloney/gactar/actions/workflows/build.yaml/badge.svg)
 
-# ![gactar logo](images/logo/gactar-logo.svg) gactar
+# ![gactar logo](doc/images/logo/gactar-logo.svg) gactar
 
 `gactar` is a tool for creating and running [ACT-R](https://en.wikipedia.org/wiki/ACT-R) models using a declarative file format called _amod_.
 
@@ -250,7 +250,7 @@ gactar [OPTIONS] [FILES...]
 
 I have created a [Visual Studio Code](https://code.visualstudio.com/) extension called _gactar-vscode_ to provide amod syntax highlighting, code snippets, and a command to run gactar.
 
-![VS Code Example](images/vscode-example.png)
+![VS Code Example](doc/images/vscode-example.png)
 
 The extension is [published](https://marketplace.visualstudio.com/items?itemName=asmaloney.gactar) on the VS Code marketplace, so you can install it from within VS Code:
 
@@ -283,7 +283,7 @@ Opening `http://localhost:8181` in your browser will let you load, edit, and sav
 - set a **Goal** to override the default goal in the _amod_ file
 - once it's been run, browse the generated code using the tabs at the top of the code editor
 
-![gactar Web Interface](images/gactar-web.png)
+![gactar Web Interface](doc/images/gactar-web.png)
 
 The results (and any errors) will be shown on the right and the generated code that was used to run the model on each framework is shown in the editor tabs.
 
@@ -740,7 +740,7 @@ This production is called `done`. It attempts to match the `goal` buffer to a `p
 
 The following diagram shows how an _amod_ file is processed by gactar. The partial paths at the bottom of the items is the path to the source code responsible for that part of the processing.
 
-![How gactar processes an amod file](images/gactar-processing.svg)
+![How gactar processes an amod file](doc/images/gactar-processing.svg)
 
 ## Reference
 
