@@ -245,6 +245,10 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 		v.Writeln("\t:dat %s", numbers.Float64Str(*procedural.DefaultActionTime))
 	}
 
+	if procedural.PartialMatching {
+		v.Writeln("\t:ppm 1")
+	}
+
 	switch v.model.LogLevel {
 	case "min":
 		v.Writeln("\t:trace-detail low")

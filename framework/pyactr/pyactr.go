@@ -219,6 +219,10 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 		p.Writeln("    rule_firing=%s,", numbers.Float64Str(*procedural.DefaultActionTime))
 	}
 
+	if procedural.PartialMatching {
+		p.Writeln("    partial_matching=True,")
+	}
+
 	if p.model.TraceActivations {
 		p.Writeln("    activation_trace=True,")
 	}

@@ -6,7 +6,6 @@ import (
 	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/modules"
 	"github.com/asmaloney/gactar/actr/params"
-	"github.com/asmaloney/gactar/util/container"
 )
 
 type options struct {
@@ -172,11 +171,12 @@ func (model *Model) SetParam(param *params.Param) (options []string, err params.
 		model.LogLevel = ACTRLogLevel(*value.Str)
 
 	case "trace_activations":
-		if (value.ID == nil) || !container.Contains(*value.ID, params.Boolean) {
-			return params.Boolean, params.InvalidOption
+		boolVal, err := value.AsBool()
+		if err != params.NoError {
+			return []string{}, err
 		}
 
-		model.TraceActivations = params.BooleanStrToBool(*value.ID)
+		model.TraceActivations = boolVal
 
 	default:
 		return []string{}, params.UnrecognizedParam

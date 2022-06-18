@@ -224,9 +224,14 @@ func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code 
 	}
 
 	procedural := c.model.Procedural
+	// Turn on Partial if we have set "partial_matching"
+	if procedural.PartialMatching {
+		c.Writeln("    Partial(%s)", memory.ModuleName())
+		c.Writeln("")
+	}
+
 	if procedural.DefaultActionTime != nil {
 		c.Writeln("    production_time = %s", numbers.Float64Str(*procedural.DefaultActionTime))
-
 		c.Writeln("")
 	}
 
@@ -310,6 +315,7 @@ func (c CCMPyACTR) writeAuthors() {
 
 func (c CCMPyACTR) writeImports() {
 	memory := c.model.Memory
+	procedural := c.model.Procedural
 
 	imports := []string{"ACTR", "Buffer", "Memory"}
 
@@ -323,6 +329,10 @@ func (c CCMPyACTR) writeImports() {
 
 	if memory.InstantaneousNoise != nil {
 		additionalImports = append(additionalImports, "DMNoise")
+	}
+
+	if procedural.PartialMatching {
+		additionalImports = append(additionalImports, "Partial")
 	}
 
 	if len(additionalImports) > 0 {

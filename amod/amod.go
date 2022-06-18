@@ -202,6 +202,10 @@ func addGACTAR(model *actr.Model, log *issueLog, list []*field) {
 
 		if err != params.NoError {
 			switch err {
+			case params.BoolRequired:
+				log.errorTR(value.Tokens, 1, 1, "%s ('%s') must be 'true' or 'false'", field.Key, value.String())
+				continue
+
 			case params.InvalidOption:
 				log.errorTR(value.Tokens, 1, 1, "%s ('%s') must be one of %q", field.Key, value.String(), strings.Join(options, ", "))
 				continue
@@ -256,6 +260,10 @@ func setModuleParams(module modules.ModuleInterface, log *issueLog, fields []*fi
 
 		if err != params.NoError {
 			switch err {
+			case params.BoolRequired:
+				log.errorTR(value.Tokens, 1, 1, "%s %s ('%s') must be 'true' or 'false'", moduleName, field.Key, value.String())
+				continue
+
 			case params.NumberRequired:
 				log.errorTR(value.Tokens, 1, 1, "%s %s '%s' must be a number", moduleName, field.Key, value.String())
 				continue

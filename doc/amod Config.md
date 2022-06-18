@@ -92,9 +92,10 @@ Module Name: **procedural**
 
 Buffer Name: _none_
 
-| Config              | Type    | Description                                       | Mapping                                                                           |
-| ------------------- | ------- | ------------------------------------------------- | --------------------------------------------------------------------------------- |
-| default_action_time | decimal | time that it takes to fire a production (seconds) | ccm (production_time): 0.05<br>pyactr (rule_firing): 0.05<br>vanilla (:dat): 0.05 |
+| Config              | Type    | Description                                         | Mapping                                                                           |
+| ------------------- | ------- | --------------------------------------------------- | --------------------------------------------------------------------------------- |
+| default_action_time | decimal | time that it takes to fire a production (seconds)   | ccm (production_time): 0.05<br>pyactr (rule_firing): 0.05<br>vanilla (:dat): 0.05 |
+| partial_matching    | boolean | turns on partial matching of buffers in productions | (off unless explicitly turned on)                                                 |
 
 ### Extra Buffers
 
