@@ -33,11 +33,10 @@ func FindPython3(outputDetails bool) (path string, err error) {
 
 			output, execErr := executil.ExecCommand(path, "--version")
 			if execErr != nil {
-				err = &executil.ErrExecuteCommand{Output: output}
 				return
 			}
 
-			fmt.Printf("> %s", string(output))
+			fmt.Printf("> %s", output)
 		}
 	}()
 
@@ -56,7 +55,6 @@ func FindPython3(outputDetails bool) (path string, err error) {
 	// We have "a python" now we need to check its version
 	output, err := executil.ExecCommand(path, "--version")
 	if err != nil {
-		err = &executil.ErrExecuteCommand{Output: output}
 		return
 	}
 

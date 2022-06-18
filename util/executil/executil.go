@@ -16,11 +16,11 @@ func (e ErrExecuteCommand) Error() string {
 func ExecCommand(name string, arg ...string) (output string, err error) {
 	cmd := exec.Command(name, arg...)
 	outputBytes, err := cmd.CombinedOutput()
+	output = string(outputBytes)
 	if err != nil {
-		err = &ErrExecuteCommand{Output: string(outputBytes)}
+		err = &ErrExecuteCommand{Output: output}
 		return
 	}
 
-	output = string(outputBytes)
 	return
 }

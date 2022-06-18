@@ -102,7 +102,6 @@ func (c *CCMPyACTR) Run(initialBuffers framework.InitialBuffers) (result *framew
 
 	output, err := executil.ExecCommand("python3", runFile)
 	if err != nil {
-		err = &executil.ErrExecuteCommand{Output: output}
 		return
 	}
 
