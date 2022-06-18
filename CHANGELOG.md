@@ -2,6 +2,59 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.9.0] - (in progress)
+
+### Added
+
+- gactar now handles installation of python packages, ACT-R code, and the Lisp compiler instead of using external scripts. ([#212](https://github.com/asmaloney/gactar/pull/212))
+
+  There is a new command to run setup:
+
+  ```
+  $ ./gactar env setup
+  ```
+
+  Use the `-dev` flag to also install optional developer packages for linting & formatting Python code.
+
+- Added a command to check the health of your virtual environment. ([#220](https://github.com/asmaloney/gactar/pull/220))
+
+  ```
+  $ ./gactar env doctor
+  ```
+
+- Added an `extra_buffers` module to allow declaration of... extra buffers. ([#217](https://github.com/asmaloney/gactar/pull/217))
+
+  Declare them in the module config section like this (they currently don't have any configuration options):
+
+  ```
+  modules {
+      extra_buffers {
+          foo {}
+          bar {}
+      }
+  }
+  ```
+
+- Added a "partial_matching" option to procedural module to turn on partial matching. ([#223](https://github.com/asmaloney/gactar/pull/223))
+
+### Changed
+
+- Allow ID in `set` statements. ([#200](https://github.com/asmaloney/gactar/pull/200))
+
+  Instead of:
+
+  ```
+  set goal.state to 'harvest_location'
+  ```
+
+  You can use it without quotes:
+
+  ```
+  set goal.state to harvest_location
+  ```
+
+- Web assets are now compressed using brotli compression. ([#218](https://github.com/asmaloney/gactar/pull/218))
+
 ## [0.8.0](https://github.com/asmaloney/gactar/releases/tag/v0.8.0) - 2022-06-13
 
 ### Added
