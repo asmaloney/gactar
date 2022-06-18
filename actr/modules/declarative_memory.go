@@ -102,93 +102,92 @@ func (d DeclarativeMemory) BufferName() string {
 	return d.Buffers[0].Name
 }
 
-func (d *DeclarativeMemory) SetParam(param *params.Param) (err params.ParamError) {
+func (d *DeclarativeMemory) SetParam(param *params.Param) (err error) {
 	value := param.Value
 
 	switch param.Key {
 	case "latency_factor":
 		if value.Number == nil {
-			return params.NumberRequired
+			return params.ErrInvalidType{ExpectedType: params.Number}
 		}
 
 		if *value.Number < 0 {
-			return params.NumberMustBePositive
+			return params.ErrMustBePositive
 		}
 
 		d.LatencyFactor = value.Number
 
 	case "latency_exponent":
 		if value.Number == nil {
-			return params.NumberRequired
+			return params.ErrInvalidType{ExpectedType: params.Number}
 		}
 
 		if *value.Number < 0 {
-			return params.NumberMustBePositive
+			return params.ErrMustBePositive
 		}
 
 		d.LatencyExponent = value.Number
 
 	case "retrieval_threshold":
 		if value.Number == nil {
-			return params.NumberRequired
+			return params.ErrInvalidType{ExpectedType: params.Number}
 		}
 
 		d.RetrievalThreshold = value.Number
 
 	case "finst_size":
 		if value.Number == nil {
-			return params.NumberRequired
+			return params.ErrInvalidType{ExpectedType: params.Number}
 		}
 
 		size := int(*value.Number)
 		if size < 0 {
-			return params.NumberMustBePositive
+			return params.ErrMustBePositive
 		}
 
 		d.FinstSize = &size
 
 	case "finst_time":
 		if value.Number == nil {
-			return params.NumberRequired
+			return params.ErrInvalidType{ExpectedType: params.Number}
 		}
 
 		d.FinstTime = value.Number
 
 	case "decay":
 		if value.Number == nil {
-			return params.NumberRequired
+			return params.ErrInvalidType{ExpectedType: params.Number}
 		}
 
-		if *value.Number < 0 {
-			return params.NumberMustBePositive
-		}
-
-		if *value.Number > 1 {
-			return params.NumberOutOfRange
+		if *value.Number < 0 || *value.Number > 1 {
+			return params.ErrOutOfRange{
+				Min: 0.0,
+				Max: 1.0,
+			}
 		}
 
 		d.Decay = value.Number
 
 	case "max_spread_strength":
 		if value.Number == nil {
-			return params.NumberRequired
+			return params.ErrInvalidType{ExpectedType: params.Number}
 		}
 
 		d.MaxSpreadStrength = value.Number
 
 	case "instantaneous_noise":
 		if value.Number == nil {
-			return params.NumberRequired
+			return params.ErrInvalidType{ExpectedType: params.Number}
 		}
 
 		if *value.Number < 0 {
-			return params.NumberMustBePositive
+			return params.ErrMustBePositive
 		}
 
 		d.InstantaneousNoise = value.Number
 
 	default:
-		return params.UnrecognizedParam
+		return params.ErrUnrecognizedParam
 	}
 
 	return

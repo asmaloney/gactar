@@ -25,7 +25,7 @@ func Example_gactarUnrecognizedField() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: unrecognized field in gactar section: 'foo' (line 5, col 10)
+	// ERROR: unrecognized option in gactar section: 'foo' (line 5, col 10)
 }
 
 func Example_gactarUnrecognizedLogLevel() {
@@ -38,7 +38,7 @@ func Example_gactarUnrecognizedLogLevel() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: log_level ('bar') must be one of "min, info, detail" (line 5, col 21)
+	// ERROR: 'log_level' must be must be one of "min, info, detail" (line 5, col 21)
 }
 
 func Example_gactarUnrecognizedNestedValue() {
@@ -51,7 +51,7 @@ func Example_gactarUnrecognizedNestedValue() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: unrecognized field in gactar section: 'foo' (line 5, col 10)
+	// ERROR: unrecognized option in gactar section: 'foo' (line 5, col 10)
 }
 
 func Example_gactarFieldNotANestedValue() {
@@ -64,7 +64,7 @@ func Example_gactarFieldNotANestedValue() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: log_level ('<nested field>') must be one of "min, info, detail" (line 5, col 21)
+	// ERROR: 'log_level' must be must be one of "min, info, detail" (line 5, col 21)
 }
 
 func Example_gactarCommaSeparator() {
@@ -113,7 +113,7 @@ func Example_gactarTraceActivationsNonBool() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: trace_activations ('6.000000') must be 'true' or 'false' (line 5, col 29)
+	// ERROR: 'trace_activations' must be 'true' or 'false' (line 5, col 29)
 }
 
 func Example_chunkReservedName() {
@@ -247,7 +247,7 @@ func Example_imaginalFieldType() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: imaginal delay 'gack' must be a number (line 6, col 20)
+	// ERROR: imaginal 'delay' must be a number (line 6, col 20)
 }
 
 func Example_imaginalFieldRange() {
@@ -262,7 +262,7 @@ func Example_imaginalFieldRange() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: imaginal delay '-0.500000' must be a positive number (line 6, col 20)
+	// ERROR: imaginal 'delay' must be a positive number (line 6, col 20)
 }
 
 func Example_imaginalFieldUnrecognized() {
@@ -277,7 +277,7 @@ func Example_imaginalFieldUnrecognized() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: unrecognized field 'foo' in imaginal config (line 6, col 13)
+	// ERROR: unrecognized option in imaginal config: 'foo' (line 6, col 13)
 }
 
 func Example_memoryFieldUnrecognized() {
@@ -292,7 +292,22 @@ func Example_memoryFieldUnrecognized() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: unrecognized field 'foo' in memory config (line 6, col 11)
+	// ERROR: unrecognized option in memory config: 'foo' (line 6, col 11)
+}
+
+func Example_memoryDecayOutOfRange() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	modules {
+		memory { decay: -0.5 }
+	}
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+	// ERROR: memory 'decay' is out of range (0-1) (line 6, col 18)
 }
 
 func Example_proceduralFieldUnrecognized() {
@@ -307,5 +322,5 @@ func Example_proceduralFieldUnrecognized() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: unrecognized field 'foo' in procedural config (line 6, col 15)
+	// ERROR: unrecognized option in procedural config: 'foo' (line 6, col 15)
 }

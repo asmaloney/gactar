@@ -27,23 +27,23 @@ func NewGoal() *Goal {
 	}
 }
 
-func (g *Goal) SetParam(param *params.Param) (err params.ParamError) {
+func (g *Goal) SetParam(param *params.Param) (err error) {
 	value := param.Value
 
 	switch param.Key {
 	case "spreading_activation":
 		if value.Number == nil {
-			return params.NumberRequired
+			return params.ErrInvalidType{ExpectedType: params.Number}
 		}
 
 		if *value.Number < 0 {
-			return params.NumberMustBePositive
+			return params.ErrMustBePositive
 		}
 
 		g.SpreadingActivation = value.Number
 
 	default:
-		return params.UnrecognizedParam
+		return params.ErrUnrecognizedParam
 	}
 
 	return

@@ -1,6 +1,8 @@
 package params
 
-import "github.com/asmaloney/gactar/util/container"
+import (
+	"github.com/asmaloney/gactar/util/container"
+)
 
 var boolean = []string{
 	"true",
@@ -20,26 +22,10 @@ type Param struct {
 	Value Value
 }
 
-type ParamError = int
-
-const (
-	NoError ParamError = iota
-
-	BoolRequired
-
-	NumberRequired
-	NumberMustBePositive
-	NumberOutOfRange
-
-	InvalidOption
-
-	UnrecognizedParam
-)
-
-func (v Value) AsBool() (bool, ParamError) {
+func (v Value) AsBool() (bool, error) {
 	if (v.ID == nil) || !container.Contains(*v.ID, boolean) {
-		return false, BoolRequired
+		return false, ErrInvalidType{ExpectedType: Boolean}
 	}
 
-	return *v.ID == "true", NoError
+	return *v.ID == "true", nil
 }
