@@ -52,6 +52,7 @@ Buffer Name: **retrieval**
 
 | Config              | Type    | Description                                                                           | Mapping                                                                                                                     |
 | ------------------- | ------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| decay               | decimal | sets the decay for the base-level learning calculation                                | ccm (DMBaseLevel submodule 'decay'): 0.5<br>pyactr (decay) : 0.5<br>vanilla (:bll): nil (recommend 0.5 if used)             |
 | finst_size          | integer | how many chunks are retained in memory                                                | ccm (finst_size): 4<br>pyactr (DecMemBuffer.finst): 0<br>vanilla (:declarative-num-finsts): 4                               |
 | finst_time          | decimal | how long the finst lasts in memory                                                    | ccm (finst_time): 3.0<br>pyactr: (unsupported? Always ∞ I guess?)<br>vanilla (:declarative-finst-span): 3.0                 |
 | instantaneous_noise | decimal | turns on noise calculation & sets instantaneous noise                                 | ccm (DMNoise submodule 'noise')<br>pyactr (instantaneous_noise)<br>vanilla (:ans)                                           |

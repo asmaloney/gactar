@@ -7,9 +7,14 @@ import (
 )
 
 // ValidBufferStates is a list of the valid buffer states to use with the _status chunk
+// TODO: needs review and correction
+// See: https://github.com/asmaloney/gactar/discussions/221
 var ValidBufferStates = map[string]bool{
+	// buffer
 	"empty": true,
 	"full":  true,
+
+	// state
 	"busy":  true,
 	"error": true,
 }

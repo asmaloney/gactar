@@ -67,7 +67,7 @@ type DeclarativeMemory struct {
 
 	// "decay": sets the "base-level learning" decay parameter
 	// 	ccm (DMBaseLevel submodule 'decay'): 0.5
-	// 	pyactr: (decay) : 0.5
+	// 	pyactr (decay) : 0.5
 	// 	vanilla (:bll): nil (recommend 0.5 if used)
 	Decay *float64
 

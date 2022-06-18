@@ -35,7 +35,9 @@ All notable changes to this project will be documented in this file. The format 
   }
   ```
 
-- Added a "partial_matching" option to procedural module to turn on partial matching. ([#223](https://github.com/asmaloney/gactar/pull/223))
+- Added a "partial_matching" option to the procedural module to turn on partial matching. ([#223](https://github.com/asmaloney/gactar/pull/223))
+
+- Added a "decay" option to the declarative memory module for the base-level learning calculation. ([#226](https://github.com/asmaloney/gactar/pull/226))
 
 ### Changed
 
