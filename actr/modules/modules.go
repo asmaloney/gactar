@@ -17,7 +17,7 @@ type ModuleInterface interface {
 	OnlyBuffer() *buffer.Buffer
 	LookupBuffer(name string) buffer.BufferInterface
 
-	SetParam(param *params.Param) (err params.ParamError)
+	SetParam(param *params.Param) (err error)
 }
 
 type Module struct {

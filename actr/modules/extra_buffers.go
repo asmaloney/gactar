@@ -18,7 +18,7 @@ func NewExtraBuffers() *ExtraBuffers {
 	}
 }
 
-func (eb *ExtraBuffers) SetParam(param *params.Param) (err params.ParamError) {
+func (eb *ExtraBuffers) SetParam(param *params.Param) (err error) {
 	newBuffer := buffer.Buffer{
 		Name:         param.Key,
 		MultipleInit: false,

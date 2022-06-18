@@ -27,31 +27,31 @@ func NewProcedural() *Procedural {
 	}
 }
 
-func (p *Procedural) SetParam(param *params.Param) (err params.ParamError) {
+func (p *Procedural) SetParam(param *params.Param) (err error) {
 	value := param.Value
 
 	switch param.Key {
 	case "default_action_time":
 		if value.Number == nil {
-			return params.NumberRequired
+			return params.ErrInvalidType{ExpectedType: params.Number}
 		}
 
 		if *value.Number < 0 {
-			return params.NumberMustBePositive
+			return params.ErrMustBePositive
 		}
 
 		p.DefaultActionTime = value.Number
 
 	case "partial_matching":
 		boolVal, err := value.AsBool()
-		if err != params.NoError {
+		if err != nil {
 			return err
 		}
 
 		p.PartialMatching = boolVal
 
 	default:
-		return params.UnrecognizedParam
+		return params.ErrUnrecognizedParam
 	}
 
 	return

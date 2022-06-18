@@ -27,23 +27,23 @@ func NewImaginal() *Imaginal {
 	}
 }
 
-func (i *Imaginal) SetParam(param *params.Param) (err params.ParamError) {
+func (i *Imaginal) SetParam(param *params.Param) (err error) {
 	value := param.Value
 
 	switch param.Key {
 	case "delay":
 		if value.Number == nil {
-			return params.NumberRequired
+			return params.ErrInvalidType{ExpectedType: params.Number}
 		}
 
 		if *value.Number < 0 {
-			return params.NumberMustBePositive
+			return params.ErrMustBePositive
 		}
 
 		i.Delay = value.Number
 
 	default:
-		return params.UnrecognizedParam
+		return params.ErrUnrecognizedParam
 	}
 
 	return

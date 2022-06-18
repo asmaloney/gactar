@@ -159,27 +159,27 @@ func (model Model) LookupBuffer(bufferName string) buffer.BufferInterface {
 	return nil
 }
 
-func (model *Model) SetParam(param *params.Param) (options []string, err params.ParamError) {
+func (model *Model) SetParam(param *params.Param) (err error) {
 	value := param.Value
 
 	switch param.Key {
 	case "log_level":
 		if (value.Str == nil) || !ValidLogLevel(*value.Str) {
-			return ACTRLoggingLevels, params.InvalidOption
+			return params.ErrInvalidOption{Expected: ACTRLoggingLevels}
 		}
 
 		model.LogLevel = ACTRLogLevel(*value.Str)
 
 	case "trace_activations":
 		boolVal, err := value.AsBool()
-		if err != params.NoError {
-			return []string{}, err
+		if err != nil {
+			return err
 		}
 
 		model.TraceActivations = boolVal
 
 	default:
-		return []string{}, params.UnrecognizedParam
+		return params.ErrUnrecognizedParam
 	}
 
 	return

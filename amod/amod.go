@@ -198,24 +198,22 @@ func addGACTAR(model *actr.Model, log *issueLog, list []*field) {
 		value := field.Value
 
 		param := fieldToParam(field)
-		options, err := model.SetParam(param)
-
-		if err != params.NoError {
-			switch err {
-			case params.BoolRequired:
-				log.errorTR(value.Tokens, 1, 1, "%s ('%s') must be 'true' or 'false'", field.Key, value.String())
+		err := model.SetParam(param)
+		if err != nil {
+			switch {
+			// value errors
+			case errors.As(err, &params.ErrInvalidType{}) ||
+				errors.As(err, &params.ErrInvalidOption{}):
+				log.errorTR(value.Tokens, 1, 1, "'%s' %v", field.Key, err)
 				continue
 
-			case params.InvalidOption:
-				log.errorTR(value.Tokens, 1, 1, "%s ('%s') must be one of %q", field.Key, value.String(), strings.Join(options, ", "))
-				continue
-
-			case params.UnrecognizedParam:
-				log.errorTR(field.Tokens, 0, 1, "unrecognized field in gactar section: '%s'", field.Key)
+			// field errors
+			case errors.Is(err, params.ErrUnrecognizedParam):
+				log.errorTR(field.Tokens, 0, 1, "%v in gactar section: '%s'", err, field.Key)
 				continue
 
 			default:
-				log.errorT(field.Tokens, "internal: unhandled error (%d) in gactar section: '%s'", err, field.Key)
+				log.errorT(field.Tokens, "INTERNAL: unhandled error (%v) in gactar config: '%s'", err, field.Key)
 				continue
 			}
 		}
@@ -257,31 +255,23 @@ func setModuleParams(module modules.ModuleInterface, log *issueLog, fields []*fi
 
 		param := fieldToParam(field)
 		err := module.SetParam(param)
-
-		if err != params.NoError {
-			switch err {
-			case params.BoolRequired:
-				log.errorTR(value.Tokens, 1, 1, "%s %s ('%s') must be 'true' or 'false'", moduleName, field.Key, value.String())
+		if err != nil {
+			switch {
+			// value errors
+			case errors.As(err, &params.ErrInvalidType{}) ||
+				errors.As(err, &params.ErrInvalidOption{}) ||
+				errors.Is(err, params.ErrMustBePositive) ||
+				errors.As(err, &params.ErrOutOfRange{}):
+				log.errorTR(value.Tokens, 1, 1, "%s '%s' %v", moduleName, field.Key, err)
 				continue
 
-			case params.NumberRequired:
-				log.errorTR(value.Tokens, 1, 1, "%s %s '%s' must be a number", moduleName, field.Key, value.String())
-				continue
-
-			case params.NumberMustBePositive:
-				log.errorTR(value.Tokens, 1, 1, "%s %s '%s' must be a positive number", moduleName, field.Key, value.String())
-				continue
-
-			case params.NumberOutOfRange:
-				log.errorTR(value.Tokens, 1, 1, "%s %s '%s' is out of range", moduleName, field.Key, value.String())
-				continue
-
-			case params.UnrecognizedParam:
-				log.errorTR(field.Tokens, 0, 1, "unrecognized field '%s' in %s config", field.Key, moduleName)
+			// field errors
+			case errors.Is(err, params.ErrUnrecognizedParam):
+				log.errorTR(field.Tokens, 0, 1, "%v in %s config: '%s'", err, moduleName, field.Key)
 				continue
 
 			default:
-				log.errorT(field.Tokens, "internal: unhandled error (%d) in %s config: '%s'", err, moduleName, field.Key)
+				log.errorT(field.Tokens, "INTERNAL: unhandled error (%v) in %s config: '%s'", err, moduleName, field.Key)
 				continue
 			}
 		}
