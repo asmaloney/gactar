@@ -29,6 +29,7 @@ const (
 
 	NumberRequired
 	NumberMustBePositive
+	NumberOutOfRange
 
 	InvalidOption
 

@@ -65,6 +65,12 @@ type DeclarativeMemory struct {
 	RetrievalTimeParams
 	FinstParams
 
+	// "decay": sets the "base-level learning" decay parameter
+	// 	ccm (DMBaseLevel submodule 'decay'): 0.5
+	// 	pyactr: (decay) : 0.5
+	// 	vanilla (:bll): nil (recommend 0.5 if used)
+	Decay *float64
+
 	// "max_spread_strength": turns on the spreading activation calculation & sets the maximum associative strength
 	// (there are no defaults since setting it activates the capability)
 	//	ccm (DMSpreading submodule)
@@ -147,6 +153,21 @@ func (d *DeclarativeMemory) SetParam(param *params.Param) (err params.ParamError
 		}
 
 		d.FinstTime = value.Number
+
+	case "decay":
+		if value.Number == nil {
+			return params.NumberRequired
+		}
+
+		if *value.Number < 0 {
+			return params.NumberMustBePositive
+		}
+
+		if *value.Number > 1 {
+			return params.NumberOutOfRange
+		}
+
+		d.Decay = value.Number
 
 	case "max_spread_strength":
 		if value.Number == nil {

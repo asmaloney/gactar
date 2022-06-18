@@ -203,6 +203,12 @@ func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code 
 
 	c.Writeln("")
 
+	// Turn on DMBaseLevel if we have set "decay"
+	if memory.Decay != nil {
+		c.Writeln("    DMBaseLevel(%s, decay=%s)", memory.ModuleName(), numbers.Float64Str(*memory.Decay))
+		c.Writeln("")
+	}
+
 	// Turn on DMSpreading if we have set "max_spread_strength"
 	if memory.MaxSpreadStrength != nil {
 		c.Writeln("    spread = DMSpreading(%s, goal)", memory.ModuleName())
@@ -321,6 +327,10 @@ func (c CCMPyACTR) writeImports() {
 	c.Write("from python_actr import %s\n", strings.Join(imports, ", "))
 
 	additionalImports := []string{}
+
+	if memory.Decay != nil {
+		additionalImports = append(additionalImports, "DMBaseLevel")
+	}
 
 	if memory.MaxSpreadStrength != nil {
 		additionalImports = append(additionalImports, "DMSpreading")

@@ -227,6 +227,10 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 		v.Writeln("\t:declarative-finst-span %s", numbers.Float64Str(*memory.FinstTime))
 	}
 
+	if memory.Decay != nil {
+		v.Writeln("\t:bll %s", numbers.Float64Str(*memory.Decay))
+	}
+
 	if memory.MaxSpreadStrength != nil {
 		v.Writeln("\t:mas %s", numbers.Float64Str(*memory.MaxSpreadStrength))
 
