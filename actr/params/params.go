@@ -1,6 +1,8 @@
 package params
 
-var Boolean = []string{
+import "github.com/asmaloney/gactar/util/container"
+
+var boolean = []string{
 	"true",
 	"false",
 }
@@ -22,6 +24,9 @@ type ParamError = int
 
 const (
 	NoError ParamError = iota
+
+	BoolRequired
+
 	NumberRequired
 	NumberMustBePositive
 
@@ -30,6 +35,10 @@ const (
 	UnrecognizedParam
 )
 
-func BooleanStrToBool(b string) bool {
-	return b == "true"
+func (v Value) AsBool() (bool, ParamError) {
+	if (v.ID == nil) || !container.Contains(*v.ID, boolean) {
+		return false, BoolRequired
+	}
+
+	return *v.ID == "true", NoError
 }

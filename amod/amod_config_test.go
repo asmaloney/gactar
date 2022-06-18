@@ -1,5 +1,20 @@
 package amod
 
+func Example_gactarAllOptions() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	gactar {
+		log_level: 'detail'
+		trace_activations: true
+	}
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+}
+
 func Example_gactarUnrecognizedField() {
 	generateToStdout(`
 	~~ model ~~
@@ -98,7 +113,7 @@ func Example_gactarTraceActivationsNonBool() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: trace_activations ('6.000000') must be one of "true, false" (line 5, col 29)
+	// ERROR: trace_activations ('6.000000') must be 'true' or 'false' (line 5, col 29)
 }
 
 func Example_chunkReservedName() {
@@ -174,6 +189,32 @@ func Example_modulesUnrecognized() {
 
 	// Output:
 	// ERROR: unrecognized module in config: 'foo' (line 6, col 2)
+}
+
+func Example_modulesAll() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	modules {
+		imaginal { delay: 0.2 }
+		memory {
+			latency_factor: 0.5
+			latency_exponent: 0.75
+			retrieval_threshold: 0.1
+			finst_size: 5
+			finst_time: 2.5
+		}
+		procedural {
+			default_action_time: 0.06
+			partial_matching: true
+		}
+	}
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+	//
 }
 
 func Example_imaginalFields() {

@@ -12,6 +12,13 @@ type Procedural struct {
 	// 	pyactr (rule_firing): 0.05
 	// 	vanilla (:dat): 0.05
 	DefaultActionTime *float64
+
+	// "partial_matching": turn on partial matching of buffers in productions
+	// (there are no defaults since setting it activates the capability)
+	// 	ccm (Partial class)
+	// 	pyactr (partial_matching)
+	// 	vanilla (:ppm)
+	PartialMatching bool
 }
 
 func NewProcedural() *Procedural {
@@ -34,6 +41,14 @@ func (p *Procedural) SetParam(param *params.Param) (err params.ParamError) {
 		}
 
 		p.DefaultActionTime = value.Number
+
+	case "partial_matching":
+		boolVal, err := value.AsBool()
+		if err != params.NoError {
+			return err
+		}
+
+		p.PartialMatching = boolVal
 
 	default:
 		return params.UnrecognizedParam
