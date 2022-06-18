@@ -272,6 +272,10 @@ func setModuleParams(module modules.ModuleInterface, log *issueLog, fields []*fi
 				log.errorTR(value.Tokens, 1, 1, "%s %s '%s' must be a positive number", moduleName, field.Key, value.String())
 				continue
 
+			case params.NumberOutOfRange:
+				log.errorTR(value.Tokens, 1, 1, "%s %s '%s' is out of range", moduleName, field.Key, value.String())
+				continue
+
 			case params.UnrecognizedParam:
 				log.errorTR(field.Tokens, 0, 1, "unrecognized field '%s' in %s config", field.Key, moduleName)
 				continue

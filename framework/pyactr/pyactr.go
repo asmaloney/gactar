@@ -201,6 +201,10 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 		p.Writeln("    retrieval_threshold=%s,", numbers.Float64Str(*memory.RetrievalThreshold))
 	}
 
+	if memory.Decay != nil {
+		p.Writeln("    decay=%s,", numbers.Float64Str(*memory.Decay))
+	}
+
 	if memory.MaxSpreadStrength != nil {
 		p.Writeln("    strength_of_association=%s,", numbers.Float64Str(*memory.MaxSpreadStrength))
 

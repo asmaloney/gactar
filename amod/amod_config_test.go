@@ -204,6 +204,9 @@ func Example_modulesAll() {
 			retrieval_threshold: 0.1
 			finst_size: 5
 			finst_time: 2.5
+			decay: 0.6
+			max_spread_strength: 0.9
+			instantaneous_noise: 0.5
 		}
 		procedural {
 			default_action_time: 0.06
