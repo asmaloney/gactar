@@ -130,7 +130,7 @@ func main() {
 
 			&cli.BoolFlag{Name: "debug", Aliases: []string{"d"}, Usage: "turn on debugging output"},
 			&cli.BoolFlag{Name: "ebnf", Usage: "output amod EBNF to stdout and quit"},
-			&cli.PathFlag{Name: "temp", Value: "./gactar-temp", Usage: "directory for generated files (it will be created if it does not exist)"},
+			&cli.PathFlag{Name: "temp", DefaultText: "<env>/gactar-temp", Usage: "directory for generated files (it will be created if it does not exist)"},
 
 			&cli.StringSliceFlag{
 				Name:    "framework",
@@ -169,7 +169,8 @@ func main() {
 				return cli.Exit(err.Error(), 1)
 			}
 
-			// Create our temp dir. This will expand our "temp" to an absolute path.
+			// Create our temp dir. If it wasn't set, use <env>/gactar-temp.
+			// CreateTempDir() will expand our "temp" to an absolute path.
 			err = clicontext.CreateTempDir(c)
 			if err != nil {
 				return cli.Exit(err.Error(), 1)

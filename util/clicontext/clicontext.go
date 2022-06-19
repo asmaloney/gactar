@@ -2,6 +2,8 @@
 package clicontext
 
 import (
+	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/asmaloney/gactar/util/filesystem"
@@ -25,6 +27,14 @@ func ExpandPath(ctx *cli.Context, flag string) (path string, err error) {
 
 // CreateTempDir looks up the "temp" flag in our context, expands the path, and creates the dir.
 func CreateTempDir(ctx *cli.Context) (err error) {
+	if !ctx.IsSet("temp") {
+		defaultTemp := fmt.Sprintf("%s%c%s", os.Getenv("VIRTUAL_ENV"), filepath.Separator, "gactar-temp")
+		err = ctx.Set("temp", defaultTemp)
+		if err != nil {
+			return cli.Exit(err.Error(), 1)
+		}
+	}
+
 	path, err := ExpandPath(ctx, "temp")
 	if err != nil {
 		return
