@@ -97,7 +97,7 @@ func ParseInitialBuffers(model *actr.Model, initialBuffers InitialBuffers) (pars
 	return
 }
 
-// identifyYourself outputs version info and the path to an executable.
+// identifyYourself outputs version info for an executable.
 func identifyYourself(frameworkName, exeName string) (err error) {
 	cmd := exec.Command(exeName, "--version")
 	output, err := cmd.CombinedOutput()
@@ -107,13 +107,7 @@ func identifyYourself(frameworkName, exeName string) (err error) {
 
 	version := strings.TrimSpace(string(output))
 
-	cmd = exec.Command("which", exeName)
-	output, err = cmd.CombinedOutput()
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("%s: Using %s from %s", frameworkName, version, string(output))
+	fmt.Printf("%s: Using %s\n", frameworkName, version)
 
 	return
 }
