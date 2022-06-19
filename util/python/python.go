@@ -41,7 +41,7 @@ func FindPython3(outputDetails bool) (path string, err error) {
 	}()
 
 	// See if it exists as "python3"
-	path, err = exec.LookPath("python3")
+	path, err = filesystem.CheckForExecutable("python3")
 	if err == nil {
 		return
 	}

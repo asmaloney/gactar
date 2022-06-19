@@ -100,7 +100,7 @@ func (c *CCMPyACTR) Run(initialBuffers framework.InitialBuffers) (result *framew
 		GeneratedCode: c.GetContents(),
 	}
 
-	output, err := executil.ExecCommand("python3", runFile)
+	output, err := executil.ExecCommand(Info.ExecutableName, runFile)
 	if err != nil {
 		return
 	}

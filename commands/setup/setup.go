@@ -89,13 +89,14 @@ func setupPython(envPath string, dev bool) (err error) {
 	}
 
 	// Set up virtual environment
-	fmt.Printf("> Setting up virtual environment: %q\n", path)
+	fmt.Printf("> Setting up virtual environment: %q\n", envPath)
 	_, err = executil.ExecCommand(path, "-m", "venv", envPath)
 	if err != nil {
 		return
 	}
 
 	os.Setenv("VIRTUAL_ENV", envPath)
+	os.Unsetenv("PYTHONHOME")
 
 	// Upgrade pip
 	fmt.Println("> Upgrading pip...")

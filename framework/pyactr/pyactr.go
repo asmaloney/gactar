@@ -118,7 +118,7 @@ func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (result *framework
 	}
 
 	// run it!
-	output, err := executil.ExecCommand("python3", runFile)
+	output, err := executil.ExecCommand(Info.ExecutableName, runFile)
 	output = removeWarning(output)
 	if err != nil {
 		err = &executil.ErrExecuteCommand{Output: output}
