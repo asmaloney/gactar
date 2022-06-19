@@ -27,7 +27,7 @@ var Info framework.Info = framework.Info{
 	Name:           "pyactr",
 	Language:       "python",
 	FileExtension:  "py",
-	ExecutableName: "python3",
+	ExecutableName: "python",
 
 	PythonRequiredPackages: []string{"pyactr"},
 }

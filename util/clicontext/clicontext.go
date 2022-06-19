@@ -17,7 +17,7 @@ func SetupPaths(envPath string) (err error) {
 
 	// Python on Windows puts itself in a different place, so adjust our path accordingly
 	if runtime.GOOS == "windows" {
-		pythonVENVPath = "Script"
+		pythonVENVPath = "Scripts"
 	}
 
 	pythonVENVPath = filepath.Join(envPath, pythonVENVPath)

@@ -28,7 +28,7 @@ var Info framework.Info = framework.Info{
 	Name:           "ccm",
 	Language:       "python",
 	FileExtension:  "py",
-	ExecutableName: "python3",
+	ExecutableName: "python",
 
 	PythonRequiredPackages: []string{"python_actr"},
 }

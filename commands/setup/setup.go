@@ -94,11 +94,22 @@ func setupPython(envPath string, dev bool) (err error) {
 		return
 	}
 
-	// Upgrade pip
-	fmt.Println("> Upgrading pip...")
-	output, err := executil.ExecCommand("pip", "install", "--upgrade", "pip", "wheel")
-	if err != nil {
-		return
+	fmt.Printf("> Reset PATH: %q\n", os.Getenv("PATH"))
+
+	// Upgrade pip & install wheel
+	var output string
+	var errInstall error
+	if runtime.GOOS == "windows" {
+		// Windows fails on the pip upgrade for some reason, so leave it out
+		fmt.Println("> Installing wheel...")
+		output, errInstall = executil.ExecCommand("pip", "install", "wheel")
+
+	} else {
+		fmt.Println("> Upgrading pip & installing wheel...")
+		output, errInstall = executil.ExecCommand("pip", "install", "--upgrade", "pip", "wheel")
+	}
+	if errInstall != nil {
+		return errInstall
 	}
 
 	fmt.Print(output)
