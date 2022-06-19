@@ -21,12 +21,11 @@ func Doctor(envPath string) (err error) {
 	fmt.Println("gactar Environment Doctor\n-----")
 	fmt.Printf("gactar %s\n", version.BuildVersion)
 	fmt.Printf("Checking %q for problems...\n", envPath)
+	fmt.Printf("PATH: %q\n", os.Getenv("PATH"))
 
 	if !filesystem.DirExists(envPath) {
 		return &filesystem.ErrDirDoesNotExist{DirName: envPath}
 	}
-
-	setupPaths(envPath)
 
 	e := os.Chdir(envPath)
 	if e != nil {
@@ -54,12 +53,6 @@ func Doctor(envPath string) (err error) {
 	return
 }
 
-func setupPaths(envPath string) {
-	binPath := filepath.Join(envPath, "bin")
-	os.Setenv("PATH", fmt.Sprintf("%s%c%s", binPath, os.PathListSeparator, os.Getenv("PATH")))
-	os.Setenv("VIRTUAL_ENV", envPath)
-}
-
 func checkPython() (path string, err error) {
 	fmt.Println()
 	fmt.Println("Checking Python\n---")
@@ -75,9 +68,6 @@ func checkPython() (path string, err error) {
 func checkCLL(envPath string) (err error) {
 	fmt.Println()
 	fmt.Println("Checking Clozure Common Lisp (ccl) compiler\n---")
-
-	cclPath := filepath.Join(envPath, "ccl")
-	os.Setenv("PATH", fmt.Sprintf("%s%c%s", cclPath, os.PathListSeparator, os.Getenv("PATH")))
 
 	cclExecutableName, err := lisp.GetExecutableName()
 	if err != nil {

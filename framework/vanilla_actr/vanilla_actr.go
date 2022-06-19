@@ -5,7 +5,6 @@ package vanilla_actr
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"regexp"
 	"runtime"
 	"strings"
@@ -62,10 +61,6 @@ func New(ctx *cli.Context) (v *VanillaACTR, err error) {
 		tmpPath: ctx.Path("temp"),
 		envPath: os.Getenv("VIRTUAL_ENV"),
 	}
-
-	// Add path to ccl so we can find it everywhere
-	cclPath := filepath.Join(v.envPath, "ccl")
-	os.Setenv("PATH", fmt.Sprintf("%s%c%s", cclPath, os.PathListSeparator, os.Getenv("PATH")))
 
 	err = framework.Setup(&Info)
 	if err != nil {

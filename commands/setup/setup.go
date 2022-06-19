@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"path/filepath"
 	"runtime"
 
+	"github.com/asmaloney/gactar/util/clicontext"
 	"github.com/asmaloney/gactar/util/decompress"
 	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
@@ -52,12 +52,6 @@ func Setup(envPath string, dev bool) (err error) {
 		return err
 	}
 
-	binPath := filepath.Join(envPath, "bin")
-	os.Setenv("PATH", fmt.Sprintf("%s%c%s", binPath, os.PathListSeparator, os.Getenv("PATH")))
-	if err != nil {
-		return err
-	}
-
 	err = os.Chdir(envPath)
 	if err != nil {
 		return err
@@ -95,8 +89,10 @@ func setupPython(envPath string, dev bool) (err error) {
 		return
 	}
 
-	os.Setenv("VIRTUAL_ENV", envPath)
-	os.Unsetenv("PYTHONHOME")
+	err = clicontext.SetupPaths(envPath)
+	if err != nil {
+		return
+	}
 
 	// Upgrade pip
 	fmt.Println("> Upgrading pip...")

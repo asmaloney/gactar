@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -77,14 +76,14 @@ func main() {
 							&cli.BoolFlag{Name: "dev", Usage: "install any dev packages"},
 						},
 						Action: func(c *cli.Context) error {
-							path, err := clicontext.ExpandPath(c, "path")
+							envPath, err := clicontext.ExpandPath(c, "path")
 							if err != nil {
 								fmt.Println(err.Error())
 								return err
 							}
 
 							dev := c.Bool("dev")
-							err = setup.Setup(path, dev)
+							err = setup.Setup(envPath, dev)
 							if err != nil {
 								fmt.Println(err.Error())
 								return err
@@ -105,13 +104,18 @@ func main() {
 							},
 						},
 						Action: func(c *cli.Context) error {
-							path, err := clicontext.ExpandPath(c, "path")
+							envPath, err := clicontext.ExpandPath(c, "path")
 							if err != nil {
 								fmt.Println(err.Error())
 								return err
 							}
 
-							err = setup.Doctor(path)
+							err = clicontext.SetupPaths(envPath)
+							if err != nil {
+								return cli.Exit(err.Error(), 1)
+							}
+
+							err = setup.Doctor(envPath)
 							if err != nil {
 								fmt.Println(err.Error())
 								return err
@@ -219,7 +223,7 @@ func main() {
 	app.Run(os.Args) //nolint - exits are handled with cli.Exit()
 }
 
-// setupVirtualEnvironment will set our paths to our virtual environment path.
+// setupVirtualEnvironment will check that the environment exists and set our paths.
 func setupVirtualEnvironment(ctx *cli.Context) (err error) {
 	envPath, err := clicontext.ExpandPath(ctx, "env")
 	if err != nil {
@@ -234,9 +238,10 @@ func setupVirtualEnvironment(ctx *cli.Context) (err error) {
 
 	fmt.Printf("Using virtual environment: %q\n", envPath)
 
-	binPath := filepath.Join(envPath, "bin")
-	os.Setenv("PATH", fmt.Sprintf("%s%c%s", binPath, os.PathListSeparator, os.Getenv("PATH")))
-	os.Setenv("VIRTUAL_ENV", envPath)
+	err = clicontext.SetupPaths(envPath)
+	if err != nil {
+		return cli.Exit(err.Error(), 1)
+	}
 
 	return
 }
