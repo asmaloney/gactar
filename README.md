@@ -22,7 +22,7 @@ Currently, `gactar` will take an [_amod_ file](#gactar-models) and generate code
 
 Given that gactar in its early stages, the amod syntax may change dramatically based on use and feedback.
 
-**Note for Windows users:** I haven't actually built & run this on Windows directly (the GitHub CI builds it for me). If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues).
+**Note for Windows users:** I have only done limited building/testing on Windows. If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues).
 
 ### What isn't implemented?
 
@@ -36,40 +36,38 @@ There are more details on each step below, but here's the short version:
 
 ### Requirements
 
-1. **python 3** is required. You can check if you have it installed by opening a terminal and trying to run it:
+1. Access to a **command line interface** (cli) to run gactar. Generally something bash-compatible will work best.
 
-   ```sh
-   $ python3 --version
-   Python 3.10.4
-   ```
+   - macOS: Terminal or [iTerm](https://iterm2.com/)
+   - Linux: it is a command line interface
+   - Windows: [Git Bash](https://gitforwindows.org/) or [cygwin](https://www.cygwin.com/) or Powershell (? not sure which ones work)
 
-2. (_Linux only_) Python virtual environments (**venv**) may not be installed by default. If you run into errors during setup, you may need to install the **python3-venv** package (possibly requiring sudo):
-
-   ```sh
-   apt-get install python3-venv
-   ```
-
-### Download
-
-1. Download the latest [release](https://github.com/asmaloney/gactar/releases) for your platform & architecture (ARM64 if you have an ARM processor, AMD64 otherwise) and decompress the file.
+2. **python 3** is required by two of the frameworks (ccm & pyactr). More about Python installation [here](https://github.com/asmaloney/gactar/wiki/Python).
 
 ### Install
 
-0. (optional) Rename the folder that was just created (e.g. `gactar-v0.8.0-macOS-amd64`) to something shorter (e.g. `gactar`):
+1. Download the latest [release](https://github.com/asmaloney/gactar/releases) for your platform & architecture and decompress the file.
 
-   `mv gactar-v0.8.0-macOS-amd64 gactar`
+   - arm64 if you have an ARM processor (e.g. Apple's M1)
+   - amd64 otherwise
 
-1. Change to the folder :
+2. (optional) Rename the folder that was just created (e.g. `gactar-v0.x-macOS-amd64`) to something shorter (e.g. `gactar`):
 
-   `cd gactar-v0.8.0-macOS-amd64`
+   `mv gactar-v0.x-macOS-amd64 gactar`
+
+3. In your command line interface, change to the folder :
+
+   `cd gactar-v0.x-macOS-amd64`
 
    OR
 
-   `cd gactar` (if you did step 0)
+   `cd gactar` (if you did step 2)
 
-2. Run the set up script:
+4. Run the set up tool:
 
-   `./scripts/setup.sh`
+   `./gactar env setup`
+
+For more details, [see below](#installation).
 
 ### Run
 
@@ -79,76 +77,18 @@ There are more details on each step below, but here's the short version:
 
 2. Open your browser to the URL it outputs (e.g. http://localhost:8181)
 
+For more details and other options for running gactar, [see below](#running-gactar).
+
 ## Why gactar?
 
 1. Provides a human-readable, easy-to-understand, standard format to define basic ACT-R models.
-1. Allows the easy exchange of models with other researchers
-1. Opens the possibility of a library of models which will run on multiple implementation frameworks.
-1. Abstracts away the "programming" to focus on writing and understanding models.
+1. Abstracts away the "programming" to focus on writing & understanding models.
 1. Restricts the model to a small language to prevent programming "outside the model" (no sneaking in extra calculations or control-flow!).
-1. Runs the same model on multiple ACT-R implementation frameworks.
-1. Provides a very simple setup for teaching environments - gactar is self-contained in one executable and uses a setup script to download the implementation frameworks.
+1. Runs the same model on multiple ACT-R implementation frameworks so the output may be compared.
 1. Generates human-readable code with comments linking back to the amod file which is useful for learning the implementations and comparing them.
-1. Parses chunks (including the `examples` in an amod file) to catch and report errors in a user-friendly manner.
-
-   **Example #1 (invalid variable name)**
-
-   ```
-    match {
-        goal [isMember: ?obj * nil]
-    }
-    do {
-        recall [property: ?ojb category *]
-    }
-   ```
-
-   The CCM Suite implementation _fails silently_ when given invalid variables which makes it difficult to catch errors & can result in incorrect output. Instead of ignoring the incorrect variable, gactar outputs a nice error message so it's obvious what the problem is:
-
-   ```
-   recall statement variable '?ojb' not found in matches for production 'initialRetrieval' (line 56, col 13)
-   ```
-
-   **Example #2 (invalid slot name)**
-
-   ```
-    match {
-        goal [isMember: ?obj * nil]
-    }
-    do {
-        set goal.jugdment to 'pending'
-    }
-   ```
-
-   The CCM Suite implementation produces the following error:
-
-   ```
-   Traceback (most recent call last):
-   File "/path/gactar_Semantic_Run.py", line 8, in <module>
-    model.run()
-   File "/path/CCMSuite3/ccm/model.py", line 254, in run
-    self.sch.run()
-   File "/path/CCMSuite3/ccm/scheduler.py", line 116, in run
-    self.do_event(heapq.heappop(self.queue))
-   File "/path/CCMSuite3/ccm/scheduler.py", line 161, in do_event
-    result=event.func(*event.args,**event.keys)
-   File "/path/CCMSuite3/ccm/lib/actr/core.py", line 64, in _process_productions
-    choice.fire(self._context)
-   File "/path/CCMSuite3/ccm/production.py", line 51, in fire
-    exec(self.func, context, self.bound)
-   File "<production-initialRetrieval>", line 2, in <module>
-   File "/path/CCMSuite3/ccm/model.py", line 22, in __call__
-    val = self.func(self.obj, *args, **keys)
-   File "/path/CCMSuite3/ccm/lib/actr/buffer.py", line 60, in modify
-    raise Exception('No slot "%s" to modify to "%s"' % (k, v))
-   Exception: No slot "jugdment" to modify to "pending"
-   end...
-   ```
-
-   Instead, by adding validation, gactar produces a much better message:
-
-   ```
-   slot 'jugdment' does not exist in chunk 'isMember' for match buffer 'goal' in production 'initialRetrieval' (line 55, col 10)
-   ```
+1. Provides a very simple setup for teaching environments - gactar is self-contained in one executable and downloads the implementation frameworks itself.
+1. Allows the easy exchange of models with other researchers
+1. Opens up the possibility of a library of models which will run on multiple implementation frameworks.
 
 ## Design Goals
 
@@ -163,28 +103,24 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
 
 ## Installation
 
-1. Although the `gactar` executable itself is compiled for each platform, it requires **python3** to run the setup and to run the _ccm_ and _pyactr_ implementations. **python3** needs to be somewhere in your `PATH` environment variable.
+1. Access to a **command line interface** (cli) is required to run gactar. Generally something bash-compatible will work best.
 
-   You can check if you have it installed by opening a terminal and trying to run it:
+   - macOS: Terminal or [iTerm](https://iterm2.com/)
+   - Linux: it is a command line interface
+   - Windows: [Git Bash](https://gitforwindows.org/) or [cygwin](https://www.cygwin.com/) or Powershell (? not sure which ones work)
 
-   ```sh
-   $ python3 --version
-   Python 3.10.4
-   ```
+1. **python 3** is required by two of the frameworks (ccm & pyactr). More about Python installation [here](https://github.com/asmaloney/gactar/wiki/Python).
 
-   (_Linux only_) Python virtual environments (**venv**) may not be installed by default. If you run into errors during setup, you may need to install the **python3-venv** package (possibly requiring sudo):
+1. `gactar` requires that one or more of the three implementations (_ccm_, _pyactr_, _vanilla_) is installed. _ccm_ and _pyactr_ are both Python-based and will be installed using _pip_ (if Python is available). _vanilla_ requires a Lisp compiler which will be installed by the setup command.
 
-   ```sh
-   apt-get install python3-venv
-   ```
-
-2. `gactar` requires one or more of the three implementations (_ccm_, _pyactr_, _vanilla_) be installed. _ccm_ and _pyactr_ are both Python-based and will be installed using pip. _vanilla_ requires a Lisp compiler so some additional steps may be required depending on your platform (see below).
-
-`gactar` uses a Python virtual environment to keep all the required Python packages, Lisp files, and other implementation files in one place so it does not affect the rest of your system. For more information about the virtual environment see the [python docs](https://docs.python.org/3/library/venv.html).
+`gactar` uses a virtual environment to keep all the required Python packages, Lisp files, and other implementation files in one place so it does not affect the rest of your system. For more information about the Python virtual environment see the [python docs](https://docs.python.org/3/library/venv.html).
 
 ### Download gactar Release
 
-1. Download the latest [release](https://github.com/asmaloney/gactar/releases) for your platform & architecture (ARM64 if you have an ARM processor, AMD64 otherwise) and decompress the file.
+1. Download the latest [release](https://github.com/asmaloney/gactar/releases) for your platform & architecture and decompress the file.
+
+   - arm64 if you have an ARM processor (e.g. Apple's M1)
+   - amd64 otherwise
 
 2. You should end up with a folder named something like `gactar-v<version>-<platform>-<architecture>` (e.g. `gactar-v0.8.0-macOS-amd64`) containing the following files & folders:
 
@@ -196,20 +132,61 @@ For information on how to contribute (code, bug reports, ideas, or other resourc
    | doc/            | folder containing extra documentation                                        |
    | gactar          | the executable                                                               |
    | examples/       | folder containing the examples                                               |
+   | install/        | folder containing Python package information used for setup                  |
    | LICENSE         | the license                                                                  |
    | README.md       | this readme file                                                             |
-   | scripts/        | folder containing the setup scripts                                          |
 
-### Setup Virtual Environment
+### Setup
 
-Run `./scripts/setup.sh`
+Setup is handled using the `gactar env setup` command.
+
+```
+USAGE:
+   gactar env setup [command options] [arguments...]
+
+OPTIONS:
+   --dev                   install any dev packages (default: false)
+   --path value, -p value  directory for env files (it will be created if it does not exist) (default: "./env")
+```
+
+For basic setup, run `./gactar env setup`
 
 This will do several things to set up your environment:
 
 - create a [virtual environment](https://docs.python.org/3/library/venv.html) for the project in a directory called `env`
 - install [pyactr](https://github.com/jakdot/pyactr) and [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr) using pip
-- download "vanilla" [ACT-R](https://github.com/asmaloney/ACT-R)
+- download the _vanilla_ [ACT-R](https://github.com/asmaloney/ACT-R) Lisp code
 - download the [Clozure Common Lisp compiler](https://ccl.clozure.com/) (ccl) compiler
+
+Use the `-dev` flag to also install optional developer packages for linting & formatting Python code.
+
+```
+$ ./gactar env setup -dev
+```
+
+If you want to change the default environment (`env`), the directory can be specified using the `-path` option:
+
+```
+./gactar env setup -path foo
+```
+
+**Note:** If you change the path, you will need to specify `-env foo` each time you run gactar.
+
+## Checking Your Setup For Errors
+
+To run a health check on your virtual environment, run:
+
+```
+./gactar env doctor
+```
+
+To check a specific virtual environment, you can pass its path:
+
+```
+./gactar env doctor -path foo
+```
+
+This command will run several checks on your environment and report any warnings or errors.
 
 ## Running gactar
 
@@ -227,24 +204,28 @@ There are four different ways to use gactar depending on your needs:
 To run it using methods 2-4, here are the command line options:
 
 ```
-gactar [OPTIONS] [FILES...]
+gactar [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
 ```
 
-**-debug, -d**: turn on debugging output
+#### GLOBAL OPTIONS
 
-**-ebnf**: output amod EBNF to stdout and quit
+**--debug, -d**: turn on debugging output
 
-**-framework, -f** [string]: add framework - valid frameworks: all, ccm, pyactr, vanilla (default: `all`)
+**--ebnf**: output amod EBNF to stdout and quit
 
-**-interactive, -i**: run an interactive shell
+**--env** [path]: directory where ACT-R, pyactr, and other necessary files are installed (default: `./env`)
 
-**-port, -p** [number]: port to run the web server on (default: `8181`)
+**--framework, -f** [string]: add framework - valid frameworks: all, ccm, pyactr, vanilla (default: `all`)
 
-**-run, -r**: run the models after generating the code
+**--interactive, -i**: run an interactive shell
 
-**-temp** [string]: directory for generated files (it will be created if it does not exist) (default: `./gactar-temp`)
+**--port, -p** [number]: port to run the web server on (default: `8181`)
 
-**-web, -w**: start a web server to run in a browser
+**--run, -r**: run the models after generating the code
+
+**--temp** [path]: directory for generated files (it will be created if it does not exist) (default: `{env}/gactar-temp`)
+
+**--web, -w**: start a web server to run in a browser
 
 ### 1. Run With Visual Studio Code
 
@@ -263,13 +244,15 @@ The source code for _gactar-vscode_ may be found [here](https://github.com/asmal
 
 ### 2. Run As Web Server
 
-gactar includes a web server and will use your browser as a user interface.
+gactar includes a web server and can use your browser as its user interface.
 
 ```
 (env)$ ./gactar -w
-ccm: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
-pyactr: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
-vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664 from /path/to/gactar/env/ccl/dx86cl64
+gactar version v0.9.0
+Using virtual environment: "/path/to/gactar/env"
+ccm: Using Python 3.10.4
+pyactr: Using Python 3.10.4
+vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664
 Serving gactar on http://localhost:8181
 ```
 
@@ -295,16 +278,21 @@ This will generate code for all active frameworks and optionally run the models.
 
 ```
 (env)$ ./gactar examples/count.amod
-gactar version v0.4.0
-Intermediate file path: "gactar-temp"
+gactar version v0.9.0
+Using virtual environment: "/path/to/gactar/env"
+ccm: Using Python 3.10.4
+pyactr: Using Python 3.10.4
+vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664
+Intermediate file path: "/path/to/gactar/env/gactar-temp"
 Generating model for examples/count.amod
-ccm: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
+INFO: initial goal is [countFrom: 2 5 starting]
+ ccm
 	- generating code for examples/count.amod
 	- written to gactar-temp/ccm_count.py
-pyactr: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
+ pyactr
 	- generating code for examples/count.amod
 	- written to gactar-temp/pyactr_count.py
-vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664 from /path/to/gactar/env/ccl/dx86cl64
+ vanilla
 	- generating code for examples/count.amod
 	- written to gactar-temp/vanilla_count.lisp
 ```
@@ -313,13 +301,17 @@ You can choose which frameworks to use with `-framework` or `-f` like this:
 
 ```
 (env)$ ./gactar -f ccm -f vanilla examples/count.amod
-gactar version v0.4.0
-Intermediate file path: "gactar-temp"
+gactar version v0.9.0
+Using virtual environment: "/path/to/gactar/env"
+ccm: Using Python 3.10.4
+vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664
+Intermediate file path: "/path/to/gactar/env/gactar-temp"
 Generating model for examples/count.amod
-ccm: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
+INFO: initial goal is [countFrom: 2 5 starting]
+ ccm
 	- generating code for examples/count.amod
 	- written to gactar-temp/ccm_count.py
-vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664 from /path/to/gactar/env/ccl/dx86cl64
+ vanilla
 	- generating code for examples/count.amod
 	- written to gactar-temp/vanilla_count.lisp
 ```
@@ -328,10 +320,13 @@ You can write the files to a different location using `-temp`:
 
 ```
 (env)$ ./gactar -f ccm -temp intermediate examples/count.amod
-gactar version v0.4.0
-Intermediate file path: "intermediate"
+gactar version v0.9.0
+Using virtual environment: "/path/to/gactar/env"
+ccm: Using Python 3.10.4
+Intermediate file path: "/path/to/gactar/env/gactar-temp"
 Generating model for examples/count.amod
-ccm: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
+INFO: initial goal is [countFrom: 2 5 starting]
+ ccm
 	- generating code for examples/count.amod
 	- written to intermediate/ccm_count.py
 ```
@@ -340,10 +335,13 @@ You can also choose to run the models using `-run` or `-r`:
 
 ```
 (env)$ ./gactar -f ccm -temp intermediate -r examples/count.amod
-gactar version v0.4.0
-Intermediate file path: "intermediate"
+gactar version v0.9.0
+Using virtual environment: "/path/to/gactar/env"
+ccm: Using Python 3.10.4
+Intermediate file path: "/path/to/gactar/env/gactar-temp"
 Generating model for examples/count.amod
-ccm: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
+INFO: initial goal is [countFrom: 2 5 starting]
+ ccm
 	- generating code for examples/count.amod
 	- written to intermediate/ccm_count.py
 == ccm ==
@@ -362,12 +360,13 @@ gactar provides a simple interactive command-line mode to load and run models.
 
 ```
 (env)$ ./gactar -i
-gactar version v0.4.0
+gactar version v0.9.0
+Using virtual environment: "/path/to/gactar/env"
+ccm: Using Python 3.10.4
+pyactr: Using Python 3.10.4
+vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664
 Type 'help' for a list of commands.
 To exit, type 'exit' or 'quit'.
-ccm: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
-pyactr: Using Python 3.10.4 from /path/to/gactar/env/bin/python3
-vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664 from /path/to/gactar/env/ccl/dx86cl64
 > help
   exit:        exits the program
   frameworks:  choose frameworks to run (e.g. "ccm pyactr", "all")
@@ -466,8 +465,6 @@ make
 This will create the `gactar` executable.
 
 See the [web README](web/gactar-web/README.md) for information on developing the web interface.
-
-**Note for Windows:** I haven't actually built this on Windows directly (the GitHub CI builds it for me). If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues).
 
 ## Test
 
@@ -582,11 +579,11 @@ You can find other examples of `amod` files in the [examples folder](examples).
 
 ### amod Syntax
 
-The EBNF ([Extended Backus–Naur form](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form)) grammar for the amod file format may be found [here](doc/amod%20EBNF.txt).
+The EBNF ([Extended Backus–Naur form](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form)) grammar for the amod file format may be found [here](<doc/amod EBNF.txt>).
 
 ### Config Section
 
-For amod configuration options and a list of supported modules, please see [amod Config](./doc/amod%20Config.md).
+For amod configuration options and a list of supported modules, please see [amod Config](<doc/amod Config.md>).
 
 ### Buffers
 
