@@ -2,11 +2,11 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.9.0] - (in progress)
+## [0.9.0](https://github.com/asmaloney/gactar/releases/tag/v0.9.0) - 2022-06-20
 
 ### Added
 
-- gactar now handles installation of python packages, ACT-R code, and the Lisp compiler instead of using external scripts. ([#212](https://github.com/asmaloney/gactar/pull/212))
+- gactar now handles installation of python packages, ACT-R code, and the Lisp compiler itself instead of using external scripts. ([#212](https://github.com/asmaloney/gactar/pull/212))
 
   There is a new command to run setup:
 
@@ -16,11 +16,23 @@ All notable changes to this project will be documented in this file. The format 
 
   Use the `-dev` flag to also install optional developer packages for linting & formatting Python code.
 
+  ```
+  $ ./gactar env setup -dev
+  ```
+
+- gactar's new setup capability should work on **Windows** with a couple of caveats:
+
+  - It has only been tried with the 3.10.5 release from [python.org](https://www.python.org/downloads/windows/) on Windows 10.
+  - gactar uses the PATH environment variable to find the Python interpreter. The easiest way to do this is to check the **_Add Python 3.10 to PATH_** checkbox when installing Python.
+  - The Clozure Common Lisp compiler is currently broken on Windows (waiting on a new build). It will download, but will fail to run.
+
 - Added a command to check the health of your virtual environment. ([#220](https://github.com/asmaloney/gactar/pull/220))
 
   ```
   $ ./gactar env doctor
   ```
+
+  This will check paths, ensure that Python packages are installed properly, and check for the lisp compiler.
 
 - Added an `extra_buffers` module to allow declaration of... extra buffers. ([#217](https://github.com/asmaloney/gactar/pull/217))
 
@@ -35,9 +47,11 @@ All notable changes to this project will be documented in this file. The format 
   }
   ```
 
-- Added a "partial_matching" option to the procedural module to turn on partial matching. ([#223](https://github.com/asmaloney/gactar/pull/223))
+- Added _partial_matching_ option to the **procedural** module to turn on partial matching. ([#223](https://github.com/asmaloney/gactar/pull/223))
 
-- Added a "decay" option to the declarative memory module for the base-level learning calculation. ([#226](https://github.com/asmaloney/gactar/pull/226))
+  **Note:** while this can be turned on, specifying similarity of chunks isn't handled yet. (See [#234](https://github.com/asmaloney/gactar/issues/234))
+
+- Added _decay_ option to the declarative **memory** module for the base-level learning calculation. ([#226](https://github.com/asmaloney/gactar/pull/226))
 
 ### Changed
 
@@ -56,6 +70,12 @@ All notable changes to this project will be documented in this file. The format 
   ```
 
 - Web assets are now compressed using brotli compression. ([#218](https://github.com/asmaloney/gactar/pull/218))
+
+- Moved the default temp directory (`gactar-temp`) into the environment directory. ([#229](https://github.com/asmaloney/gactar/pull/229))
+
+### Fixed
+
+- When not running `setup`, restrict the PATH environment variable to paths within the virtual environment directory. ([#230](https://github.com/asmaloney/gactar/pull/230))
 
 ## [0.8.0](https://github.com/asmaloney/gactar/releases/tag/v0.8.0) - 2022-06-13
 

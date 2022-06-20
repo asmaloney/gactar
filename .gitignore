@@ -15,6 +15,5 @@ gactar
 __pycache__
 tmp
 env
-gactar-temp
 
 .vscode/settings.json
