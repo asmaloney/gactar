@@ -154,6 +154,10 @@ func main() {
 			&cli.IntFlag{Name: "port", Aliases: []string{"p"}, Category: "Mode: Web", Value: defaultPort, Usage: "port to run the web server on"},
 		},
 		Action: func(c *cli.Context) error {
+			// Override cli's version printing so we ensure it comes first
+			cli.VersionPrinter = func(c *cli.Context) {}
+			fmt.Printf("%s version %s\n", c.App.Name, c.App.Version)
+
 			if c.Bool("debug") {
 				amod.SetDebug(true)
 			}

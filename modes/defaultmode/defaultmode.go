@@ -102,6 +102,7 @@ func generateCode(frameworks framework.List, files []string, outputDir string, r
 	}
 
 	for _, f := range frameworks {
+		fmt.Printf(" %s\n", f.Info().Name)
 		for file, model := range modelMap {
 			fmt.Printf("\t- generating code for %s\n", file)
 
