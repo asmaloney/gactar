@@ -6,6 +6,42 @@
 
 You can read the tech note **gactar: A Tool For Exploring ACT-R Modelling** [here](https://dx.doi.org/10.13140/RG.2.2.25387.36642).
 
+## Table of Contents
+
+- [Proof\-of\-Concept](#proof-of-concept)
+  - [What isn't implemented?](#what-isnt-implemented)
+- [Quickstart](#quickstart)
+  - [Requirements](#requirements)
+  - [Install](#install)
+  - [Run](#run)
+- [Why gactar?](#why-gactar)
+- [Design Goals](#design-goals)
+- [Contributing](#contributing)
+- [Installation](#installation)
+  - [Download gactar Release](#download-gactar-release)
+  - [Setup](#setup)
+- [Checking Your Setup For Errors](#checking-your-setup-for-errors)
+- [Running gactar](#running-gactar)
+  - [Run With Visual Studio Code](#1-run-with-visual-studio-code)
+  - [Run As Web Server](#2-run-as-web-server)
+  - [Run With Command Line Interface](#3-run-with-command-line-interface)
+  - [Run With Interactive Command Line Interface](#4-run-with-interactive-command-line-interface)
+- [Build/Develop](#builddevelop)
+- [Test](#test)
+- [Web API](#web-api)
+- [gactar Models](#gactar-models)
+  - [amod Syntax](#amod-syntax)
+  - [Config Section](#config-section)
+  - [Buffers](#buffers)
+  - [Chunks](#chunks)
+  - [Productions](#productions)
+  - [Example Production \#1](#example-production-1)
+  - [Example Production \#2](#example-production-2)
+- [amod Processing](#amod-processing)
+- [Reference](#reference)
+
+---
+
 ## Proof-of-Concept
 
 **This is a proof-of-concept.**
