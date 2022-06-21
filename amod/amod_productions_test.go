@@ -779,3 +779,19 @@ func Example_productionMatchInternalInvalidStatus2() {
 	// Output:
 	// ERROR: invalid _status 'something' for 'retrieval' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8, col 30)
 }
+
+func Example_productionMatchInternalInvalidStatusNumber() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [_status: 42] }
+		do { print 42 }
+	}`)
+
+	// Output:
+	// ERROR: invalid _status for 'goal' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8, col 25)
+}

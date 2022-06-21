@@ -140,7 +140,13 @@ func validateMatch(match *match, model *actr.Model, log *issueLog, production *a
 			slot := *pattern.Slots[0]
 			slotItem := slot.ID
 
-			if !buffer.IsValidBufferState(*slotItem) {
+			if slotItem == nil {
+				log.errorT(slot.Tokens,
+					"invalid _status for '%s' in production '%s' (should be %v)",
+					name, production.Name, buffer.ValidBufferStatesStr())
+				err = ErrCompile
+
+			} else if !buffer.IsValidBufferState(*slotItem) {
 				log.errorT(slot.Tokens,
 					"invalid _status '%s' for '%s' in production '%s' (should be %v)",
 					*slotItem, name, production.Name, buffer.ValidBufferStatesStr())
