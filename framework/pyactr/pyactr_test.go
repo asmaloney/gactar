@@ -81,7 +81,7 @@ func runCodeGenerationTest(t *testing.T, fw framework.Framework, input, output s
 	}
 
 	if !bytes.Equal(code, expected) {
-		diffs := diff.Diff(string(code), string(expected))
+		diffs := diff.Diff(string(expected), string(code))
 		t.Errorf("code does not match %s file:\n%s", output, diffs)
 	}
 }

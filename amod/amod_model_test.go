@@ -19,7 +19,7 @@ func Example_modelExamples() {
 	generateToStdout(`
 	~~ model~~
 	name: Test
-	examples { [foo: bar] }
+	examples { [foo: 'bar'] }
 	~~ config ~~
 	chunks { [foo: thing] }
 	~~ init ~~
@@ -32,7 +32,7 @@ func Example_modelExampleBadChunk() {
 	generateToStdout(`
 	~~ model~~
 	name: Test
-	examples { [foo: bar] }
+	examples { [foo: 'bar'] }
 	~~ config ~~
 	~~ init ~~
 	~~ productions ~~`)

@@ -518,6 +518,9 @@ func createChunkPattern(model *actr.Model, log *issueLog, cp *pattern) (*actr.Pa
 		case slot.ID != nil:
 			actrSlot.ID = slot.ID
 
+		case slot.Str != nil:
+			actrSlot.Str = slot.Str
+
 		case slot.Num != nil:
 			actrSlot.Num = slot.Num
 

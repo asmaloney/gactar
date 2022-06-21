@@ -9,15 +9,12 @@
 from python_actr import ACTR, Buffer, Memory
 from python_actr import log, log_everything
 
-from gactar_ccm_activate_trace import ActivateTrace
-
 
 class ccm_semantic(ACTR):
     retrieval = Buffer()
     goal = Buffer()
 
     memory = Memory(retrieval)
-    trace = ActivateTrace(memory)
 
     def init():
         # amod line 36

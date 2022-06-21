@@ -60,7 +60,7 @@ startPair {
 
 addOnes {
     match {
-        goal [add_pair: * ?one1 * ?one2 * busy *]
+        goal [add_pair: * ?one1 * ?one2 * 'busy' *]
         retrieval [addition_fact: ?one1 ?one2 ?sum]
     }
     do {
@@ -72,7 +72,7 @@ addOnes {
 
 processCarry {
     match {
-        goal [add_pair: ?ten1 * ?ten2 * nil * busy]
+        goal [add_pair: ?ten1 * ?ten2 * nil * 'busy']
         retrieval [addition_fact: 10 ?remainder *]
     }
     do {
@@ -85,7 +85,7 @@ processCarry {
 
 noCarry {
     match {
-        goal [add_pair: ?ten1 * ?ten2 * * * busy]
+        goal [add_pair: ?ten1 * ?ten2 * * * 'busy']
         retrieval [_status: error]
     }
     do {
@@ -97,7 +97,7 @@ noCarry {
 
 addTensDone {
     match {
-        goal [add_pair: * * * * busy ?ones nil]
+        goal [add_pair: * * * * 'busy' ?ones nil]
         retrieval [addition_fact: * * ?sum]
     }
     do {
@@ -108,7 +108,7 @@ addTensDone {
 
 addTensCarry {
     match {
-        goal [add_pair: * * * * busy * 1]
+        goal [add_pair: * * * * 'busy' * 1]
         retrieval [addition_fact: * * ?sum]
     }
     do {

@@ -50,7 +50,7 @@ memory {
 }
 
 // Default goal
-goal [countFrom: 2 5 starting]
+goal [countFrom: 2 5 'starting']
 
 ~~ productions ~~
 
@@ -61,18 +61,18 @@ begin {
     
     // Buffers to match
     match {
-        goal [countFrom: ?start ?end starting]
+        goal [countFrom: ?start ?end 'starting']
     }
     // Steps to execute
     do {
         recall [count: ?start *]
-        set goal to [countFrom: ?start ?end counting]
+        set goal to [countFrom: ?start ?end 'counting']
     }
 }
 
 increment {
     match {
-        goal [countFrom: ?x !?x counting]
+        goal [countFrom: ?x !?x 'counting']
         retrieval [count: ?x ?next]
     }
     do {
@@ -84,7 +84,7 @@ increment {
 
 end {
     match {
-        goal [countFrom: ?x ?x counting]
+        goal [countFrom: ?x ?x 'counting']
     }
     do {
         print ?x

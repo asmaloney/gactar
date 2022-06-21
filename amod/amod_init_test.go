@@ -12,7 +12,7 @@ func Example_initializer1() {
 	~~ init ~~
 	memory {
 		[remember: me]
-		[author: me software]
+		[author: 'me' 'software']
 	}
 	~~ productions ~~`)
 
@@ -26,7 +26,7 @@ func Example_initializer2() {
 	~~ config ~~
 	chunks { [author: person object year] }
 	~~ init ~~
-	goal [author: Fred Book 1972]
+	goal [author: 'Fred' 'Book' '1972']
 	~~ productions ~~`)
 
 	// Output:
@@ -40,7 +40,7 @@ func Example_initializer3() {
 	~~ config ~~
 	chunks { [author: person object year] }
 	~~ init ~~
-	memory [author: Jane Book 1982]
+	memory [author: 'Jane' 'Book' '1982']
 	~~ productions ~~`)
 
 	// Output:
@@ -58,8 +58,8 @@ func Example_initializer4() {
 	~~ init ~~
 	memory {
 		retrieval {
-			[remember: me]
-			[author: me software]
+			[remember: 'me']
+			[author: 'me' 'software']
 		}
 	}
 	~~ productions ~~`)
@@ -75,7 +75,7 @@ func Example_initializerInvalidSlots() {
 	~~ config ~~
 	chunks { [author: person object year] }
 	~~ init ~~
-	memory { [author: me software] }
+	memory { [author: 'me' 'software'] }
 	~~ productions ~~`)
 
 	// Output:
@@ -89,7 +89,7 @@ func Example_initializerInvalidChunk1() {
 	name: Test
 	~~ config ~~
 	~~ init ~~
-	memory { [author: me software] }
+	memory { [author: 'me' 'software'] }
 	~~ productions ~~`)
 
 	// Output:
@@ -103,7 +103,7 @@ func Example_initializerInvalidChunk2() {
 	name: Test
 	~~ config ~~
 	~~ init ~~
-	goal [author: Fred Book 1972]
+	goal [author: 'Fred' 'Book' '1972']
 	~~ productions ~~`)
 
 	// Output:
@@ -118,7 +118,7 @@ func Example_initializerUnknownBuffer() {
 	~~ config ~~
 	chunks { [author: person object year] }
 	~~ init ~~
-	something [author: Fred Book 1972]
+	something [author: 'Fred' 'Book' '1972']
 	~~ productions ~~`)
 
 	// Output:
@@ -133,7 +133,7 @@ func Example_initializerMultipleInits() {
 	~~ config ~~
 	chunks { [author: person object year] }
 	~~ init ~~
-	goal { [author: Fred Book 1972] [author: Jane Book 1982] }
+	goal { [author: 'Fred' 'Book' '1972'] [author: 'Jane' 'Book' '1982'] }
 	~~ productions ~~`)
 
 	// Output:
@@ -154,8 +154,8 @@ func Example_initializerMultipleBuffers() {
 	chunks { [author: person object year] }
 	~~ init ~~
 	extra_buffers {
-		buffer1 [author: Fred Book 1972]
-		buffer2 [author: Jane Book 1984]
+		buffer1 [author: 'Fred' 'Book' '1972']
+		buffer2 [author: 'Jane' 'Book' '1984']
 	}
 	~~ productions ~~`)
 
@@ -171,8 +171,8 @@ func Example_initializerNoBuffers() {
 	chunks { [author: person object year] }
 	~~ init ~~
 	extra_buffers {
-		[author: Jane Book 1984]
-		[author: Xe Book 1999]
+		[author: 'Jane' 'Book' '1984']
+		[author: 'Xe' 'Book' '1999']
 	}
 	~~ productions ~~`)
 

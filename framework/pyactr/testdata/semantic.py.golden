@@ -11,7 +11,6 @@ import pyactr_print
 
 pyactr_semantic = actr.ACTRModel(
     subsymbolic=True,
-    activation_trace=True,
 )
 
 # pyactr doesn't handle general printing, so use gactar to add this capability
@@ -28,50 +27,50 @@ goal = pyactr_semantic.set_goal('goal')
 # amod line 36
 memory.add(actr.chunkstring(string='''
 	isa			property
-	object		"shark"
-	attribute	"dangerous"
-	value		"true"
+	object		shark
+	attribute	dangerous
+	value		true
 '''))
 # amod line 37
 memory.add(actr.chunkstring(string='''
 	isa			property
-	object		"shark"
-	attribute	"locomotion"
-	value		"swimming"
+	object		shark
+	attribute	locomotion
+	value		swimming
 '''))
 # amod line 38
 memory.add(actr.chunkstring(string='''
 	isa			property
-	object		"shark"
-	attribute	"category"
-	value		"fish"
+	object		shark
+	attribute	category
+	value		fish
 '''))
 # amod line 39
 memory.add(actr.chunkstring(string='''
 	isa			property
-	object		"fish"
-	attribute	"category"
-	value		"animal"
+	object		fish
+	attribute	category
+	value		animal
 '''))
 # amod line 40
 memory.add(actr.chunkstring(string='''
 	isa			property
-	object		"bird"
-	attribute	"category"
-	value		"animal"
+	object		bird
+	attribute	category
+	value		animal
 '''))
 # amod line 41
 memory.add(actr.chunkstring(string='''
 	isa			property
-	object		"canary"
-	attribute	"category"
-	value		"bird"
+	object		canary
+	attribute	category
+	value		bird
 '''))
 # amod line 45
 goal.add(actr.chunkstring(string='''
 	isa			isMember
-	object		"shark"
-	category	"animal"
+	object		shark
+	category	animal
 	judgment	nil
 '''))
 
@@ -90,7 +89,7 @@ pyactr_semantic.productionstring(name='initialRetrieval', string='''
      +retrieval>
 		isa			property
 		object		=obj
-		attribute	"category"
+		attribute	category
 ''')
 
 # amod line 65
@@ -103,7 +102,7 @@ pyactr_semantic.productionstring(name='directVerify', string='''
      =retrieval>
 		isa			property
 		object		=obj
-		attribute	"category"
+		attribute	category
 		value		=cat
      ==>
      =goal>
@@ -124,7 +123,7 @@ pyactr_semantic.productionstring(name='chainCategory', string='''
      =retrieval>
 		isa			property
 		object		=obj1
-		attribute	"category"
+		attribute	category
 		value		=obj2
 		value		~=cat
      ==>
@@ -135,7 +134,7 @@ pyactr_semantic.productionstring(name='chainCategory', string='''
      +retrieval>
 		isa			property
 		object		=obj2
-		attribute	"category"
+		attribute	category
 ''')
 
 # amod line 88

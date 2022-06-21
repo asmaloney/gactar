@@ -32,16 +32,16 @@ chunks {
 
 // Initialize the memory
 memory {
-    [word: Mary ProperN]
-    [word: Bill ProperN]
-    [word: likes V]
+    [word: 'Mary' 'ProperN']
+    [word: 'Bill' 'ProperN']
+    [word: 'likes' 'V']
 }
 
 // Set our default goal
-goal [parsing_goal: S nil nil parsing]
+goal [parsing_goal: 'S' nil nil 'parsing']
 
 // Set our default imaginal buffer
-imaginal [sentence: Mary likes Bill]
+imaginal [sentence: 'Mary' 'likes' 'Bill']
 
 ~~ productions ~~
 
@@ -52,7 +52,7 @@ expandS {
 
     // Buffers to match
     match {
-        goal [parsing_goal: S * * parsing]
+        goal [parsing_goal: 'S' * * 'parsing']
     }
     // Steps to execute
     do {
@@ -65,7 +65,7 @@ expandNP {
     description: 'expand: NP ==> ProperN'
 
     match {
-        goal [parsing_goal: NP * * parsing]
+        goal [parsing_goal: 'NP' * * 'parsing']
     }
     do {
         set goal.stack_top to 'ProperN'
@@ -76,7 +76,7 @@ expandVP {
     description: 'expand: VP ==> V NP'
 
     match {
-        goal [parsing_goal: VP * * parsing]
+        goal [parsing_goal: 'VP' * * 'parsing']
     }
     do {
         set goal.stack_top to 'V'
@@ -86,7 +86,7 @@ expandVP {
 
 retrieveProperN {
     match {
-        goal [parsing_goal: ProperN * * parsing]
+        goal [parsing_goal: 'ProperN' * * 'parsing']
         imaginal [sentence: ?word1 * *]
     }
     do {
@@ -97,7 +97,7 @@ retrieveProperN {
 
 retrieveV {
     match {
-        goal [parsing_goal: V * * parsing]
+        goal [parsing_goal: 'V' * * 'parsing']
         imaginal [sentence: ?word1 * *]
     }
     do {
@@ -108,12 +108,12 @@ retrieveV {
 
 scanWord {
     match {
-        goal [parsing_goal: ?top ?bottom * retrieving]
+        goal [parsing_goal: ?top ?bottom * 'retrieving']
         retrieval [word: ?word1 ?top]
         imaginal [sentence: ?word1 ?word2 ?word3]
     }
     do {
-        set goal to [parsing_goal: ?bottom nil ?word1 printing]
+        set goal to [parsing_goal: ?bottom nil ?word1 'printing']
         set imaginal to [sentence: ?word2 ?word3 nil]
         clear retrieval
     }
@@ -121,7 +121,7 @@ scanWord {
 
 printParsedWord {
     match {
-        goal [parsing_goal: * * ?parsed printing]
+        goal [parsing_goal: * * ?parsed 'printing']
         imaginal [sentence: !nil * *]
     }
     do {
@@ -133,7 +133,7 @@ printParsedWord {
 
 done {
     match {
-        goal [parsing_goal: * * ?parsed printing]
+        goal [parsing_goal: * * ?parsed 'printing']
         imaginal [sentence: nil * *]
     }
     do {
