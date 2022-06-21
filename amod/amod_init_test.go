@@ -230,3 +230,33 @@ func Example_initializerDuplicateNames() {
 	// Output:
 	// ERROR: duplicate chunk name "foo" found in initialization (line 9, col 2)
 }
+
+func Example_initializerPartialSimilarities() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	modules {
+		procedural {
+			partial_matching: true
+		}
+	}
+	chunks {
+    	[group: id parent position]
+	}
+	~~ init ~~
+	memory {
+		[group: group1 list first]
+		[group: group2 list second]
+		[group: group3 list third]
+	}
+
+	similar {
+		( first second -0.5 )
+		( second third -0.5 )
+	}
+
+	~~ productions ~~`)
+
+	// Output:
+}

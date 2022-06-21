@@ -138,6 +138,7 @@ var keywords []string = []string{
 	"print",
 	"recall",
 	"set",
+	"similar",
 	"stop",
 	"to",
 	"when",

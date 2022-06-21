@@ -231,7 +231,8 @@ func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code 
 	procedural := c.model.Procedural
 	// Turn on Partial if we have set "partial_matching"
 	if procedural.PartialMatching {
-		c.Writeln("    Partial(%s)", memory.ModuleName())
+		c.Writeln("    partial = Partial(%[1]s)", memory.ModuleName())
+		c.writeSimilarities("partial")
 		c.Writeln("")
 	}
 
@@ -388,6 +389,17 @@ func (c CCMPyACTR) writeInitializers(goal *actr.Pattern) {
 
 		c.outputPattern(init.Pattern)
 		c.Writeln(")")
+	}
+}
+
+func (c CCMPyACTR) writeSimilarities(partialName string) {
+	if len(c.model.Similarities) == 0 {
+		return
+	}
+
+	for _, similar := range c.model.Similarities {
+		c.Writeln("    # amod line %d", similar.AMODLineNumber)
+		c.Writeln("    %s.similarity('%s', '%s', %s)", partialName, similar.ChunkOne, similar.ChunkTwo, numbers.Float64Str(similar.Value))
 	}
 }
 

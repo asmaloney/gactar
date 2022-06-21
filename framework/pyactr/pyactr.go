@@ -284,6 +284,8 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 
 	p.writeInitializers(goal)
 
+	p.writeSimilarities()
+
 	// Add user-set goal if any
 	if goal != nil {
 		p.Writeln("goal.add(actr.chunkstring(string='''")
@@ -399,6 +401,19 @@ func (p PyACTR) writeInitializers(goal *actr.Pattern) {
 		p.Writeln("string='''")
 		p.outputPattern(init.Pattern, 1)
 		p.Writeln("'''))")
+	}
+
+	p.Writeln("")
+}
+
+func (p PyACTR) writeSimilarities() {
+	if len(p.model.Similarities) == 0 {
+		return
+	}
+
+	for _, similar := range p.model.Similarities {
+		p.Writeln("# amod line %d", similar.AMODLineNumber)
+		p.Writeln("%s.set_similarities('%s', '%s', %s)", p.className, similar.ChunkOne, similar.ChunkTwo, numbers.Float64Str(similar.Value))
 	}
 
 	p.Writeln("")
