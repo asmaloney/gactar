@@ -12,6 +12,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/asmaloney/gactar/framework"
+	"github.com/asmaloney/gactar/util/clicontext"
 )
 
 func init() {
@@ -26,7 +27,10 @@ func TestCodeGeneration(t *testing.T) {
 
 	// Make sure we can find the compiler.
 	// Since this is just for testing, we can hardcode it.
-	os.Setenv("VIRTUAL_ENV", "../../env")
+	err := clicontext.SetupPaths("../../env")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	fw, err := New(ctx)
 	if fw == nil {

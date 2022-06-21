@@ -15,6 +15,7 @@ from gactar_ccm_activate_trace import ActivateTrace
 class ccm_semantic(ACTR):
     retrieval = Buffer()
     goal = Buffer()
+
     memory = Memory(retrieval)
     trace = ActivateTrace(memory)
 

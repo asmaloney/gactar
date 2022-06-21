@@ -10,6 +10,7 @@ from python_actr import ACTR, Buffer, Memory
 class ccm_Empty(ACTR):
     retrieval = Buffer()
     goal = Buffer()
+
     memory = Memory(retrieval)
 
     def __init__(self):
