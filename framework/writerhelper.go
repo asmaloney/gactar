@@ -11,6 +11,9 @@ import (
 type WriterHelper struct {
 	Contents  *bytes.Buffer
 	TabWriter *tabwriter.Writer
+
+	lineLen   int
+	posInLine int
 }
 
 // KeyValueList is used to format output nicely with tabs using tabwriter.
@@ -26,6 +29,8 @@ type keyValue struct {
 func (w *WriterHelper) InitWriterHelper() (err error) {
 	w.Contents = new(bytes.Buffer)
 	w.TabWriter = tabwriter.NewWriter(w.Contents, 0, 4, 1, '\t', 0)
+	w.lineLen = 0
+	w.posInLine = 0
 
 	return
 }
@@ -59,8 +64,30 @@ func (w WriterHelper) GetContents() []byte {
 	return w.Contents.Bytes()
 }
 
-func (w WriterHelper) Write(e string, a ...interface{}) {
+// SetLineLen will cause newlines to be inserted at the line length.
+// Note that this can be problematic for some things like comments or strings,
+// so be careful how you use it.
+func (w *WriterHelper) SetLineLen(lineLength int) {
+	w.lineLen = lineLength
+}
+
+// ResetLineLen will reset the line length capability.
+func (w *WriterHelper) ResetLineLen() {
+	w.lineLen = 0
+}
+
+func (w *WriterHelper) Write(e string, a ...interface{}) {
 	str := fmt.Sprintf(e, a...)
+
+	if w.lineLen > 0 {
+		strLen := len(str)
+		w.posInLine += strLen
+		if w.posInLine > w.lineLen {
+			w.Contents.WriteString("\n")
+			w.posInLine = strLen
+		}
+	}
+
 	w.Contents.WriteString(str)
 }
 
