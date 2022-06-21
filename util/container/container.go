@@ -50,3 +50,14 @@ func UniqueAndSorted(s []string) (list []string) {
 
 	return
 }
+
+func FindAndDelete[T comparable](s []T, item T) []T {
+	index := 0
+	for _, i := range s {
+		if i != item {
+			s[index] = i
+			index++
+		}
+	}
+	return s[:index]
+}
