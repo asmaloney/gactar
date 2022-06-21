@@ -6,6 +6,7 @@ import (
 	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/modules"
 	"github.com/asmaloney/gactar/actr/params"
+	"github.com/asmaloney/gactar/util/container"
 )
 
 type options struct {
@@ -30,6 +31,13 @@ type Model struct {
 	Goal       *modules.Goal              // goal is always present
 	Procedural *modules.Procedural        // procedural is always present
 	Chunks     []*Chunk
+
+	// ImplicitChunks are chunks which aren't declared, but need to be created by some frameworks.
+	// e.g. vanilla will create them and emit a warning:
+	// 	#|Warning: Creating chunk SHARK with no slots |#
+	// These come from the initializations.
+	// We keep track of them so we can create them explicitly to avoid the warnings.
+	ImplicitChunks []string
 
 	Initializers []*Initializer
 	Productions  []*Production
@@ -68,6 +76,20 @@ func (model *Model) Initialize() {
 	model.LogLevel = "info"
 }
 
+// AddInitializer adds the initializer to our list and adds any IDs to ImplicitChunks
+// so we can (possibly) create them in the framework output.
+func (model *Model) AddInitializer(initializer *Initializer) {
+	model.Initializers = append(model.Initializers, initializer)
+
+	if initializer.Pattern != nil {
+		for _, slot := range initializer.Pattern.Slots {
+			if slot.ID != nil {
+				model.ImplicitChunks = append(model.ImplicitChunks, *slot.ID)
+			}
+		}
+	}
+}
+
 // LookupInitializer returns an initializer or nil if the buffer does not have one.
 func (model Model) LookupInitializer(buffer string) *Initializer {
 	for _, init := range model.Initializers {
@@ -77,6 +99,31 @@ func (model Model) LookupInitializer(buffer string) *Initializer {
 	}
 
 	return nil
+}
+
+func (model Model) HasImplicitChunks() bool {
+	return len(model.ImplicitChunks) > 0
+}
+
+// FinalizeImplicitChunks will remove already-declared chunks from the implicit list and
+// make the list unique.
+func (model *Model) FinalizeImplicitChunks() {
+	if !model.HasImplicitChunks() {
+		return
+	}
+
+	list := container.UniqueAndSorted(model.ImplicitChunks)
+
+	chunkNameList := []string{}
+	for _, chunk := range model.Chunks {
+		chunkNameList = append(chunkNameList, chunk.Name)
+	}
+
+	for _, chunkName := range chunkNameList {
+		list = container.FindAndDelete(list, chunkName)
+	}
+
+	model.ImplicitChunks = list
 }
 
 // HasPrintStatement checks if this model uses the print statement.

@@ -23,6 +23,10 @@
 
 ;; initialize our declarative memory
 (add-dm
+ ;; declare implicit chunks without slots to avoid warnings
+ (animal) (bird) (canary) (category) (dangerous) (fish) (locomotion) (shark)
+ (swimming) (true)
+
  ;; amod line 36
  (fact_0
 	isa			property

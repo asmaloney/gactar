@@ -68,6 +68,11 @@ func GenerateModel(buffer string) (model *actr.Model, iLog *issues.Log, err erro
 	}
 
 	model, err = generateModel(amod, log)
+	if err != nil {
+		return
+	}
+
+	model.FinalizeImplicitChunks()
 	return
 }
 
@@ -330,14 +335,14 @@ func addInitializers(model *actr.Model, log *issueLog, module modules.ModuleInte
 		return
 	}
 
-	init := actr.Initializer{
-		Module:         module,
-		Buffer:         buffer,
-		Pattern:        actrPattern,
-		AMODLineNumber: pattern.Tokens[0].Pos.Line,
-	}
-
-	model.Initializers = append(model.Initializers, &init)
+	model.AddInitializer(
+		&actr.Initializer{
+			Module:         module,
+			Buffer:         buffer,
+			Pattern:        actrPattern,
+			AMODLineNumber: pattern.Tokens[0].Pos.Line,
+		},
+	)
 }
 
 func addInit(model *actr.Model, log *issueLog, init *initSection) {

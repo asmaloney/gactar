@@ -326,6 +326,21 @@ func (v VanillaACTR) writeAuthors() {
 	v.Writeln("")
 }
 
+func (v VanillaACTR) writeImplicitChunks() {
+	if !v.model.HasImplicitChunks() {
+		return
+	}
+
+	v.Writeln(" ;; declare implicit chunks without slots to avoid warnings")
+	v.SetLineLen(80)
+	for _, chunkName := range v.model.ImplicitChunks {
+		v.Write(" (%s)", chunkName)
+	}
+	v.ResetLineLen()
+
+	v.Writeln("\n")
+}
+
 func (v VanillaACTR) writeBufferInitializer(bufferName string, lineNumber int, pattern *actr.Pattern) {
 	v.Writeln(";; initialize our %q buffer", bufferName)
 	if lineNumber != 0 {
@@ -341,6 +356,9 @@ func (v VanillaACTR) writeInitializers(goal *actr.Pattern) {
 	// First write out or declarative memory
 	v.Writeln(";; initialize our declarative memory")
 	v.Writeln("(add-dm")
+
+	v.writeImplicitChunks()
+
 	for i, init := range v.model.Initializers {
 		moduleName := init.Module.ModuleName()
 
