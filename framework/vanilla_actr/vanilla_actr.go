@@ -483,7 +483,10 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, slot *
 		value = "empty"
 
 	case slot.ID != nil:
-		value = fmt.Sprintf(`"%s"`, *slot.ID)
+		value = *slot.ID
+
+	case slot.Str != nil:
+		value = fmt.Sprintf("%q", *slot.Str)
 
 	case slot.Num != nil:
 		value = *slot.Num
@@ -544,7 +547,7 @@ func (v VanillaACTR) outputStatement(s *actr.Statement) {
 					tabbedItems.Add(slotName, fmt.Sprintf("=%s", *slot.Value.Var))
 
 				case slot.Value.ID != nil:
-					tabbedItems.Add(slotName, fmt.Sprintf(`%q`, *slot.Value.ID))
+					tabbedItems.Add(slotName, *slot.Value.ID)
 
 				case slot.Value.Number != nil:
 					tabbedItems.Add(slotName, *slot.Value.Number)

@@ -45,7 +45,7 @@ func Example_productionWhenClause() {
 	~~ productions ~~
 	start {
 		match {
-			goal [foo: ?blat] when ( ?blat == "foo" )
+			goal [foo: ?blat] when ( ?blat == 'foo' )
 		}
 		do {
 			print ?blat
@@ -88,7 +88,7 @@ func Example_productionWhenClauseNegatedAndConstrained() {
 	start {
 		match {
 			goal [foo: !?blat]
-				when ( ?blat == "foo" )
+				when ( ?blat == 'foo' )
 		}
 		do {
 			print ?blat
@@ -244,7 +244,7 @@ func Example_productionInvalidMemory() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { another_goal [add: * ?one1 * ?one2 * None?ans *] }
+		match { another_goal [add: ?thing1 ?thing2] }
 		do { print 'foo' }
 	}`)
 
@@ -261,7 +261,7 @@ func Example_productionClearStatement() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal [foo: blat] }
+		match { goal [foo: 'blat'] }
 		do { clear goal }
 	}`)
 
@@ -277,7 +277,7 @@ func Example_productionClearStatementInvalidBuffer() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal [foo: blat] }
+		match { goal [foo: 'blat'] }
 		do { clear some_buffer }
 	}`)
 
@@ -296,8 +296,8 @@ func Example_productionSetStatementPattern() {
 	~~ productions ~~
 	start {
 		description: "This is a description"
-		match { goal [foo: blat] }
-		do { set goal to [foo: ding] }
+		match { goal [foo: 'blat'] }
+		do { set goal to [foo: 'ding'] }
 	}`)
 
 	// Output:
@@ -321,7 +321,7 @@ func Example_productionSetStatementVar() {
 }
 
 func Example_productionSetStatementID() {
-	// Check setting to var
+	// Check setting to ID
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -330,8 +330,25 @@ func Example_productionSetStatementID() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal [foo: thing] }
-		do { set goal.thing to thing }
+		match { goal [foo: 'thing'] }
+		do { set goal.thing to thing2 }
+	}`)
+
+	// Output:
+}
+
+func Example_productionSetStatementString() {
+	// Check setting to ID
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [foo: 'thing'] }
+		do { set goal.thing to 'thing string' }
 	}`)
 
 	// Output:
@@ -354,8 +371,8 @@ func Example_productionSetStatementNil() {
 	~~ productions ~~
 	start {
 		match {
-			goal [foo: blat]
-			imaginal [ack: bar]
+			goal [foo: 'blat']
+			imaginal [ack: 'bar']
 		}
 		do {
 			set goal.thing to nil
@@ -376,7 +393,7 @@ func Example_productionSetStatementNonBuffer() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal [foo: blat] }
+		match { goal [foo: 'blat'] }
 		do { set foo.bar to 'blat' }
 	}`)
 
@@ -396,7 +413,7 @@ func Example_productionSetStatementNonBuffer2() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal [foo: blat] }
+		match { goal [foo: 'blat'] }
 		do { set imaginal.bar to 'blat' }
 	}`)
 
@@ -414,7 +431,7 @@ func Example_productionSetStatementInvalidSlot() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal [foo: blat] }
+		match { goal [foo: 'blat'] }
 		do { set goal.bar to 'blat' }
 	}`)
 
@@ -432,7 +449,7 @@ func Example_productionSetStatementNonVar1() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal [foo: blat] }
+		match { goal [foo: 'blat'] }
 		do { set goal.thing to ?ding }
 	}`)
 
@@ -449,7 +466,7 @@ func Example_productionSetStatementNonVar2() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal [foo: blat] }
+		match { goal [foo: 'blat'] }
 		do { set goal to [foo: ?ding] }
 	}`)
 
@@ -468,7 +485,7 @@ func Example_productionSetStatementAssignNonPattern() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal [foo: blat] }
+		match { goal [foo: 'blat'] }
 		do { set goal to 6 }
 	}`)
 
@@ -487,8 +504,8 @@ func Example_productionSetStatementAssignPattern() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal [foo: blat] }
-		do { set goal.thing to [foo: ding] }
+		match { goal [foo: 'blat'] }
+		do { set goal.thing to [foo: 'ding'] }
 	}`)
 
 	// Output:
@@ -541,7 +558,7 @@ func Example_productionRecallStatementInvalidPattern() {
 	~~ productions ~~
 	start {
 		match { goal [foo: ?next *] }
-		do { recall [foo: ?next * bar] }
+		do { recall [foo: ?next * 'bar'] }
 	}`)
 
 	// Output:
@@ -557,7 +574,7 @@ func Example_productionRecallStatementVarNotFound() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal [foo: blat] }
+		match { goal [foo: 'blat'] }
 		do { recall [bar: ?next *] }
 	}`)
 
@@ -610,7 +627,7 @@ func Example_productionPrintStatement1() {
 	~~ productions ~~
 	start {
 		match { goal [foo: * ?other] }
-		do { print 42, ?other, "blat" }
+		do { print 42, ?other, 'blat' }
 	}`)
 
 	// Output:
@@ -630,7 +647,7 @@ func Example_productionPrintStatement2() {
 			goal [foo: * ?other]
 			retrieval [foo: * ?other1]
 		}
-		do { print 42, ?other, ?other1, "blat" }
+		do { print 42, ?other, ?other1, 'blat' }
 	}`)
 
 	// Output:
@@ -778,6 +795,22 @@ func Example_productionMatchInternalInvalidStatus2() {
 
 	// Output:
 	// ERROR: invalid _status 'something' for 'retrieval' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8, col 30)
+}
+
+func Example_productionMatchInternalInvalidStatusString() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [_status: 'something'] }
+		do { print 42 }
+	}`)
+
+	// Output:
+	// ERROR: invalid _status for 'goal' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8, col 25)
 }
 
 func Example_productionMatchInternalInvalidStatusNumber() {

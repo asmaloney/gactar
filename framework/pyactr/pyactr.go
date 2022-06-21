@@ -470,7 +470,10 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, slot *
 		value += "nil"
 
 	case slot.ID != nil:
-		value += fmt.Sprintf(`"%s"`, *slot.ID)
+		value += *slot.ID
+
+	case slot.Str != nil:
+		value += fmt.Sprintf("%q", *slot.Str)
 
 	case slot.Num != nil:
 		value += *slot.Num

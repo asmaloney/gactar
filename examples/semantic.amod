@@ -64,18 +64,19 @@ initialRetrieval {
 
 directVerify {
     match {
-        goal [isMember: ?obj ?cat pending]
+        goal [isMember: ?obj ?cat 'pending']
         retrieval [property: ?obj category ?cat]
     }
     do {
         set goal.judgment to 'yes'
         print 'Yes'
+        stop
     }
 }
 
 chainCategory {
     match {
-        goal [isMember: ?obj1 ?cat pending]
+        goal [isMember: ?obj1 ?cat 'pending']
         retrieval [property: ?obj1 category ?obj2] when (?obj2 != ?cat)
     }
     do {
@@ -86,11 +87,12 @@ chainCategory {
 
 fail {
     match {
-        goal [isMember: * * pending]
+        goal [isMember: * * 'pending']
         retrieval [_status: error]
     }
     do {
         set goal.judgment to 'no'
         print 'No'
+        stop
     }
 }

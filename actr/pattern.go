@@ -1,5 +1,7 @@
 package actr
 
+import "fmt"
+
 type Pattern struct {
 	Chunk *Chunk
 	Slots []*PatternSlot
@@ -16,6 +18,7 @@ type PatternSlot struct {
 	Wildcard bool
 
 	ID  *string
+	Str *string
 	Var *PatternVar
 	Num *string // we don't need to treat this as a number anywhere, so keep as a string
 
@@ -36,6 +39,9 @@ func (p PatternSlot) String() (str string) {
 
 	case p.ID != nil:
 		str += *p.ID
+
+	case p.Str != nil:
+		str += fmt.Sprintf("'%s'", *p.Str)
 
 	case p.Var != nil:
 		str += *p.Var.Name

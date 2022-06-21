@@ -484,6 +484,9 @@ func patternSlotString(slot *actr.PatternSlot) string {
 	case slot.ID != nil:
 		str += *slot.ID
 
+	case slot.Str != nil:
+		str += strings.ReplaceAll(*slot.Str, " ", "_")
+
 	case slot.Var != nil:
 		str += *slot.Var.Name
 
@@ -551,13 +554,13 @@ func convertValue(s *actr.Value) string {
 		return *s.Var
 
 	case s.ID != nil:
-		return "'" + *s.ID + "'"
+		return *s.ID
 
 	case s.Number != nil:
 		return *s.Number
 
 	case s.Str != nil:
-		return "'" + *s.Str + "'"
+		return "'" + strings.ReplaceAll(*s.Str, " ", "_") + "'"
 	}
 
 	return ""
