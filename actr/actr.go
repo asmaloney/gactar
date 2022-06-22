@@ -76,18 +76,29 @@ func (model *Model) Initialize() {
 	model.LogLevel = "info"
 }
 
+func (model *Model) AddImplicitChunk(chunkName string) {
+	model.ImplicitChunks = append(model.ImplicitChunks, chunkName)
+}
+
+// AddImplicitChunksFromPattern walks a pattern and adds any IDs to our list of implicit chunks.
+func (model *Model) AddImplicitChunksFromPattern(pattern *Pattern) {
+	if pattern == nil {
+		return
+	}
+
+	for _, slot := range pattern.Slots {
+		if slot.ID != nil {
+			model.AddImplicitChunk(*slot.ID)
+		}
+	}
+}
+
 // AddInitializer adds the initializer to our list and adds any IDs to ImplicitChunks
 // so we can (possibly) create them in the framework output.
 func (model *Model) AddInitializer(initializer *Initializer) {
 	model.Initializers = append(model.Initializers, initializer)
 
-	if initializer.Pattern != nil {
-		for _, slot := range initializer.Pattern.Slots {
-			if slot.ID != nil {
-				model.ImplicitChunks = append(model.ImplicitChunks, *slot.ID)
-			}
-		}
-	}
+	model.AddImplicitChunksFromPattern(initializer.Pattern)
 }
 
 // LookupInitializer returns an initializer or nil if the buffer does not have one.

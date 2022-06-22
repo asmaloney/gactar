@@ -9,6 +9,8 @@ import (
 // Production stores information on how to match buffers and perform some operations.
 // It uses a small language to modify states upon successful matches.
 type Production struct {
+	Model *Model // link back to its model so we can add implicit chunks
+
 	Name        string
 	Description *string // optional description to output as a comment in the generated code
 
@@ -118,19 +120,46 @@ type SetSlot struct {
 
 // SetStatement will set a slot or the entire contents of the named buffer to a string or a pattern.
 // There are two forms:
-//	(1) set (SetSlot) of (Buffer) to (SetValue)
+//	(1) set (Buffer).(SetSlot) to (SetSlot.Value)
 //	(2) set (Buffer) to (Pattern)
 type SetStatement struct {
-	Slots *[]SetSlot // (1) set this slot (optional)
-	Chunk *Chunk     // (1) if we are setting slots, point at the chunk they reference for easy lookup
+	Buffer buffer.BufferInterface // buffer we are manipulating
 
-	Buffer buffer.BufferInterface // (1 & 2) buffer we are manipulating
+	Slots *[]SetSlot // (1) set this slot
+	Chunk *Chunk     // (1) if we are setting slots, point at the chunk they reference for easy lookup
 
 	Pattern *Pattern // (2) pattern if we are setting the whole buffer
 }
 
 // StopStatement outputs a stop command. There are no parameters.
 type StopStatement struct {
+}
+
+// AddDoStatement adds the statement to our list and adds any IDs to ImplicitChunks
+// so we can (possibly) create them in the framework output.
+func (p *Production) AddDoStatement(statement *Statement) {
+	if statement == nil {
+		return
+	}
+
+	p.DoStatements = append(p.DoStatements, statement)
+
+	switch {
+	case statement.Set != nil:
+		if statement.Set.Slots != nil {
+			for _, slot := range *statement.Set.Slots {
+				if slot.Value.ID != nil {
+					p.Model.AddImplicitChunk(*slot.Value.ID)
+				}
+			}
+		} else if statement.Set.Pattern != nil {
+			p.Model.AddImplicitChunksFromPattern(statement.Set.Pattern)
+		}
+
+	case statement.Recall != nil:
+		p.Model.AddImplicitChunksFromPattern(statement.Recall.Pattern)
+	}
+
 }
 
 func (p Production) LookupMatchByBuffer(bufferName string) *Match {
@@ -167,6 +196,20 @@ func (p Production) LookupSetStatementByBuffer(bufferName string) *SetStatement 
 	return nil
 }
 
+// AddSlotToSetStatement is used to add slot info to an already-existing set statement.
+// See LookupSetStatementByBuffer() above.
+func (p *Production) AddSlotToSetStatement(statement *SetStatement, slot *SetSlot) {
+	if statement.Slots == nil {
+		statement.Slots = &[]SetSlot{}
+	}
+
+	*statement.Slots = append(*statement.Slots, *slot)
+
+	if slot.Value.ID != nil {
+		p.Model.AddImplicitChunk(*slot.Value.ID)
+	}
+}
+
 // LookupMatchByVariable checks all matches for a variable by name.
 // This is pretty inefficient, but given the small number of matches
 // in a production, it's probably not worth doing anything more complicated.
@@ -185,13 +228,4 @@ func (p Production) LookupMatchByVariable(varName string) *Match {
 	}
 
 	return nil
-}
-
-func (s *SetStatement) AddSlot(slot *SetSlot) {
-	if s.Slots == nil {
-		newSlots := []SetSlot{}
-		s.Slots = &newSlots
-	}
-
-	*s.Slots = append(*s.Slots, *slot)
 }
