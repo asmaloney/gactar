@@ -554,7 +554,7 @@ func convertValue(s *actr.Value) string {
 		return *s.Var
 
 	case s.ID != nil:
-		return *s.ID
+		return "'" + *s.ID + "'"
 
 	case s.Number != nil:
 		return *s.Number
