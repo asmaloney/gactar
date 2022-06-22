@@ -382,6 +382,7 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 
 	for _, production := range productions.Productions {
 		prod := actr.Production{
+			Model:          model,
 			Name:           production.Name,
 			Description:    production.Description,
 			VarIndexMap:    map[string]actr.VarIndex{},
@@ -561,9 +562,7 @@ func addStatement(model *actr.Model, log *issueLog, statement *statement, produc
 		return err
 	}
 
-	if s != nil {
-		production.DoStatements = append(production.DoStatements, s)
-	}
+	production.AddDoStatement(s)
 
 	return nil
 }
@@ -624,7 +623,7 @@ func addSetStatement(model *actr.Model, log *issueLog, set *setStatement, produc
 			Value:     value,
 		}
 
-		s.Set.AddSlot(newSlot)
+		production.AddSlotToSetStatement(s.Set, newSlot)
 	} else if set.Pattern != nil {
 		pattern, err := createChunkPattern(model, log, set.Pattern)
 		if err != nil {
