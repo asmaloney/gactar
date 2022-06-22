@@ -289,9 +289,8 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 		p.Writeln("goal.add(actr.chunkstring(string='''")
 		p.outputPattern(goal, 1)
 		p.Writeln("'''))")
+		p.Writeln("")
 	}
-
-	p.Writeln("")
 
 	p.writeProductions()
 
@@ -362,7 +361,25 @@ func (p PyACTR) writeImports() {
 	}
 }
 
+func (p PyACTR) writeImplicitChunks() {
+	if !p.model.HasImplicitChunks() {
+		return
+	}
+
+	module := p.model.Memory.Module
+
+	p.Writeln("# declare implicit chunks without slots to avoid warnings")
+	p.Writeln("actr.chunktype('chunk', '')")
+	for _, chunkName := range p.model.ImplicitChunks {
+		p.Writeln("%s.add(actr.chunkstring(name='%s', string='isa chunk'))", module.ModuleName(), chunkName)
+	}
+
+	p.Writeln("")
+}
+
 func (p PyACTR) writeInitializers(goal *actr.Pattern) {
+	p.writeImplicitChunks()
+
 	for _, init := range p.model.Initializers {
 		module := init.Module
 
@@ -384,6 +401,8 @@ func (p PyACTR) writeInitializers(goal *actr.Pattern) {
 			p.Writeln("'''))")
 		}
 	}
+
+	p.Writeln("")
 }
 
 func (p PyACTR) writeProductions() {
