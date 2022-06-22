@@ -67,18 +67,6 @@ func Example_gactarFieldNotANestedValue() {
 	// ERROR: 'log_level' must be must be one of "min, info, detail" (line 5, col 21)
 }
 
-func Example_gactarCommaSeparator() {
-	generateToStdout(`
-	~~ model ~~
-	name: Test
-	~~ config ~~
-	gactar { log_level: 'detail', trace_activations: true }
-	~~ init ~~
-	~~ productions ~~`)
-
-	// Output:
-}
-
 func Example_gactarSpaceSeparator() {
 	generateToStdout(`
 	~~ model ~~

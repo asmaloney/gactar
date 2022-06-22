@@ -53,7 +53,6 @@ const (
 
 	lexemeSectionDelim
 
-	lexemePatternDelim
 	lexemePatternVar
 	lexemePatternWildcard
 )
@@ -84,8 +83,6 @@ func (l lexemeType) String() string {
 		return "inequality"
 	case lexemeSectionDelim:
 		return "section delimiter"
-	case lexemePatternDelim:
-		return "pattern delimiter"
 	case lexemePatternVar:
 		return "pattern var"
 	case lexemePatternWildcard:
@@ -149,19 +146,18 @@ var keywords []string = []string{
 // Symbols provides a mapping from participle strings to our lexemes
 func (lexer_def) Symbols() map[string]lexer.TokenType {
 	return map[string]lexer.TokenType{
-		"Comment":         lexer.TokenType(lexemeComment),
-		"Whitespace":      lexer.TokenType(lexemeSpace),
-		"Keyword":         lexer.TokenType(lexemeKeyword),
-		"Ident":           lexer.TokenType(lexemeIdentifier),
-		"Number":          lexer.TokenType(lexemeNumber),
-		"String":          lexer.TokenType(lexemeString),
-		"Char":            lexer.TokenType(lexemeChar),
-		"Equality":        lexer.TokenType(lexemeEquality),
-		"Inequality":      lexer.TokenType(lexemeInequality),
-		"SectionDelim":    lexer.TokenType(lexemeSectionDelim),
-		"PatternDelim":    lexer.TokenType(lexemePatternDelim),
-		"PatternVar":      lexer.TokenType(lexemePatternVar),
-		"PatternWildcard": lexer.TokenType(lexemePatternWildcard),
+		"Comment":      lexer.TokenType(lexemeComment),
+		"Whitespace":   lexer.TokenType(lexemeSpace),
+		"Keyword":      lexer.TokenType(lexemeKeyword),
+		"Ident":        lexer.TokenType(lexemeIdentifier),
+		"Number":       lexer.TokenType(lexemeNumber),
+		"String":       lexer.TokenType(lexemeString),
+		"Char":         lexer.TokenType(lexemeChar),
+		"Equality":     lexer.TokenType(lexemeEquality),
+		"Inequality":   lexer.TokenType(lexemeInequality),
+		"SectionDelim": lexer.TokenType(lexemeSectionDelim),
+		"Var":          lexer.TokenType(lexemePatternVar),
+		"Wildcard":     lexer.TokenType(lexemePatternWildcard),
 	}
 }
 
@@ -402,10 +398,10 @@ func lexStart(l *lexer_amod) stateFn {
 
 	case r == '[':
 		l.inPattern = true
-		l.emit(lexemePatternDelim)
+		l.emit(lexemeChar)
 
 	case r == ']':
-		l.emit(lexemePatternDelim)
+		l.emit(lexemeChar)
 		l.inPattern = false
 
 	case r == '?':

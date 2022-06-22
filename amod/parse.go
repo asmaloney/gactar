@@ -25,16 +25,16 @@ import (
 //		paste in the generated EBNF above, click "Convert" and then click "View Diagram"
 
 type amodFile struct {
-	ModelHeader string        `parser:"@SectionDelim 'model' @SectionDelim"`
+	ModelHeader string        `parser:"'~~':SectionDelim 'model' '~~':SectionDelim"`
 	Model       *modelSection `parser:"@@"`
 
-	ConfigHeader string         `parser:"@SectionDelim 'config' @SectionDelim"`
+	ConfigHeader string         `parser:"'~~':SectionDelim 'config' '~~':SectionDelim"`
 	Config       *configSection `parser:"(@@)?"`
 
-	InitHeader string       `parser:"@SectionDelim 'init' @SectionDelim"`
+	InitHeader string       `parser:"'~~':SectionDelim 'init' '~~':SectionDelim"`
 	Init       *initSection `parser:"(@@)?"`
 
-	ProductionsHeader string             `parser:"@SectionDelim 'productions' @SectionDelim"`
+	ProductionsHeader string             `parser:"'~~':SectionDelim 'productions' '~~':SectionDelim"`
 	Productions       *productionSection `parser:"(@@)?"`
 
 	Tokens []lexer.Token
@@ -51,7 +51,7 @@ type modelSection struct {
 
 type arg struct {
 	Nil    *bool   `parser:"( @('nil':Keyword)"`
-	Var    *string `parser:"| @PatternVar"`
+	Var    *string `parser:"| @Var"`
 	ID     *string `parser:"| @Ident"`
 	Str    *string `parser:"| @String"`
 	Number *string `parser:"| @Number)"`
@@ -109,13 +109,13 @@ type chunkDecl struct {
 
 type module struct {
 	ModuleName string   `parser:"@Ident"`
-	InitFields []*field `parser:"'{' (@@ (','? @@)*)? '}'"`
+	InitFields []*field `parser:"'{' @@* '}'"`
 
 	Tokens []lexer.Token
 }
 
 type configSection struct {
-	GACTAR     []*field     `parser:"('gactar' '{' @@ (','? @@)* '}')?"`
+	GACTAR     []*field     `parser:"('gactar' '{' @@* '}')?"`
 	Modules    []*module    `parser:"('modules' '{' @@* '}')?"`
 	ChunkDecls []*chunkDecl `parser:"('chunks' '{' @@* '}')?"`
 
@@ -149,8 +149,8 @@ type patternSlot struct {
 	ID       *string `parser:"| @Ident"`
 	Str      *string `parser:"| @String"`
 	Num      *string `parser:"| @Number"` // we don't need to treat this as a number anywhere, so keep as a string
-	Var      *string `parser:"| @PatternVar ))"`
-	Wildcard *string `parser:"| @PatternWildcard)"`
+	Var      *string `parser:"| @Var ))"`
+	Wildcard *string `parser:"| @Wildcard)"`
 
 	Tokens []lexer.Token
 }
@@ -173,7 +173,7 @@ type comparisonOperator struct {
 
 type whenExpression struct {
 	OpenParen  string              `parser:"'('"` // not used - must be set for parse
-	LHS        string              `parser:"@PatternVar"`
+	LHS        string              `parser:"@Var"`
 	Comparison *comparisonOperator `parser:"@@"`
 	RHS        *arg                `parser:"@@"`
 	CloseParen string              `parser:"')'"` // not used - must be set for parse
