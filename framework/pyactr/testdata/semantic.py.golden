@@ -24,6 +24,19 @@ actr.chunktype('property', 'object, attribute, value')
 memory = pyactr_semantic.decmem
 goal = pyactr_semantic.set_goal('goal')
 
+# declare implicit chunks without slots to avoid warnings
+actr.chunktype('chunk', '')
+memory.add(actr.chunkstring(name='animal', string='isa chunk'))
+memory.add(actr.chunkstring(name='bird', string='isa chunk'))
+memory.add(actr.chunkstring(name='canary', string='isa chunk'))
+memory.add(actr.chunkstring(name='category', string='isa chunk'))
+memory.add(actr.chunkstring(name='dangerous', string='isa chunk'))
+memory.add(actr.chunkstring(name='fish', string='isa chunk'))
+memory.add(actr.chunkstring(name='locomotion', string='isa chunk'))
+memory.add(actr.chunkstring(name='shark', string='isa chunk'))
+memory.add(actr.chunkstring(name='swimming', string='isa chunk'))
+memory.add(actr.chunkstring(name='true', string='isa chunk'))
+
 # amod line 36
 memory.add(actr.chunkstring(string='''
 	isa			property
