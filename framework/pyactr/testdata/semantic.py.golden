@@ -24,18 +24,18 @@ actr.chunktype('property', 'object, attribute, value')
 memory = pyactr_semantic.decmem
 goal = pyactr_semantic.set_goal('goal')
 
-# declare implicit chunks without slots to avoid warnings
-actr.chunktype('chunk', '')
-memory.add(actr.chunkstring(name='animal', string='isa chunk'))
-memory.add(actr.chunkstring(name='bird', string='isa chunk'))
-memory.add(actr.chunkstring(name='canary', string='isa chunk'))
-memory.add(actr.chunkstring(name='category', string='isa chunk'))
-memory.add(actr.chunkstring(name='dangerous', string='isa chunk'))
-memory.add(actr.chunkstring(name='fish', string='isa chunk'))
-memory.add(actr.chunkstring(name='locomotion', string='isa chunk'))
-memory.add(actr.chunkstring(name='shark', string='isa chunk'))
-memory.add(actr.chunkstring(name='swimming', string='isa chunk'))
-memory.add(actr.chunkstring(name='true', string='isa chunk'))
+# declare implicit chunks to avoid warnings
+actr.chunktype('chunk', 'value')
+actr.makechunk(nameofchunk='animal', typename='chunk', value='animal')
+actr.makechunk(nameofchunk='bird', typename='chunk', value='bird')
+actr.makechunk(nameofchunk='canary', typename='chunk', value='canary')
+actr.makechunk(nameofchunk='category', typename='chunk', value='category')
+actr.makechunk(nameofchunk='dangerous', typename='chunk', value='dangerous')
+actr.makechunk(nameofchunk='fish', typename='chunk', value='fish')
+actr.makechunk(nameofchunk='locomotion', typename='chunk', value='locomotion')
+actr.makechunk(nameofchunk='shark', typename='chunk', value='shark')
+actr.makechunk(nameofchunk='swimming', typename='chunk', value='swimming')
+actr.makechunk(nameofchunk='true', typename='chunk', value='true')
 
 # amod line 36
 memory.add(actr.chunkstring(string='''
@@ -84,7 +84,7 @@ goal.add(actr.chunkstring(string='''
 	isa			isMember
 	object		shark
 	category	animal
-	judgment	nil
+	judgment	None
 '''))
 
 # Starting point - first production to match
@@ -93,7 +93,7 @@ pyactr_semantic.productionstring(name='initialRetrieval', string='''
      =goal>
 		isa			isMember
 		object		=obj
-		judgment	nil
+		judgment	None
      ==>
      =goal>
 		isa			isMember

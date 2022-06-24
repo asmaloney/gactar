@@ -366,12 +366,10 @@ func (p PyACTR) writeImplicitChunks() {
 		return
 	}
 
-	module := p.model.Memory.Module
-
-	p.Writeln("# declare implicit chunks without slots to avoid warnings")
-	p.Writeln("actr.chunktype('chunk', '')")
+	p.Writeln("# declare implicit chunks to avoid warnings")
+	p.Writeln("actr.chunktype('chunk', 'value')")
 	for _, chunkName := range p.model.ImplicitChunks {
-		p.Writeln("%s.add(actr.chunkstring(name='%s', string='isa chunk'))", module.ModuleName(), chunkName)
+		p.Writeln("actr.makechunk(nameofchunk='%[1]s', typename='chunk', value='%[1]s')", chunkName)
 	}
 
 	p.Writeln("")
@@ -486,7 +484,7 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, slot *
 
 	switch {
 	case slot.Nil:
-		value += "nil"
+		value += "None"
 
 	case slot.ID != nil:
 		value += *slot.ID
@@ -546,7 +544,7 @@ func (p PyACTR) outputStatement(production *actr.Production, s *actr.Statement) 
 
 				switch {
 				case slot.Value.Nil != nil:
-					tabbedItems.Add(slotName, "nil")
+					tabbedItems.Add(slotName, "None")
 
 				case slot.Value.Var != nil:
 					tabbedItems.Add(slotName, fmt.Sprintf("=%s", *slot.Value.Var))
