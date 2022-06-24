@@ -32,10 +32,15 @@ type Model struct {
 	Procedural *modules.Procedural        // procedural is always present
 	Chunks     []*Chunk
 
+	// ExplicitChunks are ones which are named in the initializer like this:
+	// 	castle [meaning: 'castle']
+	// We keep track of these to remove them from the implicit list & to check for duplicates.
+	ExplicitChunks []string
+
 	// ImplicitChunks are chunks which aren't declared, but need to be created by some frameworks.
-	// e.g. vanilla will create them and emit a warning:
+	// e.g. by default vanilla will create them and emit a warning:
 	// 	#|Warning: Creating chunk SHARK with no slots |#
-	// These come from the initializations.
+	// These chunk names come from the initializations.
 	// We keep track of them so we can create them explicitly to avoid the warnings.
 	ImplicitChunks []string
 
@@ -46,10 +51,13 @@ type Model struct {
 }
 
 type Initializer struct {
-	Module         modules.ModuleInterface
-	Buffer         buffer.BufferInterface
-	Pattern        *Pattern
-	AMODLineNumber int // line number in the amod file of this initialization
+	Module modules.ModuleInterface
+	Buffer buffer.BufferInterface
+
+	ChunkName *string // optional chunk name
+	Pattern   *Pattern
+
+	AMODLineNumber int
 }
 
 func (model *Model) Initialize() {
@@ -98,6 +106,10 @@ func (model *Model) AddImplicitChunksFromPattern(pattern *Pattern) {
 func (model *Model) AddInitializer(initializer *Initializer) {
 	model.Initializers = append(model.Initializers, initializer)
 
+	if initializer.ChunkName != nil {
+		model.ExplicitChunks = append(model.ExplicitChunks, *initializer.ChunkName)
+	}
+
 	model.AddImplicitChunksFromPattern(initializer.Pattern)
 }
 
@@ -129,6 +141,8 @@ func (model *Model) FinalizeImplicitChunks() {
 	for _, chunk := range model.Chunks {
 		chunkNameList = append(chunkNameList, chunk.Name)
 	}
+
+	chunkNameList = append(chunkNameList, model.ExplicitChunks...)
 
 	for _, chunkName := range chunkNameList {
 		list = container.FindAndDelete(list, chunkName)

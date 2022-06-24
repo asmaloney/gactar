@@ -12,6 +12,7 @@ import (
 	"github.com/asmaloney/gactar/actr/modules"
 	"github.com/asmaloney/gactar/actr/params"
 
+	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/issues"
 )
 
@@ -329,8 +330,15 @@ func addChunks(model *actr.Model, log *issueLog, chunks []*chunkDecl) {
 	}
 }
 
-func addInitializers(model *actr.Model, log *issueLog, module modules.ModuleInterface, buffer buffer.BufferInterface, pattern *pattern) {
-	actrPattern, err := createChunkPattern(model, log, pattern)
+func addInitializers(model *actr.Model, log *issueLog, module modules.ModuleInterface, buffer buffer.BufferInterface, init *namedInitializer) {
+	// Check for duplicate initializer names.
+	// Note that this can't be checked in validateInitialization because model.ExplicitChunks is not filled in yet.
+	if init.ChunkName != nil && container.Contains(*init.ChunkName, model.ExplicitChunks) {
+		log.errorTR(init.Tokens, 0, 1, "duplicate chunk name %q found in initialization", *init.ChunkName)
+		return
+	}
+
+	actrPattern, err := createChunkPattern(model, log, init.Pattern)
 	if err != nil {
 		return
 	}
@@ -339,8 +347,9 @@ func addInitializers(model *actr.Model, log *issueLog, module modules.ModuleInte
 		&actr.Initializer{
 			Module:         module,
 			Buffer:         buffer,
+			ChunkName:      init.ChunkName,
 			Pattern:        actrPattern,
-			AMODLineNumber: pattern.Tokens[0].Pos.Line,
+			AMODLineNumber: init.Tokens[0].Pos.Line,
 		},
 	)
 }

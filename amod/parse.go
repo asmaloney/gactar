@@ -122,16 +122,23 @@ type configSection struct {
 	Tokens []lexer.Token
 }
 
+type namedInitializer struct {
+	ChunkName *string  `parser:"(@Ident)?"`
+	Pattern   *pattern `parser:"@@"`
+
+	Tokens []lexer.Token
+}
+
 type bufferInitializer struct {
-	BufferName   string     `parser:"@Ident"`
-	InitPatterns []*pattern `parser:"( '{' @@+ '}' | @@ )"`
+	BufferName   string              `parser:"@Ident"`
+	InitPatterns []*namedInitializer `parser:"( '{' @@+ '}' | @@ )"`
 
 	Tokens []lexer.Token
 }
 
 type initialization struct {
 	ModuleName         string               `parser:"@Ident"`
-	InitPatterns       []*pattern           `parser:"( '{' @@+ '}' | @@"`
+	InitPatterns       []*namedInitializer  `parser:"( '{' @@+ '}' | @@"`
 	BufferInitPatterns []*bufferInitializer `parser:"| '{' @@+ '}' )"`
 
 	Tokens []lexer.Token

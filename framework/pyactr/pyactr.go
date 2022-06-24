@@ -389,15 +389,16 @@ func (p PyACTR) writeInitializers(goal *actr.Pattern) {
 		p.Writeln("# amod line %d", init.AMODLineNumber)
 
 		if module.ModuleName() == "extra_buffers" {
-			p.Writeln("%s.add(actr.chunkstring(string='''", init.Buffer.BufferName())
-			p.outputPattern(init.Pattern, 1)
-			p.Writeln("'''))")
-
+			p.Write("%s.add(actr.chunkstring(", init.Buffer.BufferName())
 		} else {
-			p.Writeln("%s.add(actr.chunkstring(string='''", module.ModuleName())
-			p.outputPattern(init.Pattern, 1)
-			p.Writeln("'''))")
+			p.Write("%s.add(actr.chunkstring(", module.ModuleName())
 		}
+		if init.ChunkName != nil {
+			p.Write("name='%s', ", *init.ChunkName)
+		}
+		p.Writeln("string='''")
+		p.outputPattern(init.Pattern, 1)
+		p.Writeln("'''))")
 	}
 
 	p.Writeln("")

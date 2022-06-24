@@ -67,6 +67,38 @@ func Example_initializer4() {
 	// Output:
 }
 
+func Example_initializer5() {
+	// memory with named chunks
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [author: person object year] }
+	~~ init ~~
+	memory {
+		bar [author: 'Fred' 'Book' '1972']
+		foo [author: 'Jane' 'Book' '1982']
+		[author: 'Xe' 'Software' '2001']
+	}
+	~~ productions ~~`)
+
+	// Output:
+}
+
+func Example_initializer6() {
+	// memory with one init and named chunk
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [author: person object year] }
+	~~ init ~~
+	memory foo [author: 'Jane' 'Book' '1982']
+	~~ productions ~~`)
+
+	// Output:
+}
+
 func Example_initializerInvalidSlots() {
 	// Check invalid number of slots in init
 	generateToStdout(`
@@ -154,8 +186,8 @@ func Example_initializerMultipleBuffers() {
 	chunks { [author: person object year] }
 	~~ init ~~
 	extra_buffers {
-		buffer1 [author: 'Fred' 'Book' '1972']
-		buffer2 [author: 'Jane' 'Book' '1984']
+		buffer1 { [author: 'Fred' 'Book' '1972'] }
+		buffer2 { [author: 'Jane' 'Book' '1984'] }
 	}
 	~~ productions ~~`)
 
@@ -178,4 +210,23 @@ func Example_initializerNoBuffers() {
 
 	// Output:
 	// ERROR: module 'extra_buffers' does not have any buffers (line 8, col 1)
+}
+
+func Example_initializerDuplicateNames() {
+	// memory with named chunks
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [author: person object year] }
+	~~ init ~~
+	memory {
+		foo [author: 'Fred' 'Book' '1972']
+		foo [author: 'Jane' 'Book' '1982']
+		[author: 'Xe' 'Software' '2001']
+	}
+	~~ productions ~~`)
+
+	// Output:
+	// ERROR: duplicate chunk name "foo" found in initialization (line 9, col 2)
 }

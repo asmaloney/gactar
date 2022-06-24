@@ -359,12 +359,18 @@ func (v VanillaACTR) writeInitializers(goal *actr.Pattern) {
 
 	v.writeImplicitChunks()
 
-	for i, init := range v.model.Initializers {
+	factNum := 0
+	for _, init := range v.model.Initializers {
 		moduleName := init.Module.ModuleName()
 
 		if moduleName == "memory" {
 			v.Writeln(" ;; amod line %d", init.AMODLineNumber)
-			v.Writeln(" (fact_%d", i)
+			if init.ChunkName != nil {
+				v.Writeln(" (%s", *init.ChunkName)
+			} else {
+				v.Writeln(" (fact_%d", factNum)
+				factNum++
+			}
 
 			v.outputPattern(init.Pattern, 1)
 			v.Writeln(" )")
