@@ -32,14 +32,14 @@ func validateChunk(model *actr.Model, log *issueLog, chunk *chunkDecl) (err erro
 	return nil
 }
 
-func validateBufferInitialization(model *actr.Model, log *issueLog, moduleName string, buffer buffer.BufferInterface, patterns []*pattern) (err error) {
-	if !buffer.AllowsMultipleInit() && len(patterns) > 1 {
-		log.errorTR(patterns[0].Tokens, 0, 1, "module %q should only have one pattern in initialization of buffer %q", moduleName, buffer.BufferName())
+func validateBufferInitialization(model *actr.Model, log *issueLog, moduleName string, buffer buffer.BufferInterface, initializers []*namedInitializer) (err error) {
+	if !buffer.AllowsMultipleInit() && len(initializers) > 1 {
+		log.errorTR(initializers[0].Tokens, 0, 1, "module %q should only have one pattern in initialization of buffer %q", moduleName, buffer.BufferName())
 		return ErrCompile
 	}
 
-	for _, initPattern := range patterns {
-		pattern_err := validatePattern(model, log, initPattern)
+	for _, init := range initializers {
+		pattern_err := validatePattern(model, log, init.Pattern)
 		if pattern_err != nil {
 			err = ErrCompile
 			continue

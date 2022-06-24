@@ -373,7 +373,11 @@ func (c CCMPyACTR) writeInitializers(goal *actr.Pattern) {
 			continue
 		}
 
-		c.Writeln("        # amod line %d", init.AMODLineNumber)
+		c.Write("        # amod line %d", init.AMODLineNumber)
+		if init.ChunkName != nil {
+			c.Write(" '%s'", *init.ChunkName)
+		}
+		c.Writeln("")
 
 		buffer := init.Buffer
 		if buffer.AllowsMultipleInit() {
