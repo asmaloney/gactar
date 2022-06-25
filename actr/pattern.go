@@ -54,7 +54,7 @@ func (p PatternSlot) String() (str string) {
 }
 
 func (p Pattern) String() (str string) {
-	str = "[" + p.Chunk.Name + ": "
+	str = "[" + p.Chunk.TypeName + ": "
 
 	numSlots := len(p.Slots)
 

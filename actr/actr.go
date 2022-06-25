@@ -64,7 +64,7 @@ func (model *Model) Initialize() {
 	// Internal chunk for handling buffer and memory status
 	model.Chunks = []*Chunk{
 		{
-			Name:      "_status",
+			TypeName:  "_status",
 			SlotNames: []string{"status"},
 			NumSlots:  1,
 		},
@@ -137,14 +137,7 @@ func (model *Model) FinalizeImplicitChunks() {
 
 	list := container.UniqueAndSorted(model.ImplicitChunks)
 
-	chunkNameList := []string{}
-	for _, chunk := range model.Chunks {
-		chunkNameList = append(chunkNameList, chunk.Name)
-	}
-
-	chunkNameList = append(chunkNameList, model.ExplicitChunks...)
-
-	for _, chunkName := range chunkNameList {
+	for _, chunkName := range model.ExplicitChunks {
 		list = container.FindAndDelete(list, chunkName)
 	}
 

@@ -277,7 +277,7 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 		}
 
 		v.Writeln(";; amod line %d", chunk.AMODLineNumber)
-		v.Writeln("(chunk-type %s %s)", chunk.Name, strings.Join(chunk.SlotNames, " "))
+		v.Writeln("(chunk-type %s %s)", chunk.TypeName, strings.Join(chunk.SlotNames, " "))
 	}
 	v.Writeln("")
 
@@ -441,7 +441,7 @@ func (v VanillaACTR) writeProductions() {
 
 func (v VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 	tabbedItems := framework.KeyValueList{}
-	tabbedItems.Add("isa", pattern.Chunk.Name)
+	tabbedItems.Add("isa", pattern.Chunk.TypeName)
 
 	for i, slot := range pattern.Slots {
 		slotName := pattern.Chunk.SlotNames[i]
@@ -453,10 +453,10 @@ func (v VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 
 func (v VanillaACTR) outputMatch(match *actr.Match) {
 	bufferName := match.Buffer.BufferName()
-	chunkName := match.Pattern.Chunk.Name
+	chunkTypeName := match.Pattern.Chunk.TypeName
 
-	if actr.IsInternalChunkName(chunkName) {
-		if chunkName == "_status" {
+	if actr.IsInternalChunkType(chunkTypeName) {
+		if chunkTypeName == "_status" {
 			status := match.Pattern.Slots[0]
 			v.Writeln("\t?%s>", bufferName)
 
@@ -540,7 +540,7 @@ func (v VanillaACTR) outputStatement(s *actr.Statement) {
 
 		if s.Set.Slots != nil {
 			tabbedItems := framework.KeyValueList{}
-			tabbedItems.Add("isa", s.Set.Chunk.Name)
+			tabbedItems.Add("isa", s.Set.Chunk.TypeName)
 
 			for _, slot := range *s.Set.Slots {
 				slotName := slot.Name

@@ -100,7 +100,7 @@ type field struct {
 
 type chunkDecl struct {
 	StartBracket string   `parser:"'['"` // not used - must be set for parse
-	Name         string   `parser:"@Ident ':'"`
+	TypeName     string   `parser:"@Ident ':'"`
 	Slots        []string `parser:"@Ident+"`
 	EndBracket   string   `parser:"']'"` // not used - must be set for parse
 

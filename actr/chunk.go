@@ -3,21 +3,21 @@ package actr
 import "github.com/asmaloney/gactar/util/container"
 
 type Chunk struct {
-	Name      string
+	TypeName  string
 	SlotNames []string
 	NumSlots  int
 
 	AMODLineNumber int // line number in the amod file of the this chunk declaration
 }
 
-func IsInternalChunkName(name string) bool {
+func IsInternalChunkType(name string) bool {
 	return name[0] == '_'
 }
 
-// LookupChunk looks up the named chunk in the model and returns it (or nil if it does not exist).
-func (model Model) LookupChunk(chunkName string) *Chunk {
+// LookupChunk looks up the chunk (by type name) in the model and returns it (or nil if it does not exist).
+func (model Model) LookupChunk(typeName string) *Chunk {
 	for _, chunk := range model.Chunks {
-		if chunk.Name == chunkName {
+		if chunk.TypeName == typeName {
 			return chunk
 		}
 	}
@@ -31,7 +31,7 @@ func (c Chunk) SlotName(index int) (str string) {
 }
 
 func (c Chunk) IsInternal() bool {
-	return c.Name[0] == '_'
+	return c.TypeName[0] == '_'
 }
 
 // HasSlot checks if the slot name exists on this chunk.

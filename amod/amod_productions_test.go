@@ -436,7 +436,7 @@ func Example_productionSetStatementInvalidSlot() {
 	}`)
 
 	// Output:
-	// ERROR: slot 'bar' does not exist in chunk 'foo' for match buffer 'goal' in production 'start' (line 10, col 16)
+	// ERROR: slot 'bar' does not exist in chunk type 'foo' for match buffer 'goal' in production 'start' (line 10, col 16)
 }
 
 func Example_productionSetStatementNonVar1() {

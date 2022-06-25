@@ -435,7 +435,7 @@ func (c CCMPyACTR) writeMain() {
 }
 
 func (c CCMPyACTR) outputPattern(pattern *actr.Pattern) {
-	str := fmt.Sprintf("'%s ", pattern.Chunk.Name)
+	str := fmt.Sprintf("'%s ", pattern.Chunk.TypeName)
 
 	for i, slot := range pattern.Slots {
 		str += patternSlotString(slot)
@@ -456,9 +456,9 @@ func (c CCMPyACTR) outputMatch(match *actr.Match) {
 		name = match.Buffer.BufferName()
 	}
 
-	chunkName := match.Pattern.Chunk.Name
-	if actr.IsInternalChunkName(chunkName) {
-		if chunkName == "_status" {
+	chunkTypeName := match.Pattern.Chunk.TypeName
+	if actr.IsInternalChunkType(chunkTypeName) {
+		if chunkTypeName == "_status" {
 			status := match.Pattern.Slots[0]
 			if name == "retrieval" {
 				name = "memory"

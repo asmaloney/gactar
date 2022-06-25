@@ -18,14 +18,14 @@ type varAndIndex struct {
 // validateChunk checks the chunk name to ensure uniqueness and that it isn't using
 // reserved names.
 func validateChunk(model *actr.Model, log *issueLog, chunk *chunkDecl) (err error) {
-	if actr.IsInternalChunkName(chunk.Name) {
-		log.errorTR(chunk.Tokens, 1, 2, "cannot use reserved chunk name '%s' (chunks beginning with '_' are reserved)", chunk.Name)
+	if actr.IsInternalChunkType(chunk.TypeName) {
+		log.errorTR(chunk.Tokens, 1, 2, "cannot use reserved chunk type '%s' (chunks beginning with '_' are reserved)", chunk.TypeName)
 		return ErrCompile
 	}
 
-	c := model.LookupChunk(chunk.Name)
+	c := model.LookupChunk(chunk.TypeName)
 	if c != nil {
-		log.errorTR(chunk.Tokens, 1, 2, "duplicate chunk name: '%s'", chunk.Name)
+		log.errorTR(chunk.Tokens, 1, 2, "duplicate chunk type: '%s'", chunk.TypeName)
 		return ErrCompile
 	}
 
@@ -229,7 +229,7 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *issueLog, p
 
 		chunk := match.Pattern.Chunk
 		if !chunk.HasSlot(slotName) {
-			log.errorTR(set.Tokens, 3, 4, "slot '%s' does not exist in chunk '%s' for match buffer '%s' in production '%s'", slotName, chunk.Name, bufferName, production.Name)
+			log.errorTR(set.Tokens, 3, 4, "slot '%s' does not exist in chunk type '%s' for match buffer '%s' in production '%s'", slotName, chunk.TypeName, bufferName, production.Name)
 			err = ErrCompile
 		}
 
