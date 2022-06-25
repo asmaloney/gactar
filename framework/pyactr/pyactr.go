@@ -248,7 +248,7 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 		}
 
 		p.Writeln("# amod line %d", chunk.AMODLineNumber)
-		p.Writeln("actr.chunktype('%s', '%s')", chunk.Name, strings.Join(chunk.SlotNames, ", "))
+		p.Writeln("actr.chunktype('%s', '%s')", chunk.TypeName, strings.Join(chunk.SlotNames, ", "))
 	}
 	p.Writeln("")
 
@@ -441,7 +441,7 @@ func (p PyACTR) writeMain() {
 
 func (p PyACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 	tabbedItems := framework.KeyValueList{}
-	tabbedItems.Add("isa", pattern.Chunk.Name)
+	tabbedItems.Add("isa", pattern.Chunk.TypeName)
 
 	for i, slot := range pattern.Slots {
 		slotName := pattern.Chunk.SlotNames[i]
@@ -453,9 +453,9 @@ func (p PyACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 
 func (p PyACTR) outputMatch(match *actr.Match) {
 	bufferName := match.Buffer.BufferName()
-	chunkName := match.Pattern.Chunk.Name
+	chunkName := match.Pattern.Chunk.TypeName
 
-	if actr.IsInternalChunkName(chunkName) {
+	if actr.IsInternalChunkType(chunkName) {
 		if chunkName == "_status" {
 			status := match.Pattern.Slots[0]
 			p.Writeln("     ?%s>", bufferName)
@@ -538,7 +538,7 @@ func (p PyACTR) outputStatement(production *actr.Production, s *actr.Statement) 
 
 		if s.Set.Slots != nil {
 			tabbedItems := framework.KeyValueList{}
-			tabbedItems.Add("isa", s.Set.Chunk.Name)
+			tabbedItems.Add("isa", s.Set.Chunk.TypeName)
 
 			for _, slot := range *s.Set.Slots {
 				slotName := slot.Name

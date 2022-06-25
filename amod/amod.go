@@ -320,7 +320,7 @@ func addChunks(model *actr.Model, log *issueLog, chunks []*chunkDecl) {
 		}
 
 		aChunk := actr.Chunk{
-			Name:           chunk.Name,
+			TypeName:       chunk.TypeName,
 			SlotNames:      chunk.Slots,
 			NumSlots:       len(chunk.Slots),
 			AMODLineNumber: chunk.Tokens[0].Pos.Line,
