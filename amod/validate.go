@@ -49,7 +49,7 @@ func validateBufferInitialization(model *actr.Model, log *issueLog, moduleName s
 	return
 }
 
-func validateInitialization(model *actr.Model, log *issueLog, init *initialization) (err error) {
+func validateModuleInitialization(model *actr.Model, log *issueLog, init *moduleInitializer) (err error) {
 	moduleName := init.ModuleName
 	module := model.LookupModule(moduleName)
 

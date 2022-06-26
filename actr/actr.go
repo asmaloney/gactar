@@ -40,12 +40,14 @@ type Model struct {
 	// ImplicitChunks are chunks which aren't declared, but need to be created by some frameworks.
 	// e.g. by default vanilla will create them and emit a warning:
 	// 	#|Warning: Creating chunk SHARK with no slots |#
-	// These chunk names come from the initializations.
+	// These chunk names come from the initializations & similarities.
 	// We keep track of them so we can create them explicitly to avoid the warnings.
 	ImplicitChunks []string
 
 	Initializers []*Initializer
-	Productions  []*Production
+	Similarities []*Similarity
+
+	Productions []*Production
 
 	options
 }
@@ -56,6 +58,14 @@ type Initializer struct {
 
 	ChunkName *string // optional chunk name
 	Pattern   *Pattern
+
+	AMODLineNumber int
+}
+
+type Similarity struct {
+	ChunkOne string
+	ChunkTwo string
+	Value    float64
 
 	AMODLineNumber int
 }
@@ -122,6 +132,13 @@ func (model Model) LookupInitializer(buffer string) *Initializer {
 	}
 
 	return nil
+}
+
+// AddSimilarity will add a similarity to the list and keep track of the chunk names.
+func (model *Model) AddSimilarity(similar *Similarity) {
+	model.Similarities = append(model.Similarities, similar)
+
+	model.ImplicitChunks = append(model.ImplicitChunks, similar.ChunkOne, similar.ChunkTwo)
 }
 
 func (model Model) HasImplicitChunks() bool {

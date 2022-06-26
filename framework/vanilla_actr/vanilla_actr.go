@@ -283,6 +283,8 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 
 	v.writeInitializers(goal)
 
+	v.writeSimilarities()
+
 	v.writeProductions()
 
 	// Useful for debugging - output the contents of the imaginal buffer and the dm
@@ -353,7 +355,7 @@ func (v VanillaACTR) writeBufferInitializer(bufferName string, lineNumber int, p
 }
 
 func (v VanillaACTR) writeInitializers(goal *actr.Pattern) {
-	// First write out or declarative memory
+	// First write out our declarative memory
 	v.Writeln(";; initialize our declarative memory")
 	v.Writeln("(add-dm")
 
@@ -412,6 +414,21 @@ func (v VanillaACTR) writeInitializers(goal *actr.Pattern) {
 			v.writeBufferInitializer(moduleName, init.AMODLineNumber, init.Pattern)
 		}
 	}
+}
+
+func (v VanillaACTR) writeSimilarities() {
+	if len(v.model.Similarities) == 0 {
+		return
+	}
+
+	v.Writeln("(set-similarities")
+
+	for _, similar := range v.model.Similarities {
+		v.Writeln("    ;; amod line %d", similar.AMODLineNumber)
+		v.Writeln("    (%s %s %s)", similar.ChunkOne, similar.ChunkTwo, numbers.Float64Str(similar.Value))
+	}
+
+	v.Writeln(")\n")
 }
 
 func (v VanillaACTR) writeProductions() {

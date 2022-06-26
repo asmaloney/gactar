@@ -136,10 +136,36 @@ type bufferInitializer struct {
 	Tokens []lexer.Token
 }
 
-type initialization struct {
+type moduleInitializer struct {
 	ModuleName         string               `parser:"@Ident"`
 	InitPatterns       []*namedInitializer  `parser:"( '{' @@+ '}' | @@"`
 	BufferInitPatterns []*bufferInitializer `parser:"| '{' @@+ '}' )"`
+
+	Tokens []lexer.Token
+}
+
+type similar struct {
+	OpenParen  string  `parser:"'('"`
+	ChunkOne   string  `parser:"@Ident"`
+	ChunkTwo   string  `parser:"@Ident"`
+	Value      float64 `parser:"@Number"`
+	CloseParen string  `parser:"')'"`
+
+	Tokens []lexer.Token
+}
+
+type similarityInitializer struct {
+	Similar     string    `parser:"'similar':Keyword"`
+	OpenBrace   string    `parser:"'{'"`
+	SimilarList []similar `parser:"@@+"`
+	CloseBrace  string    `parser:"'}'"`
+
+	Tokens []lexer.Token
+}
+
+type initialization struct {
+	ModuleInitializer     *moduleInitializer     `parser:"( @@"`
+	SimilarityInitializer *similarityInitializer `parser:"| @@ )"`
 
 	Tokens []lexer.Token
 }

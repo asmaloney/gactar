@@ -360,25 +360,41 @@ func addInit(model *actr.Model, log *issueLog, init *initSection) {
 	}
 
 	for _, initialization := range init.Initializations {
-		err := validateInitialization(model, log, initialization)
-		if err != nil {
-			continue
-		}
-
-		name := initialization.ModuleName
-		moduleInterface := model.LookupModule(name)
-
-		if len(initialization.InitPatterns) > 0 {
-			for _, initPattern := range initialization.InitPatterns {
-				addInitializers(model, log, moduleInterface, moduleInterface.OnlyBuffer(), initPattern)
+		if initialization.ModuleInitializer != nil {
+			moduleInitializer := initialization.ModuleInitializer
+			err := validateModuleInitialization(model, log, moduleInitializer)
+			if err != nil {
+				continue
 			}
-		} else if len(initialization.BufferInitPatterns) > 0 {
-			for _, bufferInit := range initialization.BufferInitPatterns {
-				buff := model.LookupBuffer(bufferInit.BufferName)
 
-				for _, initPattern := range bufferInit.InitPatterns {
-					addInitializers(model, log, moduleInterface, buff, initPattern)
+			name := moduleInitializer.ModuleName
+			moduleInterface := model.LookupModule(name)
+
+			if len(moduleInitializer.InitPatterns) > 0 {
+				for _, initPattern := range moduleInitializer.InitPatterns {
+					addInitializers(model, log, moduleInterface, moduleInterface.OnlyBuffer(), initPattern)
 				}
+			} else if len(moduleInitializer.BufferInitPatterns) > 0 {
+				for _, bufferInit := range moduleInitializer.BufferInitPatterns {
+					buff := model.LookupBuffer(bufferInit.BufferName)
+
+					for _, initPattern := range bufferInit.InitPatterns {
+						addInitializers(model, log, moduleInterface, buff, initPattern)
+					}
+				}
+			}
+		} else if initialization.SimilarityInitializer != nil {
+			partialInitializer := initialization.SimilarityInitializer
+
+			for _, similar := range partialInitializer.SimilarList {
+				actrSimilar := &actr.Similarity{
+					ChunkOne:       similar.ChunkOne,
+					ChunkTwo:       similar.ChunkTwo,
+					Value:          similar.Value,
+					AMODLineNumber: similar.Tokens[0].Pos.Line,
+				}
+
+				model.AddSimilarity(actrSimilar)
 			}
 		}
 	}
