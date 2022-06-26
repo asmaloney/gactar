@@ -10,15 +10,26 @@ import (
 	"github.com/alecthomas/participle/v2/lexer"
 )
 
+type unionDef struct {
+	typ     reflect.Type
+	members []reflect.Type
+}
+
+type customDef struct {
+	typ     reflect.Type
+	parseFn reflect.Value
+}
+
 // A Parser for a particular grammar and lexer.
 type Parser struct {
 	root            node
-	trace           io.Writer
 	lex             lexer.Definition
 	typ             reflect.Type
 	useLookahead    int
 	caseInsensitive map[string]bool
 	mappers         []mapperByToken
+	unionDefs       []unionDef
+	customDefs      []customDef
 	elide           []string
 }
 
@@ -36,7 +47,7 @@ func MustBuild(grammar interface{}, options ...Option) *Parser {
 // If "Lexer()" is not provided as an option, a default lexer based on text/scanner will be used. This scans typical Go-
 // like tokens.
 //
-// See documentation for details
+// See documentation for details.
 func Build(grammar interface{}, options ...Option) (parser *Parser, err error) {
 	// Configure Parser struct with defaults + options.
 	p := &Parser{
@@ -83,6 +94,13 @@ func Build(grammar interface{}, options ...Option) (parser *Parser, err error) {
 	}
 
 	context := newGeneratorContext(p.lex)
+	if err := context.addCustomDefs(p.customDefs); err != nil {
+		return nil, err
+	}
+	if err := context.addUnionDefs(p.unionDefs); err != nil {
+		return nil, err
+	}
+
 	v := reflect.ValueOf(grammar)
 	if v.Kind() == reflect.Interface {
 		v = v.Elem()
@@ -95,9 +113,6 @@ func Build(grammar interface{}, options ...Option) (parser *Parser, err error) {
 	if err := validate(p.root); err != nil {
 		return nil, err
 	}
-	if p.trace != nil {
-		p.root = injectTrace(p.trace, 0, p.root)
-	}
 	return p, nil
 }
 
@@ -107,6 +122,7 @@ func (p *Parser) Lexer() lexer.Definition {
 }
 
 // Lex uses the parser's lexer to tokenise input.
+// Parameter filename is used as an opaque prefix in error messages.
 func (p *Parser) Lex(filename string, r io.Reader) ([]lexer.Token, error) {
 	lex, err := p.lex.Lex(filename, r)
 	if err != nil {
@@ -159,7 +175,7 @@ func (p *Parser) parse(lex lexer.Lexer, v interface{}, options ...ParseOption) (
 }
 
 // Parse from r into grammar v which must be of the same type as the grammar passed to
-// Build().
+// Build(). Parameter filename is used as an opaque prefix in error messages.
 //
 // This may return an Error.
 func (p *Parser) Parse(filename string, r io.Reader, v interface{}, options ...ParseOption) (err error) {
@@ -174,7 +190,7 @@ func (p *Parser) Parse(filename string, r io.Reader, v interface{}, options ...P
 }
 
 // ParseString from s into grammar v which must be of the same type as the grammar passed to
-// Build().
+// Build(). Parameter filename is used as an opaque prefix in error messages.
 //
 // This may return an Error.
 func (p *Parser) ParseString(filename string, s string, v interface{}, options ...ParseOption) (err error) {
@@ -191,7 +207,7 @@ func (p *Parser) ParseString(filename string, s string, v interface{}, options .
 }
 
 // ParseBytes from b into grammar v which must be of the same type as the grammar passed to
-// Build().
+// Build(). Parameter filename is used as an opaque prefix in error messages.
 //
 // This may return an Error.
 func (p *Parser) ParseBytes(filename string, b []byte, v interface{}, options ...ParseOption) (err error) {
@@ -238,10 +254,13 @@ func (p *Parser) parseInto(ctx *parseContext, rv reflect.Value) error {
 }
 
 func (p *Parser) rootParseable(ctx *parseContext, parseable Parseable) error {
-	err := parseable.Parse(ctx.PeekingLexer)
-	if err == NextMatch {
-		token := ctx.Peek()
-		return ctx.DeepestError(UnexpectedTokenError{Unexpected: token})
+	if err := parseable.Parse(ctx.PeekingLexer); err != nil {
+		if err == NextMatch {
+			err = UnexpectedTokenError{Unexpected: ctx.Peek()}
+		} else {
+			err = &ParseError{Msg: err.Error(), Pos: ctx.Peek().Pos}
+		}
+		return ctx.DeepestError(err)
 	}
 	peek := ctx.Peek()
 	if !peek.EOF() && !ctx.allowTrailing {

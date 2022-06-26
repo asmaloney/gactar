@@ -1,7 +1,10 @@
 package participle
 
 import (
+	"fmt"
+	"io"
 	"reflect"
+	"strings"
 
 	"github.com/alecthomas/participle/v2/lexer"
 )
@@ -16,6 +19,8 @@ type contextFieldSet struct {
 // Context for a single parse.
 type parseContext struct {
 	*lexer.PeekingLexer
+	depth             int
+	trace             io.Writer
 	deepestError      error
 	deepestErrorDepth int
 	lookahead         int
@@ -94,11 +99,23 @@ func (p *parseContext) Stop(err error, branch *parseContext) bool {
 		p.deepestError = err
 		p.deepestErrorDepth = maxInt(branch.PeekingLexer.Cursor(), branch.deepestErrorDepth)
 	}
-	if branch.PeekingLexer.Cursor() > p.PeekingLexer.Cursor()+p.lookahead {
+	if !p.hasInfiniteLookahead() && branch.PeekingLexer.Cursor() > p.PeekingLexer.Cursor()+p.lookahead {
 		p.Accept(branch)
 		return true
 	}
 	return false
+}
+
+func (p *parseContext) hasInfiniteLookahead() bool { return p.lookahead < 0 }
+
+func (p *parseContext) printTrace(n node) func() {
+	if p.trace != nil {
+		tok := p.PeekingLexer.Peek()
+		fmt.Fprintf(p.trace, "%s%q %s\n", strings.Repeat(" ", p.depth*2), tok, n.GoString())
+		p.depth += 1
+		return func() { p.depth -= 1 }
+	}
+	return func() {}
 }
 
 func maxInt(a, b int) int {
