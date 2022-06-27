@@ -8,8 +8,8 @@ import (
 // String returns the EBNF for the grammar.
 //
 // Productions are always upper cased. Lexer tokens are always lower case.
-func (p *Parser) String() string {
-	return ebnf(p.root)
+func (p *Parser[G]) String() string {
+	return ebnf(p.typeNodes[p.rootType])
 }
 
 type ebnfp struct {
