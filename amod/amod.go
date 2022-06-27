@@ -118,13 +118,15 @@ func ParseChunk(model *actr.Model, chunk string) (*actr.Pattern, error) {
 		chunk += "]"
 	}
 
-	var p pattern
-
-	r := strings.NewReader(chunk)
-
 	log := newLog()
 
-	err := patternParser.Parse("", r, &p)
+	patternParser, err := participle.ParserForProduction[pattern](amodParser)
+	if err != nil {
+		err = &ErrParseChunk{Message: err.Error()}
+		return nil, err
+	}
+
+	p, err := patternParser.ParseString("", chunk)
 	if err != nil {
 		pErr, ok := err.(participle.Error)
 		if ok {
@@ -134,13 +136,13 @@ func ParseChunk(model *actr.Model, chunk string) (*actr.Pattern, error) {
 		return nil, err
 	}
 
-	err = validatePattern(model, log, &p)
+	err = validatePattern(model, log, p)
 	if err != nil {
 		err = &ErrParseChunk{Message: log.FirstEntry()}
 		return nil, err
 	}
 
-	return createChunkPattern(model, log, &p)
+	return createChunkPattern(model, log, p)
 }
 
 // generateModel runs through the parsed structures and creates an actr.Model from them

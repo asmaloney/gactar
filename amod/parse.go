@@ -304,28 +304,19 @@ type productionSection struct {
 	Tokens []lexer.Token
 }
 
-var amodParser = participle.MustBuild(&amodFile{},
+var amodParser = participle.MustBuild[amodFile](
 	participle.Lexer(LexerDefinition),
 	participle.Elide("Comment", "Whitespace"),
 	participle.Unquote(),
 )
 
-var patternParser = participle.MustBuild(&pattern{},
-	participle.Lexer(LexerDefinition),
-	participle.Elide("Comment", "Whitespace"),
-	participle.Unquote(),
-)
-
-func parse(r io.Reader) (*amodFile, error) {
-	var amod amodFile
-
-	err := amodParser.Parse("", r, &amod)
-
+func parse(r io.Reader) (amod *amodFile, err error) {
+	amod, err = amodParser.Parse("", r)
 	if err != nil {
 		return nil, err
 	}
 
-	return &amod, nil
+	return
 }
 
 func parseFile(filename string) (*amodFile, error) {

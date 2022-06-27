@@ -35,7 +35,7 @@
 
 ## V2
 
-This is an alpha of version 2 of Participle. It is still subject to change but should be mostly stable at this point.
+This is a beta version of version 2 of Participle. It is still subject to change but should be mostly stable at this point.
 
 See the [Change Log](CHANGES.md) for details.
 
@@ -112,7 +112,8 @@ parser from the tutorial.
 
  type Value struct {
    String *string  `  @String`
-   Number *float64 `| @Float`
+   Float *float64  `| @Float`
+   Int    *int     `| @Int`
  }
  ```
 
@@ -121,17 +122,16 @@ parser from the tutorial.
 A parser is constructed from a grammar and a lexer:
 
 ```go
-parser, err := participle.Build(&INI{})
+parser, err := participle.Build[INI]()
 ```
 
 Once constructed, the parser is applied to input to produce an AST:
 
 ```go
-ast := &INI{}
-err := parser.ParseString("", "size = 10", ast)
+ast, err := parser.ParseString("", "size = 10")
 // ast == &INI{
 //   Properties: []*Property{
-//     {Key: "size", Value: &Value{Number: &10}},
+//     {Key: "size", Value: &Value{Int: &10}},
 //   },
 // }
 ```
@@ -281,7 +281,7 @@ now supports this pattern. Simply construct your parser with the `Union[T](membe
 option, eg.
 
 ```go
-parser := participle.MustBuild(&AST{}, participle.Union[Value](Float{}, Int{}, String{}, Bool{}))
+parser := participle.MustBuild[AST](participle.Union[Value](Float{}, Int{}, String{}, Bool{}))
 ```
 
 Custom parsers may also be defined for union types with the [ParseTypeWith](https://pkg.go.dev/github.com/alecthomas/participle/v2#ParseTypeWith) option.
@@ -424,7 +424,9 @@ The Parser's behaviour can be configured via [Options](https://pkg.go.dev/github
 
 ## Examples
 
-There are several [examples](https://github.com/alecthomas/participle/tree/master/_examples) included:
+There are several [examples included](https://github.com/alecthomas/participle/tree/master/_examples),
+some of which are linked directly here. These examples should be run from the
+`_examples` subdirectory within a cloned copy of this repository.
 
 Example | Description
 --------|---------------
@@ -513,7 +515,7 @@ var (
 		{"Punct", `[-[!@#$%^&*()+_={}\|:;"'<,>.?/]|]`, nil},
 		{"Whitespace", `[ \t\n\r]+`, nil},
 	})
-	parser = participle.MustBuild(&File{},
+	parser = participle.MustBuild[File](
 		participle.Lexer(graphQLLexer),
 		participle.Elide("Comment", "Whitespace"),
 		participle.UseLookahead(2),
@@ -532,10 +534,9 @@ func main() {
 		ctx.Exit(0)
 	}
 	for _, file := range cli.Files {
-		ast := &File{}
 		r, err := os.Open(file)
 		ctx.FatalIfErrorf(err)
-		err = parser.Parse(file, r, ast)
+		ast, err := parser.Parse(file, r)
 		r.Close()
 		repr.Println(ast)
 		ctx.FatalIfErrorf(err)
