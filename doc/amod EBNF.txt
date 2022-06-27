@@ -32,10 +32,22 @@ InitSection
          ::= Initialization*
 
 Initialization
-         ::= ident ( '{' ( Pattern+ | BufferInitializer+ ) '}' | Pattern )
+         ::= ModuleInitializer
+           | SimilarityInitializer
+
+ModuleInitializer
+         ::= ident ( '{' ( NamedInitializer+ | BufferInitializer+ ) '}' | NamedInitializer )
+
+NamedInitializer
+         ::= ident? Pattern
 
 BufferInitializer
-         ::= ident ( '{' Pattern+ '}' | Pattern )
+         ::= ident ( '{' NamedInitializer+ '}' | NamedInitializer )
+
+SimilarityInitializer
+         ::= 'similar' '{' Similar+ '}'
+
+Similar  ::= '(' ident ident number ')'
 
 ProductionSection
          ::= Production+

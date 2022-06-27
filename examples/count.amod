@@ -27,7 +27,7 @@ gactar {
     trace_activations: false
 }
 
-// Declare chunks and their layouts
+// Declare chunk types and their layouts
 chunks {
     [count: first second]
     [countFrom: start end status]
@@ -37,16 +37,17 @@ chunks {
 
 // Initialize the memory
 memory {
-    [count: 0 1]
-    [count: 1 2]
-    [count: 2 3]
-    [count: 3 4]
-    [count: 4 5]
-    [count: 5 6]
-    [count: 6 7]
-    [count: 7 8]
-    [count: 8 9]
-    [count: 9 10]
+    // Initializers can have an optional chunk name like this:
+    one     [count: 0 1]
+    two     [count: 1 2]
+    three   [count: 2 3]
+    four    [count: 3 4]
+    five    [count: 4 5]
+    six     [count: 5 6]
+    seven   [count: 6 7]
+    eight   [count: 7 8]
+    nine    [count: 8 9]
+    ten     [count: 9 10]
 }
 
 // Default goal
@@ -63,7 +64,7 @@ begin {
     match {
         goal [countFrom: ?start ?end 'starting']
     }
-    // Steps to execute
+    // Statements to execute
     do {
         recall [count: ?start *]
         set goal to [countFrom: ?start ?end 'counting']

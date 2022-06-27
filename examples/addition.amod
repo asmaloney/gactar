@@ -27,7 +27,7 @@ gactar {
     trace_activations: false
 }
 
-// Declare chunks and their layouts
+// Declare chunk types and their layouts
 chunks {
     [add: first second count sum]
     [count: first second]
@@ -61,7 +61,7 @@ initializeAddition {
     match {
         goal [add: ?num1 * nil nil]
     }
-    // Steps to execute
+    // Statements to execute
     do {
         set goal.count to 0
         set goal.sum to ?num1

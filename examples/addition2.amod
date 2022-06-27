@@ -21,7 +21,7 @@ gactar {
     trace_activations: true
 }
 
-// Declare chunks and their layouts
+// Declare chunk types and their layouts
 chunks {
     [addition_fact: addend1 addend2 sum]
     [add_pair: ten1 one1 ten2 one2 ten_ans one_ans carry]
@@ -51,7 +51,7 @@ startPair {
     match {
         goal [add_pair: * ?one1 * ?one2 * nil *]
     }
-    // Steps to execute
+    // Statements to execute
     do {
         set goal.one_ans to 'busy'
         recall [addition_fact: ?one1 ?one2 *]

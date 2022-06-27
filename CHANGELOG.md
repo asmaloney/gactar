@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.10.0] - (in progress)
+
+### Added
+
+- Now tracks and outputs declarations for implicit chunk names. This avoids warnings on some frameworks. ([#241](https://github.com/asmaloney/gactar/pull/241), [#247](https://github.com/asmaloney/gactar/pull/247), [#249](https://github.com/asmaloney/gactar/pull/249))
+
+- Allow strings in chunk patterns. ([#243](https://github.com/asmaloney/gactar/pull/243))
+
+- Allow naming of initialized chunks. ([#250](https://github.com/asmaloney/gactar/pull/250))
+
+  e.g.
+
+  ```
+  ~~ init ~~
+
+  memory {
+    castle  [meaning: 'castle']
+    earl    [meaning: 'earl']
+  }
+  ```
+
+  In pyactr and vanilla, these names are used in the chunk creation. In ccm, the names are added as comments as it doesn't seem to use the "chunk name" concept.
+
+- Allow setting of similarities in the _init_ section. ([#257](https://github.com/asmaloney/gactar/pull/257))
+
+  They are specified like this:
+
+  ```
+  ~~ init ~~
+
+  similar {
+    ( first second -0.5 )
+    ( second third -0.5 )
+  }
+  ```
+
+### Fixed
+
+- Give proper error when trying to use an invalid type with `_status`. ([#242](https://github.com/asmaloney/gactar/pull/242))
+
 ## [0.9.0](https://github.com/asmaloney/gactar/releases/tag/v0.9.0) - 2022-06-20
 
 ### Added
