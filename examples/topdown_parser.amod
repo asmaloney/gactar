@@ -21,7 +21,7 @@ modules {
 	imaginal { delay: 0.2 }
 }
 
-// Declare chunks and their layouts
+// Declare chunk types and their layouts
 chunks {
     [parsing_goal: stack_top stack_bottom parsed_word task]
     [sentence: word1 word2 word3]
@@ -54,7 +54,7 @@ expandS {
     match {
         goal [parsing_goal: 'S' * * 'parsing']
     }
-    // Steps to execute
+    // Statements to execute
     do {
         set goal.stack_top to 'NP'
         set goal.stack_bottom to 'VP'
