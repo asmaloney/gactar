@@ -27,6 +27,7 @@ CodeMirror.defineMode('amod', function () {
     print: true,
     recall: true,
     set: true,
+    similar: true,
     stop: true,
     to: true,
     when: true,
