@@ -13,8 +13,8 @@ authors {
 
 // Examples of starting goals to use when running the model
 examples {
-    [countFrom: 2 5 starting]
-    [countFrom: 1 7 starting]
+    [countFrom: 2 5 'starting']
+    [countFrom: 1 7 'starting']
 }
 
 ~~ config ~~

@@ -59,6 +59,7 @@ Buffer Name: **retrieval**
 | latency_exponent    | decimal | latency exponent (f)                                                                  | ccm: (unsupported? Based on the code, it seems to be fixed at 1.0.)<br>pyactr (latency_exponent): 1.0<br>vanilla (:le): 1.0 |
 | latency_factor      | decimal | latency factor (F)                                                                    | ccm (latency): 0.05<br>pyactr (latency_factor): 0.1<br>vanilla (:lf): 1.0                                                   |
 | max_spread_strength | decimal | turns on the spreading activation calculation & sets the maximum associative strength | ccm (DMSpreading submodule)<br>pyactr (strength_of_association)<br>vanilla (:mas)                                           |
+| mismatch_penalty    | decimal | turns on partial matching and sets the penalty in the activation equation to this     | ccm (Partial class)<br>pyactr (partial_matching & mismatch_penalty)<br>vanilla (:mp)                                        |
 | retrieval_threshold | decimal | retrieval threshold (τ)                                                               | ccm (threshold): 0.0<br>pyactr (retrieval_threshold): 0.0<br>vanilla (:rt): 0.0                                             |
 
 ### Goal
@@ -93,10 +94,9 @@ Module Name: **procedural**
 
 Buffer Name: _none_
 
-| Config              | Type    | Description                                         | Mapping                                                                           |
-| ------------------- | ------- | --------------------------------------------------- | --------------------------------------------------------------------------------- |
-| default_action_time | decimal | time that it takes to fire a production (seconds)   | ccm (production_time): 0.05<br>pyactr (rule_firing): 0.05<br>vanilla (:dat): 0.05 |
-| partial_matching    | boolean | turns on partial matching of buffers in productions | (off unless explicitly turned on)                                                 |
+| Config              | Type    | Description                                       | Mapping                                                                           |
+| ------------------- | ------- | ------------------------------------------------- | --------------------------------------------------------------------------------- |
+| default_action_time | decimal | time that it takes to fire a production (seconds) | ccm (production_time): 0.05<br>pyactr (rule_firing): 0.05<br>vanilla (:dat): 0.05 |
 
 ### Extra Buffers
 
