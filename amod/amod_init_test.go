@@ -237,8 +237,8 @@ func Example_initializerPartialSimilarities() {
 	name: Test
 	~~ config ~~
 	modules {
-		procedural {
-			partial_matching: true
+		memory {
+			mismatch_penalty: 1.0
 		}
 	}
 	chunks {

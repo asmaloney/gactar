@@ -218,13 +218,13 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 		p.Writeln("    instantaneous_noise=%s,", numbers.Float64Str(*memory.InstantaneousNoise))
 	}
 
+	if memory.MismatchPenalty != nil {
+		p.Writeln("    partial_matching=True, mismatch_penalty=%s,", numbers.Float64Str(*memory.MismatchPenalty))
+	}
+
 	procedural := p.model.Procedural
 	if procedural.DefaultActionTime != nil {
 		p.Writeln("    rule_firing=%s,", numbers.Float64Str(*procedural.DefaultActionTime))
-	}
-
-	if procedural.PartialMatching {
-		p.Writeln("    partial_matching=True,")
 	}
 
 	if p.model.TraceActivations {
