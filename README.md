@@ -536,8 +536,8 @@ authors {
 
 // Examples of starting goals to use when running the model
 examples {
-    [countFrom: 2 5 starting]
-    [countFrom: 1 3 starting]
+    [countFrom: 2 5 'starting']
+    [countFrom: 1 3 'starting']
 }
 
 ~~ config ~~
@@ -550,7 +550,7 @@ gactar {
     trace_activations: false
 }
 
-// Declare chunks and their layouts
+// Declare chunk types and their layouts
 chunks {
     [count: first second]
     [countFrom: start end status]
@@ -560,15 +560,16 @@ chunks {
 
 // Initialize the memory
 memory {
-    [count: 0 1]
-    [count: 1 2]
-    [count: 2 3]
-    [count: 3 4]
-    [count: 4 5]
+    // Initializers can have an optional chunk name like this:
+    one     [count: 0 1]
+    two     [count: 1 2]
+    three   [count: 2 3]
+    four    [count: 3 4]
+    five    [count: 4 5]
 }
 
 // Default goal
-goal [countFrom: 2 5 starting]
+goal [countFrom: 2 5 'starting']
 
 ~~ productions ~~
 
@@ -579,18 +580,18 @@ begin {
 
     // Buffers to match
     match {
-        goal [countFrom: ?start ?end starting]
+        goal [countFrom: ?start ?end 'starting']
     }
-    // Steps to execute
+    // Statements to execute
     do {
         recall [count: ?start *]
-        set goal to [countFrom: ?start ?end counting]
+        set goal to [countFrom: ?start ?end 'counting']
     }
 }
 
 increment {
     match {
-        goal [countFrom: ?x !?x counting]
+        goal [countFrom: ?x !?x 'counting']
         retrieval [count: ?x ?next]
     }
     do {
@@ -602,7 +603,7 @@ increment {
 
 end {
     match {
-        goal [countFrom: ?x ?x counting]
+        goal [countFrom: ?x ?x 'counting']
     }
     do {
         print ?x
