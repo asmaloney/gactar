@@ -84,6 +84,13 @@ type DeclarativeMemory struct {
 	// 	pyactr (instantaneous_noise)
 	// 	vanilla (:ans)
 	InstantaneousNoise *float64
+
+	// "mismatch_penalty": turns on partial matching and sets the penalty in the activation equation to this
+	// (there are no defaults since setting it activates the capability)
+	// 	ccm (Partial class)
+	// 	pyactr (partial_matching & mismatch_penalty)
+	// 	vanilla (:mp)
+	MismatchPenalty *float64
 }
 
 func NewDeclarativeMemory() *DeclarativeMemory {
@@ -185,6 +192,13 @@ func (d *DeclarativeMemory) SetParam(param *params.Param) (err error) {
 		}
 
 		d.InstantaneousNoise = value.Number
+
+	case "mismatch_penalty":
+		if value.Number == nil {
+			return params.ErrInvalidType{ExpectedType: params.Number}
+		}
+
+		d.MismatchPenalty = value.Number
 
 	default:
 		return params.ErrUnrecognizedParam

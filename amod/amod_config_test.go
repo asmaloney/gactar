@@ -195,10 +195,10 @@ func Example_modulesAll() {
 			decay: 0.6
 			max_spread_strength: 0.9
 			instantaneous_noise: 0.5
+			mismatch_penalty: 1.0
 		}
 		procedural {
 			default_action_time: 0.06
-			partial_matching: true
 		}
 	}
 	~~ init ~~

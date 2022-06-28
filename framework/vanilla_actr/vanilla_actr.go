@@ -239,13 +239,13 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 		v.Writeln("\t:ans %s", numbers.Float64Str(*memory.InstantaneousNoise))
 	}
 
+	if memory.MismatchPenalty != nil {
+		v.Writeln("\t:mp %s", numbers.Float64Str(*memory.MismatchPenalty))
+	}
+
 	procedural := v.model.Procedural
 	if procedural.DefaultActionTime != nil {
 		v.Writeln("\t:dat %s", numbers.Float64Str(*procedural.DefaultActionTime))
-	}
-
-	if procedural.PartialMatching {
-		v.Writeln("\t:ppm 1")
 	}
 
 	switch v.model.LogLevel {
