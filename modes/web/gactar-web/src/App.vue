@@ -21,18 +21,18 @@
         >
           <amod-code-tab
             :amod-issues="amodIssues"
-            @codeChange="codeChange"
+            @codeChange="amodCodeChange"
             @showError="showError"
           />
 
-          <template v-for="tab in tabs">
+          <template v-for="fw in frameworks">
             <framework-code-tab
-              v-if="tab.displayed"
-              :key="tab.framework.name"
-              :value="tab.framework.name"
-              :framework="tab.framework"
-              :model-name="tab.modelName"
-              :code="code[tab.framework.name]"
+              v-if="fw.showTabs"
+              :model-name="currentModelName"
+              :key="fw.info.name"
+              :value="fw.info.name"
+              :framework="fw.info"
+              :code="fw.code"
             >
             </framework-code-tab>
           </template>
@@ -40,20 +40,20 @@
       </div>
 
       <div class="tile is-vertical is-parent">
-        <div v-if="tabs.length > 0" class="tile is-child is-12">
+        <div v-if="availableFrameworks.length > 0" class="tile is-child is-12">
           <b-field label="Select Frameworks" custom-class="is-small">
             <b-checkbox-button
-              v-for="tab in tabs"
+              v-for="name in availableFrameworks"
               v-model="selectedFrameworks"
               type="is-info"
               size="is-small"
-              :native-value="tab.framework.name"
-              :key="tab.framework.name"
+              :native-value="name"
+              :key="name"
               expanded
               class="ml-1 mr-1"
               @input="frameworkChanged"
             >
-              <span>{{ tab.framework.name }}</span>
+              <span>{{ name }}</span>
             </b-checkbox-button>
           </b-field>
         </div>
@@ -99,28 +99,26 @@ import { commentString, issuesToArray } from './utils'
 import AmodCodeTab from './components/AmodCodeTab.vue'
 import FrameworkCodeTab from './components/FrameworkCodeTab.vue'
 
-interface Tab {
-  framework: FrameworkInfo
+interface FrameworkData {
+  info: FrameworkInfo
 
-  modelName: string
-  displayed: boolean
+  code: string
+
+  showTabs: boolean
 }
 
-type CodeMap = { [key: string]: string }
-type FrameworkInfoMap = { [key: string]: FrameworkInfo }
-
 interface Data {
+  amodCode: string
   amodIssues: IssueList
 
   activeTab: number
-  baseTabs: Tab[]
-  code: CodeMap
 
+  currentModelName: string
   goal: string
   running: boolean
   results: string
 
-  frameworks: FrameworkInfoMap
+  frameworks: FrameworkData[]
   availableFrameworks: string[]
   selectedFrameworks: string[]
   version: Version
@@ -133,27 +131,21 @@ export default Vue.extend({
 
   data(): Data {
     return {
+      amodCode: '',
       amodIssues: [],
 
       activeTab: 0,
-      baseTabs: [],
 
-      code: {},
+      currentModelName: '',
       goal: '',
       running: false,
       results: '',
 
-      frameworks: {},
+      frameworks: [],
       availableFrameworks: [],
       selectedFrameworks: [],
       version: '',
     }
-  },
-
-  computed: {
-    tabs(): Tab[] {
-      return this.baseTabs
-    },
   },
 
   created() {
@@ -168,6 +160,14 @@ export default Vue.extend({
   },
 
   methods: {
+    amodCodeChange(newCode: string) {
+      this.amodCode = newCode
+    },
+
+    clearResults() {
+      this.results = ''
+    },
+
     frameworkChanged() {
       // Save our selected frameworks
       localStorage.setItem(
@@ -176,18 +176,10 @@ export default Vue.extend({
       )
     },
 
-    clearResults() {
-      this.results = ''
-    },
-
-    codeChange(newCode: string) {
-      this.code['amod'] = newCode
-    },
-
     hideTabsNotInUse() {
-      this.baseTabs.forEach((tab: Tab) => {
-        if (!this.selectedFrameworks.includes(tab.framework.name)) {
-          tab.displayed = false
+      this.frameworks.forEach((data: FrameworkData) => {
+        if (!this.selectedFrameworks.includes(data.info.name)) {
+          data.showTabs = false
         }
       })
     },
@@ -197,17 +189,13 @@ export default Vue.extend({
         .getFrameworks()
         .then((list: FrameworkInfoList) => {
           list.forEach((info: FrameworkInfo) => {
-            // create tab info for each language present on the server
-            const tab: Tab = {
-              framework: info,
-              modelName: '',
-              displayed: false,
+            const frameworkData: FrameworkData = {
+              info: info,
+              code: '',
+              showTabs: false,
             }
-
-            this.frameworks[info.name] = info
+            this.frameworks.push(frameworkData)
             this.availableFrameworks.push(info.name)
-
-            this.baseTabs.push(tab)
           })
         })
         .catch((err: Error) => {
@@ -255,7 +243,7 @@ export default Vue.extend({
       this.hideTabsNotInUse()
 
       const params: RunParams = {
-        amod: this.code['amod'],
+        amod: this.amodCode,
         goal: this.goal,
         frameworks: this.selectedFrameworks,
       }
@@ -279,8 +267,18 @@ export default Vue.extend({
 
     setResults(results: FrameworkResultMap) {
       let text = ''
-      for (const [framework, result] of Object.entries(results)) {
-        text += framework + '\n' + '---\n'
+      for (const [frameworkName, result] of Object.entries(results)) {
+        this.currentModelName = result.modelName
+
+        let frameworkInfo = this.frameworks.find(
+          (item) => item.info.name == frameworkName
+        )
+
+        if (frameworkInfo == null) {
+          return
+        }
+
+        text += frameworkName + '\n' + '---\n'
 
         if (result.issues) {
           const issueTexts = issuesToArray(result.issues)
@@ -293,24 +291,17 @@ export default Vue.extend({
         }
 
         if (result.code) {
-          this.code[framework] = result.code
+          frameworkInfo.code = result.code
         } else {
-          this.code[framework] = commentString(
-            this.frameworks[framework].language,
+          frameworkInfo.code = commentString(
+            frameworkInfo.info.language,
             '(No code returned from server)'
           )
         }
 
-        const index = this.tabs.findIndex(
-          (obj: Tab) => obj.framework.name == framework
-        )
-        if (index != -1) {
-          this.tabs[index].modelName = result.modelName
-
-          // show our tabs the first time we have code
-          if (this.code[framework] && this.code[framework].length != 0) {
-            this.tabs[index].displayed = true
-          }
+        // show our tabs the first time we have code
+        if (frameworkInfo.code.length != 0) {
+          frameworkInfo.showTabs = true
         }
       }
 
