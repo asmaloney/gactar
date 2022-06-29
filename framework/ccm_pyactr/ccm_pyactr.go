@@ -165,6 +165,12 @@ func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code 
 
 	c.Write("\n\n")
 
+	// random
+	if c.model.RandomSeed != nil {
+		c.Writeln("random.seed(%d)", *c.model.RandomSeed)
+		c.Write("\n\n")
+	}
+
 	c.Writeln("class %s(ACTR):", c.className)
 
 	for _, buffer := range c.model.BufferNames() {
@@ -320,6 +326,10 @@ func (c CCMPyACTR) writeAuthors() {
 }
 
 func (c CCMPyACTR) writeImports() {
+	if c.model.RandomSeed != nil {
+		c.Writeln("import random")
+	}
+
 	memory := c.model.Memory
 
 	imports := []string{"ACTR", "Buffer", "Memory"}

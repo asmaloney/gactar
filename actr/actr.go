@@ -15,6 +15,11 @@ type options struct {
 
 	// "trace_activations": output detailed info about activations
 	TraceActivations bool
+
+	// "random_seed": the seed to use for generating pseudo-random numbers (allows for reproducible runs)
+	// For all frameworks, if it is not set it uses current system time.
+	// Use a uint32 because pyactr uses numpy and that's what its random number seed uses.
+	RandomSeed *uint32
 }
 
 // Model represents a basic ACT-R model.
@@ -259,6 +264,15 @@ func (model *Model) SetParam(param *params.Param) (err error) {
 		}
 
 		model.TraceActivations = boolVal
+
+	case "random_seed":
+		if value.Number == nil {
+			return params.ErrInvalidType{ExpectedType: params.Number}
+		}
+
+		seed := uint32(*value.Number)
+
+		model.RandomSeed = &seed
 
 	default:
 		return params.ErrUnrecognizedParam
