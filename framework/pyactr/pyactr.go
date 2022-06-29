@@ -183,6 +183,11 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 
 	p.Writeln("")
 
+	// random
+	if p.model.RandomSeed != nil {
+		p.Writeln("numpy.random.seed(%d)\n", *p.model.RandomSeed)
+	}
+
 	memory := p.model.Memory
 	p.Writeln("%s = actr.ACTRModel(", p.className)
 
@@ -355,6 +360,10 @@ func (p PyACTR) writeAuthors() {
 }
 
 func (p PyACTR) writeImports() {
+	if p.model.RandomSeed != nil {
+		p.Writeln("import numpy")
+	}
+
 	p.Writeln("import pyactr as actr")
 
 	if p.model.HasPrintStatement() {

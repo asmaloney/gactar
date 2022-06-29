@@ -270,6 +270,11 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 	}
 	v.Writeln(")\n")
 
+	// random
+	if v.model.RandomSeed != nil {
+		v.Writeln("(sgp :seed (%d 0))\n", *v.model.RandomSeed)
+	}
+
 	// chunks
 	for _, chunk := range v.model.Chunks {
 		if chunk.IsInternal() {
