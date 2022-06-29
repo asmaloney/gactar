@@ -73,8 +73,31 @@
           </b-field>
         </div>
 
-        <div class="tile is-child">
-          <textarea id="results" v-model="results" expanded></textarea>
+        <div class="tile is-child results">
+          <b-tabs :animated="false" :type="'is-boxed'" size="is-small" expanded>
+            <b-tab-item label="All Results">
+              <textarea
+                v-model="allResults"
+                class="textarea is-info has-fixed-size"
+                expanded
+                readonly
+              />
+            </b-tab-item>
+            <template v-for="fw in frameworks">
+              <b-tab-item
+                v-if="fw.showTabs"
+                :label="fw.info.name"
+                :key="fw.info.name"
+              >
+                <textarea
+                  :value="fw.output"
+                  class="textarea is-info has-fixed-size"
+                  expanded
+                  readonly
+                />
+              </b-tab-item>
+            </template>
+          </b-tabs>
         </div>
       </div>
     </div>
@@ -102,7 +125,8 @@ import FrameworkCodeTab from './components/FrameworkCodeTab.vue'
 interface FrameworkData {
   info: FrameworkInfo
 
-  code: string
+  code: string // generated code
+  output: string // output from run
 
   showTabs: boolean
 }
@@ -116,7 +140,7 @@ interface Data {
   currentModelName: string
   goal: string
   running: boolean
-  results: string
+  allResults: string
 
   frameworks: FrameworkData[]
   availableFrameworks: string[]
@@ -139,7 +163,7 @@ export default Vue.extend({
       currentModelName: '',
       goal: '',
       running: false,
-      results: '',
+      allResults: '',
 
       frameworks: [],
       availableFrameworks: [],
@@ -165,7 +189,7 @@ export default Vue.extend({
     },
 
     clearResults() {
-      this.results = ''
+      this.allResults = ''
     },
 
     frameworkChanged() {
@@ -192,6 +216,7 @@ export default Vue.extend({
             const frameworkData: FrameworkData = {
               info: info,
               code: '',
+              output: '',
               showTabs: false,
             }
             this.frameworks.push(frameworkData)
@@ -266,24 +291,30 @@ export default Vue.extend({
     },
 
     setResults(results: FrameworkResultMap) {
-      let text = ''
+      let text = '' // text we add to "all results"
+
       for (const [frameworkName, result] of Object.entries(results)) {
         this.currentModelName = result.modelName
 
-        let frameworkInfo = this.frameworks.find(
+        let frameworkData = this.frameworks.find(
           (item) => item.info.name == frameworkName
         )
 
-        if (frameworkInfo == null) {
+        if (frameworkData == null) {
           return
         }
 
         text += frameworkName + '\n' + '---\n'
 
+        let frameworkOutput = '' // text for the framework tab's results
+
         if (result.issues) {
           const issueTexts = issuesToArray(result.issues)
-          text += issueTexts.join('\n') + '\n\n'
+          frameworkOutput = issueTexts.join('\n') + '\n\n'
+          text += frameworkOutput
         }
+
+        frameworkData.output = frameworkOutput + (result.output || '')
 
         if (result.output) {
           text += result.output
@@ -291,25 +322,25 @@ export default Vue.extend({
         }
 
         if (result.code) {
-          frameworkInfo.code = result.code
+          frameworkData.code = result.code
         } else {
-          frameworkInfo.code = commentString(
-            frameworkInfo.info.language,
+          frameworkData.code = commentString(
+            frameworkData.info.language,
             '(No code returned from server)'
           )
         }
 
         // show our tabs the first time we have code
-        if (frameworkInfo.code.length != 0) {
-          frameworkInfo.showTabs = true
+        if (frameworkData.code.length != 0) {
+          frameworkData.showTabs = true
         }
       }
 
-      this.results += text
+      this.allResults += text
     },
 
     showError(err: string) {
-      this.results = err
+      this.allResults = err
     },
 
     showIssues(list: IssueList) {
@@ -317,7 +348,7 @@ export default Vue.extend({
 
       const issueTexts = issuesToArray(list)
 
-      this.results += issueTexts.join('\n') + '\n\n'
+      this.allResults += issueTexts.join('\n') + '\n\n'
     },
   },
 })
