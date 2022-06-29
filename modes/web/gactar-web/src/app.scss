@@ -33,11 +33,24 @@ textarea {
   resize: none;
 }
 
-textarea#results {
-  border: 1px solid cornflowerblue;
+.results .textarea:not([rows]) {
+  font-size: 0.85em;
+  height: 96%;
+  max-height: 96%; // overrides bulma setting
+  padding: 0.45em;
+}
+
+.results .b-tabs {
   height: 100%;
-  padding: 0.5em;
-  width: 100%;
+}
+
+.results section.tab-content {
+  height: 100%;
+  padding: 0;
+}
+
+.results section.tab-content .tab-item {
+  height: 100%;
 }
 
 .CodeMirror {
