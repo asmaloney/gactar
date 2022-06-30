@@ -38,6 +38,14 @@ All notable changes to this project will be documented in this file. The format 
   }
   ```
 
+- Added _random_seed_ option to the **gactar** section. This sets the seed to use for generating pseudo-random numbers (allows for reproducible runs). ([#265](https://github.com/asmaloney/gactar/pull/265))
+
+- Added tabs to the web UI output section to split out each framework's results. ([#269](https://github.com/asmaloney/gactar/pull/269))
+
+### Changed
+
+- Replaced _partial_matching_ option from the **procedural** module with the _mismatch_penalty_ option for the **memory** module. Setting this turns on partial matching and sets the penalty in the activation equation to this value. ([#261](https://github.com/asmaloney/gactar/pull/261))
+
 ### Fixed
 
 - Give proper error when trying to use an invalid type with `_status`. ([#242](https://github.com/asmaloney/gactar/pull/242))
