@@ -2,6 +2,9 @@ package actr
 
 import "github.com/asmaloney/gactar/util/container"
 
+// See "Default Chunks" pg. 80 of ACT-R manual.
+var reservedChunkNames = []string{"busy", "clear", "empty", "error", "full", "failure", "free", "requested", "unrequested"}
+
 type Chunk struct {
 	TypeName  string
 	SlotNames []string
@@ -12,6 +15,12 @@ type Chunk struct {
 
 func IsInternalChunkType(name string) bool {
 	return name[0] == '_'
+}
+
+// IsReservedType checks if the slot name is reserved.
+// See "Default Chunks" pg. 80 of ACT-R manual.
+func IsReservedType(name string) bool {
+	return container.Contains(name, reservedChunkNames)
 }
 
 // LookupChunk looks up the chunk (by type name) in the model and returns it (or nil if it does not exist).
