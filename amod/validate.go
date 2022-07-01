@@ -19,7 +19,12 @@ type varAndIndex struct {
 // reserved names.
 func validateChunk(model *actr.Model, log *issueLog, chunk *chunkDecl) (err error) {
 	if actr.IsInternalChunkType(chunk.TypeName) {
-		log.errorTR(chunk.Tokens, 1, 2, "cannot use reserved chunk type '%s' (chunks beginning with '_' are reserved)", chunk.TypeName)
+		log.errorTR(chunk.Tokens, 1, 2, "cannot use reserved chunk type %q (chunks beginning with '_' are reserved)", chunk.TypeName)
+		return ErrCompile
+	}
+
+	if actr.IsReservedType(chunk.TypeName) {
+		log.errorTR(chunk.Tokens, 1, 2, "cannot use reserved chunk type %q", chunk.TypeName)
 		return ErrCompile
 	}
 

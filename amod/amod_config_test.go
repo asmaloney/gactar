@@ -104,7 +104,7 @@ func Example_gactarTraceActivationsNonBool() {
 	// ERROR: 'trace_activations' must be 'true' or 'false' (line 5, col 29)
 }
 
-func Example_chunkReservedType() {
+func Example_chunkInternalType() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -114,7 +114,20 @@ func Example_chunkReservedType() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: cannot use reserved chunk type '_internal' (chunks beginning with '_' are reserved) (line 5, col 11)
+	// ERROR: cannot use reserved chunk type "_internal" (chunks beginning with '_' are reserved) (line 5, col 11)
+}
+
+func Example_chunkReservedType() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [requested: foo bar] }
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+	// ERROR: cannot use reserved chunk type "requested" (line 5, col 11)
 }
 
 func Example_chunkDuplicateType() {
