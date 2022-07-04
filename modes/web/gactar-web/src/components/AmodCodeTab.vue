@@ -54,7 +54,7 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
+import { defineComponent, PropType } from 'vue'
 
 import api, { ExampleList, IssueList } from '../api'
 
@@ -71,7 +71,7 @@ interface Data {
 
 const codeEditorStorageName = 'gactar.code-editor'
 
-export default Vue.extend({
+export default defineComponent({
   components: { CodeMirror, SaveButton },
 
   props: {
@@ -129,6 +129,9 @@ export default Vue.extend({
     })
   },
 
+  // Disable lint while waiting for this fix:
+  //  https://github.com/vuejs/core/pull/5914
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async mounted() {
     await this.getExamples()
     if (!this.loadedFromLocal) {

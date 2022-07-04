@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
+import { defineComponent, PropType } from 'vue'
 import CodeMirror, { Editor } from 'codemirror'
 
 // Add-ons
@@ -30,7 +30,7 @@ interface Data {
   code: string
 }
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     amodCode: {
       type: String,

@@ -105,7 +105,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { defineComponent } from 'vue'
 
 import api, {
   FrameworkInfo,
@@ -150,7 +150,7 @@ interface Data {
 
 const selectedFrameworksStorageName = 'gactar.selected-frameworks'
 
-export default Vue.extend({
+export default defineComponent({
   components: { AmodCodeTab, FrameworkCodeTab },
 
   data(): Data {
