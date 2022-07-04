@@ -3,7 +3,7 @@ package actr
 import "github.com/asmaloney/gactar/util/container"
 
 // See "Default Chunks" pg. 80 of ACT-R manual.
-var reservedChunkNames = []string{"busy", "clear", "empty", "error", "full", "failure", "free", "requested", "unrequested"}
+var reservedChunkNames = []string{"busy", "clear", "empty", "error", "failure", "free", "full", "requested", "unrequested"}
 
 type Chunk struct {
 	TypeName  string
