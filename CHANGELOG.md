@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.10.0] - (in progress)
+## [0.10.0](https://github.com/asmaloney/gactar/releases/tag/v0.10.0) - 2022-07-07
 
 ### Added
 
@@ -46,9 +46,15 @@ All notable changes to this project will be documented in this file. The format 
 
 - Replaced _partial_matching_ option from the **procedural** module with the _mismatch_penalty_ option for the **memory** module. Setting this turns on partial matching and sets the penalty in the activation equation to this value. ([#261](https://github.com/asmaloney/gactar/pull/261))
 
+- Updated web UI to vue 2.7.x. ([#272](https://github.com/asmaloney/gactar/pull/272))
+
 ### Fixed
 
 - Give proper error when trying to use an invalid type with `_status`. ([#242](https://github.com/asmaloney/gactar/pull/242))
+
+- Check for reserved chunk names. ([#271](https://github.com/asmaloney/gactar/pull/271))
+
+  The following names are reserved according to ACT-R: `busy`, `clear`, `empty`, `error`, `failure`, `free`, `full`, `requested`, and `unrequested`
 
 ## [0.9.0](https://github.com/asmaloney/gactar/releases/tag/v0.9.0) - 2022-06-20
 
