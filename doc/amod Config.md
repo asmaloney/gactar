@@ -13,10 +13,11 @@ gactar {
 }
 ```
 
-| Config            | Type                                       | Description                            |
-| ----------------- | ------------------------------------------ | -------------------------------------- |
-| log_level         | string (one of 'min', 'info', or 'detail') | how verbose our logging should be      |
-| trace_activations | boolean                                    | output detailed info about activations |
+| Config            | Type                                       | Description                                                                              |
+| ----------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| log_level         | string (one of 'min', 'info', or 'detail') | how verbose our logging should be                                                        |
+| trace_activations | boolean                                    | output detailed info about activations                                                   |
+| random_seed       | positive integer                           | sets the seed to use for generating pseudo-random numbers (allows for reproducible runs) |
 
 ## Module Config
 
