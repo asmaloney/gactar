@@ -58,7 +58,7 @@ Currently, `gactar` will take an [_amod_ file](#gactar-models) and generate code
 
 Given that gactar in its early stages, the amod syntax may change dramatically based on use and feedback.
 
-**Note for Windows users:** I have only done limited building/testing on Windows. If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues).
+**Note for Windows users:** I have only done limited building/testing on Windows. If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues). I am aware that the **[Lisp compiler does not install itself properly](https://github.com/asmaloney/gactar/issues/275)** (see issue for workaround).
 
 ### What isn't implemented?
 
