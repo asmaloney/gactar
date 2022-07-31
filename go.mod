@@ -3,9 +3,9 @@ module github.com/asmaloney/gactar
 go 1.18
 
 require (
-	github.com/alecthomas/participle/v2 v2.0.0-beta.3
+	github.com/alecthomas/participle/v2 v2.0.0-beta.4
 	github.com/kylelemons/godebug v1.1.0
-	github.com/urfave/cli/v2 v2.10.3
+	github.com/urfave/cli/v2 v2.11.1
 	github.com/vearutop/statigz v1.1.8
 )
 
