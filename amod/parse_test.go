@@ -46,7 +46,7 @@ func FuzzExampleModels(f *testing.F) {
 		_, err := parse(strings.NewReader(orig))
 		if err != nil &&
 			!errors.As(err, new(*participle.ParseError)) &&
-			!errors.As(err, &participle.UnexpectedTokenError{}) &&
+			!errors.As(err, new(*participle.UnexpectedTokenError)) &&
 			!errors.As(err, &LexError{}) {
 			t.Errorf("Error: %s\nInput: %q", err.Error(), orig)
 		}
