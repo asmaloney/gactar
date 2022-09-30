@@ -90,7 +90,7 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 	initSessions(w)
 	initModels(w)
 
-	mainHandler := compressedAssetHandler(&mainAssets, "", "build")
+	mainHandler := compressedAssetHandler(&mainAssets, "build")
 	http.HandleFunc("/", mainHandler.ServeHTTP)
 
 	return
@@ -380,7 +380,7 @@ func assetHandler(assets *embed.FS, stripPrefix, prepend string) http.Handler {
 
 // compressedAssetHandler returns an http.Handler that will serve files from
 // the given embed.FS using statigz to serve compressed files.
-func compressedAssetHandler(assets *embed.FS, stripPrefix, prepend string) http.Handler {
+func compressedAssetHandler(assets *embed.FS, prepend string) http.Handler {
 	var serverFS fs.ReadDirFS = assets
 
 	if prepend != "" {

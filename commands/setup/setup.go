@@ -64,7 +64,7 @@ func Setup(envPath string, dev bool) (err error) {
 		// Don't return - we can still try to set up the Lisp compiler
 	}
 
-	err = setupLisp(envPath, dev)
+	err = setupLisp()
 	if err != nil {
 		fmt.Println(err.Error())
 		err = nil
@@ -135,7 +135,7 @@ func setupPython(envPath string, dev bool) (err error) {
 	return
 }
 
-func setupLisp(envPath string, dev bool) (err error) {
+func setupLisp() (err error) {
 	fmt.Println()
 	fmt.Println("Setting up Lisp\n---")
 
