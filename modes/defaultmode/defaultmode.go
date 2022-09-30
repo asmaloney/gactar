@@ -67,7 +67,7 @@ func Initialize(ctx *cli.Context, frameworks framework.List) (d *DefaultMode, er
 func (d *DefaultMode) Start() (err error) {
 	fmt.Printf("Intermediate file path: %q\n", d.tempPath)
 
-	err = generateCode(d.actrFrameworks, d.fileList, d.tempPath, d.context.Bool("run"))
+	err = generateCode(d.actrFrameworks, d.fileList, d.tempPath)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func (d *DefaultMode) Start() (err error) {
 	return
 }
 
-func generateCode(frameworks framework.List, files []string, outputDir string, runCode bool) (err error) {
+func generateCode(frameworks framework.List, files []string, outputDir string) (err error) {
 	modelMap := map[string]*actr.Model{}
 
 	for _, file := range files {

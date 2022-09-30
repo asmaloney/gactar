@@ -39,7 +39,7 @@ func Doctor(envPath string) (err error) {
 		err = ErrHealthCheckFailed
 	}
 
-	e = checkCLL(envPath)
+	e = checkCLL()
 	if e != nil {
 		fmt.Println(e.Error())
 		err = ErrHealthCheckFailed
@@ -65,7 +65,7 @@ func checkPython() (path string, err error) {
 	return
 }
 
-func checkCLL(envPath string) (err error) {
+func checkCLL() (err error) {
 	fmt.Println()
 	fmt.Println("Checking Clozure Common Lisp (ccl) compiler\n---")
 

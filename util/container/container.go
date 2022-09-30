@@ -51,6 +51,16 @@ func UniqueAndSorted(s []string) (list []string) {
 	return
 }
 
+func AppendUnique[T comparable](slice []T, item T) []T {
+	for _, i := range slice {
+		if i == item {
+			return slice
+		}
+	}
+
+	return append(slice, item)
+}
+
 func FindAndDelete[T comparable](s []T, item T) []T {
 	index := 0
 	for _, i := range s {

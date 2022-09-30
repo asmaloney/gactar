@@ -719,6 +719,7 @@ func addPrintStatement(model *actr.Model, log *issueLog, print *printStatement, 
 	return &s, nil
 }
 
+//nolint:unparam // keeping the same function signature as the others
 func addStopStatement(model *actr.Model, log *issueLog, stop *stopStatement, production *actr.Production) (*actr.Statement, error) {
 	return &actr.Statement{
 		Stop: &actr.StopStatement{},

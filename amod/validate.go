@@ -318,7 +318,9 @@ func validateClearStatement(clear *clearStatement, model *actr.Model, log *issue
 	return
 }
 
-// validatePrintStatement is a placeholder for checking a "print" statement. Currently there are no checks.
+// validatePrintStatement checks a "print" statement's arguments.
+//
+//nolint:unparam // keeping the same function signature as the others
 func validatePrintStatement(print *printStatement, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
 	if print.Args != nil {
 		for _, arg := range print.Args {
