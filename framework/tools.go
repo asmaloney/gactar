@@ -9,6 +9,7 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 
+	"github.com/asmaloney/gactar/util/chalk"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/python"
 )
@@ -107,7 +108,8 @@ func identifyYourself(frameworkName, exeName string) (err error) {
 
 	version := strings.TrimSpace(string(output))
 
-	fmt.Printf("%s: Using %s\n", frameworkName, version)
+	fmt.Print(chalk.Header(frameworkName + ": "))
+	fmt.Printf("Using %s\n", version)
 
 	return
 }

@@ -3,14 +3,13 @@
 package frameworkutil
 
 import (
-	"fmt"
-
 	"github.com/urfave/cli/v2"
 
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/framework/ccm_pyactr"
 	"github.com/asmaloney/gactar/framework/pyactr"
 	"github.com/asmaloney/gactar/framework/vanilla_actr"
+	"github.com/asmaloney/gactar/util/chalk"
 )
 
 // CreateFrameworks takes a slice of framework names and a context and will
@@ -38,12 +37,12 @@ func CreateFrameworks(ctx *cli.Context, names []string) (list framework.List) {
 			fw, err = vanilla_actr.New(ctx)
 
 		default:
-			fmt.Printf("unknown framework: %s\n", f)
+			chalk.PrintErrStr("unknown framework:", f)
 			continue
 		}
 
 		if err != nil {
-			fmt.Println(err.Error())
+			chalk.PrintErr(err)
 			continue
 		}
 

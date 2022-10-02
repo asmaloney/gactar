@@ -17,6 +17,7 @@ import (
 	"github.com/asmaloney/gactar/modes/shell"
 	"github.com/asmaloney/gactar/modes/web"
 
+	"github.com/asmaloney/gactar/util/chalk"
 	"github.com/asmaloney/gactar/util/clicontext"
 	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/filesystem"
@@ -37,7 +38,7 @@ type ErrCmdLine struct {
 }
 
 func (e *ErrCmdLine) Error() string {
-	return fmt.Sprintf("error: %s", e.Message)
+	return chalk.Error("error:", e.Message)
 }
 
 func main() {
@@ -78,14 +79,14 @@ func main() {
 						Action: func(c *cli.Context) error {
 							envPath, err := clicontext.ExpandPath(c, "path")
 							if err != nil {
-								fmt.Println(err.Error())
+								chalk.PrintErr(err)
 								return err
 							}
 
 							dev := c.Bool("dev")
 							err = setup.Setup(envPath, dev)
 							if err != nil {
-								fmt.Println(err.Error())
+								chalk.PrintErr(err)
 								return err
 							}
 
@@ -106,7 +107,7 @@ func main() {
 						Action: func(c *cli.Context) error {
 							envPath, err := clicontext.ExpandPath(c, "path")
 							if err != nil {
-								fmt.Println(err.Error())
+								chalk.PrintErr(err)
 								return err
 							}
 
@@ -117,7 +118,7 @@ func main() {
 
 							err = setup.Doctor(envPath)
 							if err != nil {
-								fmt.Println(err.Error())
+								chalk.PrintErr(err)
 								return err
 							}
 
@@ -156,7 +157,7 @@ func main() {
 		Action: func(c *cli.Context) error {
 			// Override cli's version printing so we ensure it comes first
 			cli.VersionPrinter = func(c *cli.Context) {}
-			fmt.Printf("%s version %s\n", c.App.Name, c.App.Version)
+			fmt.Println(chalk.Bold(c.App.Name, "version", c.App.Version))
 
 			if c.Bool("debug") {
 				amod.SetDebug(true)
@@ -198,7 +199,7 @@ func main() {
 			}
 
 			if c.Int("port") != defaultPort {
-				fmt.Println("info: --port only applies when using --web")
+				chalk.PrintWarningStr("info: --port only applies when using --web")
 			}
 
 			if c.Bool("interactive") {
@@ -240,7 +241,8 @@ func setupVirtualEnvironment(ctx *cli.Context) (err error) {
 		return
 	}
 
-	fmt.Printf("Using virtual environment: %q\n", envPath)
+	fmt.Print(chalk.Header("Using virtual environment: "))
+	fmt.Printf("%q\n", envPath)
 
 	err = clicontext.SetupPaths(envPath)
 	if err != nil {
