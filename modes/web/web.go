@@ -14,6 +14,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/jwalton/gchalk"
 	"github.com/urfave/cli/v2"
 	"github.com/vearutop/statigz"
 	"github.com/vearutop/statigz/brotli"
@@ -97,7 +98,8 @@ func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS)
 }
 
 func (w Web) Start() (err error) {
-	fmt.Printf("Serving gactar on http://localhost:%d\n", w.port)
+	fmt.Printf("Serving gactar on ")
+	fmt.Println(gchalk.WithBlue().Underline(fmt.Sprintf("http://localhost:%d", w.port)))
 
 	err = http.ListenAndServe(fmt.Sprintf(":%d", w.port), nil)
 	if err != nil {
