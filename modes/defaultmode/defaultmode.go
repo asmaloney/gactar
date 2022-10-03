@@ -36,8 +36,6 @@ func Initialize(ctx *cli.Context, frameworks framework.List) (d *DefaultMode, er
 		tempPath: ctx.Path("temp"),
 	}
 
-	cli.ShowVersion(ctx)
-
 	// Check if files exist first
 	files := ctx.Args().Slice()
 

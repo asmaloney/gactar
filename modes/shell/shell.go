@@ -115,7 +115,6 @@ func (s *Shell) Start() (err error) {
 }
 
 func (s *Shell) preamble() {
-	cli.ShowVersion(s.context)
 	fmt.Println("Type 'help' for a list of commands.")
 	fmt.Println("To exit, type 'exit' or 'quit'.")
 }

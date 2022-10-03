@@ -156,8 +156,8 @@ func main() {
 		},
 		Action: func(c *cli.Context) error {
 			// Override cli's version printing so we ensure it comes first
-			cli.VersionPrinter = func(c *cli.Context) {}
-			fmt.Println(chalk.Bold(c.App.Name, "version", c.App.Version))
+			cli.VersionPrinter = func(c *cli.Context) { fmt.Println(chalk.Bold(c.App.Name, "version", c.App.Version)) }
+			cli.ShowVersion(c)
 
 			if c.Bool("debug") {
 				amod.SetDebug(true)
