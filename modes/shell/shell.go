@@ -2,7 +2,6 @@
 package shell
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -10,12 +9,15 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"golang.org/x/term"
+
 	"github.com/urfave/cli/v2"
 
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
 
+	"github.com/asmaloney/gactar/util/chalk"
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/validate"
 )
@@ -90,28 +92,43 @@ func (s *Shell) Start() (err error) {
 		return
 	}
 
-	reader := bufio.NewReader(os.Stdin)
+	termState, err := term.MakeRaw(int(os.Stdin.Fd()))
+	if err != nil {
+		return
+	}
+	defer func() {
+		err = term.Restore(int(os.Stdin.Fd()), termState)
+	}()
+
+	terminal := term.NewTerminal(os.Stdin, "> ")
+
 	for {
-		fmt.Print("> ")
-
-		cmd, err := reader.ReadString('\n')
+		line, err := terminal.ReadLine()
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			break
 		}
 
-		cmd = strings.TrimSpace(cmd)
-
-		if cmd == "" {
-			continue
+		err = term.Restore(int(os.Stdin.Fd()), termState)
+		if err != nil {
+			break
 		}
+
+		cmd := strings.TrimSpace(line)
 
 		s.history = append(s.history, cmd)
 
 		err = s.runCommand(cmd)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, " error: %s\n", err)
+			chalk.PrintErr(err)
+		}
+
+		termState, err = term.MakeRaw(int(os.Stdin.Fd()))
+		if err != nil {
+			break
 		}
 	}
+
+	return
 }
 
 func (s *Shell) preamble() {
@@ -199,7 +216,6 @@ func (s *Shell) cmdLoad(fileName string) (err error) {
 		for _, example := range s.currentModel.Examples {
 			fmt.Printf("       run %s\n", example)
 		}
-
 	}
 
 	for name, f := range s.actrFrameworks {
