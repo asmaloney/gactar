@@ -3,6 +3,7 @@ package chalk
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/jwalton/gchalk"
 )
@@ -16,12 +17,12 @@ var (
 )
 
 func PrintErr(err error) {
-	fmt.Println(Error("error:", err.Error()))
+	fmt.Fprintln(os.Stderr, Error("error:", err.Error()))
 }
 
 func PrintErrStr(str ...string) {
-	fmt.Print(Error("error: "))
-	fmt.Println(Error(str...))
+	fmt.Fprint(os.Stderr, Error("error: "))
+	fmt.Fprintln(os.Stderr, Error(str...))
 }
 
 func PrintWarningStr(str ...string) {
