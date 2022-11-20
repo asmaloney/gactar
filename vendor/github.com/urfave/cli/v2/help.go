@@ -60,7 +60,7 @@ var helpCommand = &Command{
 		}
 
 		// Case 1 & 2
-		// Special case when running help on main app itself as opposed to indivdual
+		// Special case when running help on main app itself as opposed to individual
 		// commands/subcommands
 		if cCtx.parentContext.App == nil {
 			_ = ShowAppHelp(cCtx)
@@ -68,6 +68,15 @@ var helpCommand = &Command{
 		}
 
 		// Case 3, 5
+		if (len(cCtx.Command.Subcommands) == 1 && !cCtx.Command.HideHelp) ||
+			(len(cCtx.Command.Subcommands) == 0 && cCtx.Command.HideHelp) {
+			templ := cCtx.Command.CustomHelpTemplate
+			if templ == "" {
+				templ = CommandHelpTemplate
+			}
+			HelpPrinter(cCtx.App.Writer, templ, cCtx.Command)
+			return nil
+		}
 		return ShowSubcommandHelp(cCtx)
 	},
 }
@@ -179,7 +188,7 @@ func printFlagSuggestions(lastArg string, flags []Flag, writer io.Writer) {
 			// this will get total count utf8 letters in flag name
 			count := utf8.RuneCountInString(name)
 			if count > 2 {
-				count = 2 // resuse this count to generate single - or -- in flag completion
+				count = 2 // reuse this count to generate single - or -- in flag completion
 			}
 			// if flag name has more than one utf8 letter and last argument in cli has -- prefix then
 			// skip flag completion for short flags example -v or -x
@@ -230,15 +239,14 @@ func ShowCommandHelpAndExit(c *Context, command string, code int) {
 
 // ShowCommandHelp prints help for the given command
 func ShowCommandHelp(ctx *Context, command string) error {
-	// show the subcommand help for a command with subcommands
-	if command == "" {
-		HelpPrinter(ctx.App.Writer, SubcommandHelpTemplate, ctx.App)
-		return nil
-	}
 
-	for _, c := range ctx.App.Commands {
+	commands := ctx.App.Commands
+	if ctx.Command.Subcommands != nil {
+		commands = ctx.Command.Subcommands
+	}
+	for _, c := range commands {
 		if c.HasName(command) {
-			if !ctx.App.HideHelpCommand && !c.HasName(helpName) && len(c.Subcommands) != 0 {
+			if !ctx.App.HideHelpCommand && !c.HasName(helpName) && len(c.Subcommands) != 0 && c.Command(helpName) == nil {
 				c.Subcommands = append(c.Subcommands, helpCommandDontUse)
 			}
 			if !ctx.App.HideHelp && HelpFlag != nil {
@@ -262,7 +270,7 @@ func ShowCommandHelp(ctx *Context, command string) error {
 	if ctx.App.CommandNotFound == nil {
 		errMsg := fmt.Sprintf("No help topic for '%v'", command)
 		if ctx.App.Suggest {
-			if suggestion := SuggestCommand(ctx.App.Commands, command); suggestion != "" {
+			if suggestion := SuggestCommand(ctx.Command.Subcommands, command); suggestion != "" {
 				errMsg += ". " + suggestion
 			}
 		}
@@ -285,11 +293,8 @@ func ShowSubcommandHelp(cCtx *Context) error {
 		return nil
 	}
 
-	if cCtx.Command != nil {
-		return ShowCommandHelp(cCtx, cCtx.Command.Name)
-	}
-
-	return ShowCommandHelp(cCtx, "")
+	HelpPrinter(cCtx.App.Writer, SubcommandHelpTemplate, cCtx.Command)
+	return nil
 }
 
 // ShowVersion prints the version number of the App
@@ -358,6 +363,17 @@ func printHelpCustom(out io.Writer, templ string, data interface{}, customFuncs 
 
 	w := tabwriter.NewWriter(out, 1, 8, 2, ' ', 0)
 	t := template.Must(template.New("help").Funcs(funcMap).Parse(templ))
+	t.New("helpNameTemplate").Parse(helpNameTemplate)
+	t.New("usageTemplate").Parse(usageTemplate)
+	t.New("descriptionTemplate").Parse(descriptionTemplate)
+	t.New("visibleCommandTemplate").Parse(visibleCommandTemplate)
+	t.New("copyrightTemplate").Parse(copyrightTemplate)
+	t.New("versionTemplate").Parse(versionTemplate)
+	t.New("visibleFlagCategoryTemplate").Parse(visibleFlagCategoryTemplate)
+	t.New("visibleFlagTemplate").Parse(visibleFlagTemplate)
+	t.New("visibleGlobalFlagCategoryTemplate").Parse(strings.Replace(visibleFlagCategoryTemplate, "OPTIONS", "GLOBAL OPTIONS", -1))
+	t.New("authorsTemplate").Parse(authorsTemplate)
+	t.New("visibleCommandCategoryTemplate").Parse(visibleCommandCategoryTemplate)
 
 	err := t.Execute(w, data)
 	if err != nil {
@@ -390,8 +406,10 @@ func checkHelp(cCtx *Context) bool {
 	for _, name := range HelpFlag.Names() {
 		if cCtx.Bool(name) {
 			found = true
+			break
 		}
 	}
+
 	return found
 }
 
@@ -468,25 +486,28 @@ func nindent(spaces int, v string) string {
 }
 
 func wrap(input string, offset int, wrapAt int) string {
-	var sb strings.Builder
+	var ss []string
 
 	lines := strings.Split(input, "\n")
 
 	padding := strings.Repeat(" ", offset)
 
 	for i, line := range lines {
-		if i != 0 {
-			sb.WriteString(padding)
-		}
+		if line == "" {
+			ss = append(ss, line)
+		} else {
+			wrapped := wrapLine(line, offset, wrapAt, padding)
+			if i == 0 {
+				ss = append(ss, wrapped)
+			} else {
+				ss = append(ss, padding+wrapped)
 
-		sb.WriteString(wrapLine(line, offset, wrapAt, padding))
+			}
 
-		if i != len(lines)-1 {
-			sb.WriteString("\n")
 		}
 	}
 
-	return sb.String()
+	return strings.Join(ss, "\n")
 }
 
 func wrapLine(input string, offset int, wrapAt int, padding string) string {
