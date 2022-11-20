@@ -59,7 +59,7 @@ export default defineComponent({
   data(): Data {
     return {
       editor: null,
-      id: 'id-' + this.editorID,
+      id: `id-${this.editorID}`,
       code: this.amodCode,
     }
   },
