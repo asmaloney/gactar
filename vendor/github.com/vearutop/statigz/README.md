@@ -26,9 +26,6 @@ serving them directly to capable user agents. This library implements such funct
 
 Read more in a [blog post](https://dev.to/vearutop/serving-compressed-static-assets-with-http-in-go-1-16-55bb).
 
-> **_NOTE:_** Guarding new api (`embed`) with build tags is not a viable option, since it imposes
-> [issue](https://github.com/golang/go/issues/40067) in older versions of Go.
-
 ## Example
 
 ```go
@@ -131,5 +128,32 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+```
+
+### Custom handling of Not Found
+
+If you need special treatment for resources that are not available in static server, you can use `Found`
+to check them before serving.
+
+```go
+fileServer := statigz.FileServer(st)
+customHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+    // Serve existing static resource.
+    if fileServer.Found(r) {
+        fileServer.ServeHTTP(w, r)
+
+        return
+    }
+
+    // Do something custom for non-existing resource, for example serve index page.
+    // (This is an example, serving index instead of 404 might not be the best idea in real life 😅).
+    r.URL.Path = "/"
+    fileServer.ServeHTTP(w, r)
+})
+
+// Plug static assets handler to your server or router.
+if err := http.ListenAndServe("localhost:80", customHandler); err != nil {
+    log.Fatal(err)
 }
 ```
