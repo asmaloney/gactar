@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.11.0 - (in progress)
+
+### Added
+
+- {shell} Interactive mode now recognizes up a & down arrow keys to navigate history. ([#287](https://github.com/asmaloney/gactar/pull/287))
+
+- Command line output now uses colour. ([#284](https://github.com/asmaloney/gactar/pull/284))
+  - May be turned off using a command-line option (`--no-color`) or by setting the `NO_COLOR` environment variable.
+
+### Fixed
+
+- {cli} Fixes the `version` command. ([#286](https://github.com/asmaloney/gactar/pull/286))
+
 ## [0.10.0](https://github.com/asmaloney/gactar/releases/tag/v0.10.0) - 2022-07-07
 
 ### Added
