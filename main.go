@@ -59,6 +59,7 @@ func main() {
 		},
 		Copyright:            "©2022 Andy Maloney",
 		EnableBashCompletion: true,
+		Suggest:              true,
 		Commands: []*cli.Command{
 			{
 				Name:  "env",
@@ -131,18 +132,28 @@ func main() {
 			},
 		},
 		Flags: []cli.Flag{
-			&cli.StringFlag{Name: "env", Value: "./env", Usage: "directory where ACT-R, pyactr, and other necessary files are installed", EnvVars: []string{"VIRTUAL_ENV"}},
+			&cli.StringFlag{
+				Name:     "env",
+				Category: "Global",
+				Value:    "./env",
+				Usage:    "directory where ACT-R, pyactr, and other necessary files are installed",
+				EnvVars:  []string{"VIRTUAL_ENV"},
+			},
 
-			&cli.BoolFlag{Name: "debug", Aliases: []string{"d"}, Usage: "turn on debugging output"},
-			&cli.BoolFlag{Name: "ebnf", Usage: "output amod EBNF to stdout and quit"},
-			&cli.PathFlag{Name: "temp", DefaultText: "<env>/gactar-temp", Usage: "directory for generated files (it will be created if it does not exist)"},
+			&cli.BoolFlag{Name: "debug", Aliases: []string{"d"}, Category: "Global", Usage: "turn on debugging output"},
+			&cli.BoolFlag{Name: "ebnf", Category: "Global", Usage: "output amod EBNF to stdout and quit"},
+			&cli.PathFlag{Name: "temp", Category: "Global", DefaultText: "<env>/gactar-temp", Usage: "directory for generated files (it will be created if it does not exist)"},
 
 			&cli.StringSliceFlag{
-				Name:    "framework",
-				Aliases: []string{"f"},
-				Value:   defaultFramework,
-				Usage:   fmt.Sprintf("add framework - valid frameworks: %s", strings.Join(framework.ValidFrameworks, ", ")),
+				Name:     "framework",
+				Aliases:  []string{"f"},
+				Category: "Global",
+				Value:    defaultFramework,
+				Usage:    fmt.Sprintf("add framework - valid frameworks: %s", strings.Join(framework.ValidFrameworks, ", ")),
 			},
+
+			// Colour
+			&cli.BoolFlag{Name: "no-color", Category: "Global", Usage: "do not use colour output on command line"},
 
 			// CLI mode
 			&cli.BoolFlag{Name: "run", Aliases: []string{"r"}, Category: "Mode: CLI", Usage: "run the models after generating the code"},
