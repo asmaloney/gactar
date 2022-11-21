@@ -8,6 +8,7 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
+	"github.com/asmaloney/gactar/util/chalk"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/validate"
 	"github.com/urfave/cli/v2"
@@ -47,7 +48,8 @@ func Initialize(ctx *cli.Context, frameworks framework.List) (d *DefaultMode, er
 	for _, file := range files {
 		if _, fileErr := os.Stat(file); errors.Is(fileErr, os.ErrNotExist) {
 			fileErr = &filesystem.ErrFileDoesNotExist{FileName: file}
-			fmt.Printf("error: %s\n", fileErr)
+			chalk.PrintErr(fileErr)
+
 			continue
 		}
 
