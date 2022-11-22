@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file. The format 
 - {shell} Interactive mode now recognizes up a & down arrow keys to navigate history. ([#287](https://github.com/asmaloney/gactar/pull/287))
 
 - Command line output now uses colour. ([#284](https://github.com/asmaloney/gactar/pull/284))
-  - May be turned off using a command-line option (`--no-color`) or by setting the `NO_COLOR` environment variable.
+  - May be turned off using a command-line option (`--no-colour` or `--no-color`) or by setting the `NO_COLOR` environment variable.
 
 ### Fixed
 

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jwalton/gchalk"
 	"github.com/urfave/cli/v2"
 
 	"github.com/asmaloney/gactar/amod"
@@ -153,7 +154,18 @@ func main() {
 			},
 
 			// Colour
-			&cli.BoolFlag{Name: "no-color", Category: "Global", Usage: "do not use colour output on command line"},
+			&cli.BoolFlag{
+				Name:     "no-color",
+				Aliases:  []string{"no-colour"},
+				Category: "Global",
+				Usage:    "do not use colour output on command line",
+				Action: func(c *cli.Context, noColour bool) error {
+					if noColour {
+						gchalk.SetLevel(gchalk.LevelNone)
+					}
+					return nil
+				},
+			},
 
 			// CLI mode
 			&cli.BoolFlag{Name: "run", Aliases: []string{"r"}, Category: "Mode: CLI", Usage: "run the models after generating the code"},
