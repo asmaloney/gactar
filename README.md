@@ -255,6 +255,8 @@ gactar [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
 
 **--interactive, -i**: run an interactive shell
 
+**--no-color, --no-colour**: do not use colour output on command line
+
 **--port, -p** [number]: port to run the web server on (default: `8181`)
 
 **--run, -r**: run the models after generating the code
