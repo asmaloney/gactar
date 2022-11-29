@@ -11,13 +11,12 @@ import (
 
 	"golang.org/x/term"
 
-	"github.com/urfave/cli/v2"
-
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
 
 	"github.com/asmaloney/gactar/util/chalk"
+	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/validate"
 )
@@ -50,24 +49,22 @@ type command struct {
 }
 
 type Shell struct {
-	context          *cli.Context
+	settings         *cli.Settings
 	history          []string
 	currentModel     *actr.Model
-	actrFrameworks   framework.List
 	activeFrameworks map[string]bool
 	commands         map[string]command
 }
 
-func Initialize(cli *cli.Context, frameworks framework.List) (s *Shell, err error) {
+func Initialize(settings *cli.Settings) (s *Shell, err error) {
 	s = &Shell{
-		context:          cli,
-		actrFrameworks:   frameworks,
+		settings:         settings,
 		activeFrameworks: map[string]bool{},
 	}
 
 	s.preamble()
 
-	for name := range frameworks {
+	for name := range settings.Frameworks {
 		s.activeFrameworks[name] = true
 	}
 
@@ -160,16 +157,16 @@ func (s *Shell) cmdFramework(fNames string) (err error) {
 	sort.Strings(names)
 
 	if names[0] == "all" {
-		names = s.actrFrameworks.Names()
+		names = s.settings.Frameworks.Names()
 		sort.Strings(names)
 	}
 
 	s.activeFrameworks = map[string]bool{}
 
 	for _, name := range names {
-		if !s.actrFrameworks.Exists(name) {
+		if !s.settings.Frameworks.Exists(name) {
 			err = &ErrInvalidFramework{Name: name}
-			err = fmt.Errorf("%w. Valid values: %v", err, s.actrFrameworks.Names())
+			err = fmt.Errorf("%w. Valid values: %v", err, s.settings.Frameworks.Names())
 			return
 		}
 
@@ -218,7 +215,7 @@ func (s *Shell) cmdLoad(fileName string) (err error) {
 		}
 	}
 
-	for name, f := range s.actrFrameworks {
+	for name, f := range s.settings.Frameworks {
 		if !s.activeFrameworks[name] {
 			continue
 		}
@@ -251,7 +248,7 @@ func (s *Shell) cmdRun(initialGoal string) (err error) {
 	validate.Goal(s.currentModel, initialGoal, log)
 	fmt.Print(log)
 
-	for name, f := range s.actrFrameworks {
+	for name, f := range s.settings.Frameworks {
 		if !s.activeFrameworks[name] {
 			continue
 		}
@@ -283,7 +280,7 @@ func (s *Shell) cmdRun(initialGoal string) (err error) {
 }
 
 func (s *Shell) cmdVersion(string) (err error) {
-	cli.ShowVersion(s.context)
+	fmt.Println(chalk.Bold(s.settings.Version))
 	return
 }
 

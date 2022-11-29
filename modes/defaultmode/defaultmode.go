@@ -9,9 +9,9 @@ import (
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
 	"github.com/asmaloney/gactar/util/chalk"
+	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/validate"
-	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -21,25 +21,19 @@ var (
 )
 
 type DefaultMode struct {
-	context        *cli.Context
-	actrFrameworks framework.List
+	settings *cli.Settings
 
-	fileList []string
-
-	tempPath string
+	runAfterGenerate bool
+	fileList         []string
 }
 
-func Initialize(ctx *cli.Context, frameworks framework.List) (d *DefaultMode, err error) {
+func Initialize(settings *cli.Settings, files []string, runAfterGenerate bool) (d *DefaultMode, err error) {
 	d = &DefaultMode{
-		context:        ctx,
-		actrFrameworks: frameworks,
-
-		tempPath: ctx.Path("temp"),
+		settings:         settings,
+		runAfterGenerate: runAfterGenerate,
 	}
 
 	// Check if files exist first
-	files := ctx.Args().Slice()
-
 	if len(files) == 0 {
 		return nil, ErrNoInputFiles
 	}
@@ -65,15 +59,15 @@ func Initialize(ctx *cli.Context, frameworks framework.List) (d *DefaultMode, er
 }
 
 func (d *DefaultMode) Start() (err error) {
-	fmt.Printf("Intermediate file path: %q\n", d.tempPath)
+	fmt.Printf("Intermediate file path: %q\n", d.settings.TempPath)
 
-	err = generateCode(d.actrFrameworks, d.fileList, d.tempPath)
+	err = generateCode(d.settings.Frameworks, d.fileList, d.settings.TempPath)
 	if err != nil {
 		return err
 	}
 
-	if d.context.Bool("run") {
-		runCode(d.actrFrameworks)
+	if d.runAfterGenerate {
+		runCode(d.settings.Frameworks)
 	}
 	return
 }

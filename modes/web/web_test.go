@@ -4,18 +4,20 @@ import (
 	"os"
 	"testing"
 
+	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/frameworkutil"
-	"github.com/urfave/cli/v2"
 )
 
 var webTest *Web = nil
 
 func TestMain(m *testing.M) {
-	ctx := cli.NewContext(nil, nil, nil)
+	settings := &cli.Settings{}
 
-	frameworks := frameworkutil.CreateFrameworks(ctx, nil)
+	frameworks := frameworkutil.CreateFrameworks(settings, nil)
 
-	webTest, _ = Initialize(ctx, frameworks, nil)
+	settings.Frameworks = frameworks
+
+	webTest, _ = Initialize(settings, 8181, nil)
 
 	exitVal := m.Run()
 
