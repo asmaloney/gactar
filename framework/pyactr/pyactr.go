@@ -9,11 +9,10 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/urfave/cli/v2"
-
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
 
+	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/issues"
@@ -43,8 +42,8 @@ type PyACTR struct {
 }
 
 // New simply creates a new PyACTR instance and sets the tmp path from the context.
-func New(ctx *cli.Context) (p *PyACTR, err error) {
-	p = &PyACTR{tmpPath: ctx.Path("temp")}
+func New(settings *cli.Settings) (p *PyACTR, err error) {
+	p = &PyACTR{tmpPath: settings.TempPath}
 
 	err = framework.Setup(&Info)
 	if err != nil {

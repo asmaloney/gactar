@@ -9,11 +9,10 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/urfave/cli/v2"
-
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
 
+	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/issues"
@@ -56,9 +55,9 @@ type VanillaACTR struct {
 }
 
 // New simply creates a new VanillaACTR instance and sets some paths from the context.
-func New(ctx *cli.Context) (v *VanillaACTR, err error) {
+func New(settings *cli.Settings) (v *VanillaACTR, err error) {
 	v = &VanillaACTR{
-		tmpPath: ctx.Path("temp"),
+		tmpPath: settings.TempPath,
 		envPath: os.Getenv("VIRTUAL_ENV"),
 	}
 
@@ -609,7 +608,8 @@ func (v VanillaACTR) outputStatement(s *actr.Statement) {
 
 // createOutputArgs creates a string suitable for use in an !output! statement
 // !output! is explained in:
-//   ACT-R 7.21+ Reference Manual pg. 235
+//
+//	ACT-R 7.21+ Reference Manual pg. 235
 func createOutputArgs(values *[]*actr.Value) string {
 	formatStr := `"`
 	args := []string{}

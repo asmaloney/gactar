@@ -9,10 +9,9 @@ import (
 	"time"
 
 	"github.com/kylelemons/godebug/diff"
-	"github.com/urfave/cli/v2"
 
 	"github.com/asmaloney/gactar/framework"
-	"github.com/asmaloney/gactar/util/clicontext"
+	"github.com/asmaloney/gactar/util/cli"
 )
 
 func init() {
@@ -23,11 +22,11 @@ func init() {
 }
 
 func TestCodeGeneration(t *testing.T) {
-	ctx := cli.NewContext(nil, nil, nil)
+	ctx := &cli.Settings{}
 
 	// Make sure we can find the right Python.
 	// Since this is just for testing, we can hardcode it.
-	err := clicontext.SetupPaths("../../env")
+	err := cli.SetupPaths("../../env")
 	if err != nil {
 		t.Fatal(err)
 	}

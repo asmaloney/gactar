@@ -8,11 +8,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/urfave/cli/v2"
-
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
 
+	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/issues"
@@ -44,8 +43,8 @@ type CCMPyACTR struct {
 }
 
 // New simply creates a new CCMPyACTR instance and sets the tmp path.
-func New(ctx *cli.Context) (c *CCMPyACTR, err error) {
-	c = &CCMPyACTR{tmpPath: ctx.Path("temp")}
+func New(settings *cli.Settings) (c *CCMPyACTR, err error) {
+	c = &CCMPyACTR{tmpPath: settings.TempPath}
 
 	err = framework.Setup(&Info)
 	if err != nil {

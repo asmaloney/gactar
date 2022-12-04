@@ -15,7 +15,6 @@ import (
 	"sync"
 
 	"github.com/jwalton/gchalk"
-	"github.com/urfave/cli/v2"
 	"github.com/vearutop/statigz"
 	"github.com/vearutop/statigz/brotli"
 
@@ -23,7 +22,7 @@ import (
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
 
-	"github.com/asmaloney/gactar/util/clicontext"
+	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/validate"
@@ -41,10 +40,9 @@ func (f fsFunc) Open(name string) (fs.File, error) {
 }
 
 type Web struct {
-	context        *cli.Context
-	actrFrameworks framework.List
-	examples       *embed.FS
-	port           int
+	settings *cli.Settings
+	examples *embed.FS
+	port     int
 
 	sessionList      SessionList
 	currentSessionID int
@@ -69,12 +67,11 @@ type runResult struct {
 	Results frameworkRunResultMap `json:"results,omitempty"`
 }
 
-func Initialize(cli *cli.Context, frameworks framework.List, examples *embed.FS) (w *Web, err error) {
+func Initialize(settings *cli.Settings, port int, examples *embed.FS) (w *Web, err error) {
 	w = &Web{
-		context:          cli,
-		actrFrameworks:   frameworks,
+		settings:         settings,
 		examples:         examples,
-		port:             cli.Int("port"),
+		port:             port,
 		sessionList:      SessionList{},
 		currentSessionID: 1,
 	}
@@ -126,7 +123,7 @@ func (w Web) getFrameworksHandler(rw http.ResponseWriter, req *http.Request) {
 
 	frameworks := framework.InfoList{}
 
-	for _, framework := range w.actrFrameworks {
+	for _, framework := range w.settings.Frameworks {
 		frameworks = append(frameworks, *framework.Info())
 	}
 
@@ -177,7 +174,7 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 
 	// ensure temp dir exists
 	// https://github.com/asmaloney/gactar/issues/103
-	err = clicontext.CreateTempDir(w.context)
+	_, err = cli.CreateTempDir(w.settings)
 	if err != nil {
 		encodeErrorResponse(rw, err)
 		return
@@ -205,7 +202,7 @@ func (w Web) normalizeFrameworkList(list []string) (normalized []string) {
 	normalized = list
 
 	if list == nil || container.Contains("all", list) {
-		normalized = w.actrFrameworks.Names()
+		normalized = w.settings.Frameworks.Names()
 	}
 
 	normalized = container.UniqueAndSorted(normalized)
@@ -222,7 +219,7 @@ func (w Web) verifyFrameworkList(list []string) (err error) {
 		}
 
 		// we have a valid name, check if it is active
-		if _, ok := w.actrFrameworks[name]; !ok {
+		if _, ok := w.settings.Frameworks[name]; !ok {
 			err = &ErrFrameworkNotActive{Name: name}
 			return
 		}
@@ -238,7 +235,7 @@ func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers
 	var mutex = &sync.Mutex{}
 
 	for _, name := range frameworkNames {
-		f := w.actrFrameworks[name]
+		f := w.settings.Frameworks[name]
 
 		wg.Add(1)
 

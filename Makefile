@@ -7,7 +7,7 @@ default: build
 all: build test
 
 build:
-	go build -tags urfave_cli_no_docs -ldflags "-X github.com/asmaloney/gactar/util/version.BuildVersion=${GIT_COMMIT}"
+	go build -ldflags "-X github.com/asmaloney/gactar/util/version.BuildVersion=${GIT_COMMIT}"
 
 clean:
 	rm ./gactar
