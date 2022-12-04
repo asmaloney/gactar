@@ -29,14 +29,14 @@ func (e *ErrPythonPackageNotFound) Error() string {
 func FindPython3(outputDetails bool) (path string, err error) {
 	defer func() {
 		if outputDetails && err == nil {
-			fmt.Printf("> Found python: %q\n", path)
+			fmt.Printf("> Found python: %s\n", path)
 
 			output, execErr := executil.ExecCommand(path, "--version")
 			if execErr != nil {
 				return
 			}
 
-			fmt.Printf("> %s", output)
+			fmt.Printf(">   %s", output)
 		}
 	}()
 

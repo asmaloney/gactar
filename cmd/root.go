@@ -84,7 +84,7 @@ type ErrCmdLine struct {
 }
 
 func (e *ErrCmdLine) Error() string {
-	return chalk.Error("error:", e.Message)
+	return chalk.ErrorBold("error:", e.Message)
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
