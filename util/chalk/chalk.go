@@ -9,22 +9,40 @@ import (
 )
 
 var (
-	Error   = gchalk.WithBold().Red
-	Warning = gchalk.Yellow
+	Error     = gchalk.Red
+	ErrorBold = gchalk.WithRed().Bold
+	Warning   = gchalk.Yellow
+	Success   = gchalk.WithGreen().Bold
 
 	Bold   = gchalk.Bold
+	Italic = gchalk.Italic
 	Header = gchalk.Green
+
+	BlueUnderline     = gchalk.WithBlue().Underline
+	BlueBoldUnderline = gchalk.WithBlue().WithBold().Underline
 )
 
-func PrintErr(err error) {
+func HasColor() bool {
+	return gchalk.GetLevel() != gchalk.LevelNone
+}
+
+func PrintErrLight(err error) {
 	fmt.Fprintln(os.Stderr, Error("error:", err.Error()))
 }
 
+func PrintErr(err error) {
+	fmt.Fprintln(os.Stderr, ErrorBold("error:", err.Error()))
+}
+
 func PrintErrStr(str ...string) {
-	fmt.Fprint(os.Stderr, Error("error: "))
-	fmt.Fprintln(os.Stderr, Error(str...))
+	fmt.Fprint(os.Stderr, ErrorBold("error: "))
+	fmt.Fprintln(os.Stderr, ErrorBold(str...))
 }
 
 func PrintWarningStr(str ...string) {
 	fmt.Println(Warning(str...))
+}
+
+func QuotedItalic(text string) string {
+	return gchalk.Italic(fmt.Sprintf("%q", text))
 }

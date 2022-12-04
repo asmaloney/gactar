@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/asmaloney/gactar/util/chalk"
 	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
@@ -35,11 +36,13 @@ var doctorCmd = &cobra.Command{
 		}
 
 		err = runDoctor(envPath)
+		fmt.Println()
 		if err != nil {
 			return
 		}
 
-		fmt.Println("Health check passed. Go forth and model.")
+		fmt.Print(chalk.Success("Health check passed."))
+		fmt.Println(" Go forth and model!")
 
 		return
 	},
@@ -51,11 +54,28 @@ func init() {
 	doctorCmd.Flags().StringP("path", "p", "./env", "environment to check")
 }
 
+func outputSectionHeader(text string) {
+	fmt.Println(chalk.BlueUnderline(text))
+	if !chalk.HasColor() {
+		fmt.Println("---")
+	}
+}
+
 func runDoctor(envPath string) (err error) {
-	fmt.Println("gactar Environment Doctor\n-----")
-	fmt.Printf("gactar %s\n", version.BuildVersion)
-	fmt.Printf("Checking %q for problems...\n", envPath)
-	fmt.Printf("PATH: %q\n", os.Getenv("PATH"))
+	fmt.Println(chalk.BlueBoldUnderline("gactar Environment Doctor"))
+
+	if !chalk.HasColor() {
+		fmt.Println("-----")
+	}
+
+	fmt.Print(chalk.Header("gactar version: "))
+	fmt.Println(version.BuildVersion)
+
+	fmt.Print(chalk.Header("Shell PATH: "))
+	fmt.Println(os.Getenv("PATH"))
+
+	fmt.Print(chalk.Header("Environment: "))
+	fmt.Println(envPath)
 
 	if !filesystem.DirExists(envPath) {
 		return &filesystem.ErrDirDoesNotExist{DirName: envPath}
@@ -63,19 +83,19 @@ func runDoctor(envPath string) (err error) {
 
 	e := os.Chdir(envPath)
 	if e != nil {
-		fmt.Println(e.Error())
+		chalk.PrintErrLight(e)
 		return ErrHealthCheckFailed
 	}
 
 	pythonPath, e := checkPython()
 	if e != nil {
-		fmt.Println(e.Error())
+		chalk.PrintErrLight(e)
 		err = ErrHealthCheckFailed
 	}
 
 	e = checkCLL()
 	if e != nil {
-		fmt.Println(e.Error())
+		chalk.PrintErrLight(e)
 		err = ErrHealthCheckFailed
 	}
 
@@ -89,7 +109,9 @@ func runDoctor(envPath string) (err error) {
 
 func checkPython() (path string, err error) {
 	fmt.Println()
-	fmt.Println("Checking Python\n---")
+	outputSectionHeader("Python")
+
+	fmt.Printf("> Looking for %s...\n", chalk.Italic("python 3.x"))
 
 	path, err = python.FindPython3(true)
 	if err != nil {
@@ -101,69 +123,64 @@ func checkPython() (path string, err error) {
 
 func checkCLL() (err error) {
 	fmt.Println()
-	fmt.Println("Checking Clozure Common Lisp (ccl) compiler\n---")
+	outputSectionHeader("Clozure Common Lisp (ccl) compiler")
 
 	cclExecutableName, err := lisp.GetExecutableName()
 	if err != nil {
 		return
 	}
 
-	fmt.Printf("> Looking for %q...\n", cclExecutableName)
+	fmt.Printf("> Looking for %s...\n", chalk.Italic(cclExecutableName))
 
 	exePath, err := filesystem.CheckForExecutable(cclExecutableName)
 	if err != nil {
 		return
 	}
 
-	fmt.Printf("> Found ccl: %q\n", exePath)
+	fmt.Printf("> Found ccl: %s\n", exePath)
 
 	output, err := executil.ExecCommand(exePath, "--version")
 	if err != nil {
 		return err
 	}
-	fmt.Printf("> %s", output)
+	fmt.Printf(">   %s", output)
 
 	return
 }
 
+func checkForPythonPackage(packageName, pythonPath string) bool {
+	fmt.Printf("> Checking for %s package...\n", chalk.Italic(packageName))
+	err := python.CheckForPackage(pythonPath, packageName)
+	if err != nil {
+		chalk.PrintErrLight(err)
+		chalk.PrintWarningStr(fmt.Sprintf("> NOTE: %s not available\n", packageName))
+		return false
+	}
+
+	fmt.Println(">   ...found")
+	return true
+}
+
 func checkFrameworks(envPath, pythonPath string) (err error) {
 	fmt.Println()
-	fmt.Println("Checking Frameworks\n---")
+	outputSectionHeader("Frameworks")
 
-	atLeastOne := false
-	fmt.Println("> Checking for python_actr (ccm) package...")
-	e := python.CheckForPackage(pythonPath, "python_actr")
-	if e != nil {
-		fmt.Println(e.Error())
-		fmt.Println("> NOTE: python_actr (ccm) not available")
-	} else {
-		atLeastOne = true
-		fmt.Println("> ...found")
-	}
+	atLeastOne := checkForPythonPackage("python_actr", pythonPath)
+	atLeastOne = checkForPythonPackage("pyactr", pythonPath) || atLeastOne
 
-	fmt.Println("> Checking for pyactr package...")
-	e = python.CheckForPackage(pythonPath, "pyactr")
-	if e != nil {
-		fmt.Println(e.Error())
-		fmt.Println("> NOTE: pyactr not available")
-	} else {
-		atLeastOne = true
-		fmt.Println("> ...found")
-	}
-
-	fmt.Println("> Checking for ACT-R source...")
+	fmt.Printf("> Checking for %s source...\n", chalk.Italic("ACT-R"))
 	actrDir := filepath.Join(envPath, "actr")
 	if !filesystem.DirExists(actrDir) {
-		e = &filesystem.ErrDirDoesNotExist{DirName: actrDir}
-		fmt.Println(e.Error())
-		fmt.Println("> NOTE: vanilla ACT-R not available")
+		e := &filesystem.ErrDirDoesNotExist{DirName: actrDir}
+		chalk.PrintErrLight(e)
+		chalk.PrintWarningStr("> NOTE: vanilla ACT-R not available")
 	} else {
 		atLeastOne = true
-		fmt.Printf("> ...found: %q\n", actrDir)
+		fmt.Printf(">   ...found: %s\n", actrDir)
 	}
 
 	if !atLeastOne {
-		fmt.Println("> ERROR: could not find any frameworks")
+		chalk.PrintErrStr("could not find any frameworks")
 		err = ErrHealthCheckFailed
 	}
 
