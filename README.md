@@ -109,7 +109,7 @@ For more details, [see below](#installation).
 
 1. Run gactar:
 
-   `./gactar -w`
+   `./gactar web`
 
 2. Open your browser to the URL it outputs (e.g. http://localhost:8181)
 
@@ -237,33 +237,33 @@ There are four different ways to use gactar depending on your needs:
 
 ### Command Line
 
-To run it using methods 2-4, here are the command line options:
+For the command-line methods (2-4), run `./gactar help` for a list of commands and options:
 
 ```
-gactar [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
+Usage:
+  gactar [flags]
+  gactar [command]
+
+Available Commands:
+  cli         Run an interactive shell
+  completion  Generate the autocompletion script for the specified shell
+  ebnf        Output amod EBNF to stdout and quit
+  env         Setup & maintain an environment
+  help        Help about any command
+  web         Start a web server to run in a browser
+
+Flags:
+  -d, --debug               turn on debugging output
+      --env string          directory where ACT-R, pyactr, and other necessary files are installed (default "./env")
+  -f, --framework strings   add framework - valid frameworks: all, ccm, pyactr, vanilla (default [all])
+  -h, --help                help for gactar
+      --no-colour           do not use colour output on command line
+  -r, --run                 run the models after generating the code
+      --temp string         directory for generated files (it will be created if it does not exist - defaults to <env>/gactar-temp)
+  -v, --version             output the version and quit
+
+Use "gactar [command] --help" for more information about a command.
 ```
-
-#### GLOBAL OPTIONS
-
-**--debug, -d**: turn on debugging output
-
-**--ebnf**: output amod EBNF to stdout and quit
-
-**--env** [path]: directory where ACT-R, pyactr, and other necessary files are installed (default: `./env`)
-
-**--framework, -f** [string]: add framework - valid frameworks: all, ccm, pyactr, vanilla (default: `all`)
-
-**--interactive, -i**: run an interactive shell
-
-**--no-color, --no-colour**: do not use colour output on command line
-
-**--port, -p** [number]: port to run the web server on (default: `8181`)
-
-**--run, -r**: run the models after generating the code
-
-**--temp** [path]: directory for generated files (it will be created if it does not exist) (default: `{env}/gactar-temp`)
-
-**--web, -w**: start a web server to run in a browser
 
 ### 1. Run With Visual Studio Code
 
@@ -284,12 +284,14 @@ The source code for _gactar-vscode_ may be found [here](https://github.com/asmal
 
 gactar includes a web server and can use your browser as its user interface.
 
+Run `./gactar help web` for a list of options.
+
 ```
-(env)$ ./gactar -w
-gactar version v0.9.0
+(env)$ ./gactar web
+gactar version v0.10.0
 Using virtual environment: "/path/to/gactar/env"
-ccm: Using Python 3.10.4
-pyactr: Using Python 3.10.4
+ccm: Using Python 3.10.9
+pyactr: Using Python 3.10.9
 vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664
 Serving gactar on http://localhost:8181
 ```
@@ -314,12 +316,14 @@ The results (and any errors) will be shown on the right and the generated code t
 
 This will generate code for all active frameworks and optionally run the models.
 
+Run `./gactar help` for a list of options.
+
 ```
 (env)$ ./gactar examples/count.amod
-gactar version v0.9.0
+gactar version v0.10.0
 Using virtual environment: "/path/to/gactar/env"
-ccm: Using Python 3.10.4
-pyactr: Using Python 3.10.4
+ccm: Using Python 3.10.9
+pyactr: Using Python 3.10.9
 vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664
 Intermediate file path: "/path/to/gactar/env/gactar-temp"
 Generating model for examples/count.amod
@@ -339,9 +343,9 @@ You can choose which frameworks to use with `-framework` or `-f` like this:
 
 ```
 (env)$ ./gactar -f ccm -f vanilla examples/count.amod
-gactar version v0.9.0
+gactar version v0.10.0
 Using virtual environment: "/path/to/gactar/env"
-ccm: Using Python 3.10.4
+ccm: Using Python 3.10.9
 vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664
 Intermediate file path: "/path/to/gactar/env/gactar-temp"
 Generating model for examples/count.amod
@@ -358,9 +362,9 @@ You can write the files to a different location using `-temp`:
 
 ```
 (env)$ ./gactar -f ccm -temp intermediate examples/count.amod
-gactar version v0.9.0
+gactar version v0.10.0
 Using virtual environment: "/path/to/gactar/env"
-ccm: Using Python 3.10.4
+ccm: Using Python 3.10.9
 Intermediate file path: "/path/to/gactar/env/gactar-temp"
 Generating model for examples/count.amod
 INFO: initial goal is [countFrom: 2 5 starting]
@@ -373,9 +377,9 @@ You can also choose to run the models using `-run` or `-r`:
 
 ```
 (env)$ ./gactar -f ccm -temp intermediate -r examples/count.amod
-gactar version v0.9.0
+gactar version v0.10.0
 Using virtual environment: "/path/to/gactar/env"
-ccm: Using Python 3.10.4
+ccm: Using Python 3.10.9
 Intermediate file path: "/path/to/gactar/env/gactar-temp"
 Generating model for examples/count.amod
 INFO: initial goal is [countFrom: 2 5 starting]
@@ -396,12 +400,14 @@ end...
 
 gactar provides a simple interactive command-line mode to load and run models.
 
+Run `./gactar help cli` for a list of options.
+
 ```
-(env)$ ./gactar -i
-gactar version v0.9.0
+(env)$ ./gactar cli
+gactar version v0.10.0
 Using virtual environment: "/path/to/gactar/env"
-ccm: Using Python 3.10.4
-pyactr: Using Python 3.10.4
+ccm: Using Python 3.10.9
+pyactr: Using Python 3.10.9
 vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664
 Type 'help' for a list of commands.
 To exit, type 'exit' or 'quit'.
@@ -480,7 +486,7 @@ You may choose which of the frameworks to run using the `frameworks` command.
 Specifying frameworks on the command line will limit you to selecting those frameworks. For example this will make only `ccm` available in interactive mode:
 
 ```
-./gactar -f ccm -i
+./gactar cli -f ccm
 ```
 
 ## Build/Develop
@@ -509,7 +515,7 @@ See the [web README](web/gactar-web/README.md) for information on developing the
 To run the built-in tests, from the top-level of the repo run:
 
 ```
-go test ./...
+make test
 ```
 
 ## Web API

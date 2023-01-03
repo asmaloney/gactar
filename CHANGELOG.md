@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 0.11.0 - (in progress)
+## [0.11.0](https://github.com/asmaloney/gactar/releases/tag/v0.11.0) - 2023-01-03
 
 ### Added
 
@@ -10,6 +10,13 @@ All notable changes to this project will be documented in this file. The format 
 
 - Command line output now uses colour. ([#284](https://github.com/asmaloney/gactar/pull/284))
   - May be turned off using a command-line option (`--no-colour` or `--no-color`) or by setting the `NO_COLOR` environment variable.
+
+### Changed
+
+- Command line options changed to commands ([#298](https://github.com/asmaloney/gactar/pull/298))
+  - Instead of `gactar -w`, it is now called using `gactar web`.
+  - Instead of `gactar -i`, it is now called using `gactar cli`.
+  - Run `gactar help` for a list of commands and options.
 
 ### Fixed
 
