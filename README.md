@@ -288,7 +288,7 @@ Run `./gactar help web` for a list of options.
 
 ```
 (env)$ ./gactar web
-gactar version v0.10.0
+gactar version v0.11.0
 Using virtual environment: "/path/to/gactar/env"
 ccm: Using Python 3.10.9
 pyactr: Using Python 3.10.9
@@ -320,7 +320,7 @@ Run `./gactar help` for a list of options.
 
 ```
 (env)$ ./gactar examples/count.amod
-gactar version v0.10.0
+gactar version v0.11.0
 Using virtual environment: "/path/to/gactar/env"
 ccm: Using Python 3.10.9
 pyactr: Using Python 3.10.9
@@ -343,7 +343,7 @@ You can choose which frameworks to use with `-framework` or `-f` like this:
 
 ```
 (env)$ ./gactar -f ccm -f vanilla examples/count.amod
-gactar version v0.10.0
+gactar version v0.11.0
 Using virtual environment: "/path/to/gactar/env"
 ccm: Using Python 3.10.9
 vanilla: Using Version 1.12.1 (v1.12.1) DarwinX8664
@@ -362,7 +362,7 @@ You can write the files to a different location using `-temp`:
 
 ```
 (env)$ ./gactar -f ccm -temp intermediate examples/count.amod
-gactar version v0.10.0
+gactar version v0.11.0
 Using virtual environment: "/path/to/gactar/env"
 ccm: Using Python 3.10.9
 Intermediate file path: "/path/to/gactar/env/gactar-temp"
@@ -377,7 +377,7 @@ You can also choose to run the models using `-run` or `-r`:
 
 ```
 (env)$ ./gactar -f ccm -temp intermediate -r examples/count.amod
-gactar version v0.10.0
+gactar version v0.11.0
 Using virtual environment: "/path/to/gactar/env"
 ccm: Using Python 3.10.9
 Intermediate file path: "/path/to/gactar/env/gactar-temp"
@@ -404,7 +404,7 @@ Run `./gactar help cli` for a list of options.
 
 ```
 (env)$ ./gactar cli
-gactar version v0.10.0
+gactar version v0.11.0
 Using virtual environment: "/path/to/gactar/env"
 ccm: Using Python 3.10.9
 pyactr: Using Python 3.10.9
