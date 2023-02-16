@@ -18,12 +18,14 @@ jobs:
     steps:
       - name: Get Release Info
         run: |
-          echo "RELEASE_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
-          echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
-          echo "OS_NAME=${{ matrix.goos }}" >> $GITHUB_ENV
+          {
+            echo "RELEASE_TAG=${GITHUB_REF/refs\/tags\//}"
+            echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}"
+            echo "OS_NAME=${{ matrix.goos }}"
+          } >> "$GITHUB_ENV"
       - name: OS darwin
         if: matrix.goos == 'darwin'
-        run: echo "OS_NAME=macOS" >> $GITHUB_ENV
+        run: echo "OS_NAME=macOS" >> "$GITHUB_ENV"
       - uses: actions/checkout@v3
       - uses: wangyoucao577/go-release-action@v1.32
         with:
