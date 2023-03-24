@@ -171,7 +171,7 @@ func setupLisp() (err error) {
 
 	// Download vanilla ACT-R
 	repo := "github.com/asmaloney/ACT-R"
-	version := "v7.27.0"
+	version := "v7.27.7"
 	archiveFile := fmt.Sprintf("actr-super-slim-%s.zip", version)
 	urlStr := fmt.Sprintf("https://%s/releases/download/%s/%s", repo, version, archiveFile)
 	actrURL, err := url.Parse(urlStr)
