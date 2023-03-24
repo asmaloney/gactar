@@ -60,6 +60,8 @@ Given that gactar in its early stages, the amod syntax may change dramatically b
 
 **Note for Windows users:** I have only done limited building/testing on Windows. If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues). I am aware that the **[Lisp compiler does not install itself properly](https://github.com/asmaloney/gactar/issues/275)** (see issue for workaround).
 
+**Note about python_actr & python 3.11:** Unfortunately [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr) does not work with **python 3.11** (see [this issue](https://github.com/asmaloney/gactar/issues/310)). If you can, try to use python 3.10. Once they have fixed it and published a new pip package, I can adjust the version gactar uses.
+
 ### What isn't implemented?
 
 A lot! The big, obvious one is environments (and therefore the visual & motor modules). That's a big challenge and probably not worth tackling if there isn't sufficient interest in this initial proof of concept. Environments may even prove impossible given the way they are implemented in the three frameworks, but I haven't yet explored this too deeply.
@@ -194,10 +196,10 @@ This will do several things to set up your environment:
 - download the _vanilla_ [ACT-R](https://github.com/asmaloney/ACT-R) Lisp code
 - download the [Clozure Common Lisp compiler](https://ccl.clozure.com/) (ccl) compiler
 
-Use the `-dev` flag to also install optional developer packages for linting & formatting Python code.
+Use the `--dev` flag to also install optional developer packages for linting & formatting Python code.
 
 ```
-$ ./gactar env setup -dev
+$ ./gactar env setup --dev
 ```
 
 If you want to change the default environment (`env`), the directory can be specified using the `-path` option:
