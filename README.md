@@ -510,7 +510,7 @@ make
 
 This will create the `gactar` executable.
 
-See the [web README](web/gactar-web/README.md) for information on developing the web interface.
+See the [web README](modes/web/gactar-web/README.md) for information on developing the web interface.
 
 ## Test
 
