@@ -6,11 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
-	"log"
 	"net/http"
 	"os"
 	"path"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -98,7 +98,12 @@ func (w Web) Start() (err error) {
 	fmt.Printf("Serving gactar on ")
 	fmt.Println(gchalk.WithBlue().Underline(fmt.Sprintf("http://localhost:%d", w.port)))
 
-	err = http.ListenAndServe(fmt.Sprintf(":%d", w.port), nil)
+	server := http.Server{
+		Addr:        ":" + strconv.Itoa(w.port),
+		ReadTimeout: 0,
+	}
+
+	err = server.ListenAndServe()
 	if err != nil {
 		return
 	}
@@ -362,9 +367,9 @@ func encodeIssueResponse(rw http.ResponseWriter, log *issues.Log) {
 // the given embed.FS.  When locating a file, it will optionally strip
 // and append a prefix to the filesystem lookup.
 // Adapted from https://blog.lawrencejones.dev/golang-embed/
-func assetHandler(assets *embed.FS, stripPrefix, prepend string) http.Handler {
+func assetHandler(assets *embed.FS, stripPrefix, prefix string) http.Handler {
 	handler := fsFunc(func(name string) (fs.File, error) {
-		assetPath := path.Join(prepend, name)
+		assetPath := path.Join(prefix, name)
 
 		f, err := assets.Open(assetPath)
 		if os.IsNotExist(err) {
@@ -379,18 +384,6 @@ func assetHandler(assets *embed.FS, stripPrefix, prepend string) http.Handler {
 
 // compressedAssetHandler returns an http.Handler that will serve files from
 // the given embed.FS using statigz to serve compressed files.
-func compressedAssetHandler(assets *embed.FS, prepend string) http.Handler {
-	var serverFS fs.ReadDirFS = assets
-
-	if prepend != "" {
-		sub, err := fs.Sub(assets, prepend)
-		if err != nil {
-			log.Fatal(err)
-			return nil
-		}
-
-		serverFS = sub.(fs.ReadDirFS)
-	}
-
-	return statigz.FileServer(serverFS, brotli.AddEncoding)
+func compressedAssetHandler(assets *embed.FS, prefix string) http.Handler {
+	return statigz.FileServer(assets, brotli.AddEncoding, statigz.FSPrefix(prefix))
 }
