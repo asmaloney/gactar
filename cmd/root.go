@@ -27,6 +27,8 @@ var (
 	ErrNoInputFiles = errors.New("no input files specified on command line")
 	ErrSilent       = errors.New("SilentErr")
 
+	errNoFrameworks = errors.New("no frameworks specified on command line")
+
 	flagEnv        = "./env"
 	flagTemp       = ""
 	flagFrameworks = []string{"all"}
@@ -36,6 +38,19 @@ var (
 	flagRun     = false
 	flagVersion = false
 )
+
+type errVirtualEnvDoesNotExist struct {
+	path string
+}
+
+func (e errVirtualEnvDoesNotExist) Error() string {
+	message := fmt.Sprintf("virtual environment does not exist: %q", e.path)
+
+	hint := fmt.Sprintf("hint: create and initialize a virtual environment using %q (use %q for details)",
+		"gactar env setup", "gactar env setup --help")
+
+	return chalk.ErrorBold(message) + "\n" + chalk.Default(hint)
+}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -77,14 +92,6 @@ var rootCmd = &cobra.Command{
 
 		return
 	},
-}
-
-type ErrCmdLine struct {
-	Message string
-}
-
-func (e *ErrCmdLine) Error() string {
-	return chalk.ErrorBold(e.Message)
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -234,8 +241,7 @@ func setupVirtualEnvironment(flags *pflag.FlagSet) (path string, err error) {
 	}
 
 	if !filesystem.DirExists(envPath) {
-		err = &ErrCmdLine{Message: "virtual environment does not exist"}
-		err = fmt.Errorf("%w: %q", err, envPath)
+		err = &errVirtualEnvDoesNotExist{path: envPath}
 		return
 	}
 
@@ -256,7 +262,7 @@ func setupVirtualEnvironment(flags *pflag.FlagSet) (path string, err error) {
 func createFrameworks(settings *cli.Settings, flags *pflag.FlagSet) (frameworks framework.List, err error) {
 	list, err := flags.GetStringSlice("framework")
 	if len(list) == 0 {
-		err = &ErrCmdLine{Message: "no frameworks specified on command line"}
+		err = errNoFrameworks
 		return
 	}
 
