@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path/filepath"
 	"runtime"
 
 	"github.com/spf13/cobra"
@@ -15,6 +16,15 @@ import (
 	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/python"
+)
+
+const (
+	// ACT-R release version from https://github.com/asmaloney/ACT-R
+	ACTR_VERSION = "7.27.7"
+
+	// Clozure Common Lisp release version from https://github.com/Clozure/ccl
+	CCL_VERSION     = "1.12.1"
+	CCL_VERSION_WIN = "1.12" // CCL version 1.12.1 is not compressed properly, so try an older version
 )
 
 var (
@@ -171,24 +181,10 @@ func setupLisp() (err error) {
 
 	// Download vanilla ACT-R
 	repo := "github.com/asmaloney/ACT-R"
-	version := "v7.27.7"
-	archiveFile := fmt.Sprintf("actr-super-slim-%s.zip", version)
-	urlStr := fmt.Sprintf("https://%s/releases/download/%s/%s", repo, version, archiveFile)
-	actrURL, err := url.Parse(urlStr)
-	if err != nil {
-		return
-	}
+	extension := "zip"
+	archiveFile := fmt.Sprintf("actr-super-slim-v%s.%s", ACTR_VERSION, extension)
 
-	fmt.Printf("> Getting ACT-R %s from: %q\n", version, actrURL.String())
-
-	err = filesystem.DownloadFile(actrURL, archiveFile)
-	if err != nil {
-		return
-	}
-
-	// Decompress ACT-R
-	fmt.Println("> Unpacking ACT-R...")
-	err = decompress.Unzip(archiveFile, "actr")
+	err = downloadGitHubRelease("ACT-R", repo, ACTR_VERSION, archiveFile, "actr")
 	if err != nil {
 		return
 	}
@@ -200,34 +196,46 @@ func setupLisp() (err error) {
 	}
 
 	repo = "github.com/Clozure/ccl"
-	extension := "tar.gz"
-	version = "1.12.1"
+	extension = "tar.gz"
+	version := CCL_VERSION
 
 	if system == "windows" {
 		extension = "zip"
-		version = "1.12" // version 1.12.1 is not compressed properly, so use older version
+		version = CCL_VERSION_WIN
 	}
 
 	dirName := fmt.Sprintf("ccl-%s-%sx86", version, system)
 	archiveFile = fmt.Sprintf("%s.%s", dirName, extension)
-	urlStr = fmt.Sprintf("https://%s/releases/download/v%s/%s", repo, version, archiveFile)
-	cclURL, err := url.Parse(urlStr)
+
+	err = downloadGitHubRelease("Clozure Common Lisp (ccl)", repo, version, archiveFile, "")
 	if err != nil {
 		return
 	}
 
-	fmt.Printf("> Getting Clozure Common Lisp (ccl) v%s for %s from: %q\n", version, system, cclURL.String())
-	err = filesystem.DownloadFile(cclURL, archiveFile)
+	return
+}
+
+func downloadGitHubRelease(name, repo, version, archiveFile, target string) (err error) {
+	urlStr := fmt.Sprintf("https://%s/releases/download/v%s/%s", repo, version, archiveFile)
+	url, err := url.Parse(urlStr)
 	if err != nil {
 		return
 	}
 
-	// Decompress CCL
-	fmt.Println("> Unpacking CCL...")
-	if extension == "zip" {
-		err = decompress.Unzip(archiveFile, "")
+	fmt.Printf("> Getting %s v%s from: %q\n", name, version, url.String())
+
+	err = filesystem.DownloadFile(url, archiveFile)
+	if err != nil {
+		return
+	}
+
+	// Decompress
+	fmt.Printf("> Unpacking %s...\n", name)
+	extension := filepath.Ext(archiveFile)
+	if extension == ".zip" {
+		err = decompress.Unzip(archiveFile, target)
 	} else {
-		err = decompress.UntarFile(archiveFile, "")
+		err = decompress.UntarFile(archiveFile, target)
 	}
 	if err != nil {
 		return
