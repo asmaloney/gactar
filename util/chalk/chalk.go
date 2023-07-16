@@ -9,6 +9,8 @@ import (
 )
 
 var (
+	Default = gchalk.Reset
+
 	Error     = gchalk.Red
 	ErrorBold = gchalk.WithRed().Bold
 	Warning   = gchalk.Yellow
