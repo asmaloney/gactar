@@ -25,8 +25,8 @@ func NewImaginal() *Imaginal {
 			BufferList: buffer.List{
 				{Name: "imaginal", MultipleInit: false},
 			},
-			Params: []ParamInfo{
-				{"delay", "time it takes a request to the buffer to complete (seconds)"},
+			Params: ParamInfoMap{
+				"delay": {"delay", "time it takes a request to the buffer to complete (seconds)"},
 			},
 		},
 	}

@@ -102,16 +102,16 @@ func NewDeclarativeMemory() *DeclarativeMemory {
 			BufferList: buffer.List{
 				{Name: "retrieval", MultipleInit: true},
 			},
-			Params: []ParamInfo{
-				{"decay", "the 'base-level learning' decay parameter"},
-				{"finst_size", "how many chunks are retained in memory"},
-				{"finst_time", "how long the finst lasts in memory"},
-				{"instantaneous_noise", "turns on the activation noise calculation & sets instantaneous noise"},
-				{"latency_exponent", "latency exponent (f)"},
-				{"latency_factor", "latency factor (F)"},
-				{"max_spread_strength", "turns on the spreading activation calculation & sets the maximum associative strength"},
-				{"mismatch_penalty", "turns on partial matching and sets the penalty in the activation equation"},
-				{"retrieval_threshold", "retrieval threshold (τ)"},
+			Params: ParamInfoMap{
+				"decay":               {"decay", "the 'base-level learning' decay parameter"},
+				"finst_size":          {"finst_size", "how many chunks are retained in memory"},
+				"finst_time":          {"finst_time", "how long the finst lasts in memory"},
+				"instantaneous_noise": {"instantaneous_noise", "turns on the activation noise calculation & sets instantaneous noise"},
+				"latency_exponent":    {"latency_exponent", "latency exponent (f)"},
+				"latency_factor":      {"latency_factor", "latency factor (F)"},
+				"max_spread_strength": {"max_spread_strength", "turns on the spreading activation calculation & sets the maximum associative strength"},
+				"mismatch_penalty":    {"mismatch_penalty", "turns on partial matching and sets the penalty in the activation equation"},
+				"retrieval_threshold": {"retrieval_threshold", "retrieval threshold (τ)"},
 			},
 		},
 	}
