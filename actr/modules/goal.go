@@ -25,8 +25,8 @@ func NewGoal() *Goal {
 			BufferList: buffer.List{
 				{Name: "goal", MultipleInit: false},
 			},
-			Params: []ParamInfo{
-				{"spreading_activation", "spreading activation weight"},
+			Params: ParamInfoMap{
+				"spreading_activation": {"spreading_activation", "spreading activation weight"},
 			},
 		},
 	}

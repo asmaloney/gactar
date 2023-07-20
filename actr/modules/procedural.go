@@ -20,8 +20,8 @@ func NewProcedural() *Procedural {
 			Name:        "procedural",
 			Version:     BuiltIn,
 			Description: "handles production definition and execution",
-			Params: []ParamInfo{
-				{"default_action_time", "time that it takes to fire a production (seconds)"},
+			Params: ParamInfoMap{
+				"default_action_time": {"default_action_time", "time that it takes to fire a production (seconds)"},
 			},
 		},
 	}
