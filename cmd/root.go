@@ -39,6 +39,15 @@ var (
 	flagVersion = false
 )
 
+type errRequiresSubcommand struct {
+	command string
+}
+
+func (e errRequiresSubcommand) Error() string {
+	message := fmt.Sprintf("%s command requires subcommand", e.command)
+	return chalk.ErrorBold(message)
+}
+
 type errVirtualEnvDoesNotExist struct {
 	path string
 }
