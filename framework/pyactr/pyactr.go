@@ -279,7 +279,7 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 	if extraBuffers != nil {
 		p.Writeln("")
 		p.Writeln("# define a goal-style buffer for each extra buffer")
-		for _, buff := range extraBuffers.BufferNames() {
+		for _, buff := range extraBuffers.Buffers().Names() {
 			p.Writeln("%[1]s = %[2]s.set_goal('%[1]s')", buff, p.className)
 		}
 	}

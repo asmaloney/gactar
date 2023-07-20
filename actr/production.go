@@ -25,7 +25,7 @@ type Production struct {
 // VarIndex is used to track which buffer slot a variable refers to
 type VarIndex struct {
 	Var      *PatternVar
-	Buffer   buffer.BufferInterface
+	Buffer   buffer.Interface
 	SlotName string
 }
 
@@ -58,7 +58,7 @@ func (c Constraint) String() string {
 }
 
 type Match struct {
-	Buffer  buffer.BufferInterface
+	Buffer  buffer.Interface
 	Pattern *Pattern
 }
 
@@ -120,10 +120,11 @@ type SetSlot struct {
 
 // SetStatement will set a slot or the entire contents of the named buffer to a string or a pattern.
 // There are two forms:
+//
 //	(1) set (Buffer).(SetSlot) to (SetSlot.Value)
 //	(2) set (Buffer) to (Pattern)
 type SetStatement struct {
-	Buffer buffer.BufferInterface // buffer we are manipulating
+	Buffer buffer.Interface // buffer we are manipulating
 
 	Slots *[]SetSlot // (1) set this slot
 	Chunk *Chunk     // (1) if we are setting slots, point at the chunk they reference for easy lookup
@@ -174,10 +175,13 @@ func (p Production) LookupMatchByBuffer(bufferName string) *Match {
 
 // LookupSetStatementByBuffer is used when combining several set consecutive statements on one buffer.
 // So this:
-//		set goal.foo to 1
-//		set goal.bar to 10
+//
+//	set goal.foo to 1
+//	set goal.bar to 10
+//
 // is treated like this:
-//		set foo, bar on goal to 1, 10
+//
+//	set foo, bar on goal to 1, 10
 func (p Production) LookupSetStatementByBuffer(bufferName string) *SetStatement {
 	if len(p.DoStatements) == 0 {
 		return nil
