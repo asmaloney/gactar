@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.12.0 - (in progress)
+
+### Added
+
+- New command-line command `module` outputs information about modules. Currently includes two subcommands:
+  - `info [name]` outputs detailed info about a module - name, version, description, and any parameters. `name` can be a space-separated list of modules or `all`.
+  - `list` outputs the list of modules - name, version, and description
+
+### Changed
+
+- ACT-R (vanilla) was updated to version 7.27.7.
+
+### Fixed
+
+- Improved some error messages.
+
 ## [0.11.0](https://github.com/asmaloney/gactar/releases/tag/v0.11.0) - 2023-01-03
 
 ### Added

@@ -252,6 +252,7 @@ Available Commands:
   ebnf        Output amod EBNF to stdout and quit
   env         Setup & maintain an environment
   help        Help about any command
+  module      Get info about available modules
   web         Start a web server to run in a browser
 
 Flags:

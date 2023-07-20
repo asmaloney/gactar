@@ -21,7 +21,11 @@ gactar {
 
 ## Module Config
 
-gactar supports a handful of modules and configuration options. The following outlines which options are available in the `modules` section.
+gactar supports a handful of modules and configuration options which are set in the `modules` section.
+
+For a list of a specific module's configuration options, run `gactar module info [module name]`.
+
+For a list of _all_ modules and their configuration options, run `gactar module info all`.
 
 Example:
 
@@ -73,7 +77,7 @@ Buffer Name: **goal**
 
 | Config               | Type    | Description                                                         | Mapping                                                                                          |
 | -------------------- | ------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| spreading_activation | decimal | see "Spreading Activation" in "ACT-R 7.26 Reference Manual" pg. 290 | ccm (DMSpreading.weight): 1.0<br>pyactr (buffer_spreading_activation): 1.0<br>vanilla (:ga): 1.0 |
+| spreading_activation | decimal | see "Spreading Activation" in "ACT-R 7.26 Reference Manual" pg. 290 | ccm (DMSpreading.weight): 1.0<br>pyactr (buffer_spreading_activation): _no default_<br>vanilla (:ga): 0.0 |
 
 ### Imaginal
 
