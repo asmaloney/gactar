@@ -96,9 +96,22 @@ type DeclarativeMemory struct {
 func NewDeclarativeMemory() *DeclarativeMemory {
 	return &DeclarativeMemory{
 		Module: Module{
-			Name: "memory",
+			Name:        "memory",
+			Version:     BuiltIn,
+			Description: "declarative memory which stores chunks from the buffers for retrieval",
 			BufferList: buffer.List{
 				{Name: "retrieval", MultipleInit: true},
+			},
+			Params: []ParamInfo{
+				{"decay", "the 'base-level learning' decay parameter"},
+				{"finst_size", "how many chunks are retained in memory"},
+				{"finst_time", "how long the finst lasts in memory"},
+				{"instantaneous_noise", "turns on the activation noise calculation & sets instantaneous noise"},
+				{"latency_exponent", "latency exponent (f)"},
+				{"latency_factor", "latency factor (F)"},
+				{"max_spread_strength", "turns on the spreading activation calculation & sets the maximum associative strength"},
+				{"mismatch_penalty", "turns on partial matching and sets the penalty in the activation equation"},
+				{"retrieval_threshold", "retrieval threshold (τ)"},
 			},
 		},
 	}
