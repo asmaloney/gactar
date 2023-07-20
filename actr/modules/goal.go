@@ -11,17 +11,22 @@ type Goal struct {
 
 	// "spreading_activation": see "Spreading Activation" in "ACT-R 7.26 Reference Manual" pg. 290
 	// 	ccm (DMSpreading.weight): 1.0
-	// 	pyactr (buffer_spreading_activation): 1.0
-	// 	vanilla (:ga): 1.0
+	// 	pyactr (buffer_spreading_activation): no default
+	// 	vanilla (:ga): 0.0
 	SpreadingActivation *float64
 }
 
 func NewGoal() *Goal {
 	return &Goal{
 		Module: Module{
-			Name: "goal",
+			Name:        "goal",
+			Version:     BuiltIn,
+			Description: "provides a goal buffer for the model",
 			BufferList: buffer.List{
 				{Name: "goal", MultipleInit: false},
+			},
+			Params: []ParamInfo{
+				{"spreading_activation", "spreading activation weight"},
 			},
 		},
 	}

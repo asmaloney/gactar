@@ -19,9 +19,14 @@ type Imaginal struct {
 func NewImaginal() *Imaginal {
 	return &Imaginal{
 		Module: Module{
-			Name: "imaginal",
+			Name:        "imaginal",
+			Version:     BuiltIn,
+			Description: "provides a goal style buffer with a delay and an action buffer for manipulating the imaginal chunk",
 			BufferList: buffer.List{
 				{Name: "imaginal", MultipleInit: false},
+			},
+			Params: []ParamInfo{
+				{"delay", "time it takes a request to the buffer to complete (seconds)"},
 			},
 		},
 	}

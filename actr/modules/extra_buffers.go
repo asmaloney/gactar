@@ -13,7 +13,9 @@ type ExtraBuffers struct {
 func NewExtraBuffers() *ExtraBuffers {
 	return &ExtraBuffers{
 		Module: Module{
-			Name: "extra_buffers",
+			Name:        "extra_buffers",
+			Version:     BuiltIn,
+			Description: "allows declaration of one or more extra goal-style buffers in the model",
 		},
 	}
 }
