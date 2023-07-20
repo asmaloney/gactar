@@ -37,9 +37,7 @@ var envCmd = &cobra.Command{
 	Use:   "env",
 	Short: "Setup & maintain an environment",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		err = errRequiresSubcommand{command: "env"}
-		chalk.PrintErr(err)
-
+		err = errRequiresSubcommand{command: cmd}
 		return
 	},
 }
