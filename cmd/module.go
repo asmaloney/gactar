@@ -14,9 +14,7 @@ var modulesCmd = &cobra.Command{
 	Use:   "module",
 	Short: "Get info about available modules",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		err = errRequiresSubcommand{command: "module"}
-		chalk.PrintErr(err)
-
+		err = errRequiresSubcommand{command: cmd}
 		return
 	},
 }

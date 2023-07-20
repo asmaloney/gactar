@@ -40,11 +40,11 @@ var (
 )
 
 type errRequiresSubcommand struct {
-	command string
+	command *cobra.Command
 }
 
 func (e errRequiresSubcommand) Error() string {
-	message := fmt.Sprintf("%s command requires subcommand", e.command)
+	message := fmt.Sprintf("%s command requires subcommand", e.command.Use)
 	return chalk.ErrorBold(message)
 }
 
@@ -107,9 +107,15 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := rootCmd.Execute()
+
 	if err != nil {
 		if !errors.Is(err, ErrSilent) {
 			chalk.PrintErr(err)
+		}
+
+		var requiresSubcommand errRequiresSubcommand
+		if errors.As(err, &requiresSubcommand) {
+			requiresSubcommand.command.Help()
 		}
 		os.Exit(1)
 	}
