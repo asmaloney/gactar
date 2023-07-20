@@ -181,7 +181,7 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 		v.Writeln(`(require-compiled "GOAL-STYLE-MODULE")`)
 		v.Writeln("")
 		v.Writeln(";; define a goal-style module for each extra buffer")
-		for _, buff := range extraBuffers.BufferNames() {
+		for _, buff := range extraBuffers.Buffers().Names() {
 			v.Writeln(
 				`(define-module %[1]s (%[1]s) nil
 	:version "1.0"

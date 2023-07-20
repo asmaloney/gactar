@@ -24,6 +24,6 @@ func (eb *ExtraBuffers) SetParam(param *params.Param) (err error) {
 		MultipleInit: false,
 	}
 
-	eb.Buffers = append(eb.Buffers, newBuffer)
+	eb.BufferList = append(eb.BufferList, newBuffer)
 	return
 }

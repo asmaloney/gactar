@@ -97,7 +97,7 @@ func NewDeclarativeMemory() *DeclarativeMemory {
 	return &DeclarativeMemory{
 		Module: Module{
 			Name: "memory",
-			Buffers: []buffer.Buffer{
+			BufferList: buffer.List{
 				{Name: "retrieval", MultipleInit: true},
 			},
 		},
@@ -106,7 +106,7 @@ func NewDeclarativeMemory() *DeclarativeMemory {
 
 // We only have one buffer, so this is a convenience function to get its name.
 func (d DeclarativeMemory) BufferName() string {
-	return d.Buffers[0].Name
+	return d.Buffers().At(0).BufferName()
 }
 
 func (d *DeclarativeMemory) SetParam(param *params.Param) (err error) {

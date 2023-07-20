@@ -59,7 +59,7 @@ type Model struct {
 
 type Initializer struct {
 	Module modules.ModuleInterface
-	Buffer buffer.BufferInterface
+	Buffer buffer.Interface
 
 	ChunkName *string // optional chunk name
 	Pattern   *Pattern
@@ -131,7 +131,7 @@ func (model *Model) AddInitializer(initializer *Initializer) {
 // LookupInitializer returns an initializer or nil if the buffer does not have one.
 func (model Model) LookupInitializer(buffer string) *Initializer {
 	for _, init := range model.Initializers {
-		if init.Module.HasBuffer(buffer) {
+		if init.Module.Buffers().Has(buffer) {
 			return init
 		}
 	}
@@ -225,7 +225,7 @@ func (model Model) LookupModule(moduleName string) modules.ModuleInterface {
 // BufferNames returns a slice of valid buffers.
 func (model Model) BufferNames() (list []string) {
 	for _, module := range model.Modules {
-		names := module.BufferNames()
+		names := module.Buffers().Names()
 		if len(names) > 0 {
 			list = append(list, names...)
 		}
@@ -235,9 +235,9 @@ func (model Model) BufferNames() (list []string) {
 }
 
 // LookupBuffer looks up the named buffer in the model and returns it (or nil if it does not exist).
-func (model Model) LookupBuffer(bufferName string) buffer.BufferInterface {
+func (model Model) LookupBuffer(bufferName string) buffer.Interface {
 	for _, module := range model.Modules {
-		buff := module.LookupBuffer(bufferName)
+		buff := module.Buffers().Lookup(bufferName)
 		if buff != nil {
 			return buff
 		}

@@ -37,7 +37,7 @@ func validateChunk(model *actr.Model, log *issueLog, chunk *chunkDecl) (err erro
 	return nil
 }
 
-func validateBufferInitialization(model *actr.Model, log *issueLog, moduleName string, buffer buffer.BufferInterface, initializers []*namedInitializer) (err error) {
+func validateBufferInitialization(model *actr.Model, log *issueLog, moduleName string, buffer buffer.Interface, initializers []*namedInitializer) (err error) {
 	if !buffer.AllowsMultipleInit() && len(initializers) > 1 {
 		log.errorTR(initializers[0].Tokens, 0, 1, "module %q should only have one pattern in initialization of buffer %q", moduleName, buffer.BufferName())
 		return ErrCompile
@@ -63,7 +63,7 @@ func validateModuleInitialization(model *actr.Model, log *issueLog, init *module
 		return ErrCompile
 	}
 
-	numBuffers := module.NumBuffers()
+	numBuffers := module.Buffers().Count()
 	if numBuffers == 0 {
 		log.errorTR(init.Tokens, 0, 1, "module '%s' does not have any buffers", moduleName)
 		return ErrCompile
@@ -75,7 +75,7 @@ func validateModuleInitialization(model *actr.Model, log *issueLog, init *module
 			return ErrCompile
 		}
 
-		err = validateBufferInitialization(model, log, moduleName, module.OnlyBuffer(), init.InitPatterns)
+		err = validateBufferInitialization(model, log, moduleName, module.Buffers().At(0), init.InitPatterns)
 		if err != nil {
 			err = ErrCompile
 		}

@@ -20,7 +20,7 @@ func NewGoal() *Goal {
 	return &Goal{
 		Module: Module{
 			Name: "goal",
-			Buffers: []buffer.Buffer{
+			BufferList: buffer.List{
 				{Name: "goal", MultipleInit: false},
 			},
 		},

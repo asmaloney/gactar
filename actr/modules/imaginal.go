@@ -20,7 +20,7 @@ func NewImaginal() *Imaginal {
 	return &Imaginal{
 		Module: Module{
 			Name: "imaginal",
-			Buffers: []buffer.Buffer{
+			BufferList: buffer.List{
 				{Name: "imaginal", MultipleInit: false},
 			},
 		},

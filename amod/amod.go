@@ -332,7 +332,7 @@ func addChunks(model *actr.Model, log *issueLog, chunks []*chunkDecl) {
 	}
 }
 
-func addInitializers(model *actr.Model, log *issueLog, module modules.ModuleInterface, buffer buffer.BufferInterface, init *namedInitializer) {
+func addInitializers(model *actr.Model, log *issueLog, module modules.ModuleInterface, buffer buffer.Interface, init *namedInitializer) {
 	// Check for duplicate initializer names.
 	// Note that this can't be checked in validateInitialization because model.ExplicitChunks is not filled in yet.
 	if init.ChunkName != nil && container.Contains(*init.ChunkName, model.ExplicitChunks) {
@@ -374,7 +374,7 @@ func addInit(model *actr.Model, log *issueLog, init *initSection) {
 
 			if len(moduleInitializer.InitPatterns) > 0 {
 				for _, initPattern := range moduleInitializer.InitPatterns {
-					addInitializers(model, log, moduleInterface, moduleInterface.OnlyBuffer(), initPattern)
+					addInitializers(model, log, moduleInterface, moduleInterface.Buffers().At(0), initPattern)
 				}
 			} else if len(moduleInitializer.BufferInitPatterns) > 0 {
 				for _, bufferInit := range moduleInitializer.BufferInitPatterns {
