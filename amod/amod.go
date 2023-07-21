@@ -268,7 +268,6 @@ func setModuleParams(module modules.ModuleInterface, log *issueLog, fields []*fi
 			// value errors
 			case errors.As(err, &params.ErrInvalidType{}) ||
 				errors.As(err, &params.ErrInvalidOption{}) ||
-				errors.Is(err, params.ErrMustBePositive) ||
 				errors.As(err, &params.ErrOutOfRange{}):
 				log.errorTR(value.Tokens, 1, 1, "%s '%s' %v", moduleName, field.Key, err)
 				continue

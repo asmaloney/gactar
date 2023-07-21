@@ -17,6 +17,12 @@ type Imaginal struct {
 }
 
 func NewImaginal() *Imaginal {
+	delay := NewParamFloat(
+		"delay",
+		"time it takes a request to the buffer to complete (seconds)",
+		Ptr(0.0), nil,
+	)
+
 	return &Imaginal{
 		Module: Module{
 			Name:        "imaginal",
@@ -26,29 +32,23 @@ func NewImaginal() *Imaginal {
 				{Name: "imaginal", MultipleInit: false},
 			},
 			Params: ParamInfoMap{
-				"delay": {"delay", "time it takes a request to the buffer to complete (seconds)"},
+				"delay": delay,
 			},
 		},
 	}
 }
 
 func (i *Imaginal) SetParam(param *params.Param) (err error) {
+	err = i.ValidateParam(param)
+	if err != nil {
+		return
+	}
+
 	value := param.Value
 
 	switch param.Key {
 	case "delay":
-		if value.Number == nil {
-			return params.ErrInvalidType{ExpectedType: params.Number}
-		}
-
-		if *value.Number < 0 {
-			return params.ErrMustBePositive
-		}
-
 		i.Delay = value.Number
-
-	default:
-		return params.ErrUnrecognizedParam
 	}
 
 	return

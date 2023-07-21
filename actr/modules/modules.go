@@ -2,6 +2,9 @@
 package modules
 
 import (
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
+
 	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/params"
 )
@@ -28,9 +31,11 @@ type ModuleInterface interface {
 	Buffers() buffer.List
 
 	HasParameters() bool
-	ParameterNames() []string
-	ParameterInfo(name string) *ParamInfo
-	SetParam(param *params.Param) (err error)
+	Parameters() []ParamInterface
+	ParameterInfo(name string) ParamInterface
+
+	ValidateParam(param *params.Param) error
+	SetParam(param *params.Param) error
 }
 
 func (m Module) ModuleName() string {
@@ -53,21 +58,63 @@ func (m Module) HasParameters() bool {
 	return len(m.Params) > 0
 }
 
-func (m Module) ParameterInfo(name string) *ParamInfo {
+func (m Module) ParameterInfo(name string) ParamInterface {
 	info, ok := m.Params[name]
 	if ok {
-		return &info
+		return info
 	}
 
 	return nil
 }
 
-func (m Module) ParameterNames() (names []string) {
-	for _, param := range m.Params {
-		names = append(names, param.Name)
+// Parameters returns a slice of parameters sorted by name
+func (m Module) Parameters() []ParamInterface {
+	params := maps.Values(m.Params)
+
+	slices.SortFunc[ParamInterface](params, func(a, b ParamInterface) bool { return a.GetName() < b.GetName() })
+
+	return params
+}
+
+// ValidateParam given an actr param will validate it against our modules parameters
+func (m Module) ValidateParam(param *params.Param) (err error) {
+
+	paramInfo := m.ParameterInfo(param.Key)
+	if paramInfo == nil {
+		return params.ErrUnrecognizedParam
 	}
 
-	return names
+	min := paramInfo.GetMin()
+	max := paramInfo.GetMax()
+
+	value := param.Value
+
+	// we currently only have numbers
+	if value.Number == nil {
+		return params.ErrInvalidType{ExpectedType: params.Number}
+	}
+
+	if (min != nil) && (max != nil) &&
+		((*value.Number < *min) || (*value.Number > *max)) {
+		return params.ErrOutOfRange{
+			Min: min,
+			Max: max,
+		}
+	}
+
+	if min != nil && (*value.Number < *min) {
+		return params.ErrOutOfRange{
+			Min: min,
+		}
+	}
+
+	if max != nil && (*value.Number > *max) {
+		return params.ErrOutOfRange{
+			Max: max,
+		}
+	}
+
+	return
 }
 
 // AllModules returns a slice of all the modules
@@ -83,7 +130,6 @@ func AllModules() (modules []ModuleInterface) {
 
 // ModuleNames returns a slice of all the module names
 func ModuleNames() (names []string) {
-	// TODO: With go 1.21 we can get the keys all at once with Keys
 	for _, module := range AllModules() {
 		names = append(names, module.ModuleName())
 	}
