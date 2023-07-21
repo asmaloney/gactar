@@ -9,7 +9,6 @@ import (
 )
 
 var (
-	ErrMustBePositive    = errors.New("must be a positive number")
 	ErrUnrecognizedParam = errors.New("unrecognized option")
 )
 
@@ -57,10 +56,18 @@ func (e ErrInvalidOption) Error() string {
 }
 
 type ErrOutOfRange struct {
-	Min float64
-	Max float64
+	Min *float64
+	Max *float64
 }
 
 func (e ErrOutOfRange) Error() string {
-	return fmt.Sprintf("is out of range (%s-%s)", numbers.Float64Str(e.Min), numbers.Float64Str(e.Max))
+	if e.Min != nil && e.Max == nil {
+		return fmt.Sprintf("is out of range (minimum %s)", numbers.Float64Str(*e.Min))
+	}
+
+	if e.Min == nil && e.Max != nil {
+		return fmt.Sprintf("is out of range (maximum %s)", numbers.Float64Str(*e.Max))
+	}
+
+	return fmt.Sprintf("is out of range (%s-%s)", numbers.Float64Str(*e.Min), numbers.Float64Str(*e.Max))
 }

@@ -17,6 +17,12 @@ type Goal struct {
 }
 
 func NewGoal() *Goal {
+	spreadingActivation := NewParamFloat(
+		"spreading_activation",
+		"spreading activation weight",
+		Ptr(0.0), nil,
+	)
+
 	return &Goal{
 		Module: Module{
 			Name:        "goal",
@@ -26,29 +32,23 @@ func NewGoal() *Goal {
 				{Name: "goal", MultipleInit: false},
 			},
 			Params: ParamInfoMap{
-				"spreading_activation": {"spreading_activation", "spreading activation weight"},
+				"spreading_activation": spreadingActivation,
 			},
 		},
 	}
 }
 
 func (g *Goal) SetParam(param *params.Param) (err error) {
+	err = g.ValidateParam(param)
+	if err != nil {
+		return
+	}
+
 	value := param.Value
 
 	switch param.Key {
 	case "spreading_activation":
-		if value.Number == nil {
-			return params.ErrInvalidType{ExpectedType: params.Number}
-		}
-
-		if *value.Number < 0 {
-			return params.ErrMustBePositive
-		}
-
 		g.SpreadingActivation = value.Number
-
-	default:
-		return params.ErrUnrecognizedParam
 	}
 
 	return

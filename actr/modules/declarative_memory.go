@@ -94,6 +94,60 @@ type DeclarativeMemory struct {
 }
 
 func NewDeclarativeMemory() *DeclarativeMemory {
+	decay := NewParamFloat(
+		"decay",
+		"the 'base-level learning' decay parameter",
+		Ptr(0.0), Ptr(1.0),
+	)
+
+	finstSize := NewParamInt(
+		"finst_size",
+		"how many chunks are retained in memory",
+		Ptr(0), nil,
+	)
+
+	finstTime := NewParamFloat(
+		"finst_time",
+		"how long the finst lasts in memory",
+		Ptr(0.0), nil,
+	)
+
+	instNoise := NewParamFloat(
+		"instantaneous_noise",
+		"turns on the activation noise calculation & sets instantaneous noise",
+		Ptr(0.0), nil,
+	)
+
+	latencyExponent := NewParamFloat(
+		"latency_exponent",
+		"latency exponent (f)",
+		Ptr(0.0), nil,
+	)
+
+	latencyFactor := NewParamFloat(
+		"latency_factor",
+		"latency latency_factor (F)",
+		Ptr(0.0), nil,
+	)
+
+	maxSpreadStrength := NewParamFloat(
+		"max_spread_strength",
+		"turns on the spreading activation calculation & sets the maximum associative strength",
+		nil, nil,
+	)
+
+	mismatchPenalty := NewParamFloat(
+		"mismatch_penalty",
+		"turns on partial matching and sets the penalty in the activation equation",
+		nil, nil,
+	)
+
+	retrievalThreshold := NewParamFloat(
+		"retrieval_threshold",
+		"retrieval threshold (τ)",
+		nil, nil,
+	)
+
 	return &DeclarativeMemory{
 		Module: Module{
 			Name:        "memory",
@@ -103,15 +157,15 @@ func NewDeclarativeMemory() *DeclarativeMemory {
 				{Name: "retrieval", MultipleInit: true},
 			},
 			Params: ParamInfoMap{
-				"decay":               {"decay", "the 'base-level learning' decay parameter"},
-				"finst_size":          {"finst_size", "how many chunks are retained in memory"},
-				"finst_time":          {"finst_time", "how long the finst lasts in memory"},
-				"instantaneous_noise": {"instantaneous_noise", "turns on the activation noise calculation & sets instantaneous noise"},
-				"latency_exponent":    {"latency_exponent", "latency exponent (f)"},
-				"latency_factor":      {"latency_factor", "latency factor (F)"},
-				"max_spread_strength": {"max_spread_strength", "turns on the spreading activation calculation & sets the maximum associative strength"},
-				"mismatch_penalty":    {"mismatch_penalty", "turns on partial matching and sets the penalty in the activation equation"},
-				"retrieval_threshold": {"retrieval_threshold", "retrieval threshold (τ)"},
+				"decay":               decay,
+				"finst_size":          finstSize,
+				"finst_time":          finstTime,
+				"instantaneous_noise": instNoise,
+				"latency_exponent":    latencyExponent,
+				"latency_factor":      latencyFactor,
+				"max_spread_strength": maxSpreadStrength,
+				"mismatch_penalty":    mismatchPenalty,
+				"retrieval_threshold": retrievalThreshold,
 			},
 		},
 	}
@@ -123,98 +177,41 @@ func (d DeclarativeMemory) BufferName() string {
 }
 
 func (d *DeclarativeMemory) SetParam(param *params.Param) (err error) {
+	err = d.ValidateParam(param)
+	if err != nil {
+		return
+	}
+
 	value := param.Value
 
 	switch param.Key {
 	case "latency_factor":
-		if value.Number == nil {
-			return params.ErrInvalidType{ExpectedType: params.Number}
-		}
-
-		if *value.Number < 0 {
-			return params.ErrMustBePositive
-		}
-
 		d.LatencyFactor = value.Number
 
 	case "latency_exponent":
-		if value.Number == nil {
-			return params.ErrInvalidType{ExpectedType: params.Number}
-		}
-
-		if *value.Number < 0 {
-			return params.ErrMustBePositive
-		}
-
 		d.LatencyExponent = value.Number
 
 	case "retrieval_threshold":
-		if value.Number == nil {
-			return params.ErrInvalidType{ExpectedType: params.Number}
-		}
-
 		d.RetrievalThreshold = value.Number
 
 	case "finst_size":
-		if value.Number == nil {
-			return params.ErrInvalidType{ExpectedType: params.Number}
-		}
-
 		size := int(*value.Number)
-		if size < 0 {
-			return params.ErrMustBePositive
-		}
-
 		d.FinstSize = &size
 
 	case "finst_time":
-		if value.Number == nil {
-			return params.ErrInvalidType{ExpectedType: params.Number}
-		}
-
 		d.FinstTime = value.Number
 
 	case "decay":
-		if value.Number == nil {
-			return params.ErrInvalidType{ExpectedType: params.Number}
-		}
-
-		if *value.Number < 0 || *value.Number > 1 {
-			return params.ErrOutOfRange{
-				Min: 0.0,
-				Max: 1.0,
-			}
-		}
-
 		d.Decay = value.Number
 
 	case "max_spread_strength":
-		if value.Number == nil {
-			return params.ErrInvalidType{ExpectedType: params.Number}
-		}
-
 		d.MaxSpreadStrength = value.Number
 
 	case "instantaneous_noise":
-		if value.Number == nil {
-			return params.ErrInvalidType{ExpectedType: params.Number}
-		}
-
-		if *value.Number < 0 {
-			return params.ErrMustBePositive
-		}
-
 		d.InstantaneousNoise = value.Number
 
 	case "mismatch_penalty":
-		if value.Number == nil {
-			return params.ErrInvalidType{ExpectedType: params.Number}
-		}
-
 		d.MismatchPenalty = value.Number
-
-	default:
-		return params.ErrUnrecognizedParam
 	}
 
 	return

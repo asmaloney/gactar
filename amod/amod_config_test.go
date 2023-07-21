@@ -263,7 +263,7 @@ func Example_imaginalFieldRange() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: imaginal 'delay' must be a positive number (line 6, col 20)
+	// ERROR: imaginal 'delay' is out of range (minimum 0) (line 6, col 20)
 }
 
 func Example_imaginalFieldUnrecognized() {
@@ -303,6 +303,21 @@ func Example_memoryDecayOutOfRange() {
 	~~ config ~~
 	modules {
 		memory { decay: -0.5 }
+	}
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+	// ERROR: memory 'decay' is out of range (0-1) (line 6, col 18)
+}
+
+func Example_memoryDecayOutOfRange2() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	modules {
+		memory { decay: 1.5 }
 	}
 	~~ init ~~
 	~~ productions ~~`)
