@@ -70,6 +70,18 @@ func info(args []string) {
 		fmt.Println(chalk.Header(" Description"))
 		fmt.Printf("  %s\n", mod.ModuleDescription())
 
+		if mod.HasBuffers() {
+			fmt.Println(chalk.Header(" Buffers"))
+
+			writer := tabwriter.NewWriter(os.Stdout, 1, 1, 3, ' ', 0)
+			for _, buffer := range mod.Buffers() {
+				fmt.Fprintf(writer, "\t%s", chalk.Italic(buffer.Name))
+			}
+			writer.Flush()
+
+			fmt.Println("")
+		}
+
 		if mod.HasParameters() {
 			fmt.Println(chalk.Header(" Parameters"))
 			params := mod.Parameters()

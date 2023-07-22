@@ -28,6 +28,7 @@ type ModuleInterface interface {
 	ModuleVersion() string
 	ModuleDescription() string
 
+	HasBuffers() bool
 	Buffers() buffer.List
 
 	HasParameters() bool
@@ -48,6 +49,10 @@ func (m Module) ModuleVersion() string {
 
 func (m Module) ModuleDescription() string {
 	return m.Description
+}
+
+func (m Module) HasBuffers() bool {
+	return len(m.BufferList) > 0
 }
 
 func (m Module) Buffers() buffer.List {

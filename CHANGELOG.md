@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Added
 
 - New command-line command `module` outputs information about modules. Currently includes two subcommands:
-  - `info [name]` outputs detailed info about a module - name, version, description, and any parameters. `name` can be a space-separated list of modules or `all`.
+  - `info [name]` outputs detailed info about a module - name, version, description, any buffers, and any parameters. `name` can be a space-separated list of modules or `all`.
   - `list` outputs the list of modules - name, version, and description
 
 ### Changed
