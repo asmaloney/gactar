@@ -93,6 +93,7 @@ type DeclarativeMemory struct {
 	MismatchPenalty *float64
 }
 
+// NewDeclarativeMemory creates and returns a new DeclarativeMemory module
 func NewDeclarativeMemory() *DeclarativeMemory {
 	decay := NewParamFloat(
 		"decay",
@@ -176,6 +177,7 @@ func (d DeclarativeMemory) BufferName() string {
 	return d.Buffers().At(0).BufferName()
 }
 
+// SetParam is called to set our module's parameter from the parameter in the code ("param")
 func (d *DeclarativeMemory) SetParam(param *params.Param) (err error) {
 	err = d.ValidateParam(param)
 	if err != nil {

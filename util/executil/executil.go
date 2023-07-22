@@ -1,3 +1,4 @@
+// Package executil implements a function for executing a command line.
 package executil
 
 import (

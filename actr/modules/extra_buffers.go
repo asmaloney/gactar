@@ -10,6 +10,7 @@ type ExtraBuffers struct {
 	Module
 }
 
+// NewExtraBuffers creates and returns a new ExtraBuffers module
 func NewExtraBuffers() *ExtraBuffers {
 	return &ExtraBuffers{
 		Module: Module{
@@ -20,6 +21,7 @@ func NewExtraBuffers() *ExtraBuffers {
 	}
 }
 
+// SetParam is called to set our module's parameter from the parameter in the code ("param")
 func (eb *ExtraBuffers) SetParam(param *params.Param) (err error) {
 	newBuffer := buffer.Buffer{
 		Name:         param.Key,

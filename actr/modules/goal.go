@@ -16,6 +16,7 @@ type Goal struct {
 	SpreadingActivation *float64
 }
 
+// NewGoal creates and returns a new Goal module
 func NewGoal() *Goal {
 	spreadingActivation := NewParamFloat(
 		"spreading_activation",
@@ -38,6 +39,7 @@ func NewGoal() *Goal {
 	}
 }
 
+// SetParam is called to set our module's parameter from the parameter in the code ("param")
 func (g *Goal) SetParam(param *params.Param) (err error) {
 	err = g.ValidateParam(param)
 	if err != nil {

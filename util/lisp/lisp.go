@@ -1,3 +1,4 @@
+// Package lisp implements functions for working with the Clozure Common Lisp executables.
 package lisp
 
 import (

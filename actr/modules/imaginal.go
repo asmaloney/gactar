@@ -16,6 +16,7 @@ type Imaginal struct {
 	Delay *float64
 }
 
+// NewImaginal creates and returns a new Imaginal module
 func NewImaginal() *Imaginal {
 	delay := NewParamFloat(
 		"delay",
@@ -38,6 +39,7 @@ func NewImaginal() *Imaginal {
 	}
 }
 
+// SetParam is called to set our module's parameter from the parameter in the code ("param")
 func (i *Imaginal) SetParam(param *params.Param) (err error) {
 	err = i.ValidateParam(param)
 	if err != nil {

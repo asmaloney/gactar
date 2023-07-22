@@ -1,3 +1,4 @@
+// Package buffer implements ACT-R buffers.
 package buffer
 
 import (

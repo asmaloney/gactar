@@ -1,3 +1,4 @@
+// Package framework implements the abstract framework used by the concrete implementations.
 package framework
 
 import (

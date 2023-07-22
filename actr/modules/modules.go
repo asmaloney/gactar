@@ -1,4 +1,4 @@
-// Package modules implements several ACT-R modules.
+// Package modules implements a module interface and several built-in ACT-R modules.
 package modules
 
 import (
@@ -17,9 +17,9 @@ type Module struct {
 	Version     string
 	Description string
 
-	BufferList buffer.List
+	BufferList buffer.List // The buffers this module provides (may be empty)
 
-	Params ParamInfoMap
+	Params ParamInfoMap // Parameters accepted by this module (may be empty)
 }
 
 // ModuleInterface provides an interface for the ACT-R concept of a "module".
@@ -63,6 +63,7 @@ func (m Module) HasParameters() bool {
 	return len(m.Params) > 0
 }
 
+// ParameterInfo returns the detailed info about a specific parameter given by "name"
 func (m Module) ParameterInfo(name string) ParamInterface {
 	info, ok := m.Params[name]
 	if ok {
