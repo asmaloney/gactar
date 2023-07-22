@@ -1,3 +1,4 @@
+// Package decompress implements routines for unzipping and "untarring".
 package decompress
 
 import (
@@ -20,6 +21,7 @@ func (e ErrZipInvalidFilePath) Error() string {
 	return fmt.Sprintf("invalid file path: %q", e.FilePath)
 }
 
+// Untar a file to a target directory.
 func UntarFile(filePath, targetDir string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -30,6 +32,7 @@ func UntarFile(filePath, targetDir string) error {
 	return Untar(file, targetDir)
 }
 
+// Untar a reader to a target directory.
 func Untar(reader io.Reader, targetDir string) error {
 	gzr, err := gzip.NewReader(reader)
 	if err != nil {
@@ -87,6 +90,7 @@ func Untar(reader io.Reader, targetDir string) error {
 	}
 }
 
+// Unzip a file to a target directory.
 func Unzip(filePath, targetDir string) (err error) {
 	archive, err := zip.OpenReader(filePath)
 	if err != nil {

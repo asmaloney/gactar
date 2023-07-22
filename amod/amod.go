@@ -1,3 +1,4 @@
+// Package amod implements parsing of amod files into actr.Models.
 package amod
 
 import (

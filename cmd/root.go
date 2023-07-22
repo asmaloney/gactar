@@ -1,3 +1,4 @@
+// Package cmd implements our command-line commands for working with gactar.
 package cmd
 
 import (

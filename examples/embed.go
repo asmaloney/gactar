@@ -1,3 +1,5 @@
+// Package examples works around the problem of embedding relative paths and
+// is used to embed the examples.
 package examples
 
 import (

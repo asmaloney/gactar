@@ -14,6 +14,7 @@ type Procedural struct {
 	DefaultActionTime *float64
 }
 
+// NewProcedural creates and returns a new Procedural module
 func NewProcedural() *Procedural {
 	defActionTime := NewParamFloat(
 		"default_action_time",
@@ -33,6 +34,7 @@ func NewProcedural() *Procedural {
 	}
 }
 
+// SetParam is called to set our module's parameter from the parameter in the code ("param")
 func (p *Procedural) SetParam(param *params.Param) (err error) {
 	err = p.ValidateParam(param)
 	if err != nil {

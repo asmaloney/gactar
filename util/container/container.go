@@ -1,3 +1,4 @@
+// Package container implements some routines for working with slices.
 package container
 
 import (

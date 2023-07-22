@@ -1,14 +1,18 @@
 package modules
 
+// Ptr simply returns a pointer to a literal. e.g. Ptr(0.5)
+// This is useful when passing literals to functions which require pointers to basic types.
 func Ptr[T any](v T) *T {
 	return &v
 }
 
+// ParamInfo is the basic info about a parameter
 type ParamInfo struct {
 	Name        string
 	Description string
 }
 
+// ParamInt is an int parameter with optional min and max constraints
 type ParamInt struct {
 	ParamInfo
 
@@ -16,6 +20,7 @@ type ParamInt struct {
 	Max *int
 }
 
+// ParamFloat is a float parameter with optional min and max constraints
 type ParamFloat struct {
 	ParamInfo
 
@@ -23,6 +28,7 @@ type ParamFloat struct {
 	Max *float64
 }
 
+// ParamInterface provides an interface to a parameter
 type ParamInterface interface {
 	GetName() string
 	GetDescription() string
@@ -31,6 +37,7 @@ type ParamInterface interface {
 	GetMax() *float64
 }
 
+// ParamInfoMap maps a name to the parameter's info
 type ParamInfoMap map[string]ParamInterface
 
 func (p ParamInfo) GetName() string {
@@ -60,6 +67,7 @@ func (p ParamInt) GetMax() *float64 {
 func (p ParamFloat) GetMin() *float64 { return p.Min }
 func (p ParamFloat) GetMax() *float64 { return p.Max }
 
+// NewParamInt creates a new int param with optional min/max constraints
 func NewParamInt(name, description string, min, max *int) ParamInt {
 	return ParamInt{
 		ParamInfo{name, description},
@@ -67,6 +75,7 @@ func NewParamInt(name, description string, min, max *int) ParamInt {
 	}
 }
 
+// NewParamFloat creates a new float param with optional min/max constraints
 func NewParamFloat(name, description string, min, max *float64) ParamFloat {
 	return ParamFloat{
 		ParamInfo{name, description},

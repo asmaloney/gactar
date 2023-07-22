@@ -1,3 +1,4 @@
+// Package params implements parsed parameter information.
 package params
 
 import (
@@ -17,6 +18,7 @@ type Value struct {
 	Field  *Param
 }
 
+// Param is the key/value of a parameter from the parsed amod code.
 type Param struct {
 	Key   string
 	Value Value
