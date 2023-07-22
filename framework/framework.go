@@ -4,9 +4,10 @@ package framework
 import (
 	"time"
 
+	"golang.org/x/exp/slices"
+
 	"github.com/asmaloney/gactar/actr"
 
-	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/version"
 )
@@ -92,7 +93,7 @@ func (l List) Exists(framework string) bool {
 
 // IsValidFramework returns if the framework name is in our list of valid ones or not.
 func IsValidFramework(frameworkName string) bool {
-	return container.Contains(frameworkName, ValidFrameworks)
+	return slices.Contains(ValidFrameworks, frameworkName)
 }
 
 // ValidNamedFrameworks returns the list of all valid framework names without "all".

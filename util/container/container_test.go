@@ -2,28 +2,6 @@ package container
 
 import "testing"
 
-func TestContains(t *testing.T) {
-	t.Parallel()
-
-	list := []string{"a", "b", "c", "d"}
-
-	contains := Contains("a", list)
-	if !contains {
-		t.Errorf("Incorrect return: expected true")
-	}
-
-	contains = Contains("", list)
-	if contains {
-		t.Errorf("Incorrect return: expected false")
-	}
-
-	// Check case-sensitivity
-	contains = Contains("C", list)
-	if contains {
-		t.Errorf("Incorrect return: expected false")
-	}
-}
-
 func TestGetIndex1(t *testing.T) {
 	t.Parallel()
 

@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"golang.org/x/exp/slices"
+
 	"github.com/jwalton/gchalk"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -17,7 +19,6 @@ import (
 	"github.com/asmaloney/gactar/modes/defaultmode"
 	"github.com/asmaloney/gactar/util/chalk"
 	"github.com/asmaloney/gactar/util/cli"
-	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/frameworkutil"
 	"github.com/asmaloney/gactar/util/version"
@@ -284,7 +285,7 @@ func createFrameworks(settings *cli.Settings, flags *pflag.FlagSet) (frameworks 
 
 	// If the user asked for "all", then clear the list.
 	// frameworkutil.CreateFrameworks() will create all valid ones.
-	if container.Contains("all", list) {
+	if slices.Contains(list, "all") {
 		list = []string{}
 	}
 
