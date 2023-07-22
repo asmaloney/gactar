@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"golang.org/x/exp/slices"
+
 	"github.com/alecthomas/participle/v2"
 
 	"github.com/asmaloney/gactar/actr"
@@ -13,7 +15,6 @@ import (
 	"github.com/asmaloney/gactar/actr/modules"
 	"github.com/asmaloney/gactar/actr/params"
 
-	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/issues"
 )
 
@@ -335,7 +336,7 @@ func addChunks(model *actr.Model, log *issueLog, chunks []*chunkDecl) {
 func addInitializers(model *actr.Model, log *issueLog, module modules.ModuleInterface, buffer buffer.Interface, init *namedInitializer) {
 	// Check for duplicate initializer names.
 	// Note that this can't be checked in validateInitialization because model.ExplicitChunks is not filled in yet.
-	if init.ChunkName != nil && container.Contains(*init.ChunkName, model.ExplicitChunks) {
+	if init.ChunkName != nil && slices.Contains(model.ExplicitChunks, *init.ChunkName) {
 		log.errorTR(init.Tokens, 0, 1, "duplicate chunk name %q found in initialization", *init.ChunkName)
 		return
 	}

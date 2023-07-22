@@ -1,6 +1,6 @@
 package actr
 
-import "github.com/asmaloney/gactar/util/container"
+import "golang.org/x/exp/slices"
 
 type ACTRLogLevel string
 
@@ -11,5 +11,5 @@ var ACTRLoggingLevels = []string{
 }
 
 func ValidLogLevel(e string) bool {
-	return container.Contains(e, ACTRLoggingLevels)
+	return slices.Contains(ACTRLoggingLevels, e)
 }

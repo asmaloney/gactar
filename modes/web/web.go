@@ -14,6 +14,8 @@ import (
 	"strings"
 	"sync"
 
+	"golang.org/x/exp/slices"
+
 	"github.com/jwalton/gchalk"
 	"github.com/vearutop/statigz"
 	"github.com/vearutop/statigz/brotli"
@@ -206,7 +208,7 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 func (w Web) normalizeFrameworkList(list []string) (normalized []string) {
 	normalized = list
 
-	if list == nil || container.Contains("all", list) {
+	if list == nil || slices.Contains(list, "all") {
 		normalized = w.settings.Frameworks.Names()
 	}
 

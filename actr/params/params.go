@@ -1,9 +1,7 @@
 // Package params implements parsed parameter information.
 package params
 
-import (
-	"github.com/asmaloney/gactar/util/container"
-)
+import "golang.org/x/exp/slices"
 
 var boolean = []string{
 	"true",
@@ -25,7 +23,7 @@ type Param struct {
 }
 
 func (v Value) AsBool() (bool, error) {
-	if (v.ID == nil) || !container.Contains(*v.ID, boolean) {
+	if (v.ID == nil) || !slices.Contains(boolean, *v.ID) {
 		return false, ErrInvalidType{ExpectedType: Boolean}
 	}
 

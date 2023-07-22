@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/asmaloney/gactar/util/container"
+	"golang.org/x/exp/slices"
 )
 
 // validBufferStates is a list of the valid buffer states to use with the _status chunk
@@ -75,7 +75,7 @@ func (b List) Names() (names []string) {
 func (b List) Has(name string) bool {
 	names := b.Names()
 
-	return container.Contains(name, names)
+	return slices.Contains(names, name)
 }
 
 // At returns the buffer at "index" or nil if out of range

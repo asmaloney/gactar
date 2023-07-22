@@ -1,6 +1,10 @@
 package actr
 
-import "github.com/asmaloney/gactar/util/container"
+import (
+	"golang.org/x/exp/slices"
+
+	"github.com/asmaloney/gactar/util/container"
+)
 
 // See "Default Chunks" pg. 80 of ACT-R manual.
 var reservedChunkNames = []string{"busy", "clear", "empty", "error", "failure", "free", "full", "requested", "unrequested"}
@@ -20,7 +24,7 @@ func IsInternalChunkType(name string) bool {
 // IsReservedType checks if the slot name is reserved.
 // See "Default Chunks" pg. 80 of ACT-R manual.
 func IsReservedType(name string) bool {
-	return container.Contains(name, reservedChunkNames)
+	return slices.Contains(reservedChunkNames, name)
 }
 
 // LookupChunk looks up the chunk (by type name) in the model and returns it (or nil if it does not exist).
@@ -45,7 +49,7 @@ func (c Chunk) IsInternal() bool {
 
 // HasSlot checks if the slot name exists on this chunk.
 func (chunk Chunk) HasSlot(slot string) bool {
-	return container.Contains(slot, chunk.SlotNames)
+	return slices.Contains(chunk.SlotNames, slot)
 }
 
 // SlotIndex returns the slot index (indexed from 1) of the slot name or -1 if not found.
