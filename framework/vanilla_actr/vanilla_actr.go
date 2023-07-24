@@ -374,7 +374,7 @@ func (v VanillaACTR) writeInitializers(goal *actr.Pattern) {
 			if init.ChunkName != nil {
 				v.Writeln(" (%s", *init.ChunkName)
 			} else {
-				v.Writeln(" (fact_%d", factNum)
+				v.Writeln(" (%s_%d", init.Pattern.Chunk.TypeName, factNum)
 				factNum++
 			}
 
