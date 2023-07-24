@@ -29,8 +29,8 @@ gactar {
 
 // Declare chunk types and their layouts
 chunks {
-    [add: first second count sum]
-    [count: first second]
+    [add: num1 num2 count sum]
+    [count: number next]
 }
 
 ~~ init ~~
@@ -59,7 +59,7 @@ initializeAddition {
     
     // Buffers to match
     match {
-        goal [add: ?num1 * nil nil]
+        goal [add: ?num1 * * nil]
     }
     // Statements to execute
     do {
@@ -71,10 +71,10 @@ initializeAddition {
 
 terminateAddition {
     match {
-        goal [add: * ?num2 ?num2 ?sum]
+        goal [add: * ?num2 ?num2 ?answer]
     }
     do {
-        print ?sum
+        print ?answer
         stop
     }
 }
