@@ -86,7 +86,7 @@ processCarry {
 noCarry {
     match {
         goal [add_pair: ?ten1 * ?ten2 * * * 'busy']
-        retrieval [_status: error]
+        retrieval module error
     }
     do {
         set goal.ten_ans to 'busy'

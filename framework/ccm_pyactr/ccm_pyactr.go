@@ -471,16 +471,22 @@ func (c CCMPyACTR) outputPattern(pattern *actr.Pattern) {
 }
 
 func (c CCMPyACTR) outputMatch(match *actr.Match) {
-	bufferName := match.Buffer.BufferName()
+	switch {
+	case match.BufferPattern != nil:
+		bufferName := match.BufferPattern.Buffer.BufferName()
 
-	if match.BufferStatus != nil {
-		if bufferName == "retrieval" {
-			bufferName = "memory"
-		}
-		c.Write("%s='%s:True'", bufferName, *match.BufferStatus)
-	} else {
 		c.Write("%s=", bufferName)
-		c.outputPattern(match.Pattern)
+		c.outputPattern(match.BufferPattern.Pattern)
+
+	case match.BufferState != nil:
+		bufferName := match.BufferState.Buffer.BufferName()
+
+		c.Write("%s='%s:True'", bufferName, match.BufferState.State)
+
+	case match.ModuleState != nil:
+		bufferName := match.ModuleState.Buffer.BufferName()
+
+		c.Write("%s='%s:True'", bufferName, match.ModuleState.State)
 	}
 }
 

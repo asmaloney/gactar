@@ -29,8 +29,8 @@ type Module struct {
 	Params ParamInfoMap // Parameters accepted by this module (may be empty)
 }
 
-// ModuleInterface provides an interface for the ACT-R concept of a "module".
-type ModuleInterface interface {
+// Interface provides an interface for the ACT-R concept of a "module".
+type Interface interface {
 	ModuleName() string
 	ModuleVersion() string
 	ModuleDescription() string
@@ -131,7 +131,7 @@ func (m Module) ValidateParam(param *params.Param) (err error) {
 }
 
 // AllModules returns a slice of all the modules
-func AllModules() (modules []ModuleInterface) {
+func AllModules() (modules []Interface) {
 	modules = append(modules, NewExtraBuffers())
 	modules = append(modules, NewGoal())
 	modules = append(modules, NewImaginal())
@@ -151,7 +151,7 @@ func ModuleNames() (names []string) {
 }
 
 // FindModule finds a module by name or returns nil if not found
-func FindModule(name string) ModuleInterface {
+func FindModule(name string) Interface {
 	for _, module := range AllModules() {
 		if module.ModuleName() == name {
 			return module
