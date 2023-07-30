@@ -4,6 +4,7 @@ import (
 	"github.com/alecthomas/participle/v2/lexer"
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/actr/buffer"
+	"github.com/asmaloney/gactar/actr/modules"
 
 	"github.com/asmaloney/gactar/util/issues"
 )
@@ -118,6 +119,83 @@ func validatePattern(model *actr.Model, log *issueLog, pattern *pattern) (err er
 	return
 }
 
+// validateChunkMatch verifies several aspects of a chunk match item.
+func validateChunkMatch(item *matchChunkItem, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
+	name := item.Name
+
+	bufferInterface := model.LookupBuffer(name)
+	if bufferInterface == nil {
+		log.errorTR(item.Tokens, 0, 1, "buffer '%s' not found in production '%s'", name, production.Name)
+		err = ErrCompile
+		return
+	}
+
+	pattern := item.Pattern
+	pattern_err := validatePattern(model, log, pattern)
+	if pattern_err != nil {
+		err = ErrCompile
+	}
+
+	// check _status chunks to ensure they have one of the allowed tests
+	if pattern.ChunkName == "_status" {
+		slot := *pattern.Slots[0]
+		slotItem := slot.ID
+		if slotItem == nil {
+			log.errorT(slot.Tokens,
+				"invalid _status for '%s' in production '%s' (should be one of: %v)",
+				name, production.Name, modules.ValidStatesStr())
+			err = ErrCompile
+		} else if !modules.IsValidState(*slotItem) {
+			log.errorT(slot.Tokens,
+				"invalid _status '%s' for '%s' in production '%s' (should be one of: %v)",
+				*slotItem, name, production.Name, modules.ValidStatesStr())
+			err = ErrCompile
+		}
+	}
+
+	// If we have constraints, check them
+	if item.When != nil {
+		for _, expr := range *item.When.Expressions {
+			// Check that we haven't negated it in the pattern and then tried to constrain it further
+			for _, slot := range pattern.Slots {
+				if slot.Not && slot.Var != nil {
+					if expr.LHS == *slot.Var {
+						log.errorTR(expr.Tokens, 1, 2, "cannot further constrain a negated variable '%s'", expr.LHS)
+						break
+					}
+				}
+			}
+
+			// Check that we aren't comparing to ourselves
+			if expr.RHS.Var != nil && expr.LHS == *expr.RHS.Var {
+				log.errorT(expr.RHS.Tokens, "cannot compare a variable to itself '%s'", expr.LHS)
+			}
+		}
+	}
+
+	return
+}
+
+// validateBufferStatusMatch verifies several aspects of a buffer status match item.
+func validateBufferStatusMatch(item *matchBufferStatusItem, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
+	name := item.Name
+
+	bufferInterface := model.LookupBuffer(name)
+	if bufferInterface == nil {
+		log.errorTR(item.Tokens, 0, 1, "buffer '%s' not found in production '%s'", name, production.Name)
+		err = ErrCompile
+	}
+
+	if !buffer.IsValidState(item.Status) {
+		log.errorT(item.Tokens,
+			"invalid status '%s' for buffer '%s' in production '%s' (should be one of: %v)",
+			item.Status, name, production.Name, buffer.ValidStatesStr())
+		err = ErrCompile
+	}
+
+	return
+}
+
 // validateMatch verifies several aspects of a match item.
 func validateMatch(match *match, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
 	if match == nil {
@@ -125,58 +203,10 @@ func validateMatch(match *match, model *actr.Model, log *issueLog, production *a
 	}
 
 	for _, item := range match.Items {
-		name := item.Name
-
-		bufferInterface := model.LookupBuffer(name)
-		if bufferInterface == nil {
-			log.errorTR(item.Tokens, 0, 1, "buffer '%s' not found in production '%s'", name, production.Name)
-			err = ErrCompile
-			continue
-		}
-
-		pattern := item.Pattern
-		pattern_err := validatePattern(model, log, pattern)
-		if pattern_err != nil {
-			err = ErrCompile
-		}
-
-		// check _status chunks to ensure they have one of the allowed tests
-		if pattern.ChunkName == "_status" {
-			slot := *pattern.Slots[0]
-			slotItem := slot.ID
-
-			if slotItem == nil {
-				log.errorT(slot.Tokens,
-					"invalid _status for '%s' in production '%s' (should be %v)",
-					name, production.Name, buffer.ValidBufferStatesStr())
-				err = ErrCompile
-
-			} else if !buffer.IsValidBufferState(*slotItem) {
-				log.errorT(slot.Tokens,
-					"invalid _status '%s' for '%s' in production '%s' (should be %v)",
-					*slotItem, name, production.Name, buffer.ValidBufferStatesStr())
-				err = ErrCompile
-			}
-		}
-
-		// If we have constraints, check them
-		if item.When != nil {
-			for _, expr := range *item.When.Expressions {
-				// Check that we haven't negated it in the pattern and then tried to constrain it further
-				for _, slot := range pattern.Slots {
-					if slot.Not && slot.Var != nil {
-						if expr.LHS == *slot.Var {
-							log.errorTR(expr.Tokens, 1, 2, "cannot further constrain a negated variable '%s'", expr.LHS)
-							break
-						}
-					}
-				}
-
-				// Check that we aren't comparing to ourselves
-				if expr.RHS.Var != nil && expr.LHS == *expr.RHS.Var {
-					log.errorT(expr.RHS.Tokens, "cannot compare a variable to itself '%s'", expr.LHS)
-				}
-			}
+		if item.Chunk != nil {
+			err = validateChunkMatch(item.Chunk, model, log, production)
+		} else if item.BufferStatus != nil {
+			err = validateBufferStatusMatch(item.BufferStatus, model, log, production)
 		}
 	}
 
@@ -394,10 +424,15 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 
 	// Walk the matches and store var ref counts
 	for _, match := range match.Items {
-		addPatternRefs(match.Pattern, true)
+		// only need to consider chunk matchers
+		if match.Chunk == nil {
+			continue
+		}
 
-		if match.When != nil {
-			when := match.When
+		addPatternRefs(match.Chunk.Pattern, true)
+
+		if match.Chunk.When != nil {
+			when := match.Chunk.When
 
 			if when.Expressions != nil {
 				for _, expr := range *when.Expressions {

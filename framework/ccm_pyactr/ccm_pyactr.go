@@ -471,22 +471,15 @@ func (c CCMPyACTR) outputPattern(pattern *actr.Pattern) {
 }
 
 func (c CCMPyACTR) outputMatch(match *actr.Match) {
-	var name string
-	if match.Buffer != nil {
-		name = match.Buffer.BufferName()
-	}
+	bufferName := match.Buffer.BufferName()
 
-	chunkTypeName := match.Pattern.Chunk.TypeName
-	if actr.IsInternalChunkType(chunkTypeName) {
-		if chunkTypeName == "_status" {
-			status := match.Pattern.Slots[0]
-			if name == "retrieval" {
-				name = "memory"
-			}
-			c.Write("%s='%s:True'", name, status)
+	if match.BufferStatus != nil {
+		if bufferName == "retrieval" {
+			bufferName = "memory"
 		}
+		c.Write("%s='%s:True'", bufferName, *match.BufferStatus)
 	} else {
-		c.Write("%s=", name)
+		c.Write("%s=", bufferName)
 		c.outputPattern(match.Pattern)
 	}
 }

@@ -474,22 +474,22 @@ func (v VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 
 func (v VanillaACTR) outputMatch(match *actr.Match) {
 	bufferName := match.Buffer.BufferName()
-	chunkTypeName := match.Pattern.Chunk.TypeName
+	if match.BufferStatus != nil {
+		v.Writeln("\t?%s>", bufferName)
+		v.Writeln("\t\tbuffer %s", *match.BufferStatus)
+	} else {
+		chunkTypeName := match.Pattern.Chunk.TypeName
 
-	if actr.IsInternalChunkType(chunkTypeName) {
-		if chunkTypeName == "_status" {
-			status := match.Pattern.Slots[0]
-			v.Writeln("\t?%s>", bufferName)
-
-			if status.String() == "full" || status.String() == "empty" {
-				v.Writeln("\t\tbuffer %s", status)
-			} else {
+		if actr.IsInternalChunkType(chunkTypeName) {
+			if chunkTypeName == "_status" {
+				status := match.Pattern.Slots[0]
+				v.Writeln("\t?%s>", bufferName)
 				v.Writeln("\t\tstate %s", status)
 			}
+		} else {
+			v.Writeln("\t=%s>", bufferName)
+			v.outputPattern(match.Pattern, 2)
 		}
-	} else {
-		v.Writeln("\t=%s>", bufferName)
-		v.outputPattern(match.Pattern, 2)
 	}
 }
 

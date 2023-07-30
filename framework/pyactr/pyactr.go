@@ -476,23 +476,23 @@ func (p PyACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 
 func (p PyACTR) outputMatch(match *actr.Match) {
 	bufferName := match.Buffer.BufferName()
-	chunkName := match.Pattern.Chunk.TypeName
 
-	if actr.IsInternalChunkType(chunkName) {
-		if chunkName == "_status" {
-			status := match.Pattern.Slots[0]
-			p.Writeln("     ?%s>", bufferName)
+	if match.BufferStatus != nil {
+		p.Writeln("     ?%s>", bufferName)
+		p.Writeln("          buffer %s", *match.BufferStatus)
+	} else {
+		chunkName := match.Pattern.Chunk.TypeName
 
-			// Table 2.1 page 24 of pyactr book
-			if status.String() == "full" || status.String() == "empty" {
-				p.Writeln("          buffer %s", status)
-			} else {
+		if actr.IsInternalChunkType(chunkName) {
+			if chunkName == "_status" {
+				status := match.Pattern.Slots[0]
+				p.Writeln("     ?%s>", bufferName)
 				p.Writeln("          state %s", status)
 			}
+		} else {
+			p.Writeln("     =%s>", bufferName)
+			p.outputPattern(match.Pattern, 2)
 		}
-	} else {
-		p.Writeln("     =%s>", bufferName)
-		p.outputPattern(match.Pattern, 2)
 	}
 }
 

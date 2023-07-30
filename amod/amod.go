@@ -423,12 +423,24 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 		}
 
 		for _, match := range production.Match.Items {
-			pattern, err := createChunkPattern(model, log, match.Pattern)
+			// check for buffer status match first
+			if match.BufferStatus != nil {
+				name := match.BufferStatus.Name
+				actrMatch := actr.Match{
+					Buffer:       model.LookupBuffer(name),
+					BufferStatus: &match.BufferStatus.Status,
+				}
+
+				prod.Matches = append(prod.Matches, &actrMatch)
+				continue
+			}
+
+			pattern, err := createChunkPattern(model, log, match.Chunk.Pattern)
 			if err != nil {
 				continue
 			}
 
-			name := match.Name
+			name := match.Chunk.Name
 			actrMatch := actr.Match{
 				Buffer:  model.LookupBuffer(name),
 				Pattern: pattern,
@@ -454,8 +466,8 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 				}
 			}
 
-			if match.When != nil {
-				for _, expr := range *match.When.Expressions {
+			if match.Chunk.When != nil {
+				for _, expr := range *match.Chunk.When.Expressions {
 					comparison := actr.Equal
 
 					if expr.Comparison.NotEqual != nil {

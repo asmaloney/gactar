@@ -2,6 +2,8 @@
 package modules
 
 import (
+	"strings"
+
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 
@@ -10,6 +12,11 @@ import (
 )
 
 const BuiltIn = "built-in"
+
+var validStates = []string{
+	"busy",
+	"error",
+}
 
 // Module is an ACT-R module
 type Module struct {
@@ -152,4 +159,14 @@ func FindModule(name string) ModuleInterface {
 	}
 
 	return nil
+}
+
+// IsValidState checks if 'state' is a valid module state.
+func IsValidState(state string) bool {
+	return slices.Contains(validStates, state)
+}
+
+// ValidStatesStr returns a list of valid module states. Used for error output.
+func ValidStatesStr() string {
+	return strings.Join(validStates, ", ")
 }
