@@ -131,6 +131,7 @@ var keywords []string = []string{
 	"do",
 	"examples",
 	"gactar",
+	"is",
 	"match",
 	"modules",
 	"name",

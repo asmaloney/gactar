@@ -58,8 +58,11 @@ func (c Constraint) String() string {
 }
 
 type Match struct {
-	Buffer  buffer.Interface
-	Pattern *Pattern
+	Buffer buffer.Interface
+
+	// matches either a pattern or a buffer status
+	Pattern      *Pattern
+	BufferStatus *string
 }
 
 type Statement struct {

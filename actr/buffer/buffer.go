@@ -2,24 +2,17 @@
 package buffer
 
 import (
-	"fmt"
-	"sort"
 	"strings"
 
 	"golang.org/x/exp/slices"
 )
 
-// validBufferStates is a list of the valid buffer states to use with the _status chunk
+// validStates is a list of valid buffer states to use when matching
 // TODO: needs review and correction
 // See: https://github.com/asmaloney/gactar/discussions/221
-var validBufferStates = map[string]bool{
-	// buffer
-	"empty": true,
-	"full":  true,
-
-	// state
-	"busy":  true,
-	"error": true,
+var validStates = []string{
+	"empty",
+	"full",
 }
 
 type Buffer struct {
@@ -98,19 +91,12 @@ func (b List) Lookup(name string) Interface {
 	return nil
 }
 
-// IsValidBufferState checks if 'state' is a valid buffer state.
-func IsValidBufferState(state string) bool {
-	v, ok := validBufferStates[state]
-	return v && ok
+// IsValidState checks if 'state' is a valid buffer state.
+func IsValidState(state string) bool {
+	return slices.Contains(validStates, state)
 }
 
-// ValidBufferStatesStr returns a list of (sorted) valid buffer states. Used for error output.
-func ValidBufferStatesStr() string {
-	keys := make([]string, 0, len(validBufferStates))
-	for k := range validBufferStates {
-		keys = append(keys, fmt.Sprintf("'%s'", k))
-	}
-
-	sort.Strings(keys)
-	return strings.Join(keys, ", ")
+// ValidStatesStr returns a list of (sorted) valid buffer states. Used for error output.
+func ValidStatesStr() string {
+	return strings.Join(validStates, ", ")
 }

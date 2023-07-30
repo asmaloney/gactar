@@ -663,7 +663,7 @@ func Example_productionPrintStatement3() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval [_status: error] }
+		match { goal is empty }
 		do { print }
 	}`)
 
@@ -678,7 +678,7 @@ func Example_productionPrintStatementInvalidID() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval [_status: error] }
+		match { retrieval is empty }
 		do { print fooID }
 	}`)
 
@@ -694,7 +694,7 @@ func Example_productionPrintStatementInvalidNil() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval [_status: error] }
+		match { goal is empty }
 		do { print nil }
 	}`)
 
@@ -710,7 +710,7 @@ func Example_productionPrintStatementInvalidVar() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval [_status: error] }
+		match { retrieval is empty }
 		do { print ?fooVar }
 	}`)
 
@@ -726,7 +726,7 @@ func Example_productionPrintStatementWildcard() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval [_status: error] }
+		match { goal is empty }
 		do { print * }
 	}`)
 
@@ -734,7 +734,86 @@ func Example_productionPrintStatementWildcard() {
 	// ERROR: unexpected token "*" (expected "}") (line 9, col 13)
 }
 
-func Example_productionMatchInternal() {
+func Example_productionMatchBufferStatus() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { retrieval is empty }
+		do { print 42 }
+	}`)
+
+	// Output:
+}
+
+func Example_productionMatchBufferStatusInvalidBuffer() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { foo is empty }
+		do { print 42 }
+	}`)
+
+	// Output:
+	// ERROR: buffer 'foo' not found in production 'start' (line 8, col 10)
+}
+
+func Example_productionMatchBufferStatusInvalidStatus() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { retrieval is foo }
+		do { print 42 }
+	}`)
+
+	// Output:
+	// ERROR: invalid status 'foo' for buffer 'retrieval' in production 'start' (should be one of: empty, full) (line 8, col 10)
+}
+
+func Example_productionMatchBufferStatusInvalidString() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal is 'empty' }
+		do { print 42 }
+	}`)
+
+	// Output:
+	// ERROR: unexpected token "empty" (expected <ident>) (line 8, col 18)
+}
+
+func Example_productionMatchBufferStatusInvalidNumber() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal is 42 }
+		do { print 42 }
+	}`)
+
+	// Output:
+	// ERROR: unexpected token "42" (expected <ident>) (line 8, col 18)
+}
+
+func Example_productionMatchModuleStatus() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -749,7 +828,7 @@ func Example_productionMatchInternal() {
 	// Output:
 }
 
-func Example_productionMatchInternalSlots() {
+func Example_productionMatchModuleStatusInvalidStatus1() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -757,15 +836,15 @@ func Example_productionMatchInternalSlots() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval [_status: busy error] }
+		match { retrieval [_status: 'foo'] }
 		do { print 42 }
 	}`)
 
 	// Output:
-	// ERROR: invalid chunk - '_status' expects 1 slot (line 8, col 20)
+	// ERROR: invalid _status for 'retrieval' in production 'start' (should be one of: busy, error) (line 8, col 30)
 }
 
-func Example_productionMatchInternalInvalidStatus1() {
+func Example_productionMatchModuleStatusInvalidStatus2() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -773,58 +852,10 @@ func Example_productionMatchInternalInvalidStatus1() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal [_status: something] }
+		match { retrieval [ _status: bar ] }
 		do { print 42 }
 	}`)
 
 	// Output:
-	// ERROR: invalid _status 'something' for 'goal' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8, col 25)
-}
-
-func Example_productionMatchInternalInvalidStatus2() {
-	generateToStdout(`
-	~~ model ~~
-	name: Test
-	~~ config ~~
-	~~ init ~~
-	~~ productions ~~
-	start {
-		match { retrieval [_status: something] }
-		do { print 42 }
-	}`)
-
-	// Output:
-	// ERROR: invalid _status 'something' for 'retrieval' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8, col 30)
-}
-
-func Example_productionMatchInternalInvalidStatusString() {
-	generateToStdout(`
-	~~ model ~~
-	name: Test
-	~~ config ~~
-	~~ init ~~
-	~~ productions ~~
-	start {
-		match { goal [_status: 'something'] }
-		do { print 42 }
-	}`)
-
-	// Output:
-	// ERROR: invalid _status for 'goal' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8, col 25)
-}
-
-func Example_productionMatchInternalInvalidStatusNumber() {
-	generateToStdout(`
-	~~ model ~~
-	name: Test
-	~~ config ~~
-	~~ init ~~
-	~~ productions ~~
-	start {
-		match { goal [_status: 42] }
-		do { print 42 }
-	}`)
-
-	// Output:
-	// ERROR: invalid _status for 'goal' in production 'start' (should be 'busy', 'empty', 'error', 'full') (line 8, col 25)
+	// ERROR: invalid _status 'bar' for 'retrieval' in production 'start' (should be one of: busy, error) (line 8, col 31)
 }
