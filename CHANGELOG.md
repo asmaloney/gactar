@@ -12,6 +12,23 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Changed
 
+- Replace the magic internal `_status` chunk with proper support in the language.
+
+  - Buffer state matches now take the form `<buffer> state <state>`:
+
+    ```
+    retrieval state empty
+    ```
+
+  - Valid buffer states are `empty` & `full`.
+  - Module state matches now take the form `<buffer> module <state>`:
+
+    ```
+    retrieval module error
+    ```
+
+  - Valid module states are `busy` & `error`.
+
 - ACT-R (vanilla) was updated to version 7.27.7.
 
 ### Fixed

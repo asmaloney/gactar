@@ -663,23 +663,7 @@ Examples:
 
 #### Special Chunks
 
-User-defined chunks must not begin with underscore ('\_') - these are reserved for internal use. Currently there is one internal chunk - `_status` - which is used to check the status of buffers.
-
-It is used in a `match` as follows:
-
-```
-match {
-    goal [_status: full]
-    retrieval [_status: error]
-}
-```
-
-Valid statuses include:
-
-- `full` - the buffer contains a chunk
-- `empty` - the buffer does not contain a chunk
-- `busy` - the buffer is in the process of being filled
-- `error` - the last retrieval failed
+User-defined chunks must not begin with underscore ('\_') - these are reserved for internal use.
 
 ### Productions
 
@@ -702,11 +686,35 @@ The production name is used to trace the output when running a model.
 
 #### match
 
-The _match_ section matches buffers by _pattern_. These patterns match the chunks previously declared in the _config_ section and are parsed to ensure their format is consistent.
+The _match_ section allows checking buffer and module states, and matching buffers by _pattern_.
+
+Checking the buffer state takes the form `<buffer> state <state>`. For example, to check if the retrieval buffer is full:
+
+```
+retrieval state full
+```
+
+Valid buffer states are:
+
+- `empty` - the buffer does not contain a chunk
+- `full` - the buffer contains a chunk
+
+Checking the module state takes the form `<buffer> module <state>`. For example, to check if the retrieval module is in the error state:
+
+```
+retrieval module error
+```
+
+Valid module states are:
+
+- `busy` - the buffer is in the process of being filled
+- `error` - the last retrieval failed
+
+Matching buffer patterns reply on the chunks previously declared in the _config_ section and are parsed to ensure their format is consistent.
 
 Variables in production matches are preceded by `?` (e.g. `?object`). `*` denotes a wildcard (i.e. "match anything"). Using `!` negates the logic.
 
-Every match has an optional _when_ clause to add constraints to variable matches (see [example #3](#example-3) below).
+Every pattern match has an optional _when_ clause to add constraints to variable matches (see [example #3](#example-3) below).
 
 #### Example #1:
 

@@ -58,6 +58,11 @@ Production
 Match    ::= 'match' '{' MatchItem+ '}'
 
 MatchItem
+         ::= MatchBufferPatternItem
+           | MatchBufferStateItem
+           | MatchModuleStateItem
+
+MatchBufferPatternItem
          ::= ident Pattern WhenClause?
 
 WhenClause
@@ -75,6 +80,12 @@ Arg      ::= 'nil'
            | ident
            | string
            | number
+
+MatchBufferStateItem
+         ::= ident 'state' ident
+
+MatchModuleStateItem
+         ::= ident 'module' ident
 
 Do       ::= 'do' '{' Statement+ '}'
 
