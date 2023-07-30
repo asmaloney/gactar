@@ -31,7 +31,7 @@ type Model struct {
 	Authors     []string
 	Examples    []*Pattern
 
-	Modules    []modules.ModuleInterface
+	Modules    []modules.Interface
 	Memory     *modules.DeclarativeMemory // memory is always present
 	Goal       *modules.Goal              // goal is always present
 	Procedural *modules.Procedural        // procedural is always present
@@ -58,7 +58,7 @@ type Model struct {
 }
 
 type Initializer struct {
-	Module modules.ModuleInterface
+	Module modules.Interface
 	Buffer buffer.Interface
 
 	ChunkName *string // optional chunk name
@@ -76,15 +76,6 @@ type Similarity struct {
 }
 
 func (model *Model) Initialize() {
-	// Internal chunk for handling buffer and memory status
-	model.Chunks = []*Chunk{
-		{
-			TypeName:  "_status",
-			SlotNames: []string{"status"},
-			NumSlots:  1,
-		},
-	}
-
 	// Set up our built-in modules
 
 	model.Memory = modules.NewDeclarativeMemory()
@@ -212,7 +203,7 @@ func (model Model) ImaginalModule() *modules.Imaginal {
 }
 
 // LookupModule looks up the named module in the model and returns it (or nil if it does not exist).
-func (model Model) LookupModule(moduleName string) modules.ModuleInterface {
+func (model Model) LookupModule(moduleName string) modules.Interface {
 	for _, module := range model.Modules {
 		if module.ModuleName() == moduleName {
 			return module

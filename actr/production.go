@@ -58,11 +58,27 @@ func (c Constraint) String() string {
 }
 
 type Match struct {
+	BufferPattern *BufferPatternMatch
+	BufferState   *BufferStateMatch
+	ModuleState   *ModuleStateMatch
+}
+
+type BufferPatternMatch struct {
 	Buffer buffer.Interface
 
-	// matches either a pattern or a buffer status
-	Pattern      *Pattern
-	BufferStatus *string
+	Pattern *Pattern
+}
+
+type BufferStateMatch struct {
+	Buffer buffer.Interface
+
+	State string
+}
+
+type ModuleStateMatch struct {
+	Buffer buffer.Interface
+
+	State string
 }
 
 type Statement struct {
@@ -166,10 +182,14 @@ func (p *Production) AddDoStatement(statement *Statement) {
 
 }
 
-func (p Production) LookupMatchByBuffer(bufferName string) *Match {
+func (p Production) LookupMatchByBuffer(bufferName string) *BufferPatternMatch {
 	for _, m := range p.Matches {
-		if m.Buffer.BufferName() == bufferName {
-			return m
+		if m.BufferPattern == nil {
+			continue
+		}
+
+		if m.BufferPattern.Buffer.BufferName() == bufferName {
+			return m.BufferPattern
 		}
 	}
 
@@ -222,15 +242,19 @@ func (p *Production) AddSlotToSetStatement(statement *SetStatement, slot *SetSlo
 // in a production, it's probably not worth doing anything more complicated.
 // We could store all the vars used in all the matches on the Match itself
 // and look it up there.
-func (p Production) LookupMatchByVariable(varName string) *Match {
+func (p Production) LookupMatchByVariable(varName string) *BufferPatternMatch {
 	for _, m := range p.Matches {
-		if m.Pattern == nil {
+		if m.BufferPattern == nil {
+			continue
+		}
+
+		if m.BufferPattern.Pattern == nil {
 			return nil
 		}
 
-		patternItem := m.Pattern.LookupVariable(varName)
+		patternItem := m.BufferPattern.Pattern.LookupVariable(varName)
 		if patternItem != nil {
-			return m
+			return m.BufferPattern
 		}
 	}
 

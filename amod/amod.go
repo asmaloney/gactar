@@ -253,7 +253,7 @@ func addModules(model *actr.Model, log *issueLog, modules []*module) {
 	}
 }
 
-func setModuleParams(module modules.ModuleInterface, log *issueLog, fields []*field) {
+func setModuleParams(module modules.Interface, log *issueLog, fields []*field) {
 	if len(fields) == 0 {
 		return
 	}
@@ -333,7 +333,7 @@ func addChunks(model *actr.Model, log *issueLog, chunks []*chunkDecl) {
 	}
 }
 
-func addInitializers(model *actr.Model, log *issueLog, module modules.ModuleInterface, buffer buffer.Interface, init *namedInitializer) {
+func addInitializers(model *actr.Model, log *issueLog, module modules.Interface, buffer buffer.Interface, init *namedInitializer) {
 	// Check for duplicate initializer names.
 	// Note that this can't be checked in validateInitialization because model.ExplicitChunks is not filled in yet.
 	if init.ChunkName != nil && slices.Contains(model.ExplicitChunks, *init.ChunkName) {
@@ -423,72 +423,85 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 		}
 
 		for _, match := range production.Match.Items {
-			// check for buffer status match first
-			if match.BufferStatus != nil {
-				name := match.BufferStatus.Name
-				actrMatch := actr.Match{
-					Buffer:       model.LookupBuffer(name),
-					BufferStatus: &match.BufferStatus.Status,
-				}
-
-				prod.Matches = append(prod.Matches, &actrMatch)
-				continue
-			}
-
-			pattern, err := createChunkPattern(model, log, match.Chunk.Pattern)
-			if err != nil {
-				continue
-			}
-
-			name := match.Chunk.Name
-			actrMatch := actr.Match{
-				Buffer:  model.LookupBuffer(name),
-				Pattern: pattern,
-			}
-
-			prod.Matches = append(prod.Matches, &actrMatch)
-
-			for index, slot := range pattern.Slots {
-				if slot.Var == nil {
+			if match.BufferPattern != nil {
+				pattern, err := createChunkPattern(model, log, match.BufferPattern.Pattern)
+				if err != nil {
 					continue
 				}
 
-				// Track the buffer and slot name the variable refers to
-				varItem := slot.Var
-				name := *slot.Var.Name
-				if _, ok := prod.VarIndexMap[name]; !ok {
-					varIndex := actr.VarIndex{
-						Var:      varItem,
-						Buffer:   actrMatch.Buffer,
-						SlotName: pattern.Chunk.SlotName(index),
-					}
-					prod.VarIndexMap[name] = varIndex
+				name := match.BufferPattern.Name
+				buffer := model.LookupBuffer(name)
+				actrMatch := actr.Match{
+					BufferPattern: &actr.BufferPatternMatch{
+						Buffer:  buffer,
+						Pattern: pattern,
+					},
 				}
-			}
 
-			if match.Chunk.When != nil {
-				for _, expr := range *match.Chunk.When.Expressions {
-					comparison := actr.Equal
+				prod.Matches = append(prod.Matches, &actrMatch)
 
-					if expr.Comparison.NotEqual != nil {
-						comparison = actr.NotEqual
-					}
-
-					actrConstraint := actr.Constraint{
-						LHS:        &expr.LHS,
-						Comparison: comparison,
-						RHS:        convertArg(expr.RHS),
-					}
-
-					// Add the constraint on the pattern var
-					patternVar, ok := prod.VarIndexMap[expr.LHS]
-					if !ok {
-						// This is an error, but it is captured in validateVariableUsage() below
+				for index, slot := range pattern.Slots {
+					if slot.Var == nil {
 						continue
 					}
 
-					patternVar.Var.Constraints = append(patternVar.Var.Constraints, &actrConstraint)
+					// Track the buffer and slot name the variable refers to
+					varItem := slot.Var
+					name := *slot.Var.Name
+					if _, ok := prod.VarIndexMap[name]; !ok {
+						varIndex := actr.VarIndex{
+							Var:      varItem,
+							Buffer:   buffer,
+							SlotName: pattern.Chunk.SlotName(index),
+						}
+						prod.VarIndexMap[name] = varIndex
+					}
 				}
+
+				if match.BufferPattern.When != nil {
+					for _, expr := range *match.BufferPattern.When.Expressions {
+						comparison := actr.Equal
+
+						if expr.Comparison.NotEqual != nil {
+							comparison = actr.NotEqual
+						}
+
+						actrConstraint := actr.Constraint{
+							LHS:        &expr.LHS,
+							Comparison: comparison,
+							RHS:        convertArg(expr.RHS),
+						}
+
+						// Add the constraint on the pattern var
+						patternVar, ok := prod.VarIndexMap[expr.LHS]
+						if !ok {
+							// This is an error, but it is captured in validateVariableUsage() below
+							continue
+						}
+
+						patternVar.Var.Constraints = append(patternVar.Var.Constraints, &actrConstraint)
+					}
+				}
+			} else if match.BufferState != nil {
+				name := match.BufferState.Name
+				actrMatch := actr.Match{
+					BufferState: &actr.BufferStateMatch{
+						Buffer: model.LookupBuffer(name),
+						State:  match.BufferState.State,
+					},
+				}
+
+				prod.Matches = append(prod.Matches, &actrMatch)
+			} else if match.ModuleState != nil {
+				name := match.ModuleState.Name
+				actrMatch := actr.Match{
+					ModuleState: &actr.ModuleStateMatch{
+						Buffer: model.LookupBuffer(name),
+						State:  match.ModuleState.State,
+					},
+				}
+
+				prod.Matches = append(prod.Matches, &actrMatch)
 			}
 		}
 

@@ -221,7 +221,7 @@ type whenClause struct {
 	Tokens []lexer.Token
 }
 
-type matchChunkItem struct {
+type matchBufferPatternItem struct {
 	Name    string      `parser:"@Ident"`
 	Pattern *pattern    `parser:"@@"`
 	When    *whenClause `parser:"@@?"`
@@ -229,16 +229,24 @@ type matchChunkItem struct {
 	Tokens []lexer.Token
 }
 
-type matchBufferStatusItem struct {
-	Name   string `parser:"@Ident"`
-	Status string `parser:"'is' @Ident"`
+type matchBufferStateItem struct {
+	Name  string `parser:"@Ident"`
+	State string `parser:"'state' @Ident"`
+
+	Tokens []lexer.Token
+}
+
+type matchModuleStateItem struct {
+	Name  string `parser:"@Ident"`
+	State string `parser:"'module' @Ident"`
 
 	Tokens []lexer.Token
 }
 
 type matchItem struct {
-	Chunk        *matchChunkItem        `parser:"( @@"`
-	BufferStatus *matchBufferStatusItem `parser:"| @@)"`
+	BufferPattern *matchBufferPatternItem `parser:"( @@"`
+	BufferState   *matchBufferStateItem   `parser:"| @@"`
+	ModuleState   *matchModuleStateItem   `parser:"| @@)"`
 
 	Tokens []lexer.Token
 }

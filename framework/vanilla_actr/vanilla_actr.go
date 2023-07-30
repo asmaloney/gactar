@@ -473,23 +473,24 @@ func (v VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 }
 
 func (v VanillaACTR) outputMatch(match *actr.Match) {
-	bufferName := match.Buffer.BufferName()
-	if match.BufferStatus != nil {
-		v.Writeln("\t?%s>", bufferName)
-		v.Writeln("\t\tbuffer %s", *match.BufferStatus)
-	} else {
-		chunkTypeName := match.Pattern.Chunk.TypeName
+	switch {
+	case match.BufferPattern != nil:
+		bufferName := match.BufferPattern.Buffer.BufferName()
 
-		if actr.IsInternalChunkType(chunkTypeName) {
-			if chunkTypeName == "_status" {
-				status := match.Pattern.Slots[0]
-				v.Writeln("\t?%s>", bufferName)
-				v.Writeln("\t\tstate %s", status)
-			}
-		} else {
-			v.Writeln("\t=%s>", bufferName)
-			v.outputPattern(match.Pattern, 2)
-		}
+		v.Writeln("\t=%s>", bufferName)
+		v.outputPattern(match.BufferPattern.Pattern, 2)
+
+	case match.BufferState != nil:
+		bufferName := match.BufferState.Buffer.BufferName()
+
+		v.Writeln("\t?%s>", bufferName)
+		v.Writeln("\t\tbuffer %s", match.BufferState.State)
+
+	case match.ModuleState != nil:
+		bufferName := match.ModuleState.Buffer.BufferName()
+
+		v.Writeln("\t?%s>", bufferName)
+		v.Writeln("\t\tstate %s", match.ModuleState.State)
 	}
 }
 

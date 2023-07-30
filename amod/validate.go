@@ -119,8 +119,8 @@ func validatePattern(model *actr.Model, log *issueLog, pattern *pattern) (err er
 	return
 }
 
-// validateChunkMatch verifies several aspects of a chunk match item.
-func validateChunkMatch(item *matchChunkItem, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
+// validateBufferPatternMatch verifies several aspects of a chunk match item.
+func validateBufferPatternMatch(item *matchBufferPatternItem, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
 	name := item.Name
 
 	bufferInterface := model.LookupBuffer(name)
@@ -134,23 +134,6 @@ func validateChunkMatch(item *matchChunkItem, model *actr.Model, log *issueLog, 
 	pattern_err := validatePattern(model, log, pattern)
 	if pattern_err != nil {
 		err = ErrCompile
-	}
-
-	// check _status chunks to ensure they have one of the allowed tests
-	if pattern.ChunkName == "_status" {
-		slot := *pattern.Slots[0]
-		slotItem := slot.ID
-		if slotItem == nil {
-			log.errorT(slot.Tokens,
-				"invalid _status for '%s' in production '%s' (should be one of: %v)",
-				name, production.Name, modules.ValidStatesStr())
-			err = ErrCompile
-		} else if !modules.IsValidState(*slotItem) {
-			log.errorT(slot.Tokens,
-				"invalid _status '%s' for '%s' in production '%s' (should be one of: %v)",
-				*slotItem, name, production.Name, modules.ValidStatesStr())
-			err = ErrCompile
-		}
 	}
 
 	// If we have constraints, check them
@@ -176,8 +159,8 @@ func validateChunkMatch(item *matchChunkItem, model *actr.Model, log *issueLog, 
 	return
 }
 
-// validateBufferStatusMatch verifies several aspects of a buffer status match item.
-func validateBufferStatusMatch(item *matchBufferStatusItem, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
+// validateBufferStateMatch verifies a buffer match match item.
+func validateBufferStateMatch(item *matchBufferStateItem, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
 	name := item.Name
 
 	bufferInterface := model.LookupBuffer(name)
@@ -186,10 +169,30 @@ func validateBufferStatusMatch(item *matchBufferStatusItem, model *actr.Model, l
 		err = ErrCompile
 	}
 
-	if !buffer.IsValidState(item.Status) {
+	if !buffer.IsValidState(item.State) {
 		log.errorT(item.Tokens,
-			"invalid status '%s' for buffer '%s' in production '%s' (should be one of: %v)",
-			item.Status, name, production.Name, buffer.ValidStatesStr())
+			"invalid state check '%s' for buffer '%s' in production '%s' (should be one of: %v)",
+			item.State, name, production.Name, buffer.ValidStatesStr())
+		err = ErrCompile
+	}
+
+	return
+}
+
+// validateModuleStateMatch verifies a module state match item.
+func validateModuleStateMatch(item *matchModuleStateItem, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
+	name := item.Name
+
+	bufferInterface := model.LookupBuffer(name)
+	if bufferInterface == nil {
+		log.errorTR(item.Tokens, 0, 1, "buffer '%s' not found in production '%s'", name, production.Name)
+		err = ErrCompile
+	}
+
+	if !modules.IsValidState(item.State) {
+		log.errorT(item.Tokens,
+			"invalid module state check '%s' for buffer '%s' in production '%s' (should be one of: %v)",
+			item.State, name, production.Name, modules.ValidStatesStr())
 		err = ErrCompile
 	}
 
@@ -203,10 +206,15 @@ func validateMatch(match *match, model *actr.Model, log *issueLog, production *a
 	}
 
 	for _, item := range match.Items {
-		if item.Chunk != nil {
-			err = validateChunkMatch(item.Chunk, model, log, production)
-		} else if item.BufferStatus != nil {
-			err = validateBufferStatusMatch(item.BufferStatus, model, log, production)
+		switch {
+		case item.BufferPattern != nil:
+			err = validateBufferPatternMatch(item.BufferPattern, model, log, production)
+
+		case item.BufferState != nil:
+			err = validateBufferStateMatch(item.BufferState, model, log, production)
+
+		case item.ModuleState != nil:
+			err = validateModuleStateMatch(item.ModuleState, model, log, production)
 		}
 	}
 
@@ -425,14 +433,14 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 	// Walk the matches and store var ref counts
 	for _, match := range match.Items {
 		// only need to consider chunk matchers
-		if match.Chunk == nil {
+		if match.BufferPattern == nil {
 			continue
 		}
 
-		addPatternRefs(match.Chunk.Pattern, true)
+		addPatternRefs(match.BufferPattern.Pattern, true)
 
-		if match.Chunk.When != nil {
-			when := match.Chunk.When
+		if match.BufferPattern.When != nil {
+			when := match.BufferPattern.When
 
 			if when.Expressions != nil {
 				for _, expr := range *when.Expressions {

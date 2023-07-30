@@ -663,7 +663,7 @@ func Example_productionPrintStatement3() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal is empty }
+		match { goal state empty }
 		do { print }
 	}`)
 
@@ -678,7 +678,7 @@ func Example_productionPrintStatementInvalidID() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval is empty }
+		match { retrieval state empty }
 		do { print fooID }
 	}`)
 
@@ -694,7 +694,7 @@ func Example_productionPrintStatementInvalidNil() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal is empty }
+		match { goal state empty }
 		do { print nil }
 	}`)
 
@@ -710,7 +710,7 @@ func Example_productionPrintStatementInvalidVar() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval is empty }
+		match { retrieval state empty }
 		do { print ?fooVar }
 	}`)
 
@@ -726,7 +726,7 @@ func Example_productionPrintStatementWildcard() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal is empty }
+		match { goal state empty }
 		do { print * }
 	}`)
 
@@ -742,7 +742,7 @@ func Example_productionMatchBufferStatus() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval is empty }
+		match { retrieval state empty }
 		do { print 42 }
 	}`)
 
@@ -757,7 +757,7 @@ func Example_productionMatchBufferStatusInvalidBuffer() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { foo is empty }
+		match { foo state empty }
 		do { print 42 }
 	}`)
 
@@ -773,12 +773,12 @@ func Example_productionMatchBufferStatusInvalidStatus() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval is foo }
+		match { retrieval state foo }
 		do { print 42 }
 	}`)
 
 	// Output:
-	// ERROR: invalid status 'foo' for buffer 'retrieval' in production 'start' (should be one of: empty, full) (line 8, col 10)
+	// ERROR: invalid state check 'foo' for buffer 'retrieval' in production 'start' (should be one of: empty, full) (line 8, col 10)
 }
 
 func Example_productionMatchBufferStatusInvalidString() {
@@ -789,12 +789,12 @@ func Example_productionMatchBufferStatusInvalidString() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal is 'empty' }
+		match { goal state 'empty' }
 		do { print 42 }
 	}`)
 
 	// Output:
-	// ERROR: unexpected token "empty" (expected <ident>) (line 8, col 18)
+	// ERROR: unexpected token "empty" (expected <ident>) (line 8, col 21)
 }
 
 func Example_productionMatchBufferStatusInvalidNumber() {
@@ -805,15 +805,15 @@ func Example_productionMatchBufferStatusInvalidNumber() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal is 42 }
+		match { goal state 42 }
 		do { print 42 }
 	}`)
 
 	// Output:
-	// ERROR: unexpected token "42" (expected <ident>) (line 8, col 18)
+	// ERROR: unexpected token "42" (expected <ident>) (line 8, col 21)
 }
 
-func Example_productionMatchModuleStatus() {
+func Example_productionMatchModuleState() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -821,14 +821,14 @@ func Example_productionMatchModuleStatus() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval [_status: error] }
+		match { retrieval module error }
 		do { print 42 }
 	}`)
 
 	// Output:
 }
 
-func Example_productionMatchModuleStatusInvalidStatus1() {
+func Example_productionMatchModuleStateInvalidState1() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -836,15 +836,15 @@ func Example_productionMatchModuleStatusInvalidStatus1() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval [_status: 'foo'] }
+		match { retrieval module 'foo' }
 		do { print 42 }
 	}`)
 
 	// Output:
-	// ERROR: invalid _status for 'retrieval' in production 'start' (should be one of: busy, error) (line 8, col 30)
+	// ERROR: unexpected token "foo" (expected <ident>) (line 8, col 27)
 }
 
-func Example_productionMatchModuleStatusInvalidStatus2() {
+func Example_productionMatchModuleStateInvalidState2() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -852,10 +852,10 @@ func Example_productionMatchModuleStatusInvalidStatus2() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval [ _status: bar ] }
+		match { retrieval module bar }
 		do { print 42 }
 	}`)
 
 	// Output:
-	// ERROR: invalid _status 'bar' for 'retrieval' in production 'start' (should be one of: busy, error) (line 8, col 31)
+	// ERROR: invalid module state check 'bar' for buffer 'retrieval' in production 'start' (should be one of: busy, error) (line 8, col 10)
 }

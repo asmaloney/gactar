@@ -475,24 +475,24 @@ func (p PyACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 }
 
 func (p PyACTR) outputMatch(match *actr.Match) {
-	bufferName := match.Buffer.BufferName()
+	switch {
+	case match.BufferPattern != nil:
+		bufferName := match.BufferPattern.Buffer.BufferName()
 
-	if match.BufferStatus != nil {
+		p.Writeln("     =%s>", bufferName)
+		p.outputPattern(match.BufferPattern.Pattern, 2)
+
+	case match.BufferState != nil:
+		bufferName := match.BufferState.Buffer.BufferName()
+
 		p.Writeln("     ?%s>", bufferName)
-		p.Writeln("          buffer %s", *match.BufferStatus)
-	} else {
-		chunkName := match.Pattern.Chunk.TypeName
+		p.Writeln("          buffer %s", match.BufferState.State)
 
-		if actr.IsInternalChunkType(chunkName) {
-			if chunkName == "_status" {
-				status := match.Pattern.Slots[0]
-				p.Writeln("     ?%s>", bufferName)
-				p.Writeln("          state %s", status)
-			}
-		} else {
-			p.Writeln("     =%s>", bufferName)
-			p.outputPattern(match.Pattern, 2)
-		}
+	case match.ModuleState != nil:
+		bufferName := match.ModuleState.Buffer.BufferName()
+
+		p.Writeln("     ?%s>", bufferName)
+		p.Writeln("          state %s", match.ModuleState.State)
 	}
 }
 
