@@ -10,8 +10,8 @@ type Goal struct {
 	Module
 
 	// "spreading_activation": see "Spreading Activation" in "ACT-R 7.26 Reference Manual" pg. 290
-	// 	ccm (DMSpreading.weight): 1.0
-	// 	pyactr (buffer_spreading_activation): no default
+	// 	ccm (DMSpreading.weight): 0.0
+	// 	pyactr (buffer_spreading_activation): 0.0
 	// 	vanilla (:ga): 0.0
 	SpreadingActivation *float64
 }
