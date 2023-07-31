@@ -48,8 +48,7 @@ func (g *Goal) SetParam(param *params.Param) (err error) {
 
 	value := param.Value
 
-	switch param.Key {
-	case "spreading_activation":
+	if param.Key == "spreading_activation" {
 		g.SpreadingActivation = value.Number
 	}
 

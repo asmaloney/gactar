@@ -48,8 +48,7 @@ func (i *Imaginal) SetParam(param *params.Param) (err error) {
 
 	value := param.Value
 
-	switch param.Key {
-	case "delay":
+	if param.Key == "delay" {
 		i.Delay = value.Number
 	}
 
