@@ -54,6 +54,12 @@ async function getFrameworks(): Promise<FrameworkInfoList> {
 }
 
 // run
+export interface RunOptions {
+  logLevel: string
+  traceActivations: boolean
+  randomSeed?: number
+}
+
 export interface RunParams {
   // The text of the amod to run.
   amod: string
@@ -63,6 +69,9 @@ export interface RunParams {
 
   // An optional list of frameworks ("all" if not set).
   frameworks?: string[]
+
+  // optional options!
+  options?: RunOptions
 }
 
 // Location of an issue in the source code.

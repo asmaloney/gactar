@@ -149,6 +149,8 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		AMODFile   string   `json:"amod"`                 // text of an amod file
 		Goal       string   `json:"goal"`                 // initial goal
 		Frameworks []string `json:"frameworks,omitempty"` // list of frameworks to run on (if empty, "all")
+
+		Options *runOptions `json:"options,omitempty"`
 	}
 
 	var data request
@@ -171,6 +173,8 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		encodeIssueResponse(rw, log)
 		return
 	}
+
+	model.SetRunOptions(actrOptions(data.Options))
 
 	initialGoal := strings.TrimSpace(data.Goal)
 	initialBuffers := framework.InitialBuffers{

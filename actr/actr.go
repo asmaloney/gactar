@@ -9,7 +9,7 @@ import (
 	"github.com/asmaloney/gactar/util/container"
 )
 
-type options struct {
+type Options struct {
 	// "log_level": one of 'min', 'info', or 'detail'
 	LogLevel ACTRLogLevel
 
@@ -54,7 +54,7 @@ type Model struct {
 
 	Productions []*Production
 
-	options
+	Options
 }
 
 type Initializer struct {
@@ -88,6 +88,19 @@ func (model *Model) Initialize() {
 	model.Modules = append(model.Modules, model.Procedural)
 
 	model.LogLevel = "info"
+}
+
+func (m *Model) SetRunOptions(options *Options) {
+	if options == nil {
+		return
+	}
+
+	m.LogLevel = options.LogLevel
+	m.TraceActivations = options.TraceActivations
+
+	if options.RandomSeed != nil {
+		m.RandomSeed = options.RandomSeed
+	}
 }
 
 func (model *Model) AddImplicitChunk(chunkName string) {

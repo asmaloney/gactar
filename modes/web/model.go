@@ -15,6 +15,12 @@ type Model struct {
 	actrModel *actr.Model
 }
 
+type runOptions struct {
+	LogLevel         string  `json:"logLevel,omitempty"`
+	TraceActivations bool    `json:"traceActivations,omitempty"`
+	RandomSeed       *uint32 `json:"randomSeed,omitempty"`
+}
+
 func initModels(w *Web) {
 	http.HandleFunc("/api/model/load", w.loadModelHandler)
 }
@@ -71,6 +77,18 @@ func (w *Web) loadModel(sessionID int, amodFile string) (model *Model, err error
 	session.addModel(model)
 
 	return
+}
+
+func actrOptions(options *runOptions) *actr.Options {
+	if options == nil {
+		return nil
+	}
+
+	return &actr.Options{
+		LogLevel:         actr.ACTRLogLevel(options.LogLevel),
+		TraceActivations: options.TraceActivations,
+		RandomSeed:       options.RandomSeed,
+	}
 }
 
 func generateModel(amodFile string) (model *actr.Model, err error) {

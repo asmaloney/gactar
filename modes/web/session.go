@@ -41,6 +41,7 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 		Buffers     framework.InitialBuffers `json:"buffers"`              // set the initial buffers
 		Frameworks  []string                 `json:"frameworks,omitempty"` // list of frameworks to run on (if empty, "all")
 		IncludeCode bool                     `json:"includeCode"`          // include generated code in the result
+		Options     *runOptions              `json:"options,omitempty"`
 	}
 	type response struct {
 		Results json.RawMessage `json:"results"`
@@ -66,6 +67,8 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 		encodeErrorResponse(rw, err)
 		return
 	}
+
+	model.actrModel.SetRunOptions(actrOptions(data.Options))
 
 	data.Frameworks = w.normalizeFrameworkList(data.Frameworks)
 
