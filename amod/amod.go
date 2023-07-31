@@ -423,7 +423,8 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 		}
 
 		for _, match := range production.Match.Items {
-			if match.BufferPattern != nil {
+			switch {
+			case match.BufferPattern != nil:
 				pattern, err := createChunkPattern(model, log, match.BufferPattern.Pattern)
 				if err != nil {
 					continue
@@ -482,7 +483,8 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 						patternVar.Var.Constraints = append(patternVar.Var.Constraints, &actrConstraint)
 					}
 				}
-			} else if match.BufferState != nil {
+
+			case match.BufferState != nil:
 				name := match.BufferState.Name
 				actrMatch := actr.Match{
 					BufferState: &actr.BufferStateMatch{
@@ -492,7 +494,8 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 				}
 
 				prod.Matches = append(prod.Matches, &actrMatch)
-			} else if match.ModuleState != nil {
+
+			case match.ModuleState != nil:
 				name := match.ModuleState.Name
 				actrMatch := actr.Match{
 					ModuleState: &actr.ModuleStateMatch{
@@ -593,19 +596,19 @@ func addStatement(model *actr.Model, log *issueLog, statement *statement, produc
 
 	switch {
 	case statement.Set != nil:
-		s, err = addSetStatement(model, log, statement.Set, production)
+		s, err = createSetStatement(model, log, statement.Set, production)
 
 	case statement.Recall != nil:
-		s, err = addRecallStatement(model, log, statement.Recall, production)
+		s, err = createRecallStatement(model, log, statement.Recall, production)
 
 	case statement.Clear != nil:
-		s, err = addClearStatement(model, log, statement.Clear, production)
+		s, err = createClearStatement(model, log, statement.Clear, production)
 
 	case statement.Print != nil:
-		s, err = addPrintStatement(model, log, statement.Print, production)
+		s, err = createPrintStatement(model, log, statement.Print, production)
 
 	case statement.Stop != nil:
-		s, err = addStopStatement(model, log, statement.Stop, production)
+		s = createStopStatement()
 
 	default:
 		return ErrStatementNotHandled
@@ -620,7 +623,7 @@ func addStatement(model *actr.Model, log *issueLog, statement *statement, produc
 	return nil
 }
 
-func addSetStatement(model *actr.Model, log *issueLog, set *setStatement, production *actr.Production) (*actr.Statement, error) {
+func createSetStatement(model *actr.Model, log *issueLog, set *setStatement, production *actr.Production) (*actr.Statement, error) {
 	err := validateSetStatement(set, model, log, production)
 	if err != nil {
 		return nil, err
@@ -693,7 +696,7 @@ func addSetStatement(model *actr.Model, log *issueLog, set *setStatement, produc
 	return &s, nil
 }
 
-func addRecallStatement(model *actr.Model, log *issueLog, recall *recallStatement, production *actr.Production) (*actr.Statement, error) {
+func createRecallStatement(model *actr.Model, log *issueLog, recall *recallStatement, production *actr.Production) (*actr.Statement, error) {
 	err := validateRecallStatement(recall, model, log, production)
 	if err != nil {
 		return nil, err
@@ -714,7 +717,7 @@ func addRecallStatement(model *actr.Model, log *issueLog, recall *recallStatemen
 	return &s, nil
 }
 
-func addClearStatement(model *actr.Model, log *issueLog, clear *clearStatement, production *actr.Production) (*actr.Statement, error) {
+func createClearStatement(model *actr.Model, log *issueLog, clear *clearStatement, production *actr.Production) (*actr.Statement, error) {
 	err := validateClearStatement(clear, model, log, production)
 	if err != nil {
 		return nil, err
@@ -729,7 +732,7 @@ func addClearStatement(model *actr.Model, log *issueLog, clear *clearStatement, 
 	return &s, nil
 }
 
-func addPrintStatement(model *actr.Model, log *issueLog, print *printStatement, production *actr.Production) (*actr.Statement, error) {
+func createPrintStatement(model *actr.Model, log *issueLog, print *printStatement, production *actr.Production) (*actr.Statement, error) {
 	err := validatePrintStatement(print, model, log, production)
 	if err != nil {
 		return nil, err
@@ -745,11 +748,8 @@ func addPrintStatement(model *actr.Model, log *issueLog, print *printStatement, 
 	return &s, nil
 }
 
-//nolint:unparam // keeping the same function signature as the others
-func addStopStatement(model *actr.Model, log *issueLog, stop *stopStatement, production *actr.Production) (*actr.Statement, error) {
-	return &actr.Statement{
-		Stop: &actr.StopStatement{},
-	}, nil
+func createStopStatement() *actr.Statement {
+	return &actr.Statement{Stop: &actr.StopStatement{}}
 }
 
 func convertArg(v *arg) (actrValue *actr.Value) {

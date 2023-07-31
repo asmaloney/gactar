@@ -43,8 +43,7 @@ func (p *Procedural) SetParam(param *params.Param) (err error) {
 
 	value := param.Value
 
-	switch param.Key {
-	case "default_action_time":
+	if param.Key == "default_action_time" {
 		p.DefaultActionTime = value.Number
 	}
 

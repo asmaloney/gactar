@@ -117,7 +117,7 @@ func Execute() {
 
 		var requiresSubcommand errRequiresSubcommand
 		if errors.As(err, &requiresSubcommand) {
-			requiresSubcommand.command.Help()
+			_ = requiresSubcommand.command.Help()
 		}
 		os.Exit(1)
 	}
