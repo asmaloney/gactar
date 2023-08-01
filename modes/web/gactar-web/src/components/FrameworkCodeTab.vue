@@ -1,5 +1,5 @@
 <template>
-  <b-tab-item class="code-tab" :label="framework.name">
+  <b-tab-item class="code-tab" :label="framework.name" :value="framework.name">
     <div class="columns buttons">
       <div class="column">
         <strong>{{ defaultFileName }}.{{ framework.fileExtension }}</strong>

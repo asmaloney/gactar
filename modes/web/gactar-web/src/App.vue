@@ -13,7 +13,7 @@
     <div class="tile is-ancestor">
       <div class="tile is-vertical is-7 code-tile">
         <b-tabs
-          v-model="activeTab"
+          v-model="activeCodeTab"
           class="code-tabs"
           :animated="false"
           expanded
@@ -40,22 +40,12 @@
       </div>
 
       <div class="tile is-vertical is-parent">
-        <div v-if="availableFrameworks.length > 0" class="tile is-child is-12">
-          <b-field label="Select Frameworks" custom-class="is-small">
-            <b-checkbox-button
-              v-for="name in availableFrameworks"
-              v-model="selectedFrameworks"
-              type="is-info"
-              size="is-small"
-              :native-value="name"
-              :key="name"
-              expanded
-              class="ml-1 mr-1"
-              @input="frameworkChanged"
-            >
-              <span>{{ name }}</span>
-            </b-checkbox-button>
-          </b-field>
+        <div class="tile is-child is-12">
+          <run-options-panel
+            :availableFrameworks="availableFrameworks"
+            :options="runOptions"
+            @options-change="runOptionsChanged"
+          />
         </div>
 
         <div class="tile is-child is-12">
@@ -74,8 +64,14 @@
         </div>
 
         <div class="tile is-child results">
-          <b-tabs :animated="false" :type="'is-boxed'" size="is-small" expanded>
-            <b-tab-item label="All Results">
+          <b-tabs
+            v-model="activeResultsTab"
+            :animated="false"
+            :type="'is-boxed'"
+            size="is-small"
+            expanded
+          >
+            <b-tab-item label="All Results" value="all">
               <textarea
                 v-model="allResults"
                 class="textarea is-info has-fixed-size"
@@ -88,6 +84,7 @@
                 v-if="fw.showTabs"
                 :label="fw.info.name"
                 :key="fw.info.name"
+                :value="fw.info.name"
               >
                 <textarea
                   :value="fw.output"
@@ -112,6 +109,7 @@ import api, {
   FrameworkInfoList,
   FrameworkResultMap,
   IssueList,
+  RunOptions,
   RunParams,
   RunResult,
   Version,
@@ -121,6 +119,7 @@ import { commentString, issuesToArray } from './utils'
 
 import AmodCodeTab from './components/AmodCodeTab.vue'
 import FrameworkCodeTab from './components/FrameworkCodeTab.vue'
+import RunOptionsPanel from './components/RunOptionsPanel.vue'
 
 interface FrameworkData {
   info: FrameworkInfo
@@ -135,7 +134,10 @@ interface Data {
   amodCode: string
   amodIssues: IssueList
 
-  activeTab: number
+  activeCodeTab: string | undefined
+  activeResultsTab: string | undefined
+
+  runOptions: RunOptions
 
   currentModelName: string
   goal: string
@@ -144,21 +146,23 @@ interface Data {
 
   frameworks: FrameworkData[]
   availableFrameworks: string[]
-  selectedFrameworks: string[]
   version: Version
 }
 
-const selectedFrameworksStorageName = 'gactar.selected-frameworks'
+const selectedRunOptions = 'gactar.selected-run-options'
 
 export default defineComponent({
-  components: { AmodCodeTab, FrameworkCodeTab },
+  components: { AmodCodeTab, FrameworkCodeTab, RunOptionsPanel },
 
   data(): Data {
     return {
       amodCode: '',
       amodIssues: [],
 
-      activeTab: 0,
+      activeCodeTab: undefined,
+      activeResultsTab: undefined,
+
+      runOptions: { frameworks: [], logLevel: 'info', traceActivations: false },
 
       currentModelName: '',
       goal: '',
@@ -167,20 +171,14 @@ export default defineComponent({
 
       frameworks: [],
       availableFrameworks: [],
-      selectedFrameworks: [],
       version: '',
     }
   },
 
-  created() {
-    window.addEventListener('load', () => {
-      this.onWindowLoad()
-    })
-  },
-
-  mounted() {
-    this.loadFrameworks()
+  async mounted() {
+    await this.loadFrameworks()
     this.loadVersion()
+    this.loadLocalStorage()
   },
 
   methods: {
@@ -192,24 +190,24 @@ export default defineComponent({
       this.allResults = ''
     },
 
-    frameworkChanged() {
-      // Save our selected frameworks
-      localStorage.setItem(
-        selectedFrameworksStorageName,
-        JSON.stringify(this.selectedFrameworks)
-      )
-    },
-
     hideTabsNotInUse() {
       this.frameworks.forEach((data: FrameworkData) => {
-        if (!this.selectedFrameworks.includes(data.info.name)) {
+        if (!this.runOptions.frameworks.includes(data.info.name)) {
           data.showTabs = false
+
+          // if we are hiding the currently active tab, set to 'all'
+          if (this.activeResultsTab == data.info.name) {
+            this.activeResultsTab = 'all'
+          }
+          if (this.activeCodeTab == data.info.name) {
+            this.activeCodeTab = 'all'
+          }
         }
       })
     },
 
-    loadFrameworks() {
-      api
+    async loadFrameworks() {
+      await api
         .getFrameworks()
         .then((list: FrameworkInfoList) => {
           list.forEach((info: FrameworkInfo) => {
@@ -239,26 +237,22 @@ export default defineComponent({
         })
     },
 
-    onWindowLoad() {
-      // Load our selected frameworks from local storage (if any)
-      var frameworks = localStorage.getItem(selectedFrameworksStorageName)
-      if (frameworks === null) {
-        this.selectedFrameworks = this.availableFrameworks
+    loadLocalStorage(): void {
+      const runOptions = localStorage.getItem(selectedRunOptions)
+
+      if (runOptions !== null) {
+        this.runOptions = JSON.parse(runOptions)
+
+        let selectedFrameworks = this.runOptions.frameworks
+
+        selectedFrameworks = selectedFrameworks.filter((item: string) =>
+          this.availableFrameworks.includes(item)
+        )
+
+        this.runOptions.frameworks = selectedFrameworks
       } else {
-        this.selectedFrameworks = JSON.parse(frameworks) as string[]
-
-        // Filter the saved list by the available frameworks.
-        const availableFrameworks = this.availableFrameworks // need this const because we can't use "this" inside filter
-        this.selectedFrameworks = this.selectedFrameworks.filter(function (
-          name: string
-        ) {
-          return availableFrameworks.includes(name)
-        })
+        this.runOptions.frameworks = this.availableFrameworks
       }
-
-      window.removeEventListener('load', () => {
-        this.onWindowLoad()
-      })
     },
 
     run() {
@@ -270,7 +264,7 @@ export default defineComponent({
       const params: RunParams = {
         amod: this.amodCode,
         goal: this.goal,
-        frameworks: this.selectedFrameworks,
+        options: this.runOptions,
       }
 
       api
@@ -288,6 +282,10 @@ export default defineComponent({
           this.showError(err.message)
           this.running = false
         })
+    },
+
+    runOptionsChanged() {
+      localStorage.setItem(selectedRunOptions, JSON.stringify(this.runOptions))
     },
 
     setResults(results: FrameworkResultMap) {
