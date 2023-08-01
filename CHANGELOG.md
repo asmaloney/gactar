@@ -6,13 +6,14 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
-- New command-line command `module` outputs information about modules. Currently includes two subcommands:
+- {web} Now allows selection of logging level & toggling of trace activations in the UI. ([#343](https://github.com/asmaloney/gactar/pull/343))
+- New command-line command `module` outputs information about modules. ([#329](https://github.com/asmaloney/gactar/pull/329), [#332](https://github.com/asmaloney/gactar/pull/332)) Currently includes two subcommands:
   - `info [name]` outputs detailed info about a module - name, version, description, any buffers, and any parameters. `name` can be a space-separated list of modules or `all`.
   - `list` outputs the list of modules - name, version, and description
 
 ### Changed
 
-- Replace the magic internal `_status` chunk with proper support in the language.
+- Replace the magic internal `_status` chunk with proper support in the language. ([#337](https://github.com/asmaloney/gactar/pull/337), [#338](https://github.com/asmaloney/gactar/pull/338))
 
   - Buffer state matches now take the form `<buffer> state <state>`:
 
@@ -29,10 +30,14 @@ All notable changes to this project will be documented in this file. The format 
 
   - Valid module states are `busy` & `error`.
 
-- ACT-R (vanilla) was updated to version 7.27.7.
+- ACT-R (vanilla) was updated to version 7.27.7. ([#308](https://github.com/asmaloney/gactar/pull/308))
 
 ### Fixed
 
+- {web} The UI wasn't properly saving/restoring the list of selected frameworks. ([#343](https://github.com/asmaloney/gactar/pull/343))
+- {web} If the user ran with a framework selected and selected the code or result tab for it,
+  then turned off that framework and ran again, the tabs would be in a strange state.
+  Instead, select the main tab if the tab no longer exists. ([#343](https://github.com/asmaloney/gactar/pull/343))
 - Improved some error messages.
 
 ## [0.11.0](https://github.com/asmaloney/gactar/releases/tag/v0.11.0) - 2023-01-03
