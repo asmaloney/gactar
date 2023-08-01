@@ -175,6 +175,9 @@ export default defineComponent({
     }
   },
 
+  // Disable lint while waiting for this fix:
+  //  https://github.com/vuejs/core/pull/5914
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async mounted() {
     await this.loadFrameworks()
     this.loadVersion()
@@ -241,7 +244,7 @@ export default defineComponent({
       const runOptions = localStorage.getItem(selectedRunOptions)
 
       if (runOptions !== null) {
-        this.runOptions = JSON.parse(runOptions)
+        this.runOptions = JSON.parse(runOptions) as RunOptions
 
         let selectedFrameworks = this.runOptions.frameworks
 

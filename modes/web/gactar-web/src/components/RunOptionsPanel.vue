@@ -125,7 +125,7 @@ export default defineComponent({
   },
 
   watch: {
-    options: function (newOptions, _) {
+    options: function (newOptions: RunOptions) {
       this.runOptions = newOptions
     },
   },
