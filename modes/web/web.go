@@ -146,9 +146,8 @@ func (w Web) getFrameworksHandler(rw http.ResponseWriter, req *http.Request) {
 
 func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 	type request struct {
-		AMODFile   string   `json:"amod"`                 // text of an amod file
-		Goal       string   `json:"goal"`                 // initial goal
-		Frameworks []string `json:"frameworks,omitempty"` // list of frameworks to run on (if empty, "all")
+		AMODFile string `json:"amod"` // text of an amod file
+		Goal     string `json:"goal"` // initial goal
 
 		Options *runOptions `json:"options,omitempty"`
 	}
@@ -160,9 +159,9 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	data.Frameworks = w.normalizeFrameworkList(data.Frameworks)
+	data.Options.Frameworks = w.normalizeFrameworkList(data.Options.Frameworks)
 
-	err = w.verifyFrameworkList(data.Frameworks)
+	err = w.verifyFrameworkList(data.Options.Frameworks)
 	if err != nil {
 		encodeErrorResponse(rw, err)
 		return
@@ -191,7 +190,7 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	resultMap := w.runModel(model, initialBuffers, data.Frameworks)
+	resultMap := w.runModel(model, initialBuffers, data.Options.Frameworks)
 
 	rr := runResult{
 		Issues:  log.AllIssues(),
