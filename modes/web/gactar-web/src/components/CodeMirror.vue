@@ -34,9 +34,7 @@ export default defineComponent({
   props: {
     amodCode: {
       type: String,
-      default() {
-        return '(code here)'
-      },
+      default: '(code here)',
     },
     amodIssues: {
       type: Array as PropType<IssueList>,
