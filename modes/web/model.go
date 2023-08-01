@@ -16,9 +16,10 @@ type Model struct {
 }
 
 type runOptions struct {
-	LogLevel         string  `json:"logLevel,omitempty"`
-	TraceActivations bool    `json:"traceActivations,omitempty"`
-	RandomSeed       *uint32 `json:"randomSeed,omitempty"`
+	Frameworks       []string `json:"frameworks,omitempty"` // list of frameworks to run on (if empty, "all")
+	LogLevel         string   `json:"logLevel,omitempty"`
+	TraceActivations bool     `json:"traceActivations,omitempty"`
+	RandomSeed       *uint32  `json:"randomSeed,omitempty"`
 }
 
 func initModels(w *Web) {

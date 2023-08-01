@@ -38,10 +38,9 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 	type request struct {
 		SessionID   int                      `json:"sessionID"`
 		ModelID     int                      `json:"modelID"`
-		Buffers     framework.InitialBuffers `json:"buffers"`              // set the initial buffers
-		Frameworks  []string                 `json:"frameworks,omitempty"` // list of frameworks to run on (if empty, "all")
-		IncludeCode bool                     `json:"includeCode"`          // include generated code in the result
-		Options     *runOptions              `json:"options,omitempty"`
+		Buffers     framework.InitialBuffers `json:"buffers"`     // set the initial buffers
+		IncludeCode bool                     `json:"includeCode"` // include generated code in the result
+		Options     runOptions               `json:"options"`
 	}
 	type response struct {
 		Results json.RawMessage `json:"results"`
@@ -68,15 +67,15 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	model.actrModel.SetRunOptions(actrOptions(data.Options))
+	data.Options.Frameworks = w.normalizeFrameworkList(data.Options.Frameworks)
 
-	data.Frameworks = w.normalizeFrameworkList(data.Frameworks)
-
-	err = w.verifyFrameworkList(data.Frameworks)
+	err = w.verifyFrameworkList(data.Options.Frameworks)
 	if err != nil {
 		encodeErrorResponse(rw, err)
 		return
 	}
+
+	model.actrModel.SetRunOptions(actrOptions(&data.Options))
 
 	// ensure temp dir exists
 	// https://github.com/asmaloney/gactar/issues/103
@@ -86,7 +85,7 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	resultMap := w.runModel(model.actrModel, data.Buffers, data.Frameworks)
+	resultMap := w.runModel(model.actrModel, data.Buffers, data.Options.Frameworks)
 
 	for key := range resultMap {
 		result := resultMap[key]
