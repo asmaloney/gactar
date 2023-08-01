@@ -54,9 +54,19 @@ async function getFrameworks(): Promise<FrameworkInfoList> {
 }
 
 // run
+export const logLevels: string[] = ['min', 'info', 'detail']
+
 export interface RunOptions {
+  // List of frameworks to run
+  frameworks: string[]
+
+  // Log level - one of 'min', 'info', or 'detail'
   logLevel: string
+
+  // Output detailed info about activations
   traceActivations: boolean
+
+  // Seed to use for generating pseudo-random numbers
   randomSeed?: number
 }
 
@@ -67,11 +77,8 @@ export interface RunParams {
   // The starting goal.
   goal: string
 
-  // An optional list of frameworks ("all" if not set).
-  frameworks?: string[]
-
-  // optional options!
-  options?: RunOptions
+  // options!
+  options: RunOptions
 }
 
 // Location of an issue in the source code.
@@ -158,11 +165,11 @@ export interface SessionRunParams {
   // The initial contents of the buffers.
   buffers: string
 
-  // An optional list of frameworks ("all" if not set).
-  frameworks?: string[]
-
   // Whether to include the generated code as part of the response.
   includeCode: boolean
+
+  // options!
+  options: RunOptions
 }
 
 export interface SessionRunResult extends FrameworkResult {

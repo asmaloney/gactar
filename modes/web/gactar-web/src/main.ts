@@ -41,13 +41,22 @@ Vue.use(Buefy, {
 import { dom, library } from '@fortawesome/fontawesome-svg-core'
 import { faCaretSquareDown } from '@fortawesome/free-regular-svg-icons'
 import {
+  faCaretDown,
+  faCaretUp,
   faFileDownload,
   faFileUpload,
   faRunning,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faCaretSquareDown, faFileDownload, faFileUpload, faRunning)
+library.add(
+  faCaretDown,
+  faCaretUp,
+  faCaretSquareDown,
+  faFileDownload,
+  faFileUpload,
+  faRunning
+)
 dom.watch()
 
 Vue.component('FontAwesomeIcon', FontAwesomeIcon)

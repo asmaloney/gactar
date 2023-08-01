@@ -1,5 +1,5 @@
 <template>
-  <b-tab-item label="amod">
+  <b-tab-item label="amod" value="amod-code">
     <div class="columns buttons">
       <div class="column">
         <b-field class="is-pulled-right" grouped>

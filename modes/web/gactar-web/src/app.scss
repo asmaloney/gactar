@@ -63,6 +63,11 @@ textarea {
   font-size: 14px;
 }
 
+.icon.is-tiny {
+  height: 0.75rem;
+  width: 0.75rem;
+}
+
 .icon-space {
   margin-right: 0.5em;
 }
@@ -108,5 +113,15 @@ textarea {
     border: 1px solid $tab-border-color;
     border-top-color: transparent !important;
     padding: 0.5rem 0 0 0;
+  }
+}
+
+.tile.is-small-gap {
+  .tile.is-parent {
+    padding: 0.66rem;
+  }
+
+  .tile.is-vertical > .tile.is-child:not(:last-child) {
+    margin-bottom: 0.66rem !important;
   }
 }
