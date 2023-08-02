@@ -2,6 +2,7 @@
 package buffer
 
 import (
+	"fmt"
 	"strings"
 
 	"golang.org/x/exp/slices"
@@ -15,19 +16,44 @@ var validStates = []string{
 	"full",
 }
 
+type ErrInvalidRequestParameterValue struct {
+	ParameterName string
+	Value         string
+	Context       *string // optional context
+}
+
+func (e ErrInvalidRequestParameterValue) Error() string {
+	message := fmt.Sprintf("invalid value %q for parameter %q", e.Value, e.ParameterName)
+
+	if e.Context != nil {
+		message += fmt.Sprintf(" %s", *e.Context)
+	}
+
+	return message
+}
+
 type Buffer struct {
 	Name string
+
+	// Optional list of request parameter names
+	RequestParameters []string
 
 	MultipleInit bool
 }
 
 type Interface interface {
 	BufferName() string
+
+	HasRequestParameters() bool
+	RequestParameterNames() []string
+	IsValidRequestKey(key string) bool
+	ValidateRequestParameter(key, value string) error
+
 	AllowsMultipleInit() bool
 }
 
 // List is a list of buffers that we provide operations on
-type List []Buffer
+type List []Interface
 
 // ListInterface defines functions we can call on a List
 type ListInterface interface {
@@ -42,6 +68,29 @@ func (b Buffer) BufferName() string {
 	return b.Name
 }
 
+// HasRequestParameters returns whether this buffer has any additional request parameters available.
+func (b Buffer) HasRequestParameters() bool {
+	return len(b.RequestParameters) > 0
+}
+
+// RequestParameterNames returns a list of request parameter names.
+func (b Buffer) RequestParameterNames() []string {
+	return b.RequestParameters
+}
+
+// IsValidRequestKey checks if 'key' is a valid request parameter for this buffer.
+func (b Buffer) IsValidRequestKey(key string) bool {
+	return slices.Contains(b.RequestParameters, key)
+}
+
+// ValidateRequestParameter checks if 'param' is a valid request parameter for this buffer.
+// Other buffers should implement this to check types and so on.
+func (b Buffer) ValidateRequestParameter(key, value string) error {
+	return nil
+}
+
+// AllowsMultipleInit returns whether this buffer allows more than one initialization.
+// e.g. goal would only allow one, whereas declarative memory's retrieval would allow multiple.
 func (b Buffer) AllowsMultipleInit() bool {
 	return b.MultipleInit
 }
@@ -77,13 +126,13 @@ func (m List) At(index int) Interface {
 		return nil
 	}
 
-	return &m[index]
+	return m[index]
 }
 
 // Lookup looks up a buffer by name (returns nil if not found)
 func (b List) Lookup(name string) Interface {
 	for _, buff := range b {
-		if buff.Name == name {
+		if buff.BufferName() == name {
 			return buff
 		}
 	}

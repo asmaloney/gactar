@@ -9,6 +9,8 @@ import (
 	"regexp"
 	"strings"
 
+	"golang.org/x/exp/maps"
+
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
 
@@ -67,20 +69,39 @@ func (PyACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
 
 	for _, production := range model.Productions {
 		numPrintStatements := 0
+
 		if production.DoStatements != nil {
 			for _, statement := range production.DoStatements {
-				if statement.Print == nil {
-					continue
+				if statement.Print != nil {
+					numPrintStatements++
+					if numPrintStatements > 1 {
+						location := issues.Location{
+							Line:        production.AMODLineNumber,
+							ColumnStart: 0,
+							ColumnEnd:   0,
+						}
+						log.Warning(&location, "pyactr only supports one print statement per production (in %q)", production.Name)
+					}
 				}
 
-				numPrintStatements++
-				if numPrintStatements > 1 {
-					location := issues.Location{
-						Line:        production.AMODLineNumber,
-						ColumnStart: 0,
-						ColumnEnd:   0,
+				if statement.Recall != nil {
+					for _, param := range maps.Keys(statement.Recall.RequestParameters) {
+						location := issues.Location{
+							Line:        production.AMODLineNumber,
+							ColumnStart: 0,
+							ColumnEnd:   0,
+						}
+
+						if param == "recently_retrieved" {
+							value := statement.Recall.RequestParameters[param]
+
+							if value != "nil" {
+								log.Warning(&location, "pyactr only supports 'recently_retrieved nil' (in %q)", production.Name)
+							}
+						} else {
+							log.Warning(&location, "pyactr only supports the 'recently_retrieved' request parameter (in %q)", production.Name)
+						}
 					}
-					log.Warning(&location, "pyactr currently only supports one print statement per production (in '%s')", production.Name)
 				}
 			}
 		}
@@ -551,6 +572,24 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, slot *
 	}
 }
 
+func (p PyACTR) outputRequestParameters(params map[string]string) {
+
+	for _, param := range maps.Keys(params) {
+		if param != "recently_retrieved" {
+			continue
+		}
+
+		value := params[param]
+
+		// adapt to pyactr's terminology
+		if value == "nil" {
+			value = "False"
+		}
+
+		p.Writeln("     %s %s", param, value)
+	}
+}
+
 func (p PyACTR) outputStatement(production *actr.Production, s *actr.Statement) {
 	switch {
 	case s.Set != nil:
@@ -592,6 +631,7 @@ func (p PyACTR) outputStatement(production *actr.Production, s *actr.Statement) 
 		// Clear the buffer before we set it
 		// See: https://github.com/jakdot/pyactr/issues/9#issuecomment-940442787
 		p.Writeln("     ~retrieval>")
+		p.outputRequestParameters(s.Recall.RequestParameters)
 		p.Writeln("     +retrieval>")
 		p.outputPattern(s.Recall.Pattern, 2)
 

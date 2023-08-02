@@ -144,6 +144,7 @@ var keywords []string = []string{
 	"stop",
 	"to",
 	"when",
+	"with",
 }
 
 // Symbols provides a mapping from participle strings to our lexemes

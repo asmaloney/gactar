@@ -9,6 +9,8 @@ import (
 	"runtime"
 	"strings"
 
+	"golang.org/x/exp/maps"
+
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
 
@@ -553,6 +555,26 @@ func addPatternSlot(tabbedItems *framework.KeyValueList, slotName string, slot *
 	}
 }
 
+func (p VanillaACTR) outputRequestParameters(params map[string]string, tabs int) {
+	tabbedItems := framework.KeyValueList{}
+
+	for _, param := range maps.Keys(params) {
+		if param != "recently_retrieved" {
+			continue
+		}
+
+		name := param
+
+		if param == "recently_retrieved" {
+			name = ":recently-retrieved"
+		}
+
+		tabbedItems.Add(name, params[param])
+	}
+
+	p.TabWrite(tabs, tabbedItems)
+}
+
 func (v VanillaACTR) outputStatement(s *actr.Statement) {
 	switch {
 	case s.Set != nil:
@@ -592,6 +614,7 @@ func (v VanillaACTR) outputStatement(s *actr.Statement) {
 	case s.Recall != nil:
 		v.Writeln("\t+retrieval>")
 		v.outputPattern(s.Recall.Pattern, 2)
+		v.outputRequestParameters(s.Recall.RequestParameters, 2)
 
 	case s.Print != nil:
 		outputArgs := createOutputArgs(s.Print.Values)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/asmaloney/gactar/actr/modules"
@@ -75,7 +76,14 @@ func info(args []string) {
 
 			writer := tabwriter.NewWriter(os.Stdout, 1, 1, 3, ' ', 0)
 			for _, buffer := range mod.Buffers() {
-				fmt.Fprintf(writer, "\t%s", chalk.Italic(buffer.Name))
+				fmt.Fprintf(writer, "\t%s", chalk.Italic(buffer.BufferName()))
+
+				if buffer.HasRequestParameters() {
+					fmt.Fprintf(writer, "\t%s %s",
+						chalk.Header("Request Parameters:"),
+						chalk.Italic(strings.Join(buffer.RequestParameterNames(), ", ")),
+					)
+				}
 			}
 			writer.Flush()
 
@@ -83,7 +91,7 @@ func info(args []string) {
 		}
 
 		if mod.HasParameters() {
-			fmt.Println(chalk.Header(" Parameters"))
+			fmt.Println(chalk.Header(" Module Parameters"))
 			params := mod.Parameters()
 
 			writer := tabwriter.NewWriter(os.Stdout, 1, 1, 3, ' ', 0)

@@ -1,6 +1,8 @@
 package amod
 
 import (
+	"strings"
+
 	"github.com/alecthomas/participle/v2/lexer"
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/actr/buffer"
@@ -333,6 +335,36 @@ func validateRecallStatement(recall *recallStatement, model *actr.Model, log *is
 		if match == nil {
 			log.errorT(recall.Pattern.Slots[v.index].Tokens, "recall statement variable '%s' not found in matches for production '%s'", v.text, production.Name)
 			err = ErrCompile
+		}
+	}
+
+	if recall.With != nil {
+		buffer := model.Memory.BufferList.At(0)
+
+		for _, param := range *recall.With.Expressions {
+			key := param.Param
+
+			if param.Value.Var != nil {
+				log.errorT(param.Tokens, "recall 'with': parameter '%s'. Unexpected variable", key)
+				err = ErrCompile
+				continue
+			}
+
+			if !buffer.IsValidRequestKey(key) {
+				log.errorT(param.Tokens,
+					"recall 'with': invalid parameter '%s'. Expected one of: %s",
+					key, strings.Join(buffer.RequestParameterNames(), ", "))
+				err = ErrCompile
+			} else {
+				paramErr := buffer.ValidateRequestParameter(key, param.Value.String())
+				if paramErr != nil {
+					log.errorT(param.Tokens,
+						"recall 'with': %s.",
+						paramErr.Error(),
+					)
+					err = ErrCompile
+				}
+			}
 		}
 	}
 
