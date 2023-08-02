@@ -16,6 +16,10 @@ type Goal struct {
 	SpreadingActivation *float64
 }
 
+type goalBuffer struct {
+	buffer.Buffer
+}
+
 // NewGoal creates and returns a new Goal module
 func NewGoal() *Goal {
 	spreadingActivation := NewParamFloat(
@@ -24,14 +28,18 @@ func NewGoal() *Goal {
 		Ptr(0.0), nil,
 	)
 
+	goalBuff := goalBuffer{
+		buffer.Buffer{
+			Name: "goal", MultipleInit: false,
+		},
+	}
+
 	return &Goal{
 		Module: Module{
 			Name:        "goal",
 			Version:     BuiltIn,
 			Description: "provides a goal buffer for the model",
-			BufferList: buffer.List{
-				{Name: "goal", MultipleInit: false},
-			},
+			BufferList:  buffer.List{goalBuff},
 			Params: ParamInfoMap{
 				"spreading_activation": spreadingActivation,
 			},

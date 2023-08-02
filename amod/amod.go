@@ -707,10 +707,20 @@ func createRecallStatement(model *actr.Model, log *issueLog, recall *recallState
 		return nil, err
 	}
 
+	requestParameters := make(map[string]string)
+
+	if recall.With != nil {
+		for _, param := range *recall.With.Expressions {
+			value := convertArg(param.Value)
+			requestParameters[param.Param] = value.String()
+		}
+	}
+
 	s := actr.Statement{
 		Recall: &actr.RecallStatement{
-			Pattern:    pattern,
-			MemoryName: model.Memory.ModuleName(),
+			Pattern:           pattern,
+			MemoryModuleName:  model.Memory.ModuleName(),
+			RequestParameters: requestParameters,
 		},
 	}
 

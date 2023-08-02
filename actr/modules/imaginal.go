@@ -24,14 +24,17 @@ func NewImaginal() *Imaginal {
 		Ptr(0.0), nil,
 	)
 
+	imaginalBuffer := goalBuffer{
+		buffer.Buffer{
+			Name: "imaginal", MultipleInit: false,
+		},
+	}
 	return &Imaginal{
 		Module: Module{
 			Name:        "imaginal",
 			Version:     BuiltIn,
 			Description: "provides a goal style buffer with a delay and an action buffer for manipulating the imaginal chunk",
-			BufferList: buffer.List{
-				{Name: "imaginal", MultipleInit: false},
-			},
+			BufferList:  buffer.List{imaginalBuffer},
 			Params: ParamInfoMap{
 				"delay": delay,
 			},

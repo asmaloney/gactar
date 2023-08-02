@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 
+	"golang.org/x/exp/maps"
+
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
 
@@ -64,6 +66,25 @@ func (CCMPyACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
 
 	if model.Memory.LatencyExponent != nil {
 		log.Warning(nil, "ccm does not support memory module's latency_exponent")
+	}
+
+	for _, production := range model.Productions {
+		if production.DoStatements != nil {
+			for _, statement := range production.DoStatements {
+				if (statement.Recall != nil) && (len(statement.Recall.RequestParameters) > 0) {
+					keys := maps.Keys(statement.Recall.RequestParameters)
+					location := issues.Location{
+						Line:        production.AMODLineNumber,
+						ColumnStart: 0,
+						ColumnEnd:   0,
+					}
+
+					log.Warning(&location,
+						"ccm does not support request parameters (%q in %q)",
+						strings.Join(keys, ", "), production.Name)
+				}
+			}
+		}
 	}
 
 	return
@@ -388,7 +409,7 @@ func (c CCMPyACTR) writeInitializers(goal *actr.Pattern) {
 
 		c.Write("        # amod line %d", init.AMODLineNumber)
 		if init.ChunkName != nil {
-			c.Write(" '%s'", *init.ChunkName)
+			c.Write(" %q", *init.ChunkName)
 		}
 		c.Writeln("")
 
@@ -554,7 +575,7 @@ func (c CCMPyACTR) outputStatement(s *actr.Statement) {
 		}
 
 	case s.Recall != nil:
-		c.Write("        %s.request(", s.Recall.MemoryName)
+		c.Write("        %s.request(", s.Recall.MemoryModuleName)
 		c.outputPattern(s.Recall.Pattern)
 		c.Writeln(")")
 

@@ -1,6 +1,11 @@
 package modules
 
 import (
+	"fmt"
+	"strings"
+
+	"golang.org/x/exp/slices"
+
 	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/params"
 )
@@ -93,6 +98,26 @@ type DeclarativeMemory struct {
 	MismatchPenalty *float64
 }
 
+type retrievalBuffer struct {
+	buffer.Buffer
+}
+
+var validRecentlyRetrievedOptions = []string{"t", "nil", "reset"}
+
+func (rb retrievalBuffer) ValidateRequestParameter(key, value string) error {
+	if (key == "recently_retrieved") && !slices.Contains(validRecentlyRetrievedOptions, value) {
+		context := fmt.Sprintf("(expected one of: %s)", strings.Join(validRecentlyRetrievedOptions, ", "))
+
+		return buffer.ErrInvalidRequestParameterValue{
+			ParameterName: key,
+			Value:         value,
+			Context:       &context,
+		}
+	}
+
+	return nil
+}
+
 // NewDeclarativeMemory creates and returns a new DeclarativeMemory module
 func NewDeclarativeMemory() *DeclarativeMemory {
 	decay := NewParamFloat(
@@ -149,14 +174,20 @@ func NewDeclarativeMemory() *DeclarativeMemory {
 		nil, nil,
 	)
 
+	retrievalBuff := retrievalBuffer{
+		buffer.Buffer{
+			Name:              "retrieval",
+			RequestParameters: []string{"recently_retrieved"},
+			MultipleInit:      true,
+		},
+	}
+
 	return &DeclarativeMemory{
 		Module: Module{
 			Name:        "memory",
 			Version:     BuiltIn,
 			Description: "declarative memory which stores chunks from the buffers for retrieval",
-			BufferList: buffer.List{
-				{Name: "retrieval", MultipleInit: true},
-			},
+			BufferList:  buffer.List{retrievalBuff},
 			Params: ParamInfoMap{
 				"decay":               decay,
 				"finst_size":          finstSize,

@@ -127,8 +127,9 @@ type PrintStatement struct {
 
 // RecallStatement is used to pull information from memory.
 type RecallStatement struct {
-	Pattern    *Pattern
-	MemoryName string
+	Pattern           *Pattern
+	MemoryModuleName  string
+	RequestParameters map[string]string
 }
 
 type SetSlot struct {

@@ -582,6 +582,137 @@ func Example_productionRecallStatementVarNotFound() {
 	// ERROR: recall statement variable '?next' not found in matches for production 'start' (line 10, col 20)
 }
 
+func Example_productionRecallStatementWithWith() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing1 thing2] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [foo: ?next *] }
+		do { recall [foo: ?next *] with ( recently_retrieved reset ) }
+	}`)
+
+	// Output:
+}
+
+func Example_productionRecallStatementWithMultipleWith() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing1 thing2] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [foo: ?next *] }
+		do { recall [foo: ?next *] with ( recently_retrieved reset ) and ( recently_retrieved t ) }
+	}`)
+
+	// Output:
+}
+
+func Example_productionRecallStatementWithInvalidParam() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing1 thing2] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [foo: ?next *] }
+		do { recall [foo: ?next *] with ( foo_param 42 ) }
+	}`)
+
+	// Output:
+	// ERROR: recall 'with': invalid parameter 'foo_param'. Expected one of: recently_retrieved (line 10, col 34)
+}
+
+func Example_productionRecallStatementWithNIL() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing1 thing2] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [foo: ?next *] }
+		do { recall [foo: ?next *] with ( recently_retrieved nil ) }
+	}`)
+
+	// Output:
+}
+
+func Example_productionRecallStatementWithID() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing1 thing2] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [foo: ?next *] }
+		do { recall [foo: ?next *] with ( recently_retrieved t ) }
+	}`)
+
+	// Output:
+}
+
+func Example_productionRecallStatementWithString() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing1 thing2] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [foo: ?next *] }
+		do { recall [foo: ?next *] with ( recently_retrieved "bar" ) }
+	}`)
+
+	// Output:
+	// ERROR: recall 'with': invalid value "bar" for parameter "recently_retrieved" (expected one of: t, nil, reset). (line 10, col 34)
+}
+
+func Example_productionRecallStatementWithVar() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing1 thing2] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [foo: ?next *] }
+		do { recall [foo: ?next *] with ( recently_retrieved ?bar ) }
+	}`)
+
+	// Output:
+	// ERROR: recall 'with': parameter 'recently_retrieved'. Unexpected variable (line 10, col 34)
+}
+
+func Example_productionRecallStatementWithIncorrectNumArgs() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing1 thing2] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [foo: ?next *] }
+		do { recall [foo: ?next *] with ( recently_retrieved nil nil ) }
+	}`)
+
+	// Output:
+	// ERROR: unexpected token "nil" (expected ")") (line 10, col 59)
+}
 func Example_productionMultipleStatement() {
 	generateToStdout(`
 	~~ model ~~

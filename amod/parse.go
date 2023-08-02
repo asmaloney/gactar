@@ -59,6 +59,27 @@ type arg struct {
 	Tokens []lexer.Token
 }
 
+func (f arg) String() string {
+	switch {
+	case f.Nil != nil:
+		return "nil"
+
+	case f.Var != nil:
+		return *f.Var
+
+	case f.ID != nil:
+		return *f.ID
+
+	case f.Str != nil:
+		return *f.Str
+
+	case f.Number != nil:
+		return *f.Number
+	}
+
+	return "<error>"
+}
+
 type fieldValue struct {
 	Colon  string   `parser:"(':'"`
 	ID     *string  `parser:"(  @Ident"`
@@ -231,14 +252,14 @@ type matchBufferPatternItem struct {
 
 type matchBufferStateItem struct {
 	Name  string `parser:"@Ident"`
-	State string `parser:"'state' @Ident"`
+	State string `parser:"'state':Keyword @Ident"`
 
 	Tokens []lexer.Token
 }
 
 type matchModuleStateItem struct {
 	Name  string `parser:"@Ident"`
-	State string `parser:"'module' @Ident"`
+	State string `parser:"'module':Keyword @Ident"`
 
 	Tokens []lexer.Token
 }
@@ -269,8 +290,25 @@ type printStatement struct {
 	Tokens []lexer.Token
 }
 
+type withExpression struct {
+	OpenParen  string `parser:"'('"` // not used - must be set for parse
+	Param      string `parser:"@Ident"`
+	Value      *arg   `parser:"@@"`
+	CloseParen string `parser:"')'"` // not used - must be set for parse
+
+	Tokens []lexer.Token
+}
+
+type withClause struct {
+	With        string             `parser:"'with':Keyword"`
+	Expressions *[]*withExpression `parser:"@@ ('and':Keyword @@)*"`
+
+	Tokens []lexer.Token
+}
+
 type recallStatement struct {
-	Pattern *pattern `parser:"'recall' @@"`
+	Pattern *pattern    `parser:"'recall' @@"`
+	With    *withClause `parser:"@@?"`
 
 	Tokens []lexer.Token
 }
