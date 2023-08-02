@@ -476,8 +476,16 @@ func (p PyACTR) writeProductions() {
 func (p PyACTR) writeMain() {
 	p.Writeln("# Main")
 	p.Writeln("if __name__ == '__main__':")
-	p.Writeln("    sim = %s.simulation()", p.className)
+
+	options := []string{"gui=False"}
+
+	if p.model.LogLevel == "min" {
+		options = append(options, "trace=False")
+	}
+
+	p.Writeln("    sim = %s.simulation( %s )", p.className, strings.Join(options, ", "))
 	p.Writeln("    sim.run()")
+
 	// TODO: Add some intelligent output when logging level is info or detail
 	p.Writeln("    if goal.test_buffer('full') is True:")
 	p.Writeln("        print('final goal: ' + str(goal.pop()))")
