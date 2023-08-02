@@ -414,7 +414,7 @@ func (c CCMPyACTR) writeInitializers(goal *actr.Pattern) {
 		c.Writeln("")
 
 		buffer := init.Buffer
-		if buffer.AllowsMultipleInit() {
+		if module.AllowsMultipleInit() {
 			c.Write("        %s.add(", module.ModuleName())
 		} else {
 			c.Write("        %s.set(", buffer.BufferName())

@@ -27,6 +27,8 @@ type Module struct {
 	BufferList buffer.List // The buffers this module provides (may be empty)
 
 	Params ParamInfoMap // Parameters accepted by this module (may be empty)
+
+	MultipleInit bool
 }
 
 // Interface provides an interface for the ACT-R concept of a "module".
@@ -44,6 +46,8 @@ type Interface interface {
 
 	ValidateParam(param *params.Param) error
 	SetParam(param *params.Param) error
+
+	AllowsMultipleInit() bool
 }
 
 func (m Module) ModuleName() string {
@@ -128,6 +132,12 @@ func (m Module) ValidateParam(param *params.Param) (err error) {
 	}
 
 	return
+}
+
+// AllowsMultipleInit returns whether this module allows more than one initialization.
+// e.g. goal would only allow one, whereas declarative memory would allow multiple.
+func (m Module) AllowsMultipleInit() bool {
+	return m.MultipleInit
 }
 
 // AllModules returns a slice of all the modules

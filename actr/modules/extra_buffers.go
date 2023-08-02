@@ -14,18 +14,20 @@ type ExtraBuffers struct {
 func NewExtraBuffers() *ExtraBuffers {
 	return &ExtraBuffers{
 		Module: Module{
-			Name:        "extra_buffers",
-			Version:     BuiltIn,
-			Description: "allows declaration of one or more extra goal-style buffers in the model",
+			Name:         "extra_buffers",
+			Version:      BuiltIn,
+			Description:  "allows declaration of one or more extra goal-style buffers in the model",
+			MultipleInit: false,
 		},
 	}
 }
 
 // SetParam is called to set our module's parameter from the parameter in the code ("param")
 func (eb *ExtraBuffers) SetParam(param *params.Param) (err error) {
-	newBuffer := buffer.Buffer{
-		Name:         param.Key,
-		MultipleInit: false,
+	newBuffer := goalBuffer{
+		buffer.Buffer{
+			Name: param.Key,
+		},
 	}
 
 	eb.BufferList = append(eb.BufferList, newBuffer)

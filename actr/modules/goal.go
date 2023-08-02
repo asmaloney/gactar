@@ -30,7 +30,7 @@ func NewGoal() *Goal {
 
 	goalBuff := goalBuffer{
 		buffer.Buffer{
-			Name: "goal", MultipleInit: false,
+			Name: "goal",
 		},
 	}
 
@@ -43,6 +43,7 @@ func NewGoal() *Goal {
 			Params: ParamInfoMap{
 				"spreading_activation": spreadingActivation,
 			},
+			MultipleInit: false,
 		},
 	}
 }

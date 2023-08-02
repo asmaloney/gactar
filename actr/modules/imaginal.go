@@ -26,9 +26,10 @@ func NewImaginal() *Imaginal {
 
 	imaginalBuffer := goalBuffer{
 		buffer.Buffer{
-			Name: "imaginal", MultipleInit: false,
+			Name: "imaginal",
 		},
 	}
+
 	return &Imaginal{
 		Module: Module{
 			Name:        "imaginal",
@@ -38,6 +39,7 @@ func NewImaginal() *Imaginal {
 			Params: ParamInfoMap{
 				"delay": delay,
 			},
+			MultipleInit: false,
 		},
 	}
 }

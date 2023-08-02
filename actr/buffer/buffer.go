@@ -37,8 +37,6 @@ type Buffer struct {
 
 	// Optional list of request parameter names
 	RequestParameters []string
-
-	MultipleInit bool
 }
 
 type Interface interface {
@@ -48,8 +46,6 @@ type Interface interface {
 	RequestParameterNames() []string
 	IsValidRequestKey(key string) bool
 	ValidateRequestParameter(key, value string) error
-
-	AllowsMultipleInit() bool
 }
 
 // List is a list of buffers that we provide operations on
@@ -87,12 +83,6 @@ func (b Buffer) IsValidRequestKey(key string) bool {
 // Other buffers should implement this to check types and so on.
 func (b Buffer) ValidateRequestParameter(key, value string) error {
 	return nil
-}
-
-// AllowsMultipleInit returns whether this buffer allows more than one initialization.
-// e.g. goal would only allow one, whereas declarative memory's retrieval would allow multiple.
-func (b Buffer) AllowsMultipleInit() bool {
-	return b.MultipleInit
 }
 
 func (b Buffer) String() string {
