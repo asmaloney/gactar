@@ -178,7 +178,6 @@ func NewDeclarativeMemory() *DeclarativeMemory {
 		buffer.Buffer{
 			Name:              "retrieval",
 			RequestParameters: []string{"recently_retrieved"},
-			MultipleInit:      true,
 		},
 	}
 
@@ -199,6 +198,7 @@ func NewDeclarativeMemory() *DeclarativeMemory {
 				"mismatch_penalty":    mismatchPenalty,
 				"retrieval_threshold": retrievalThreshold,
 			},
+			MultipleInit: true,
 		},
 	}
 }
