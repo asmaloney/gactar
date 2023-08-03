@@ -475,6 +475,20 @@ func (v VanillaACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 }
 
 func (v VanillaACTR) outputMatch(match *actr.Match) {
+	tabbedItems := framework.KeyValueList{}
+
+	// check for case where we need to combine module & buffer checks
+	if (match.BufferState != nil) && (match.ModuleState != nil) {
+		bufferName := match.BufferState.Buffer.BufferName()
+
+		v.Writeln("\t?%s>", bufferName)
+		tabbedItems.Add("buffer", match.BufferState.State)
+		tabbedItems.Add("state", match.ModuleState.State)
+		v.TabWrite(2, tabbedItems)
+
+		return
+	}
+
 	switch {
 	case match.BufferPattern != nil:
 		bufferName := match.BufferPattern.Buffer.BufferName()
@@ -486,13 +500,15 @@ func (v VanillaACTR) outputMatch(match *actr.Match) {
 		bufferName := match.BufferState.Buffer.BufferName()
 
 		v.Writeln("\t?%s>", bufferName)
-		v.Writeln("\t\tbuffer %s", match.BufferState.State)
+		tabbedItems.Add("buffer", match.BufferState.State)
+		v.TabWrite(2, tabbedItems)
 
 	case match.ModuleState != nil:
 		bufferName := match.ModuleState.Buffer.BufferName()
 
 		v.Writeln("\t?%s>", bufferName)
-		v.Writeln("\t\tstate %s", match.ModuleState.State)
+		tabbedItems.Add("state", match.ModuleState.State)
+		v.TabWrite(2, tabbedItems)
 	}
 }
 
