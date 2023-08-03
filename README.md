@@ -688,10 +688,10 @@ The production name is used to trace the output when running a model.
 
 The _match_ section allows checking buffer and module states, and matching buffers by _pattern_.
 
-Checking the buffer state takes the form `<buffer> state <state>`. For example, to check if the retrieval buffer is full:
+Checking the buffer state takes the form `buffer_state <buffer> <state>`. For example, to check if the retrieval buffer is full:
 
 ```
-retrieval state full
+buffer_state retrieval full
 ```
 
 Valid buffer states are:
@@ -699,10 +699,10 @@ Valid buffer states are:
 - `empty` - the buffer does not contain a chunk
 - `full` - the buffer contains a chunk
 
-Checking the module state takes the form `<buffer> module <state>`. For example, to check if the retrieval module is in the error state:
+Checking the module state takes the form `module_state <module> <state>`. For example, to check if the memory module is in the error state:
 
 ```
-retrieval module error
+module_state memory error
 ```
 
 Valid module states are:

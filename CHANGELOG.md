@@ -13,19 +13,19 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Changed
 
-- Replace the magic internal `_status` chunk with proper support in the language. ([#337](https://github.com/asmaloney/gactar/pull/337), [#338](https://github.com/asmaloney/gactar/pull/338))
+- Replace the magic internal `_status` chunk with proper support in the language. ([#337](https://github.com/asmaloney/gactar/pull/337), [#338](https://github.com/asmaloney/gactar/pull/338), [#350](https://github.com/asmaloney/gactar/pull/250))
 
-  - Buffer state matches now take the form `<buffer> state <state>`:
+  - Buffer state matches now take the form `buffer_state <buffer> <state>`:
 
     ```
-    retrieval state empty
+    buffer_state retrieval empty
     ```
 
   - Valid buffer states are `empty` & `full`.
-  - Module state matches now take the form `<buffer> module <state>`:
+  - Module state matches now take the form `module_state <module> <state>`:
 
     ```
-    retrieval module error
+    module_state memory error
     ```
 
   - Valid module states are `busy` & `error`.

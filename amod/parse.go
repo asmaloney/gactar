@@ -243,23 +243,25 @@ type whenClause struct {
 }
 
 type matchBufferPatternItem struct {
-	Name    string      `parser:"@Ident"`
-	Pattern *pattern    `parser:"@@"`
-	When    *whenClause `parser:"@@?"`
+	BufferName string      `parser:"@Ident"`
+	Pattern    *pattern    `parser:"@@"`
+	When       *whenClause `parser:"@@?"`
 
 	Tokens []lexer.Token
 }
 
 type matchBufferStateItem struct {
-	Name  string `parser:"@Ident"`
-	State string `parser:"'state':Keyword @Ident"`
+	Keyword    string `parser:"'buffer_state':Keyword"`
+	BufferName string `parser:"@Ident"`
+	State      string `parser:"@Ident"`
 
 	Tokens []lexer.Token
 }
 
 type matchModuleStateItem struct {
-	Name  string `parser:"@Ident"`
-	State string `parser:"'module':Keyword @Ident"`
+	Keyword    string `parser:"'module_state':Keyword"`
+	ModuleName string `parser:"@Ident"`
+	State      string `parser:"@Ident"`
 
 	Tokens []lexer.Token
 }

@@ -794,7 +794,7 @@ func Example_productionPrintStatement3() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal state empty }
+		match { buffer_state goal empty }
 		do { print }
 	}`)
 
@@ -809,7 +809,7 @@ func Example_productionPrintStatementInvalidID() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval state empty }
+		match { buffer_state retrieval empty }
 		do { print fooID }
 	}`)
 
@@ -825,7 +825,7 @@ func Example_productionPrintStatementInvalidNil() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal state empty }
+		match { buffer_state goal empty }
 		do { print nil }
 	}`)
 
@@ -841,7 +841,7 @@ func Example_productionPrintStatementInvalidVar() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval state empty }
+		match { buffer_state retrieval empty }
 		do { print ?fooVar }
 	}`)
 
@@ -857,7 +857,7 @@ func Example_productionPrintStatementWildcard() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal state empty }
+		match { buffer_state goal empty }
 		do { print * }
 	}`)
 
@@ -873,7 +873,7 @@ func Example_productionMatchBufferStatus() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval state empty }
+		match { buffer_state retrieval empty }
 		do { print 42 }
 	}`)
 
@@ -888,7 +888,7 @@ func Example_productionMatchBufferStatusInvalidBuffer() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { foo state empty }
+		match { buffer_state foo empty }
 		do { print 42 }
 	}`)
 
@@ -904,7 +904,7 @@ func Example_productionMatchBufferStatusInvalidStatus() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval state foo }
+		match { buffer_state retrieval foo }
 		do { print 42 }
 	}`)
 
@@ -920,12 +920,12 @@ func Example_productionMatchBufferStatusInvalidString() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal state 'empty' }
+		match { buffer_state goal 'empty' }
 		do { print 42 }
 	}`)
 
 	// Output:
-	// ERROR: unexpected token "empty" (expected <ident>) (line 8, col 21)
+	// ERROR: unexpected token "empty" (expected <ident>) (line 8, col 28)
 }
 
 func Example_productionMatchBufferStatusInvalidNumber() {
@@ -936,12 +936,12 @@ func Example_productionMatchBufferStatusInvalidNumber() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { goal state 42 }
+		match { buffer_state goal 42 }
 		do { print 42 }
 	}`)
 
 	// Output:
-	// ERROR: unexpected token "42" (expected <ident>) (line 8, col 21)
+	// ERROR: unexpected token "42" (expected <ident>) (line 8, col 28)
 }
 
 func Example_productionMatchModuleState() {
@@ -952,11 +952,27 @@ func Example_productionMatchModuleState() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval module error }
+		match { module_state memory error }
 		do { print 42 }
 	}`)
 
 	// Output:
+}
+
+func Example_productionMatchModuleStateInvalidModule() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { module_state foo error }
+		do { print 42 }
+	}`)
+
+	// Output:
+	// ERROR: module 'foo' not found in production 'start' (line 8, col 10)
 }
 
 func Example_productionMatchModuleStateInvalidState1() {
@@ -967,12 +983,12 @@ func Example_productionMatchModuleStateInvalidState1() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval module 'foo' }
+		match { module_state memory 'foo' }
 		do { print 42 }
 	}`)
 
 	// Output:
-	// ERROR: unexpected token "foo" (expected <ident>) (line 8, col 27)
+	// ERROR: unexpected token "foo" (expected <ident>) (line 8, col 30)
 }
 
 func Example_productionMatchModuleStateInvalidState2() {
@@ -983,10 +999,10 @@ func Example_productionMatchModuleStateInvalidState2() {
 	~~ init ~~
 	~~ productions ~~
 	start {
-		match { retrieval module bar }
+		match { module_state memory bar }
 		do { print 42 }
 	}`)
 
 	// Output:
-	// ERROR: invalid module state check 'bar' for buffer 'retrieval' in production 'start' (should be one of: busy, error) (line 8, col 10)
+	// ERROR: invalid module state check 'bar' for module 'memory' in production 'start' (should be one of: busy, error) (line 8, col 10)
 }

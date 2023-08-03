@@ -88,7 +88,7 @@ chainCategory {
 fail {
     match {
         goal [isMember: * * 'pending']
-        retrieval module error
+        module_state memory error
     }
     do {
         set goal.judgment to 'no'

@@ -125,7 +125,7 @@ func validatePattern(model *actr.Model, log *issueLog, pattern *pattern) (err er
 
 // validateBufferPatternMatch verifies several aspects of a chunk match item.
 func validateBufferPatternMatch(item *matchBufferPatternItem, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
-	name := item.Name
+	name := item.BufferName
 
 	bufferInterface := model.LookupBuffer(name)
 	if bufferInterface == nil {
@@ -165,7 +165,7 @@ func validateBufferPatternMatch(item *matchBufferPatternItem, model *actr.Model,
 
 // validateBufferStateMatch verifies a buffer match match item.
 func validateBufferStateMatch(item *matchBufferStateItem, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
-	name := item.Name
+	name := item.BufferName
 
 	bufferInterface := model.LookupBuffer(name)
 	if bufferInterface == nil {
@@ -185,17 +185,17 @@ func validateBufferStateMatch(item *matchBufferStateItem, model *actr.Model, log
 
 // validateModuleStateMatch verifies a module state match item.
 func validateModuleStateMatch(item *matchModuleStateItem, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
-	name := item.Name
+	name := item.ModuleName
 
-	bufferInterface := model.LookupBuffer(name)
-	if bufferInterface == nil {
-		log.errorTR(item.Tokens, 0, 1, "buffer '%s' not found in production '%s'", name, production.Name)
+	moduleInterface := model.LookupModule(name)
+	if moduleInterface == nil {
+		log.errorTR(item.Tokens, 0, 1, "module '%s' not found in production '%s'", name, production.Name)
 		err = ErrCompile
 	}
 
 	if !modules.IsValidState(item.State) {
 		log.errorT(item.Tokens,
-			"invalid module state check '%s' for buffer '%s' in production '%s' (should be one of: %v)",
+			"invalid module state check '%s' for module '%s' in production '%s' (should be one of: %v)",
 			item.State, name, production.Name, modules.ValidStatesStr())
 		err = ErrCompile
 	}
