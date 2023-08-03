@@ -486,14 +486,28 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 
 			case match.BufferState != nil:
 				name := match.BufferState.BufferName
-				actrMatch := actr.Match{
-					BufferState: &actr.BufferStateMatch{
-						Buffer: model.LookupBuffer(name),
-						State:  match.BufferState.State,
-					},
+				actrMatch := &actr.BufferStateMatch{
+					Buffer: model.LookupBuffer(name),
+					State:  match.BufferState.State,
 				}
 
-				prod.Matches = append(prod.Matches, &actrMatch)
+				// if we have a buffer state match already, add this module state match there
+				matched := false
+				for _, match := range prod.Matches {
+					if (match.ModuleState != nil) &&
+						(match.ModuleState.Buffer.BufferName() == name) {
+						match.BufferState = actrMatch
+
+						matched = true
+						break
+					}
+				}
+
+				if !matched {
+					prod.Matches = append(prod.Matches, &actr.Match{
+						BufferState: actrMatch,
+					})
+				}
 
 			case match.ModuleState != nil:
 				name := match.ModuleState.ModuleName
@@ -504,15 +518,29 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 				// matter which one we pick as the requests should be on its module.
 				buffer := module.Buffers().At(0)
 
-				actrMatch := actr.Match{
-					ModuleState: &actr.ModuleStateMatch{
-						Module: module,
-						Buffer: buffer,
-						State:  match.ModuleState.State,
-					},
+				actrMatch := &actr.ModuleStateMatch{
+					Module: module,
+					Buffer: buffer,
+					State:  match.ModuleState.State,
 				}
 
-				prod.Matches = append(prod.Matches, &actrMatch)
+				// if we have a buffer state match already, add this module state match there
+				matched := false
+				for _, match := range prod.Matches {
+					if (match.BufferState != nil) &&
+						(match.BufferState.Buffer.BufferName() == buffer.BufferName()) {
+						match.ModuleState = actrMatch
+
+						matched = true
+						break
+					}
+				}
+
+				if !matched {
+					prod.Matches = append(prod.Matches, &actr.Match{
+						ModuleState: actrMatch,
+					})
+				}
 			}
 		}
 

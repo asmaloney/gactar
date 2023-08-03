@@ -504,6 +504,20 @@ func (p PyACTR) outputPattern(pattern *actr.Pattern, tabs int) {
 }
 
 func (p PyACTR) outputMatch(match *actr.Match) {
+	tabbedItems := framework.KeyValueList{}
+
+	// check for case where we need to combine module & buffer checks
+	if (match.BufferState != nil) && (match.ModuleState != nil) {
+		bufferName := match.BufferState.Buffer.BufferName()
+
+		p.Writeln("     ?%s>", bufferName)
+		tabbedItems.Add("buffer", match.BufferState.State)
+		tabbedItems.Add("state", match.ModuleState.State)
+		p.TabWrite(2, tabbedItems)
+
+		return
+	}
+
 	switch {
 	case match.BufferPattern != nil:
 		bufferName := match.BufferPattern.Buffer.BufferName()
@@ -515,13 +529,15 @@ func (p PyACTR) outputMatch(match *actr.Match) {
 		bufferName := match.BufferState.Buffer.BufferName()
 
 		p.Writeln("     ?%s>", bufferName)
-		p.Writeln("          buffer %s", match.BufferState.State)
+		tabbedItems.Add("buffer", match.BufferState.State)
+		p.TabWrite(2, tabbedItems)
 
 	case match.ModuleState != nil:
 		bufferName := match.ModuleState.Buffer.BufferName()
 
 		p.Writeln("     ?%s>", bufferName)
-		p.Writeln("          state %s", match.ModuleState.State)
+		tabbedItems.Add("state", match.ModuleState.State)
+		p.TabWrite(2, tabbedItems)
 	}
 }
 

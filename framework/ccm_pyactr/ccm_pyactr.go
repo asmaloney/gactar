@@ -509,9 +509,9 @@ func (c CCMPyACTR) outputMatch(match *actr.Match) {
 		c.Write("%s='%s:True'", bufferName, match.BufferState.State)
 
 	case match.ModuleState != nil:
-		bufferName := match.ModuleState.Buffer.BufferName()
+		moduleName := match.ModuleState.Module.ModuleName()
 
-		c.Write("%s='%s:True'", bufferName, match.ModuleState.State)
+		c.Write("%s='%s:True'", moduleName, match.ModuleState.State)
 	}
 }
 

@@ -60,8 +60,10 @@ func (c Constraint) String() string {
 
 type Match struct {
 	BufferPattern *BufferPatternMatch
-	BufferState   *BufferStateMatch
-	ModuleState   *ModuleStateMatch
+
+	// If the buffer and the module's buffer are the same, we will have one of each of these.
+	BufferState *BufferStateMatch
+	ModuleState *ModuleStateMatch
 }
 
 type BufferPatternMatch struct {

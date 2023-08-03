@@ -16,6 +16,7 @@ const BuiltIn = "built-in"
 var validStates = []string{
 	"busy",
 	"error",
+	"free",
 }
 
 // Module is an ACT-R module

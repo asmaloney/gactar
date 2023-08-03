@@ -1004,5 +1004,5 @@ func Example_productionMatchModuleStateInvalidState2() {
 	}`)
 
 	// Output:
-	// ERROR: invalid module state check 'bar' for module 'memory' in production 'start' (should be one of: busy, error) (line 8, col 10)
+	// ERROR: invalid module state check 'bar' for module 'memory' in production 'start' (should be one of: busy, error, free) (line 8, col 10)
 }
