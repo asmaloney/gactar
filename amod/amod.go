@@ -430,7 +430,7 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 					continue
 				}
 
-				name := match.BufferPattern.Name
+				name := match.BufferPattern.BufferName
 				buffer := model.LookupBuffer(name)
 				actrMatch := actr.Match{
 					BufferPattern: &actr.BufferPatternMatch{
@@ -485,7 +485,7 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 				}
 
 			case match.BufferState != nil:
-				name := match.BufferState.Name
+				name := match.BufferState.BufferName
 				actrMatch := actr.Match{
 					BufferState: &actr.BufferStateMatch{
 						Buffer: model.LookupBuffer(name),
@@ -496,10 +496,18 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 				prod.Matches = append(prod.Matches, &actrMatch)
 
 			case match.ModuleState != nil:
-				name := match.ModuleState.Name
+				name := match.ModuleState.ModuleName
+				module := model.LookupModule(name)
+
+				// The generated code for the frameworks actually uses a buffer name, not the module name.
+				// So store (one) here for convenience. If the module has multiple buffers it should not
+				// matter which one we pick as the requests should be on its module.
+				buffer := module.Buffers().At(0)
+
 				actrMatch := actr.Match{
 					ModuleState: &actr.ModuleStateMatch{
-						Buffer: model.LookupBuffer(name),
+						Module: module,
+						Buffer: buffer,
 						State:  match.ModuleState.State,
 					},
 				}

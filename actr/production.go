@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/asmaloney/gactar/actr/buffer"
+	"github.com/asmaloney/gactar/actr/modules"
 )
 
 // Production stores information on how to match buffers and perform some operations.
@@ -76,6 +77,11 @@ type BufferStateMatch struct {
 }
 
 type ModuleStateMatch struct {
+	Module modules.Interface
+
+	// The generated code for the frameworks actually uses a buffer name, not the module name.
+	// So store (one) here for convenience. If the module has multiple buffers it should not
+	// matter which one we pick as the requests should be on its module.
 	Buffer buffer.Interface
 
 	State string

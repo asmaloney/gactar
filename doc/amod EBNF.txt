@@ -82,10 +82,10 @@ Arg      ::= 'nil'
            | number
 
 MatchBufferStateItem
-         ::= ident 'state' ident
+         ::= 'buffer_state' ident ident
 
 MatchModuleStateItem
-         ::= ident 'module' ident
+         ::= 'module_state' ident ident
 
 Do       ::= 'do' '{' Statement+ '}'
 
@@ -103,7 +103,13 @@ PrintStatement
          ::= 'print' ( Arg ','? )*
 
 RecallStatement
-         ::= 'recall' Pattern
+         ::= 'recall' Pattern WithClause?
+
+WithClause
+         ::= 'with' WithExpression ( 'and' WithExpression )*
+
+WithExpression
+         ::= '(' ident Arg ')'
 
 SetStatement
          ::= 'set' ident ( '.' ident )? 'to' ( Arg | Pattern )
