@@ -1,5 +1,5 @@
-// Package params implements parsed parameter information.
-package params
+// Package keyvalue implements parsed key/value information.
+package keyvalue
 
 import "golang.org/x/exp/slices"
 
@@ -8,16 +8,16 @@ var boolean = []string{
 	"false",
 }
 
-// Value mimics amod.fieldValue but without tokens.
+// Value stores an ID, string, number, or another KeyValue (recursive).
 type Value struct {
 	ID     *string
 	Str    *string
 	Number *float64
-	Field  *Param
+	Field  *KeyValue
 }
 
-// Param is the key/value of a parameter from the parsed amod code.
-type Param struct {
+// KeyValue is the key/value of a parameter from the parsed amod code.
+type KeyValue struct {
 	Key   string
 	Value Value
 }

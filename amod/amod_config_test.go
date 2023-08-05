@@ -25,7 +25,7 @@ func Example_gactarUnrecognizedField() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: unrecognized option in gactar section: 'foo' (line 5, col 10)
+	// ERROR: unrecognized option "foo" in gactar section (line 5, col 10)
 }
 
 func Example_gactarUnrecognizedLogLevel() {
@@ -51,7 +51,7 @@ func Example_gactarUnrecognizedNestedValue() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: unrecognized option in gactar section: 'foo' (line 5, col 10)
+	// ERROR: unrecognized option "foo" in gactar section (line 5, col 10)
 }
 
 func Example_gactarFieldNotANestedValue() {
@@ -278,7 +278,7 @@ func Example_imaginalFieldUnrecognized() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: unrecognized option in imaginal config: 'foo' (line 6, col 13)
+	// ERROR: unrecognized option "foo" in imaginal config (line 6, col 13)
 }
 
 func Example_memoryFieldUnrecognized() {
@@ -293,7 +293,7 @@ func Example_memoryFieldUnrecognized() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: unrecognized option in memory config: 'foo' (line 6, col 11)
+	// ERROR: unrecognized option "foo" in memory config (line 6, col 11)
 }
 
 func Example_memoryDecayOutOfRange() {
@@ -338,5 +338,5 @@ func Example_proceduralFieldUnrecognized() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: unrecognized option in procedural config: 'foo' (line 6, col 15)
+	// ERROR: unrecognized option "foo" in procedural config (line 6, col 15)
 }

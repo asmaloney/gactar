@@ -7,7 +7,8 @@ import (
 	"golang.org/x/exp/slices"
 
 	"github.com/asmaloney/gactar/actr/buffer"
-	"github.com/asmaloney/gactar/actr/params"
+
+	"github.com/asmaloney/gactar/util/keyvalue"
 )
 
 type RetrievalTimeParams struct {
@@ -209,7 +210,7 @@ func (d DeclarativeMemory) BufferName() string {
 }
 
 // SetParam is called to set our module's parameter from the parameter in the code ("param")
-func (d *DeclarativeMemory) SetParam(param *params.Param) (err error) {
+func (d *DeclarativeMemory) SetParam(param *keyvalue.KeyValue) (err error) {
 	err = d.ValidateParam(param)
 	if err != nil {
 		return

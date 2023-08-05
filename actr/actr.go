@@ -5,8 +5,9 @@ package actr
 import (
 	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/modules"
-	"github.com/asmaloney/gactar/actr/params"
+
 	"github.com/asmaloney/gactar/util/container"
+	"github.com/asmaloney/gactar/util/keyvalue"
 )
 
 type Options struct {
@@ -250,13 +251,13 @@ func (model Model) LookupBuffer(bufferName string) buffer.Interface {
 	return nil
 }
 
-func (model *Model) SetParam(param *params.Param) (err error) {
+func (model *Model) SetParam(param *keyvalue.KeyValue) (err error) {
 	value := param.Value
 
 	switch param.Key {
 	case "log_level":
 		if (value.Str == nil) || !ValidLogLevel(*value.Str) {
-			return params.ErrInvalidOption{Expected: ACTRLoggingLevels}
+			return modules.ErrInvalidValue{Expected: ACTRLoggingLevels}
 		}
 
 		model.LogLevel = ACTRLogLevel(*value.Str)
@@ -271,7 +272,7 @@ func (model *Model) SetParam(param *params.Param) (err error) {
 
 	case "random_seed":
 		if value.Number == nil {
-			return params.ErrInvalidType{ExpectedType: params.Number}
+			return keyvalue.ErrInvalidType{ExpectedType: keyvalue.Number}
 		}
 
 		seed := uint32(*value.Number)
@@ -279,7 +280,7 @@ func (model *Model) SetParam(param *params.Param) (err error) {
 		model.RandomSeed = &seed
 
 	default:
-		return params.ErrUnrecognizedParam
+		return modules.ErrUnrecognizedOption{Option: param.Key}
 	}
 
 	return

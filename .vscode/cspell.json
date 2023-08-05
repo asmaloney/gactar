@@ -33,6 +33,7 @@
     "gosec",
     "Infof",
     "Infoln",
+    "keyvalue",
     "Naur",
     "productionstring",
     "pyactr",

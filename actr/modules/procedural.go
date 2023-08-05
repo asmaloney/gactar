@@ -1,7 +1,7 @@
 package modules
 
 import (
-	"github.com/asmaloney/gactar/actr/params"
+	"github.com/asmaloney/gactar/util/keyvalue"
 )
 
 type Procedural struct {
@@ -35,7 +35,7 @@ func NewProcedural() *Procedural {
 }
 
 // SetParam is called to set our module's parameter from the parameter in the code ("param")
-func (p *Procedural) SetParam(param *params.Param) (err error) {
+func (p *Procedural) SetParam(param *keyvalue.KeyValue) (err error) {
 	err = p.ValidateParam(param)
 	if err != nil {
 		return
