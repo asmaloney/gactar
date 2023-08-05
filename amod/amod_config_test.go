@@ -248,7 +248,7 @@ func Example_imaginalFieldType() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: imaginal 'delay' must be a number (line 6, col 20)
+	// ERROR: imaginal "delay" must be a number (line 6, col 20)
 }
 
 func Example_imaginalFieldRange() {
@@ -263,7 +263,7 @@ func Example_imaginalFieldRange() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: imaginal 'delay' is out of range (minimum 0) (line 6, col 20)
+	// ERROR: imaginal "delay" is out of range (minimum 0) (line 6, col 20)
 }
 
 func Example_imaginalFieldUnrecognized() {
@@ -308,7 +308,7 @@ func Example_memoryDecayOutOfRange() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: memory 'decay' is out of range (0-1) (line 6, col 18)
+	// ERROR: memory "decay" is out of range (0-1) (line 6, col 18)
 }
 
 func Example_memoryDecayOutOfRange2() {
@@ -323,7 +323,7 @@ func Example_memoryDecayOutOfRange2() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: memory 'decay' is out of range (0-1) (line 6, col 18)
+	// ERROR: memory "decay" is out of range (0-1) (line 6, col 18)
 }
 
 func Example_proceduralFieldUnrecognized() {

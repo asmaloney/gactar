@@ -276,11 +276,11 @@ func setModuleParams(module modules.Interface, log *issueLog, fields []*field) {
 			case errors.As(err, &keyvalue.ErrInvalidType{}) ||
 				errors.As(err, &modules.ErrInvalidValue{}) ||
 				errors.As(err, &modules.ErrValueOutOfRange{}):
-				log.errorTR(value.Tokens, 1, 1, "%s '%s' %v", moduleName, field.Key, err)
+				log.errorTR(value.Tokens, 1, 1, "%s %q %v", moduleName, field.Key, err)
 				continue
 
 			default:
-				log.errorT(field.Tokens, "INTERNAL: unhandled error (%v) in %s config: '%s'", err, moduleName, field.Key)
+				log.errorT(field.Tokens, "INTERNAL: unhandled error (%v) in %s config: %q", err, moduleName, field.Key)
 				continue
 			}
 		}
