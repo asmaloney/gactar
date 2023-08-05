@@ -8,6 +8,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/asmaloney/gactar/actr/modules"
+	"github.com/asmaloney/gactar/actr/param"
 	"github.com/asmaloney/gactar/util/chalk"
 	"github.com/spf13/cobra"
 )
@@ -68,52 +69,66 @@ func info(args []string) {
 		}
 
 		fmt.Printf("%s: %s (%s)\n", chalk.Bold("Module"), mod.ModuleName(), mod.ModuleVersion())
-		fmt.Println(chalk.Header(" Description"))
-		fmt.Printf("  %s\n", mod.ModuleDescription())
+		fmt.Println(chalk.BoldHeader(" Description"))
+		fmt.Printf("   %s\n", mod.ModuleDescription())
+
+		writer := tabwriter.NewWriter(os.Stdout, 1, 1, 3, ' ', 0)
+
+		if mod.Parameters() != nil {
+			fmt.Println(chalk.BoldHeader(" Module Parameters"))
+			params := mod.Parameters().ParameterList()
+
+			for _, param := range params {
+				outputParam(writer, 1, param)
+			}
+
+			writer.Flush()
+		}
 
 		if mod.HasBuffers() {
-			fmt.Println(chalk.Header(" Buffers"))
+			fmt.Println(chalk.BoldHeader(" Buffers"))
 
-			writer := tabwriter.NewWriter(os.Stdout, 1, 1, 3, ' ', 0)
 			for _, buffer := range mod.Buffers() {
-				fmt.Fprintf(writer, "\t%s", chalk.Italic(buffer.BufferName()))
+				fmt.Printf("   %s\n", chalk.Italic(buffer.Name()))
 
 				if buffer.HasRequestParameters() {
-					fmt.Fprintf(writer, "\t%s %s",
-						chalk.Header("Request Parameters:"),
-						chalk.Italic(strings.Join(buffer.RequestParameterNames(), ", ")),
-					)
+					fmt.Fprintf(writer, "\t\t%s\n", chalk.Header("Request Parameters:"))
+
+					for _, rp := range buffer.RequestParameterKeys() {
+						fmt.Fprintf(writer, "\t\t\t%s\n", chalk.Italic(rp))
+					}
+
+					writer.Flush()
+				}
+
+				if buffer.Parameters() != nil {
+					fmt.Fprintf(writer, "\t\t%s\n", chalk.Header("Config Options:"))
+
+					for _, param := range buffer.Parameters().ParameterList() {
+						outputParam(writer, 3, param)
+					}
+
+					writer.Flush()
 				}
 			}
-			writer.Flush()
-
-			fmt.Println("")
 		}
 
-		if mod.HasParameters() {
-			fmt.Println(chalk.Header(" Module Parameters"))
-			params := mod.Parameters()
-
-			writer := tabwriter.NewWriter(os.Stdout, 1, 1, 3, ' ', 0)
-			for _, param := range params {
-				outputParam(writer, param)
-			}
-			writer.Flush()
-		}
-
+		writer.Flush()
 		fmt.Println("")
 	}
 }
 
-func outputParam(writer *tabwriter.Writer, param modules.ParamInterface) {
-	fmt.Fprintf(writer, "\t%s", chalk.Italic(param.GetName()))
+func outputParam(writer *tabwriter.Writer, level int, p param.ParamInterface) {
+	tabs := strings.Repeat("\t", level)
+
+	fmt.Fprintf(writer, "%s%s", tabs, chalk.Italic(p.GetName()))
 
 	var typeStr string
 	var minStr string
 	var maxStr string
 
-	switch v := param.(type) {
-	case modules.ParamInt:
+	switch v := p.(type) {
+	case param.Int:
 		{
 			typeStr = "int"
 			if v.Min != nil {
@@ -123,7 +138,7 @@ func outputParam(writer *tabwriter.Writer, param modules.ParamInterface) {
 				maxStr = strconv.Itoa(*v.Max)
 			}
 		}
-	case modules.ParamFloat:
+	case param.Float:
 		{
 			typeStr = "float"
 			if v.Min != nil {
@@ -135,9 +150,9 @@ func outputParam(writer *tabwriter.Writer, param modules.ParamInterface) {
 		}
 	}
 
-	fmt.Fprintf(writer, "\t%s", typeStr)
-	fmt.Fprintf(writer, "\t%s-%s", minStr, maxStr)
-	fmt.Fprintf(writer, "\t%s", param.GetDescription())
+	fmt.Fprintf(writer, "%s%s", tabs, typeStr)
+	fmt.Fprintf(writer, "%s%s-%s", tabs, minStr, maxStr)
+	fmt.Fprintf(writer, "%s%s", tabs, p.GetDescription())
 
 	fmt.Fprintln(writer, "")
 }

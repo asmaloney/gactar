@@ -13,6 +13,7 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/modules"
+	"github.com/asmaloney/gactar/actr/param"
 
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/keyvalue"
@@ -212,13 +213,13 @@ func addGACTAR(model *actr.Model, log *issueLog, list []*field) {
 		if err != nil {
 			switch {
 			// field errors
-			case errors.As(err, &modules.ErrUnrecognizedOption{}):
+			case errors.As(err, &param.ErrUnrecognizedOption{}):
 				log.errorTR(field.Tokens, 0, 1, "%v in gactar section", err)
 				continue
 
 				// value errors
 			case errors.As(err, &keyvalue.ErrInvalidType{}) ||
-				errors.As(err, &modules.ErrInvalidValue{}):
+				errors.As(err, &param.ErrInvalidValue{}):
 				log.errorTR(value.Tokens, 1, 1, "'%s' %v", field.Key, err)
 				continue
 
@@ -268,14 +269,14 @@ func setModuleParams(module modules.Interface, log *issueLog, fields []*field) {
 		if err != nil {
 			switch {
 			// field errors
-			case errors.As(err, &modules.ErrUnrecognizedOption{}):
+			case errors.As(err, &param.ErrUnrecognizedOption{}):
 				log.errorTR(field.Tokens, 0, 1, "%v in %s config", err, moduleName)
 				continue
 
 			// value errors
 			case errors.As(err, &keyvalue.ErrInvalidType{}) ||
-				errors.As(err, &modules.ErrInvalidValue{}) ||
-				errors.As(err, &modules.ErrValueOutOfRange{}):
+				errors.As(err, &param.ErrInvalidValue{}) ||
+				errors.As(err, &param.ErrValueOutOfRange{}):
 				log.errorTR(value.Tokens, 1, 1, "%s %q %v", moduleName, field.Key, err)
 				continue
 
@@ -495,7 +496,7 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 				matched := false
 				for _, match := range prod.Matches {
 					if (match.ModuleState != nil) &&
-						(match.ModuleState.Buffer.BufferName() == name) {
+						(match.ModuleState.Buffer.Name() == name) {
 						match.BufferState = actrMatch
 
 						matched = true
@@ -528,7 +529,7 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 				matched := false
 				for _, match := range prod.Matches {
 					if (match.BufferState != nil) &&
-						(match.BufferState.Buffer.BufferName() == buffer.BufferName()) {
+						(match.BufferState.Buffer.Name() == buffer.Name()) {
 						match.ModuleState = actrMatch
 
 						matched = true
@@ -679,7 +680,7 @@ func createSetStatement(model *actr.Model, log *issueLog, set *setStatement, pro
 	}
 
 	if set.Slot != nil {
-		bufferName := buffer.BufferName()
+		bufferName := buffer.Name()
 
 		// find slot index in chunk
 		match := production.LookupMatchByBuffer(bufferName)

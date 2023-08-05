@@ -197,7 +197,7 @@ func (p Production) LookupMatchByBuffer(bufferName string) *BufferPatternMatch {
 			continue
 		}
 
-		if m.BufferPattern.Buffer.BufferName() == bufferName {
+		if m.BufferPattern.Buffer.Name() == bufferName {
 			return m.BufferPattern
 		}
 	}
@@ -225,7 +225,7 @@ func (p Production) LookupSetStatementByBuffer(bufferName string) *SetStatement 
 		return nil
 	}
 
-	if last.Set.Buffer.BufferName() == bufferName {
+	if last.Set.Buffer.Name() == bufferName {
 		return last.Set
 	}
 
