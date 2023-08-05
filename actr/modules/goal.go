@@ -2,7 +2,8 @@ package modules
 
 import (
 	"github.com/asmaloney/gactar/actr/buffer"
-	"github.com/asmaloney/gactar/actr/params"
+
+	"github.com/asmaloney/gactar/util/keyvalue"
 )
 
 // Goal is a module which provides the ACT-R "goal" buffer.
@@ -49,7 +50,7 @@ func NewGoal() *Goal {
 }
 
 // SetParam is called to set our module's parameter from the parameter in the code ("param")
-func (g *Goal) SetParam(param *params.Param) (err error) {
+func (g *Goal) SetParam(param *keyvalue.KeyValue) (err error) {
 	err = g.ValidateParam(param)
 	if err != nil {
 		return

@@ -2,7 +2,8 @@ package modules
 
 import (
 	"github.com/asmaloney/gactar/actr/buffer"
-	"github.com/asmaloney/gactar/actr/params"
+
+	"github.com/asmaloney/gactar/util/keyvalue"
 )
 
 // ExtraBuffers module is used to declare one or more extra goal-style buffers in the model.
@@ -23,7 +24,7 @@ func NewExtraBuffers() *ExtraBuffers {
 }
 
 // SetParam is called to set our module's parameter from the parameter in the code ("param")
-func (eb *ExtraBuffers) SetParam(param *params.Param) (err error) {
+func (eb *ExtraBuffers) SetParam(param *keyvalue.KeyValue) (err error) {
 	newBuffer := goalBuffer{
 		buffer.Buffer{
 			Name: param.Key,

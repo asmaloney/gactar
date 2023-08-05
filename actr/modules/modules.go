@@ -8,7 +8,8 @@ import (
 	"golang.org/x/exp/slices"
 
 	"github.com/asmaloney/gactar/actr/buffer"
-	"github.com/asmaloney/gactar/actr/params"
+
+	"github.com/asmaloney/gactar/util/keyvalue"
 )
 
 const BuiltIn = "built-in"
@@ -45,8 +46,8 @@ type Interface interface {
 	Parameters() []ParamInterface
 	ParameterInfo(name string) ParamInterface
 
-	ValidateParam(param *params.Param) error
-	SetParam(param *params.Param) error
+	ValidateParam(param *keyvalue.KeyValue) error
+	SetParam(param *keyvalue.KeyValue) error
 
 	AllowsMultipleInit() bool
 }
@@ -95,11 +96,10 @@ func (m Module) Parameters() []ParamInterface {
 }
 
 // ValidateParam given an actr param will validate it against our modules parameters
-func (m Module) ValidateParam(param *params.Param) (err error) {
-
+func (m Module) ValidateParam(param *keyvalue.KeyValue) (err error) {
 	paramInfo := m.ParameterInfo(param.Key)
 	if paramInfo == nil {
-		return params.ErrUnrecognizedParam
+		return ErrUnrecognizedOption{Option: param.Key}
 	}
 
 	min := paramInfo.GetMin()
@@ -109,25 +109,25 @@ func (m Module) ValidateParam(param *params.Param) (err error) {
 
 	// we currently only have numbers
 	if value.Number == nil {
-		return params.ErrInvalidType{ExpectedType: params.Number}
+		return keyvalue.ErrInvalidType{ExpectedType: keyvalue.Number}
 	}
 
 	if (min != nil) && (max != nil) &&
 		((*value.Number < *min) || (*value.Number > *max)) {
-		return params.ErrOutOfRange{
+		return ErrValueOutOfRange{
 			Min: min,
 			Max: max,
 		}
 	}
 
 	if min != nil && (*value.Number < *min) {
-		return params.ErrOutOfRange{
+		return ErrValueOutOfRange{
 			Min: min,
 		}
 	}
 
 	if max != nil && (*value.Number > *max) {
-		return params.ErrOutOfRange{
+		return ErrValueOutOfRange{
 			Max: max,
 		}
 	}

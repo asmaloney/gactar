@@ -1,5 +1,45 @@
 package modules
 
+import (
+	"fmt"
+	"strings"
+
+	"github.com/asmaloney/gactar/util/numbers"
+)
+
+type ErrUnrecognizedOption struct {
+	Option string
+}
+
+func (e ErrUnrecognizedOption) Error() string {
+	return fmt.Sprintf("unrecognized option %q", e.Option)
+}
+
+type ErrValueOutOfRange struct {
+	Min *float64
+	Max *float64
+}
+
+func (e ErrValueOutOfRange) Error() string {
+	if e.Min != nil && e.Max == nil {
+		return fmt.Sprintf("is out of range (minimum %s)", numbers.Float64Str(*e.Min))
+	}
+
+	if e.Min == nil && e.Max != nil {
+		return fmt.Sprintf("is out of range (maximum %s)", numbers.Float64Str(*e.Max))
+	}
+
+	return fmt.Sprintf("is out of range (%s-%s)", numbers.Float64Str(*e.Min), numbers.Float64Str(*e.Max))
+}
+
+type ErrInvalidValue struct {
+	Expected []string
+}
+
+func (e ErrInvalidValue) Error() string {
+	return fmt.Sprintf("must be must be one of %q", strings.Join(e.Expected, ", "))
+}
+
 // Ptr simply returns a pointer to a literal. e.g. Ptr(0.5)
 // This is useful when passing literals to functions which require pointers to basic types.
 func Ptr[T any](v T) *T {

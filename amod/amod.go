@@ -13,9 +13,9 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/modules"
-	"github.com/asmaloney/gactar/actr/params"
 
 	"github.com/asmaloney/gactar/util/issues"
+	"github.com/asmaloney/gactar/util/keyvalue"
 )
 
 var (
@@ -207,19 +207,19 @@ func addGACTAR(model *actr.Model, log *issueLog, list []*field) {
 	for _, field := range list {
 		value := field.Value
 
-		param := fieldToParam(field)
-		err := model.SetParam(param)
+		kv := fieldToKeyValue(field)
+		err := model.SetParam(kv)
 		if err != nil {
 			switch {
-			// value errors
-			case errors.As(err, &params.ErrInvalidType{}) ||
-				errors.As(err, &params.ErrInvalidOption{}):
-				log.errorTR(value.Tokens, 1, 1, "'%s' %v", field.Key, err)
+			// field errors
+			case errors.As(err, &modules.ErrUnrecognizedOption{}):
+				log.errorTR(field.Tokens, 0, 1, "%v in gactar section", err)
 				continue
 
-			// field errors
-			case errors.Is(err, params.ErrUnrecognizedParam):
-				log.errorTR(field.Tokens, 0, 1, "%v in gactar section: '%s'", err, field.Key)
+				// value errors
+			case errors.As(err, &keyvalue.ErrInvalidType{}) ||
+				errors.As(err, &modules.ErrInvalidValue{}):
+				log.errorTR(value.Tokens, 1, 1, "'%s' %v", field.Key, err)
 				continue
 
 			default:
@@ -263,20 +263,20 @@ func setModuleParams(module modules.Interface, log *issueLog, fields []*field) {
 	for _, field := range fields {
 		value := field.Value
 
-		param := fieldToParam(field)
-		err := module.SetParam(param)
+		kv := fieldToKeyValue(field)
+		err := module.SetParam(kv)
 		if err != nil {
 			switch {
-			// value errors
-			case errors.As(err, &params.ErrInvalidType{}) ||
-				errors.As(err, &params.ErrInvalidOption{}) ||
-				errors.As(err, &params.ErrOutOfRange{}):
-				log.errorTR(value.Tokens, 1, 1, "%s '%s' %v", moduleName, field.Key, err)
+			// field errors
+			case errors.As(err, &modules.ErrUnrecognizedOption{}):
+				log.errorTR(field.Tokens, 0, 1, "%v in %s config", err, moduleName)
 				continue
 
-			// field errors
-			case errors.Is(err, params.ErrUnrecognizedParam):
-				log.errorTR(field.Tokens, 0, 1, "%v in %s config: '%s'", err, moduleName, field.Key)
+			// value errors
+			case errors.As(err, &keyvalue.ErrInvalidType{}) ||
+				errors.As(err, &modules.ErrInvalidValue{}) ||
+				errors.As(err, &modules.ErrValueOutOfRange{}):
+				log.errorTR(value.Tokens, 1, 1, "%s '%s' %v", moduleName, field.Key, err)
 				continue
 
 			default:
@@ -559,25 +559,25 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 	}
 }
 
-func fieldToParam(f *field) *params.Param {
+func fieldToKeyValue(f *field) *keyvalue.KeyValue {
 	value := f.Value
 
 	if f.Value.OpenBrace != nil {
-		var param *params.Param
+		var kv *keyvalue.KeyValue
 
 		if value.Field != nil {
-			param = fieldToParam(value.Field)
+			kv = fieldToKeyValue(value.Field)
 		}
 
-		return &params.Param{
+		return &keyvalue.KeyValue{
 			Key:   f.Key,
-			Value: params.Value{Field: param},
+			Value: keyvalue.Value{Field: kv},
 		}
 	}
 
-	return &params.Param{
+	return &keyvalue.KeyValue{
 		Key: f.Key,
-		Value: params.Value{
+		Value: keyvalue.Value{
 			ID:     value.ID,
 			Str:    value.Str,
 			Number: value.Number,
