@@ -420,7 +420,7 @@ func (p PyACTR) writeInitializers(goal *actr.Pattern) {
 		p.Writeln("# amod line %d", init.AMODLineNumber)
 
 		if module.ModuleName() == "extra_buffers" {
-			p.Write("%s.add(actr.chunkstring(", init.Buffer.BufferName())
+			p.Write("%s.add(actr.chunkstring(", init.Buffer.Name())
 		} else {
 			p.Write("%s.add(actr.chunkstring(", module.ModuleName())
 		}
@@ -508,7 +508,7 @@ func (p PyACTR) outputMatch(match *actr.Match) {
 
 	// check for case where we need to combine module & buffer checks
 	if (match.BufferState != nil) && (match.ModuleState != nil) {
-		bufferName := match.BufferState.Buffer.BufferName()
+		bufferName := match.BufferState.Buffer.Name()
 
 		p.Writeln("     ?%s>", bufferName)
 		tabbedItems.Add("buffer", match.BufferState.State)
@@ -520,20 +520,20 @@ func (p PyACTR) outputMatch(match *actr.Match) {
 
 	switch {
 	case match.BufferPattern != nil:
-		bufferName := match.BufferPattern.Buffer.BufferName()
+		bufferName := match.BufferPattern.Buffer.Name()
 
 		p.Writeln("     =%s>", bufferName)
 		p.outputPattern(match.BufferPattern.Pattern, 2)
 
 	case match.BufferState != nil:
-		bufferName := match.BufferState.Buffer.BufferName()
+		bufferName := match.BufferState.Buffer.Name()
 
 		p.Writeln("     ?%s>", bufferName)
 		tabbedItems.Add("buffer", match.BufferState.State)
 		p.TabWrite(2, tabbedItems)
 
 	case match.ModuleState != nil:
-		bufferName := match.ModuleState.Buffer.BufferName()
+		bufferName := match.ModuleState.Buffer.Name()
 
 		p.Writeln("     ?%s>", bufferName)
 		tabbedItems.Add("state", match.ModuleState.State)
@@ -618,7 +618,7 @@ func (p PyACTR) outputStatement(production *actr.Production, s *actr.Statement) 
 	switch {
 	case s.Set != nil:
 		buffer := s.Set.Buffer
-		bufferName := buffer.BufferName()
+		bufferName := buffer.Name()
 
 		p.Write("     =%s>\n", bufferName)
 
@@ -670,7 +670,7 @@ func (p PyACTR) outputStatement(production *actr.Production, s *actr.Statement) 
 			switch {
 			case val.Var != nil:
 				varIndex := production.VarIndexMap[*val.Var]
-				str[index] = fmt.Sprintf("%s.%s", varIndex.Buffer.BufferName(), varIndex.SlotName)
+				str[index] = fmt.Sprintf("%s.%s", varIndex.Buffer.Name(), varIndex.SlotName)
 
 			case val.Str != nil:
 				str[index] = fmt.Sprintf("'%s'", *val.Str)

@@ -7,6 +7,7 @@ import (
 	"golang.org/x/exp/slices"
 
 	"github.com/asmaloney/gactar/actr/buffer"
+	"github.com/asmaloney/gactar/actr/param"
 
 	"github.com/asmaloney/gactar/util/keyvalue"
 )
@@ -100,7 +101,7 @@ type DeclarativeMemory struct {
 }
 
 type retrievalBuffer struct {
-	buffer.Buffer
+	buffer.Interface
 }
 
 var validRecentlyRetrievedOptions = []string{"t", "nil", "reset"}
@@ -121,92 +122,93 @@ func (rb retrievalBuffer) ValidateRequestParameter(key, value string) error {
 
 // NewDeclarativeMemory creates and returns a new DeclarativeMemory module
 func NewDeclarativeMemory() *DeclarativeMemory {
-	decay := NewParamFloat(
+	decay := param.NewFloat(
 		"decay",
 		"the 'base-level learning' decay parameter",
-		Ptr(0.0), Ptr(1.0),
+		param.Ptr(0.0), param.Ptr(1.0),
 	)
 
-	finstSize := NewParamInt(
+	finstSize := param.NewInt(
 		"finst_size",
 		"how many chunks are retained in memory",
-		Ptr(0), nil,
+		param.Ptr(0), nil,
 	)
 
-	finstTime := NewParamFloat(
+	finstTime := param.NewFloat(
 		"finst_time",
 		"how long the finst lasts in memory",
-		Ptr(0.0), nil,
+		param.Ptr(0.0), nil,
 	)
 
-	instNoise := NewParamFloat(
+	instNoise := param.NewFloat(
 		"instantaneous_noise",
 		"turns on the activation noise calculation & sets instantaneous noise",
-		Ptr(0.0), nil,
+		param.Ptr(0.0), nil,
 	)
 
-	latencyExponent := NewParamFloat(
+	latencyExponent := param.NewFloat(
 		"latency_exponent",
 		"latency exponent (f)",
-		Ptr(0.0), nil,
+		param.Ptr(0.0), nil,
 	)
 
-	latencyFactor := NewParamFloat(
+	latencyFactor := param.NewFloat(
 		"latency_factor",
 		"latency latency_factor (F)",
-		Ptr(0.0), nil,
+		param.Ptr(0.0), nil,
 	)
 
-	maxSpreadStrength := NewParamFloat(
+	maxSpreadStrength := param.NewFloat(
 		"max_spread_strength",
 		"turns on the spreading activation calculation & sets the maximum associative strength",
 		nil, nil,
 	)
 
-	mismatchPenalty := NewParamFloat(
+	mismatchPenalty := param.NewFloat(
 		"mismatch_penalty",
 		"turns on partial matching and sets the penalty in the activation equation",
 		nil, nil,
 	)
 
-	retrievalThreshold := NewParamFloat(
+	retrievalThreshold := param.NewFloat(
 		"retrieval_threshold",
 		"retrieval threshold (τ)",
 		nil, nil,
 	)
 
+	parameters := param.NewParameters(param.InfoMap{
+		"decay":               decay,
+		"finst_size":          finstSize,
+		"finst_time":          finstTime,
+		"instantaneous_noise": instNoise,
+		"latency_exponent":    latencyExponent,
+		"latency_factor":      latencyFactor,
+		"max_spread_strength": maxSpreadStrength,
+		"mismatch_penalty":    mismatchPenalty,
+		"retrieval_threshold": retrievalThreshold,
+	})
+
 	retrievalBuff := retrievalBuffer{
-		buffer.Buffer{
-			Name:              "retrieval",
-			RequestParameters: []string{"recently_retrieved"},
-		},
+		Interface: buffer.NewBuffer("retrieval", 0.0),
 	}
+
+	retrievalBuff.SetValidRequestParameters([]string{"recently_retrieved"})
 
 	return &DeclarativeMemory{
 		Module: Module{
-			Name:        "memory",
-			Version:     BuiltIn,
-			Description: "declarative memory which stores chunks from the buffers for retrieval",
-			BufferList:  buffer.List{retrievalBuff},
-			Params: ParamInfoMap{
-				"decay":               decay,
-				"finst_size":          finstSize,
-				"finst_time":          finstTime,
-				"instantaneous_noise": instNoise,
-				"latency_exponent":    latencyExponent,
-				"latency_factor":      latencyFactor,
-				"max_spread_strength": maxSpreadStrength,
-				"mismatch_penalty":    mismatchPenalty,
-				"retrieval_threshold": retrievalThreshold,
-			},
-			MultipleInit: true,
+			Name:                "memory",
+			Version:             BuiltIn,
+			Description:         "declarative memory which stores chunks from the buffers for retrieval",
+			BufferList:          buffer.List{retrievalBuff},
+			ParametersInterface: parameters,
+			MultipleInit:        true,
 		},
 	}
 }
 
 // We only have one buffer, so this is a convenience function to get its name.
 func (d DeclarativeMemory) BufferName() string {
-	return d.Buffers().At(0).BufferName()
+	return d.Buffers().At(0).Name()
 }
 
 // SetParam is called to set our module's parameter from the parameter in the code ("param")

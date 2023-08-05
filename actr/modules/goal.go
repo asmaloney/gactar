@@ -2,6 +2,7 @@ package modules
 
 import (
 	"github.com/asmaloney/gactar/actr/buffer"
+	"github.com/asmaloney/gactar/actr/param"
 
 	"github.com/asmaloney/gactar/util/keyvalue"
 )
@@ -17,34 +18,28 @@ type Goal struct {
 	SpreadingActivation *float64
 }
 
-type goalBuffer struct {
-	buffer.Buffer
-}
-
 // NewGoal creates and returns a new Goal module
 func NewGoal() *Goal {
-	spreadingActivation := NewParamFloat(
+	spreadingActivation := param.NewFloat(
 		"spreading_activation",
 		"spreading activation weight",
-		Ptr(0.0), nil,
+		param.Ptr(0.0), nil,
 	)
 
-	goalBuff := goalBuffer{
-		buffer.Buffer{
-			Name: "goal",
-		},
-	}
+	parameters := param.NewParameters(param.InfoMap{
+		"spreading_activation": spreadingActivation,
+	})
+
+	goalBuff := buffer.NewBuffer("goal", 0.0)
 
 	return &Goal{
 		Module: Module{
-			Name:        "goal",
-			Version:     BuiltIn,
-			Description: "provides a goal buffer for the model",
-			BufferList:  buffer.List{goalBuff},
-			Params: ParamInfoMap{
-				"spreading_activation": spreadingActivation,
-			},
-			MultipleInit: false,
+			Name:                "goal",
+			Version:             BuiltIn,
+			Description:         "provides a goal buffer for the model",
+			BufferList:          buffer.List{goalBuff},
+			ParametersInterface: parameters,
+			MultipleInit:        false,
 		},
 	}
 }

@@ -4,11 +4,10 @@ package modules
 import (
 	"strings"
 
-	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 
 	"github.com/asmaloney/gactar/actr/buffer"
-
+	"github.com/asmaloney/gactar/actr/param"
 	"github.com/asmaloney/gactar/util/keyvalue"
 )
 
@@ -28,9 +27,9 @@ type Module struct {
 
 	BufferList buffer.List // The buffers this module provides (may be empty)
 
-	Params ParamInfoMap // Parameters accepted by this module (may be empty)
-
 	MultipleInit bool
+
+	param.ParametersInterface
 }
 
 // Interface provides an interface for the ACT-R concept of a "module".
@@ -42,11 +41,7 @@ type Interface interface {
 	HasBuffers() bool
 	Buffers() buffer.List
 
-	HasParameters() bool
-	Parameters() []ParamInterface
-	ParameterInfo(name string) ParamInterface
-
-	ValidateParam(param *keyvalue.KeyValue) error
+	Parameters() param.ParametersInterface
 	SetParam(param *keyvalue.KeyValue) error
 
 	AllowsMultipleInit() bool
@@ -72,68 +67,11 @@ func (m Module) Buffers() buffer.List {
 	return m.BufferList
 }
 
-func (m Module) HasParameters() bool {
-	return len(m.Params) > 0
+func (m Module) Parameters() param.ParametersInterface {
+	return m.ParametersInterface
 }
 
-// ParameterInfo returns the detailed info about a specific parameter given by "name"
-func (m Module) ParameterInfo(name string) ParamInterface {
-	info, ok := m.Params[name]
-	if ok {
-		return info
-	}
-
-	return nil
-}
-
-// Parameters returns a slice of parameters sorted by name
-func (m Module) Parameters() []ParamInterface {
-	params := maps.Values(m.Params)
-
-	slices.SortFunc[ParamInterface](params, func(a, b ParamInterface) bool { return a.GetName() < b.GetName() })
-
-	return params
-}
-
-// ValidateParam given an actr param will validate it against our modules parameters
-func (m Module) ValidateParam(param *keyvalue.KeyValue) (err error) {
-	paramInfo := m.ParameterInfo(param.Key)
-	if paramInfo == nil {
-		return ErrUnrecognizedOption{Option: param.Key}
-	}
-
-	min := paramInfo.GetMin()
-	max := paramInfo.GetMax()
-
-	value := param.Value
-
-	// we currently only have numbers
-	if value.Number == nil {
-		return keyvalue.ErrInvalidType{ExpectedType: keyvalue.Number}
-	}
-
-	if (min != nil) && (max != nil) &&
-		((*value.Number < *min) || (*value.Number > *max)) {
-		return ErrValueOutOfRange{
-			Min: min,
-			Max: max,
-		}
-	}
-
-	if min != nil && (*value.Number < *min) {
-		return ErrValueOutOfRange{
-			Min: min,
-		}
-	}
-
-	if max != nil && (*value.Number > *max) {
-		return ErrValueOutOfRange{
-			Max: max,
-		}
-	}
-
-	return
-}
+func (m Module) SetParam(param *keyvalue.KeyValue) error { return nil }
 
 // AllowsMultipleInit returns whether this module allows more than one initialization.
 // e.g. goal would only allow one, whereas declarative memory would allow multiple.

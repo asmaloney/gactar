@@ -76,7 +76,7 @@ func validateModuleInitialization(model *actr.Model, log *issueLog, init *module
 		buffer := module.Buffers().At(0)
 
 		if !module.AllowsMultipleInit() && len(init.InitPatterns) > 1 {
-			log.errorTR(init.InitPatterns[0].Tokens, 0, 1, "module %q should only have one pattern in initialization of buffer %q", moduleName, buffer.BufferName())
+			log.errorTR(init.InitPatterns[0].Tokens, 0, 1, "module %q should only have one pattern in initialization of buffer %q", moduleName, buffer.Name())
 			return ErrCompile
 		}
 
@@ -343,28 +343,35 @@ func validateRecallStatement(recall *recallStatement, model *actr.Model, log *is
 	if recall.With != nil {
 		buffer := model.Memory.BufferList.At(0)
 
-		for _, param := range *recall.With.Expressions {
-			key := param.Param
+		if !buffer.HasRequestParameters() {
+			log.errorT(recall.With.Tokens, "recall 'with': buffer does not support any request parameters")
+			err = ErrCompile
+		} else {
+			requestParams := buffer.RequestParameterKeys()
 
-			if param.Value.Var != nil {
-				log.errorT(param.Tokens, "recall 'with': parameter '%s'. Unexpected variable", key)
-				err = ErrCompile
-				continue
-			}
+			for _, param := range *recall.With.Expressions {
+				key := param.Param
 
-			if !buffer.IsValidRequestKey(key) {
-				log.errorT(param.Tokens,
-					"recall 'with': invalid parameter '%s'. Expected one of: %s",
-					key, strings.Join(buffer.RequestParameterNames(), ", "))
-				err = ErrCompile
-			} else {
-				paramErr := buffer.ValidateRequestParameter(key, param.Value.String())
-				if paramErr != nil {
-					log.errorT(param.Tokens,
-						"recall 'with': %s.",
-						paramErr.Error(),
-					)
+				if param.Value.Var != nil {
+					log.errorT(param.Tokens, "recall 'with': parameter '%s'. Unexpected variable", key)
 					err = ErrCompile
+					continue
+				}
+
+				if !buffer.IsValidRequestKey(key) {
+					log.errorT(param.Tokens,
+						"recall 'with': invalid parameter '%s'. Expected one of: %s",
+						key, strings.Join(requestParams, ", "))
+					err = ErrCompile
+				} else {
+					paramErr := buffer.ValidateRequestParameter(key, param.Value.String())
+					if paramErr != nil {
+						log.errorT(param.Tokens,
+							"recall 'with': %s.",
+							paramErr.Error(),
+						)
+						err = ErrCompile
+					}
 				}
 			}
 		}

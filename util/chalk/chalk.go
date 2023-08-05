@@ -16,9 +16,10 @@ var (
 	Warning   = gchalk.Yellow
 	Success   = gchalk.WithGreen().Bold
 
-	Bold   = gchalk.Bold
-	Italic = gchalk.Italic
-	Header = gchalk.Green
+	Bold       = gchalk.Bold
+	Italic     = gchalk.Italic
+	Header     = gchalk.Green
+	BoldHeader = gchalk.WithGreen().Bold
 
 	BlueUnderline     = gchalk.WithBlue().Underline
 	BlueBoldUnderline = gchalk.WithBlue().WithBold().Underline

@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"github.com/asmaloney/gactar/actr/param"
 	"github.com/asmaloney/gactar/util/keyvalue"
 )
 
@@ -16,20 +17,22 @@ type Procedural struct {
 
 // NewProcedural creates and returns a new Procedural module
 func NewProcedural() *Procedural {
-	defActionTime := NewParamFloat(
+	defActionTime := param.NewFloat(
 		"default_action_time",
 		"time that it takes to fire a production (seconds)",
-		Ptr(0.0), nil,
+		param.Ptr(0.0), nil,
 	)
+
+	parameters := param.NewParameters(param.InfoMap{
+		"default_action_time": defActionTime,
+	})
 
 	return &Procedural{
 		Module: Module{
-			Name:        "procedural",
-			Version:     BuiltIn,
-			Description: "handles production definition and execution",
-			Params: ParamInfoMap{
-				"default_action_time": defActionTime,
-			},
+			Name:                "procedural",
+			Version:             BuiltIn,
+			Description:         "handles production definition and execution",
+			ParametersInterface: parameters,
 		},
 	}
 }

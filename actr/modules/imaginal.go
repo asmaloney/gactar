@@ -2,6 +2,7 @@ package modules
 
 import (
 	"github.com/asmaloney/gactar/actr/buffer"
+	"github.com/asmaloney/gactar/actr/param"
 
 	"github.com/asmaloney/gactar/util/keyvalue"
 )
@@ -19,28 +20,26 @@ type Imaginal struct {
 
 // NewImaginal creates and returns a new Imaginal module
 func NewImaginal() *Imaginal {
-	delay := NewParamFloat(
+	delay := param.NewFloat(
 		"delay",
 		"time it takes a request to the buffer to complete (seconds)",
-		Ptr(0.0), nil,
+		param.Ptr(0.0), nil,
 	)
 
-	imaginalBuffer := goalBuffer{
-		buffer.Buffer{
-			Name: "imaginal",
-		},
-	}
+	parameters := param.NewParameters(param.InfoMap{
+		"delay": delay,
+	})
+
+	imaginalBuffer := buffer.NewBuffer("imaginal", 1.0)
 
 	return &Imaginal{
 		Module: Module{
-			Name:        "imaginal",
-			Version:     BuiltIn,
-			Description: "provides a goal style buffer with a delay and an action buffer for manipulating the imaginal chunk",
-			BufferList:  buffer.List{imaginalBuffer},
-			Params: ParamInfoMap{
-				"delay": delay,
-			},
-			MultipleInit: false,
+			Name:                "imaginal",
+			Version:             BuiltIn,
+			Description:         "provides a goal style buffer with a delay and an action buffer for manipulating the imaginal chunk",
+			BufferList:          buffer.List{imaginalBuffer},
+			ParametersInterface: parameters,
+			MultipleInit:        false,
 		},
 	}
 }

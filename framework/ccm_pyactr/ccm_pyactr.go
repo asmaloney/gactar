@@ -417,7 +417,7 @@ func (c CCMPyACTR) writeInitializers(goal *actr.Pattern) {
 		if module.AllowsMultipleInit() {
 			c.Write("        %s.add(", module.ModuleName())
 		} else {
-			c.Write("        %s.set(", buffer.BufferName())
+			c.Write("        %s.set(", buffer.Name())
 		}
 
 		c.outputPattern(init.Pattern)
@@ -498,13 +498,13 @@ func (c CCMPyACTR) outputPattern(pattern *actr.Pattern) {
 func (c CCMPyACTR) outputMatch(match *actr.Match) {
 	switch {
 	case match.BufferPattern != nil:
-		bufferName := match.BufferPattern.Buffer.BufferName()
+		bufferName := match.BufferPattern.Buffer.Name()
 
 		c.Write("%s=", bufferName)
 		c.outputPattern(match.BufferPattern.Pattern)
 
 	case match.BufferState != nil:
-		bufferName := match.BufferState.Buffer.BufferName()
+		bufferName := match.BufferState.Buffer.Name()
 
 		c.Write("%s='%s:True'", bufferName, match.BufferState.State)
 
@@ -567,9 +567,9 @@ func (c CCMPyACTR) outputStatement(s *actr.Statement) {
 				value := convertValue(slot.Value)
 				slotAssignments = append(slotAssignments, fmt.Sprintf("_%d=%s", slot.SlotIndex, value))
 			}
-			c.Writeln("        %s.modify(%s)", s.Set.Buffer.BufferName(), strings.Join(slotAssignments, ", "))
+			c.Writeln("        %s.modify(%s)", s.Set.Buffer.Name(), strings.Join(slotAssignments, ", "))
 		} else {
-			c.Write("        %s.set(", s.Set.Buffer.BufferName())
+			c.Write("        %s.set(", s.Set.Buffer.Name())
 			c.outputPattern(s.Set.Pattern)
 			c.Writeln(")")
 		}

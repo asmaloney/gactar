@@ -5,6 +5,7 @@ package actr
 import (
 	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/modules"
+	"github.com/asmaloney/gactar/actr/param"
 
 	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/keyvalue"
@@ -251,13 +252,13 @@ func (model Model) LookupBuffer(bufferName string) buffer.Interface {
 	return nil
 }
 
-func (model *Model) SetParam(param *keyvalue.KeyValue) (err error) {
-	value := param.Value
+func (model *Model) SetParam(kv *keyvalue.KeyValue) (err error) {
+	value := kv.Value
 
-	switch param.Key {
+	switch kv.Key {
 	case "log_level":
 		if (value.Str == nil) || !ValidLogLevel(*value.Str) {
-			return modules.ErrInvalidValue{Expected: ACTRLoggingLevels}
+			return param.ErrInvalidValue{Expected: ACTRLoggingLevels}
 		}
 
 		model.LogLevel = ACTRLogLevel(*value.Str)
@@ -280,7 +281,7 @@ func (model *Model) SetParam(param *keyvalue.KeyValue) (err error) {
 		model.RandomSeed = &seed
 
 	default:
-		return modules.ErrUnrecognizedOption{Option: param.Key}
+		return param.ErrUnrecognizedOption{Option: kv.Key}
 	}
 
 	return

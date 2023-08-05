@@ -414,7 +414,7 @@ func (v VanillaACTR) writeInitializers(goal *actr.Pattern) {
 
 		// for extra buffers, we use the buffer name
 		case moduleName == "extra_buffers":
-			v.writeBufferInitializer(init.Buffer.BufferName(), init.AMODLineNumber, init.Pattern)
+			v.writeBufferInitializer(init.Buffer.Name(), init.AMODLineNumber, init.Pattern)
 
 		default:
 			v.writeBufferInitializer(moduleName, init.AMODLineNumber, init.Pattern)
@@ -479,7 +479,7 @@ func (v VanillaACTR) outputMatch(match *actr.Match) {
 
 	// check for case where we need to combine module & buffer checks
 	if (match.BufferState != nil) && (match.ModuleState != nil) {
-		bufferName := match.BufferState.Buffer.BufferName()
+		bufferName := match.BufferState.Buffer.Name()
 
 		v.Writeln("\t?%s>", bufferName)
 		tabbedItems.Add("buffer", match.BufferState.State)
@@ -491,20 +491,20 @@ func (v VanillaACTR) outputMatch(match *actr.Match) {
 
 	switch {
 	case match.BufferPattern != nil:
-		bufferName := match.BufferPattern.Buffer.BufferName()
+		bufferName := match.BufferPattern.Buffer.Name()
 
 		v.Writeln("\t=%s>", bufferName)
 		v.outputPattern(match.BufferPattern.Pattern, 2)
 
 	case match.BufferState != nil:
-		bufferName := match.BufferState.Buffer.BufferName()
+		bufferName := match.BufferState.Buffer.Name()
 
 		v.Writeln("\t?%s>", bufferName)
 		tabbedItems.Add("buffer", match.BufferState.State)
 		v.TabWrite(2, tabbedItems)
 
 	case match.ModuleState != nil:
-		bufferName := match.ModuleState.Buffer.BufferName()
+		bufferName := match.ModuleState.Buffer.Name()
 
 		v.Writeln("\t?%s>", bufferName)
 		tabbedItems.Add("state", match.ModuleState.State)
@@ -596,7 +596,7 @@ func (v VanillaACTR) outputStatement(s *actr.Statement) {
 	case s.Set != nil:
 		buffer := s.Set.Buffer
 
-		v.Writeln("\t=%s>", buffer.BufferName())
+		v.Writeln("\t=%s>", buffer.Name())
 
 		if s.Set.Slots != nil {
 			tabbedItems := framework.KeyValueList{}
