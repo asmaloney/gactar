@@ -3,6 +3,7 @@ package keyvalue
 
 import (
 	"fmt"
+	"strings"
 
 	"golang.org/x/exp/slices"
 )
@@ -17,7 +18,7 @@ type Value struct {
 	ID     *string
 	Str    *string
 	Number *float64
-	Field  *KeyValue
+	Fields *[]KeyValue
 }
 
 // KeyValue is the key/value of a parameter from the parsed amod code.
@@ -27,7 +28,7 @@ type KeyValue struct {
 }
 
 func (v Value) IsSet() bool {
-	return v.ID != nil || v.Str != nil || v.Number != nil || v.Field != nil
+	return v.ID != nil || v.Str != nil || v.Number != nil || v.Fields != nil
 }
 
 func (v Value) String() string {
@@ -41,8 +42,13 @@ func (v Value) String() string {
 	case v.Number != nil:
 		return fmt.Sprintf("%f", *v.Number)
 
-	case v.Field != nil:
-		return fmt.Sprintf("{ %s }", *v.Field)
+	case v.Fields != nil:
+		fieldsStr := []string{}
+		for _, field := range *v.Fields {
+			fieldsStr = append(fieldsStr, field.Value.String())
+		}
+
+		return fmt.Sprintf("{ %s }", strings.Join(fieldsStr, ", "))
 	}
 
 	return ""
@@ -59,7 +65,7 @@ func (v Value) Type() string {
 	case v.Number != nil:
 		return "number"
 
-	case v.Field != nil:
+	case v.Fields != nil:
 		return "field"
 	}
 

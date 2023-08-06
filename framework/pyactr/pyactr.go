@@ -233,9 +233,9 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 	if memory.MaxSpreadStrength != nil {
 		p.Writeln("    strength_of_association=%s,", numbers.Float64Str(*memory.MaxSpreadStrength))
 
-		goalActivation := p.model.Goal.SpreadingActivation
-		if goalActivation != nil {
-			p.Writeln("    buffer_spreading_activation={'g': %s},", numbers.Float64Str(*goalActivation))
+		goalActivation := p.model.Goal.Buffer().SpreadingActivation()
+		if goalActivation != 0.0 {
+			p.Writeln("    buffer_spreading_activation={'g': %s},", numbers.Float64Str(goalActivation))
 		}
 	}
 

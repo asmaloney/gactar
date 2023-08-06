@@ -105,7 +105,7 @@ func (b buffer) Parameters() param.ParametersInterface {
 	return b.parameters
 }
 
-func (b buffer) SetParam(param *keyvalue.KeyValue) (err error) {
+func (b *buffer) SetParam(param *keyvalue.KeyValue) (err error) {
 	err = b.Parameters().ValidateParam(param)
 	if err != nil {
 		return
