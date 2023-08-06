@@ -26,8 +26,8 @@ func NewGoal() *Goal {
 		param.Ptr(0.0), nil,
 	)
 
-	parameters := param.NewParameters(param.InfoMap{
-		"spreading_activation": spreadingActivation,
+	parameters := param.NewParameters(param.List{
+		spreadingActivation,
 	})
 
 	goalBuff := buffer.NewBuffer("goal", 0.0, nil)

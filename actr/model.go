@@ -112,10 +112,10 @@ func (model *Model) Initialize() {
 		param.Ptr(0), nil,
 	)
 
-	parameters := param.NewParameters(param.InfoMap{
-		"log_level":         loggingParam,
-		"trace_activations": traceParam,
-		"random_seed":       seedParam,
+	parameters := param.NewParameters(param.List{
+		loggingParam,
+		traceParam,
+		seedParam,
 	})
 
 	model.parameters = parameters

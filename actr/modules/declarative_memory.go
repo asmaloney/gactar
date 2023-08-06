@@ -153,16 +153,16 @@ func NewDeclarativeMemory() *DeclarativeMemory {
 		nil, nil,
 	)
 
-	parameters := param.NewParameters(param.InfoMap{
-		"decay":               decay,
-		"finst_size":          finstSize,
-		"finst_time":          finstTime,
-		"instantaneous_noise": instNoise,
-		"latency_exponent":    latencyExponent,
-		"latency_factor":      latencyFactor,
-		"max_spread_strength": maxSpreadStrength,
-		"mismatch_penalty":    mismatchPenalty,
-		"retrieval_threshold": retrievalThreshold,
+	parameters := param.NewParameters(param.List{
+		decay,
+		finstSize,
+		finstTime,
+		instNoise,
+		latencyExponent,
+		latencyFactor,
+		maxSpreadStrength,
+		mismatchPenalty,
+		retrievalThreshold,
 	})
 
 	rpRecentlyReceived := param.NewStr(
@@ -171,8 +171,8 @@ func NewDeclarativeMemory() *DeclarativeMemory {
 		validRecentlyRetrievedOptions,
 	)
 
-	rpParameters := param.NewParameters(param.InfoMap{
-		"recently_retrieved": rpRecentlyReceived,
+	rpParameters := param.NewParameters(param.List{
+		rpRecentlyReceived,
 	})
 
 	retrievalBuff := buffer.NewBuffer("retrieval", 0.0, rpParameters)

@@ -65,8 +65,8 @@ func NewBuffer(name string, spreadingActivation float64, requestParameters param
 		param.Ptr(0.0), nil,
 	)
 
-	parameters := param.NewParameters(param.InfoMap{
-		"spreading_activation": spreadingActivationParam,
+	parameters := param.NewParameters(param.List{
+		spreadingActivationParam,
 	})
 
 	newBuffer := &buffer{

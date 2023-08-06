@@ -79,9 +79,19 @@ type info struct {
 	description string
 }
 
+func (i info) Name() string        { return i.name }
+func (i info) Description() string { return i.description }
+
 // Bool is a boolean parameter
 type Bool struct {
 	info
+}
+
+// NewBool creates a new boolean param
+func NewBool(name, description string) Bool {
+	return Bool{
+		info: info{name, description},
+	}
 }
 
 // Str is a string parameter
@@ -89,6 +99,16 @@ type Str struct {
 	info
 
 	validValues []string
+}
+
+func (s Str) ValidValues() []string { return s.validValues }
+
+// NewStr creates a new string param with optional list of valid values
+func NewStr(name, description string, validValues []string) Str {
+	return Str{
+		info:        info{name, description},
+		validValues: validValues,
+	}
 }
 
 // Int is an int parameter with optional min and max constraints
@@ -99,6 +119,17 @@ type Int struct {
 	max *int
 }
 
+func (i Int) Min() *int { return i.min }
+func (i Int) Max() *int { return i.max }
+
+// NewInt creates a new int param with optional min/max constraints
+func NewInt(name, description string, min, max *int) Int {
+	return Int{
+		info{name, description},
+		min, max,
+	}
+}
+
 // Float is a float parameter with optional min and max constraints
 type Float struct {
 	info
@@ -107,20 +138,31 @@ type Float struct {
 	max *float64
 }
 
+func (f Float) Min() *float64 { return f.min }
+func (f Float) Max() *float64 { return f.max }
+
+// NewFloat creates a new float param with optional min/max constraints
+func NewFloat(name, description string, min, max *float64) Float {
+	return Float{
+		info{name, description},
+		min, max,
+	}
+}
+
 // ParamInterface provides an interface to a parameter
 type ParamInterface interface {
 	Name() string
 	Description() string
 }
 
-// InfoMap maps a name to the parameter's info
-type InfoMap map[string]ParamInterface
-
 // List is a slice of ParamInterface
 type List []ParamInterface
 
+// infoMap maps a name to the parameter's info for easy lookup
+type infoMap map[string]ParamInterface
+
 type parameters struct {
-	params InfoMap
+	params infoMap // store as a map for easy lookup
 }
 
 // Add a ParametersInterface to a struct to store and validate parameters
@@ -130,19 +172,14 @@ type ParametersInterface interface {
 	ValidateParam(param *keyvalue.KeyValue) error
 }
 
-func (i info) Name() string        { return i.name }
-func (i info) Description() string { return i.description }
+func NewParameters(params List) ParametersInterface {
+	iMap := make(infoMap, len(params))
 
-func (s Str) ValidValues() []string { return s.validValues }
+	for _, param := range params {
+		iMap[param.Name()] = param
+	}
 
-func (i Int) Min() *int { return i.min }
-func (i Int) Max() *int { return i.max }
-
-func (f Float) Min() *float64 { return f.min }
-func (f Float) Max() *float64 { return f.max }
-
-func NewParameters(paramMap InfoMap) ParametersInterface {
-	return parameters{params: paramMap}
+	return parameters{params: iMap}
 }
 
 // Parameters returns a slice of parameters sorted by name
@@ -240,6 +277,16 @@ func (p parameters) ValidateParam(param *keyvalue.KeyValue) (err error) {
 	return
 }
 
+// parameterInfo returns detailed info about a specific parameter given by "name"
+func (p parameters) parameterInfo(name string) ParamInterface {
+	info, ok := p.params[name]
+	if ok {
+		return info
+	}
+
+	return nil
+}
+
 func convertNumberToStr[T number](num T) *string {
 	var str string
 
@@ -276,45 +323,4 @@ func compareMinMax[T number](value T, min, max *T) error {
 	}
 
 	return nil
-}
-
-// parameterInfo returns detailed info about a specific parameter given by "name"
-func (p parameters) parameterInfo(name string) ParamInterface {
-	info, ok := p.params[name]
-	if ok {
-		return info
-	}
-
-	return nil
-}
-
-// NewStr creates a new string param with optional list of valid values
-func NewStr(name, description string, validValues []string) Str {
-	return Str{
-		info:        info{name, description},
-		validValues: validValues,
-	}
-}
-
-// NewInt creates a new int param with optional min/max constraints
-func NewInt(name, description string, min, max *int) Int {
-	return Int{
-		info{name, description},
-		min, max,
-	}
-}
-
-// NewFloat creates a new float param with optional min/max constraints
-func NewFloat(name, description string, min, max *float64) Float {
-	return Float{
-		info{name, description},
-		min, max,
-	}
-}
-
-// NewBool creates a new boolean param
-func NewBool(name, description string) Bool {
-	return Bool{
-		info: info{name, description},
-	}
 }

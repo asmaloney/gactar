@@ -23,8 +23,8 @@ func NewProcedural() *Procedural {
 		param.Ptr(0.0), nil,
 	)
 
-	parameters := param.NewParameters(param.InfoMap{
-		"default_action_time": defActionTime,
+	parameters := param.NewParameters(param.List{
+		defActionTime,
 	})
 
 	return &Procedural{
