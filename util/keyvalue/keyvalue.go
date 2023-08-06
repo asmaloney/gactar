@@ -26,6 +26,10 @@ type KeyValue struct {
 	Value Value
 }
 
+func (v Value) IsSet() bool {
+	return v.ID != nil || v.Str != nil || v.Number != nil || v.Field != nil
+}
+
 func (v Value) String() string {
 	switch {
 	case v.ID != nil:

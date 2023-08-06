@@ -95,7 +95,7 @@ func info(args []string) {
 					fmt.Fprintf(writer, "\t\t%s\n", chalk.Header("Request Parameters:"))
 
 					for _, rp := range buffer.RequestParameters().ParameterList() {
-						fmt.Fprintf(writer, "\t\t\t%s\t%s\n", chalk.Italic(rp.GetName()), rp.GetDescription())
+						fmt.Fprintf(writer, "\t\t\t%s\t%s\n", chalk.Italic(rp.Name()), rp.Description())
 					}
 
 					writer.Flush()
@@ -121,7 +121,7 @@ func info(args []string) {
 func outputParam(writer *tabwriter.Writer, level int, p param.ParamInterface) {
 	tabs := strings.Repeat("\t", level)
 
-	fmt.Fprintf(writer, "%s%s", tabs, chalk.Italic(p.GetName()))
+	fmt.Fprintf(writer, "%s%s", tabs, chalk.Italic(p.Name()))
 
 	var typeStr string
 	var minStr string
@@ -131,28 +131,28 @@ func outputParam(writer *tabwriter.Writer, level int, p param.ParamInterface) {
 	case param.Int:
 		{
 			typeStr = "int"
-			if v.Min != nil {
-				minStr = strconv.Itoa(*v.Min)
+			if v.Min() != nil {
+				minStr = strconv.Itoa(*v.Min())
 			}
-			if v.Max != nil {
-				maxStr = strconv.Itoa(*v.Max)
+			if v.Max() != nil {
+				maxStr = strconv.Itoa(*v.Max())
 			}
 		}
 	case param.Float:
 		{
 			typeStr = "float"
-			if v.Min != nil {
-				minStr = strconv.FormatFloat(*v.Min, 'f', 2, 64)
+			if v.Min() != nil {
+				minStr = strconv.FormatFloat(*v.Min(), 'f', 2, 64)
 			}
-			if v.Max != nil {
-				maxStr = strconv.FormatFloat(*v.Max, 'f', 2, 64)
+			if v.Max() != nil {
+				maxStr = strconv.FormatFloat(*v.Max(), 'f', 2, 64)
 			}
 		}
 	}
 
 	fmt.Fprintf(writer, "%s%s", tabs, typeStr)
 	fmt.Fprintf(writer, "%s%s-%s", tabs, minStr, maxStr)
-	fmt.Fprintf(writer, "%s%s", tabs, p.GetDescription())
+	fmt.Fprintf(writer, "%s%s", tabs, p.Description())
 
 	fmt.Fprintln(writer, "")
 }
