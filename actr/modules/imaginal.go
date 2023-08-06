@@ -26,8 +26,8 @@ func NewImaginal() *Imaginal {
 		param.Ptr(0.0), nil,
 	)
 
-	parameters := param.NewParameters(param.InfoMap{
-		"delay": delay,
+	parameters := param.NewParameters(param.List{
+		delay,
 	})
 
 	imaginalBuffer := buffer.NewBuffer("imaginal", 1.0, nil)
