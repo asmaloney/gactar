@@ -43,11 +43,12 @@ func (e ErrValueOutOfRange) Error() string {
 }
 
 type ErrInvalidType struct {
+	FoundType    string
 	ExpectedType string
 }
 
 func (e ErrInvalidType) Error() string {
-	return fmt.Sprintf("invalid type (expected %s)", e.ExpectedType)
+	return fmt.Sprintf("invalid type (found %s; expected %s)", e.FoundType, e.ExpectedType)
 }
 
 type ErrInvalidValue struct {
@@ -76,6 +77,11 @@ func Ptr[T any](v T) *T {
 type info struct {
 	name        string
 	description string
+}
+
+// Bool is a boolean parameter
+type Bool struct {
+	info
 }
 
 // Str is a string parameter
@@ -156,11 +162,13 @@ func (p parameters) ValidateParam(param *keyvalue.KeyValue) (err error) {
 	}
 
 	value := param.Value
+	valueType := value.Type()
 
 	switch pInfo := paramInfo.(type) {
 	case Str:
 		if value.Str == nil {
 			return ErrInvalidType{
+				FoundType:    valueType,
 				ExpectedType: "string",
 			}
 		}
@@ -179,6 +187,7 @@ func (p parameters) ValidateParam(param *keyvalue.KeyValue) (err error) {
 	case Int:
 		if value.Number == nil {
 			return ErrInvalidType{
+				FoundType:    valueType,
 				ExpectedType: "number",
 			}
 		}
@@ -193,6 +202,7 @@ func (p parameters) ValidateParam(param *keyvalue.KeyValue) (err error) {
 	case Float:
 		if value.Number == nil {
 			return ErrInvalidType{
+				FoundType:    valueType,
 				ExpectedType: "number",
 			}
 		}
@@ -202,6 +212,24 @@ func (p parameters) ValidateParam(param *keyvalue.KeyValue) (err error) {
 		err = compareMinMax(val, pInfo.min, pInfo.max)
 		if err != nil {
 			return
+		}
+
+	case Bool:
+		if value.ID == nil {
+			return ErrInvalidType{
+				FoundType:    valueType,
+				ExpectedType: "true or false",
+			}
+		}
+
+		if !slices.Contains(keyvalue.BooleanValues, *value.ID) {
+			context := fmt.Sprintf("(expected one of: %s)", strings.Join(keyvalue.BooleanValues, ", "))
+
+			return ErrInvalidValue{
+				ParameterName: param.Key,
+				Value:         *value.ID,
+				Context:       &context,
+			}
 		}
 	}
 
@@ -281,5 +309,12 @@ func NewFloat(name, description string, min, max *float64) Float {
 	return Float{
 		info{name, description},
 		min, max,
+	}
+}
+
+// NewBool creates a new boolean param
+func NewBool(name, description string) Bool {
+	return Bool{
+		info: info{name, description},
 	}
 }

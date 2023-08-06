@@ -7,7 +7,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-var boolean = []string{
+var BooleanValues = []string{
 	"true",
 	"false",
 }
@@ -48,8 +48,26 @@ func (v Value) String() string {
 	return ""
 }
 
+func (v Value) Type() string {
+	switch {
+	case v.ID != nil:
+		return "id"
+
+	case v.Str != nil:
+		return "string"
+
+	case v.Number != nil:
+		return "number"
+
+	case v.Field != nil:
+		return "field"
+	}
+
+	return "<none>"
+}
+
 func (v Value) AsBool() (bool, error) {
-	if (v.ID == nil) || !slices.Contains(boolean, *v.ID) {
+	if (v.ID == nil) || !slices.Contains(BooleanValues, *v.ID) {
 		return false, ErrInvalidType{ExpectedType: Boolean}
 	}
 
