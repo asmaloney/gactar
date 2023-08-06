@@ -4,6 +4,7 @@ package amod
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"golang.org/x/exp/slices"
@@ -576,7 +577,8 @@ func argToKeyValue(key string, a *arg) *keyvalue.KeyValue {
 	case a.Str != nil:
 		value.Str = a.Str
 	case a.Number != nil:
-		value.Str = a.Number
+		num, _ := strconv.ParseFloat(*a.Number, 64)
+		value.Number = &num
 	}
 
 	return &keyvalue.KeyValue{
