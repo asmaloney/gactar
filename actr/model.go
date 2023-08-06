@@ -3,9 +3,6 @@
 package actr
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/modules"
 	"github.com/asmaloney/gactar/actr/param"
@@ -60,6 +57,9 @@ type Model struct {
 	Productions []*Production
 
 	Options
+
+	// Used to validate our parameters
+	parameters param.ParametersInterface
 }
 
 type Initializer struct {
@@ -93,6 +93,32 @@ func (model *Model) Initialize() {
 	model.Modules = append(model.Modules, model.Procedural)
 
 	model.LogLevel = "info"
+
+	// Declare our parameters
+	loggingParam := param.NewStr(
+		"log_level",
+		"Level of logging output",
+		ACTRLoggingLevels,
+	)
+
+	traceParam := param.NewBool(
+		"trace_activations",
+		"output detailed info about activations",
+	)
+
+	seedParam := param.NewInt(
+		"random_seed",
+		"the seed to use for generating pseudo-random numbers",
+		param.Ptr(0), nil,
+	)
+
+	parameters := param.NewParameters(param.InfoMap{
+		"log_level":         loggingParam,
+		"trace_activations": traceParam,
+		"random_seed":       seedParam,
+	})
+
+	model.parameters = parameters
 }
 
 func (m *Model) SetRunOptions(options *Options) {
@@ -256,37 +282,22 @@ func (model Model) LookupBuffer(bufferName string) buffer.Interface {
 }
 
 func (model *Model) SetParam(kv *keyvalue.KeyValue) (err error) {
+	err = model.parameters.ValidateParam(kv)
+	if err != nil {
+		return
+	}
+
 	value := kv.Value
 
 	switch kv.Key {
 	case "log_level":
-		if (value.Str == nil) || !ValidLogLevel(*value.Str) {
-			context := fmt.Sprintf("(expected one of: %s)", strings.Join(ACTRLoggingLevels, ", "))
-
-			val := value.String()
-
-			return param.ErrInvalidValue{
-				ParameterName: "log_level",
-				Value:         val,
-				Context:       &context,
-			}
-		}
-
 		model.LogLevel = ACTRLogLevel(*value.Str)
 
 	case "trace_activations":
-		boolVal, err := value.AsBool()
-		if err != nil {
-			return err
-		}
-
+		boolVal, _ := value.AsBool() // already validated
 		model.TraceActivations = boolVal
 
 	case "random_seed":
-		if value.Number == nil {
-			return keyvalue.ErrInvalidType{ExpectedType: keyvalue.Number}
-		}
-
 		seed := uint32(*value.Number)
 
 		model.RandomSeed = &seed

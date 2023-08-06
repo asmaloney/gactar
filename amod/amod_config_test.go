@@ -38,7 +38,7 @@ func Example_gactarUnrecognizedLogLevel() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: 'log_level' invalid value "bar" for option "log_level" (expected one of: min, info, detail) (line 5, col 21)
+	// ERROR: 'log_level' invalid type (found id; expected string) (line 5, col 21)
 }
 
 func Example_gactarUnrecognizedNestedValue() {
@@ -64,7 +64,7 @@ func Example_gactarFieldNotANestedValue() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: 'log_level' invalid value "" for option "log_level" (expected one of: min, info, detail) (line 5, col 21)
+	// ERROR: 'log_level' invalid type (found <none>; expected string) (line 5, col 21)
 }
 
 func Example_gactarSpaceSeparator() {
@@ -101,7 +101,7 @@ func Example_gactarTraceActivationsNonBool() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: 'trace_activations' must be 'true' or 'false' (line 5, col 29)
+	// ERROR: 'trace_activations' invalid type (found number; expected true or false) (line 5, col 29)
 }
 
 func Example_chunkInternalType() {
@@ -248,7 +248,7 @@ func Example_imaginalFieldType() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: imaginal "delay" invalid type (expected number) (line 6, col 20)
+	// ERROR: imaginal "delay" invalid type (found string; expected number) (line 6, col 20)
 }
 
 func Example_imaginalFieldRange() {
