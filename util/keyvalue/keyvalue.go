@@ -1,7 +1,11 @@
 // Package keyvalue implements parsed key/value information.
 package keyvalue
 
-import "golang.org/x/exp/slices"
+import (
+	"fmt"
+
+	"golang.org/x/exp/slices"
+)
 
 var boolean = []string{
 	"true",
@@ -20,6 +24,24 @@ type Value struct {
 type KeyValue struct {
 	Key   string
 	Value Value
+}
+
+func (v Value) String() string {
+	switch {
+	case v.ID != nil:
+		return *v.ID
+
+	case v.Str != nil:
+		return *v.Str
+
+	case v.Number != nil:
+		return fmt.Sprintf("%f", *v.Number)
+
+	case v.Field != nil:
+		return fmt.Sprintf("{ %s }", *v.Field)
+	}
+
+	return ""
 }
 
 func (v Value) AsBool() (bool, error) {

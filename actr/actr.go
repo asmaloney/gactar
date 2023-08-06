@@ -3,6 +3,9 @@
 package actr
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/modules"
 	"github.com/asmaloney/gactar/actr/param"
@@ -258,7 +261,15 @@ func (model *Model) SetParam(kv *keyvalue.KeyValue) (err error) {
 	switch kv.Key {
 	case "log_level":
 		if (value.Str == nil) || !ValidLogLevel(*value.Str) {
-			return param.ErrInvalidValue{Expected: ACTRLoggingLevels}
+			context := fmt.Sprintf("(expected one of: %s)", strings.Join(ACTRLoggingLevels, ", "))
+
+			val := value.String()
+
+			return param.ErrInvalidValue{
+				ParameterName: "log_level",
+				Value:         val,
+				Context:       &context,
+			}
 		}
 
 		model.LogLevel = ACTRLogLevel(*value.Str)

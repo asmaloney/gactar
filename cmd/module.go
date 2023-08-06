@@ -91,11 +91,11 @@ func info(args []string) {
 			for _, buffer := range mod.Buffers() {
 				fmt.Printf("   %s\n", chalk.Italic(buffer.Name()))
 
-				if buffer.HasRequestParameters() {
+				if buffer.RequestParameters() != nil {
 					fmt.Fprintf(writer, "\t\t%s\n", chalk.Header("Request Parameters:"))
 
-					for _, rp := range buffer.RequestParameterKeys() {
-						fmt.Fprintf(writer, "\t\t\t%s\n", chalk.Italic(rp))
+					for _, rp := range buffer.RequestParameters().ParameterList() {
+						fmt.Fprintf(writer, "\t\t\t%s\t%s\n", chalk.Italic(rp.GetName()), rp.GetDescription())
 					}
 
 					writer.Flush()

@@ -1,8 +1,6 @@
 package amod
 
 import (
-	"strings"
-
 	"github.com/alecthomas/participle/v2/lexer"
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/actr/buffer"
@@ -343,12 +341,10 @@ func validateRecallStatement(recall *recallStatement, model *actr.Model, log *is
 	if recall.With != nil {
 		buffer := model.Memory.BufferList.At(0)
 
-		if !buffer.HasRequestParameters() {
+		if buffer.RequestParameters() == nil {
 			log.errorT(recall.With.Tokens, "recall 'with': buffer does not support any request parameters")
 			err = ErrCompile
 		} else {
-			requestParams := buffer.RequestParameterKeys()
-
 			for _, param := range *recall.With.Expressions {
 				key := param.Param
 
@@ -358,20 +354,14 @@ func validateRecallStatement(recall *recallStatement, model *actr.Model, log *is
 					continue
 				}
 
-				if !buffer.IsValidRequestKey(key) {
+				kv := argToKeyValue(key, param.Value)
+				paramErr := buffer.RequestParameters().ValidateParam(kv)
+				if paramErr != nil {
 					log.errorT(param.Tokens,
-						"recall 'with': invalid parameter '%s'. Expected one of: %s",
-						key, strings.Join(requestParams, ", "))
+						"recall 'with': %s.",
+						paramErr.Error(),
+					)
 					err = ErrCompile
-				} else {
-					paramErr := buffer.ValidateRequestParameter(key, param.Value.String())
-					if paramErr != nil {
-						log.errorT(param.Tokens,
-							"recall 'with': %s.",
-							paramErr.Error(),
-						)
-						err = ErrCompile
-					}
 				}
 			}
 		}

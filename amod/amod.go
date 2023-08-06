@@ -219,6 +219,7 @@ func addGACTAR(model *actr.Model, log *issueLog, list []*field) {
 
 				// value errors
 			case errors.As(err, &keyvalue.ErrInvalidType{}) ||
+				errors.As(err, &param.ErrInvalidType{}) ||
 				errors.As(err, &param.ErrInvalidValue{}):
 				log.errorTR(value.Tokens, 1, 1, "'%s' %v", field.Key, err)
 				continue
@@ -275,6 +276,7 @@ func setModuleParams(module modules.Interface, log *issueLog, fields []*field) {
 
 			// value errors
 			case errors.As(err, &keyvalue.ErrInvalidType{}) ||
+				errors.As(err, &param.ErrInvalidType{}) ||
 				errors.As(err, &param.ErrInvalidValue{}) ||
 				errors.As(err, &param.ErrValueOutOfRange{}):
 				log.errorTR(value.Tokens, 1, 1, "%s %q %v", moduleName, field.Key, err)
@@ -557,6 +559,29 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 		validateVariableUsage(log, production.Match, production.Do)
 
 		model.Productions = append(model.Productions, &prod)
+	}
+}
+
+func argToKeyValue(key string, a *arg) *keyvalue.KeyValue {
+	value := keyvalue.Value{}
+
+	switch {
+	case a.Nil != nil:
+		nilStr := "nil"
+		value.Str = &nilStr
+	case a.Var != nil:
+		value.Str = a.Var
+	case a.ID != nil:
+		value.Str = a.ID
+	case a.Str != nil:
+		value.Str = a.Str
+	case a.Number != nil:
+		value.Str = a.Number
+	}
+
+	return &keyvalue.KeyValue{
+		Key:   key,
+		Value: value,
 	}
 }
 

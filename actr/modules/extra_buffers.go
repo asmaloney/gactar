@@ -25,7 +25,7 @@ func NewExtraBuffers() *ExtraBuffers {
 
 // SetParam is called to set our module's parameter from the parameter in the code ("param")
 func (eb *ExtraBuffers) SetParam(param *keyvalue.KeyValue) (err error) {
-	newBuffer := buffer.NewBuffer(param.Key, 0.0)
+	newBuffer := buffer.NewBuffer(param.Key, 0.0, nil)
 
 	eb.BufferList = append(eb.BufferList, newBuffer)
 	return

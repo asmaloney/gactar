@@ -30,7 +30,7 @@ func NewGoal() *Goal {
 		"spreading_activation": spreadingActivation,
 	})
 
-	goalBuff := buffer.NewBuffer("goal", 0.0)
+	goalBuff := buffer.NewBuffer("goal", 0.0, nil)
 
 	return &Goal{
 		Module: Module{
