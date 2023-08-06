@@ -1,11 +1,6 @@
 package modules
 
 import (
-	"fmt"
-	"strings"
-
-	"golang.org/x/exp/slices"
-
 	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/param"
 
@@ -100,25 +95,7 @@ type DeclarativeMemory struct {
 	MismatchPenalty *float64
 }
 
-type retrievalBuffer struct {
-	buffer.Interface
-}
-
 var validRecentlyRetrievedOptions = []string{"t", "nil", "reset"}
-
-func (rb retrievalBuffer) ValidateRequestParameter(key, value string) error {
-	if (key == "recently_retrieved") && !slices.Contains(validRecentlyRetrievedOptions, value) {
-		context := fmt.Sprintf("(expected one of: %s)", strings.Join(validRecentlyRetrievedOptions, ", "))
-
-		return buffer.ErrInvalidRequestParameterValue{
-			ParameterName: key,
-			Value:         value,
-			Context:       &context,
-		}
-	}
-
-	return nil
-}
 
 // NewDeclarativeMemory creates and returns a new DeclarativeMemory module
 func NewDeclarativeMemory() *DeclarativeMemory {
@@ -188,11 +165,17 @@ func NewDeclarativeMemory() *DeclarativeMemory {
 		"retrieval_threshold": retrievalThreshold,
 	})
 
-	retrievalBuff := retrievalBuffer{
-		Interface: buffer.NewBuffer("retrieval", 0.0),
-	}
+	rpRecentlyReceived := param.NewStr(
+		"recently_retrieved",
+		"Query the retrieval buffer. If 't', then only match chunks which have a finst set for them at the time of the request. If 'nil', then only match to chunks which do not have a finst set for them at the time of the request. If 'reset', then all of the declarative finsts are removed before the request is processed.",
+		validRecentlyRetrievedOptions,
+	)
 
-	retrievalBuff.SetValidRequestParameters([]string{"recently_retrieved"})
+	rpParameters := param.NewParameters(param.InfoMap{
+		"recently_retrieved": rpRecentlyReceived,
+	})
+
+	retrievalBuff := buffer.NewBuffer("retrieval", 0.0, rpParameters)
 
 	return &DeclarativeMemory{
 		Module: Module{

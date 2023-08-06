@@ -36,12 +36,28 @@ func (e ErrValueOutOfRange) Error() string {
 	return fmt.Sprintf("is out of range (%s-%s)", numbers.Float64Str(*e.Min), numbers.Float64Str(*e.Max))
 }
 
+type ErrInvalidType struct {
+	ExpectedType string
+}
+
+func (e ErrInvalidType) Error() string {
+	return fmt.Sprintf("invalid type (expected %s)", e.ExpectedType)
+}
+
 type ErrInvalidValue struct {
-	Expected []string
+	ParameterName string
+	Value         string
+	Context       *string // optional context
 }
 
 func (e ErrInvalidValue) Error() string {
-	return fmt.Sprintf("must be must be one of %q", strings.Join(e.Expected, ", "))
+	message := fmt.Sprintf("invalid value %q for option %q", e.Value, e.ParameterName)
+
+	if e.Context != nil {
+		message += fmt.Sprintf(" %s", *e.Context)
+	}
+
+	return message
 }
 
 // Ptr simply returns a pointer to a literal. e.g. Ptr(0.5)
@@ -54,6 +70,13 @@ func Ptr[T any](v T) *T {
 type Info struct {
 	Name        string
 	Description string
+}
+
+// Str is a string parameter
+type Str struct {
+	Info
+
+	validValues []string
 }
 
 // Int is an int parameter with optional min and max constraints
@@ -79,6 +102,8 @@ type ParamInterface interface {
 
 	GetMin() *float64
 	GetMax() *float64
+
+	ValidValues() []string
 }
 
 // InfoMap maps a name to the parameter's info
@@ -98,32 +123,42 @@ type ParametersInterface interface {
 	ValidateParam(param *keyvalue.KeyValue) error
 }
 
-func (p Info) GetName() string {
-	return p.Name
+func (i Info) GetName() string {
+	return i.Name
 }
 
-func (p Info) GetDescription() string {
-	return p.Description
+func (i Info) GetDescription() string {
+	return i.Description
 }
 
-func (p Int) GetMin() *float64 {
-	if p.Min != nil {
-		temp := float64(*p.Min)
+func (s Str) GetMin() *float64  { return nil }
+func (ps Str) GetMax() *float64 { return nil }
+
+func (s Str) ValidValues() []string {
+	return s.validValues
+}
+
+func (i Int) GetMin() *float64 {
+	if i.Min != nil {
+		temp := float64(*i.Min)
 		return &temp
 	}
 	return nil
 }
 
-func (p Int) GetMax() *float64 {
-	if p.Max != nil {
-		temp := float64(*p.Max)
+func (i Int) GetMax() *float64 {
+	if i.Max != nil {
+		temp := float64(*i.Max)
 		return &temp
 	}
 	return nil
 }
 
-func (p Float) GetMin() *float64 { return p.Min }
-func (p Float) GetMax() *float64 { return p.Max }
+func (i Int) ValidValues() []string { return []string{} }
+
+func (f Float) GetMin() *float64      { return f.Min }
+func (f Float) GetMax() *float64      { return f.Max }
+func (f Float) ValidValues() []string { return []string{} }
 
 func NewParameters(paramMap InfoMap) ParametersInterface {
 	return parameters{params: paramMap}
@@ -145,34 +180,70 @@ func (p parameters) ValidateParam(param *keyvalue.KeyValue) (err error) {
 		return ErrUnrecognizedOption{Option: param.Key}
 	}
 
-	min := paramInfo.GetMin()
-	max := paramInfo.GetMax()
-
 	value := param.Value
 
-	// we currently only have numbers
-	if value.Number == nil {
+	switch paramInfo.(type) {
+	case Str:
+		if value.Str == nil {
+			return ErrInvalidType{
+				ExpectedType: "string",
+			}
+		}
+
+	case Int:
+		if value.Number == nil {
+			return ErrInvalidType{
+				ExpectedType: "number",
+			}
+		}
+
+	case Float:
+		if value.Number == nil {
+			return ErrInvalidType{
+				ExpectedType: "number",
+			}
+		}
+	}
+
+	switch {
+	case value.Number != nil:
+		min := paramInfo.GetMin()
+		max := paramInfo.GetMax()
+
+		if (min != nil) && (max != nil) &&
+			((*value.Number < *min) || (*value.Number > *max)) {
+			return ErrValueOutOfRange{
+				Min: min,
+				Max: max,
+			}
+		}
+
+		if min != nil && (*value.Number < *min) {
+			return ErrValueOutOfRange{
+				Min: min,
+			}
+		}
+
+		if max != nil && (*value.Number > *max) {
+			return ErrValueOutOfRange{
+				Max: max,
+			}
+		}
+
+	case value.Str != nil:
+		valid := paramInfo.ValidValues()
+		if (len(valid) > 0) && !slices.Contains(valid, *value.Str) {
+			context := fmt.Sprintf("(expected one of: %s)", strings.Join(valid, ", "))
+
+			return ErrInvalidValue{
+				ParameterName: param.Key,
+				Value:         *value.Str,
+				Context:       &context,
+			}
+		}
+
+	default:
 		return keyvalue.ErrInvalidType{ExpectedType: keyvalue.Number}
-	}
-
-	if (min != nil) && (max != nil) &&
-		((*value.Number < *min) || (*value.Number > *max)) {
-		return ErrValueOutOfRange{
-			Min: min,
-			Max: max,
-		}
-	}
-
-	if min != nil && (*value.Number < *min) {
-		return ErrValueOutOfRange{
-			Min: min,
-		}
-	}
-
-	if max != nil && (*value.Number > *max) {
-		return ErrValueOutOfRange{
-			Max: max,
-		}
 	}
 
 	return
@@ -186,6 +257,14 @@ func (p parameters) parameterInfo(name string) ParamInterface {
 	}
 
 	return nil
+}
+
+// NewStr creates a new string param with optional list of valid values
+func NewStr(name, description string, validValues []string) Str {
+	return Str{
+		Info:        Info{name, description},
+		validValues: validValues,
+	}
 }
 
 // NewInt creates a new int param with optional min/max constraints

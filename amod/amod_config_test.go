@@ -38,7 +38,7 @@ func Example_gactarUnrecognizedLogLevel() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: 'log_level' must be must be one of "min, info, detail" (line 5, col 21)
+	// ERROR: 'log_level' invalid value "bar" for option "log_level" (expected one of: min, info, detail) (line 5, col 21)
 }
 
 func Example_gactarUnrecognizedNestedValue() {
@@ -64,7 +64,7 @@ func Example_gactarFieldNotANestedValue() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: 'log_level' must be must be one of "min, info, detail" (line 5, col 21)
+	// ERROR: 'log_level' invalid value "" for option "log_level" (expected one of: min, info, detail) (line 5, col 21)
 }
 
 func Example_gactarSpaceSeparator() {
@@ -248,7 +248,7 @@ func Example_imaginalFieldType() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: imaginal "delay" must be a number (line 6, col 20)
+	// ERROR: imaginal "delay" invalid type (expected number) (line 6, col 20)
 }
 
 func Example_imaginalFieldRange() {

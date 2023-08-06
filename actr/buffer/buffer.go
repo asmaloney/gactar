@@ -19,22 +19,6 @@ var validStates = []string{
 	"full",
 }
 
-type ErrInvalidRequestParameterValue struct {
-	ParameterName string
-	Value         string
-	Context       *string // optional context
-}
-
-func (e ErrInvalidRequestParameterValue) Error() string {
-	message := fmt.Sprintf("invalid value %q for parameter %q", e.Value, e.ParameterName)
-
-	if e.Context != nil {
-		message += fmt.Sprintf(" %s", *e.Context)
-	}
-
-	return message
-}
-
 type buffer struct {
 	name string
 
@@ -42,10 +26,11 @@ type buffer struct {
 	// The default is set when creating the buffer and may be overridden in the config.
 	spreadingActivation float64
 
-	// List of valid request parameter names (if any)
-	requestParameters []string
+	// Any parameters this buffer has
+	parameters param.ParametersInterface
 
-	param.ParametersInterface
+	// Request parameters (if any)
+	requestParameters param.ParametersInterface
 }
 
 type Interface interface {
@@ -54,14 +39,11 @@ type Interface interface {
 	SetSpreadingActivation(activation float64)
 	SpreadingActivation() float64
 
-	SetValidRequestParameters(params []string)
-	HasRequestParameters() bool
-	RequestParameterKeys() []string
-	IsValidRequestKey(key string) bool
-	ValidateRequestParameter(key, value string) error
-
 	Parameters() param.ParametersInterface
 	SetParam(param *keyvalue.KeyValue) error
+
+	RequestParameters() param.ParametersInterface
+	SetRequestParam(param *keyvalue.KeyValue) error
 }
 
 // List is a list of buffers that we provide operations on
@@ -76,7 +58,7 @@ type ListInterface interface {
 	Lookup(name string) Interface
 }
 
-func NewBuffer(name string, spreadingActivation float64) Interface {
+func NewBuffer(name string, spreadingActivation float64, requestParameters param.ParametersInterface) Interface {
 	spreadingActivationParam := param.NewFloat(
 		"spreading_activation",
 		"spreading activation weight",
@@ -88,8 +70,9 @@ func NewBuffer(name string, spreadingActivation float64) Interface {
 	})
 
 	newBuffer := &buffer{
-		name:                name,
-		ParametersInterface: parameters,
+		name:              name,
+		parameters:        parameters,
+		requestParameters: requestParameters,
 	}
 
 	err := newBuffer.SetParam(&keyvalue.KeyValue{
@@ -118,36 +101,12 @@ func (b buffer) SpreadingActivation() float64 {
 	return b.spreadingActivation
 }
 
-// SetValidRequestParameters sets the list of valid request parameter keys.
-func (b *buffer) SetValidRequestParameters(params []string) {
-	b.requestParameters = params
-}
-
-// RequestParameterKeys returns a list of request parameter keys.
-func (b buffer) RequestParameterKeys() []string {
-	return b.requestParameters
-}
-
-// HasRequestParameters returns whether this buffer has any additional request parameters available.
-func (b buffer) HasRequestParameters() bool {
-	return len(b.requestParameters) > 0
-}
-
-// IsValidRequestKey checks if 'key' is a valid request parameter for this buffer.
-func (b buffer) IsValidRequestKey(key string) bool {
-	return slices.Contains(b.requestParameters, key)
-}
-
-// ValidateRequestParameter checks if 'param' is a valid request parameter for this buffer.
-// Other buffers should implement this to check types and so on.
-func (b buffer) ValidateRequestParameter(key, value string) error { return nil }
-
 func (b buffer) Parameters() param.ParametersInterface {
-	return b.ParametersInterface
+	return b.parameters
 }
 
 func (b buffer) SetParam(param *keyvalue.KeyValue) (err error) {
-	err = b.ValidateParam(param)
+	err = b.Parameters().ValidateParam(param)
 	if err != nil {
 		return
 	}
@@ -156,6 +115,19 @@ func (b buffer) SetParam(param *keyvalue.KeyValue) (err error) {
 
 	if param.Key == "spreading_activation" {
 		b.spreadingActivation = *value.Number
+	}
+
+	return
+}
+
+func (b buffer) RequestParameters() param.ParametersInterface {
+	return b.requestParameters
+}
+
+func (b buffer) SetRequestParam(param *keyvalue.KeyValue) (err error) {
+	err = b.RequestParameters().ValidateParam(param)
+	if err != nil {
+		return
 	}
 
 	return

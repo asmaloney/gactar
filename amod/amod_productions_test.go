@@ -628,7 +628,7 @@ func Example_productionRecallStatementWithInvalidParam() {
 	}`)
 
 	// Output:
-	// ERROR: recall 'with': invalid parameter 'foo_param'. Expected one of: recently_retrieved (line 10, col 34)
+	// ERROR: recall 'with': unrecognized option "foo_param". (line 10, col 34)
 }
 
 func Example_productionRecallStatementWithNIL() {
@@ -677,7 +677,7 @@ func Example_productionRecallStatementWithString() {
 	}`)
 
 	// Output:
-	// ERROR: recall 'with': invalid value "bar" for parameter "recently_retrieved" (expected one of: t, nil, reset). (line 10, col 34)
+	// ERROR: recall 'with': invalid value "bar" for option "recently_retrieved" (expected one of: t, nil, reset). (line 10, col 34)
 }
 
 func Example_productionRecallStatementWithVar() {
