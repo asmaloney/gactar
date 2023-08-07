@@ -19,8 +19,16 @@ var validStates = []string{
 	"full",
 }
 
+const (
+	BuiltIn    = true
+	NotBuiltIn = false
+)
+
 type buffer struct {
 	name string
+
+	// Keeps track of whether this is a built-in buffer or not
+	builtIn bool
 
 	// "spreading_activation": see "Spreading Activation" in "ACT-R 7.26 Reference Manual" pg. 290
 	spreadingActivation float64
@@ -36,6 +44,7 @@ type buffer struct {
 
 type Interface interface {
 	Name() string
+	IsBuiltIn() bool
 
 	DefaultSpreadingActivation() float64
 	SpreadingActivation() float64
@@ -59,7 +68,7 @@ type ListInterface interface {
 	Lookup(name string) Interface
 }
 
-func NewBuffer(name string, spreadingActivation float64, requestParameters param.ParametersInterface) Interface {
+func NewBuffer(name string, builtIn bool, spreadingActivation float64, requestParameters param.ParametersInterface) Interface {
 	spreadingActivationParam := param.NewFloat(
 		"spreading_activation",
 		"spreading activation weight",
@@ -72,6 +81,7 @@ func NewBuffer(name string, spreadingActivation float64, requestParameters param
 
 	newBuffer := &buffer{
 		name:                       name,
+		builtIn:                    builtIn,
 		defaultSpreadingActivation: spreadingActivation,
 		parameters:                 parameters,
 		requestParameters:          requestParameters,
@@ -94,6 +104,7 @@ func NewBuffer(name string, spreadingActivation float64, requestParameters param
 }
 
 func (b buffer) Name() string                          { return b.name }
+func (b buffer) IsBuiltIn() bool                       { return b.builtIn }
 func (b buffer) SpreadingActivation() float64          { return b.spreadingActivation }
 func (b buffer) DefaultSpreadingActivation() float64   { return b.defaultSpreadingActivation }
 func (b buffer) Parameters() param.ParametersInterface { return b.parameters }
