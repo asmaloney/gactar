@@ -75,46 +75,43 @@ func info(args []string) {
 		writer := tabwriter.NewWriter(os.Stdout, 1, 1, 3, ' ', 0)
 
 		if mod.Parameters() != nil {
-			fmt.Println(chalk.BoldHeader(" Module Parameters"))
+			fmt.Fprintln(writer, chalk.BoldHeader(" Module Parameters"))
+
 			params := mod.Parameters().ParameterList()
-
-			for _, param := range params {
-				outputParam(writer, 1, param)
-			}
-
-			writer.Flush()
+			outputParams(writer, 1, params)
 		}
 
 		if mod.HasBuffers() {
-			fmt.Println(chalk.BoldHeader(" Buffers"))
+			fmt.Fprintln(writer, chalk.BoldHeader(" Buffers"))
 
 			for _, buffer := range mod.Buffers() {
-				fmt.Printf("   %s\n", chalk.Italic(buffer.Name()))
+				fmt.Fprintf(writer, "   %s\n", chalk.Italic(buffer.Name()))
 
 				if buffer.RequestParameters() != nil {
 					fmt.Fprintf(writer, "\t\t%s\n", chalk.Header("Request Parameters:"))
 
-					for _, rp := range buffer.RequestParameters().ParameterList() {
-						fmt.Fprintf(writer, "\t\t\t%s\t%s\n", chalk.Italic(rp.Name()), rp.Description())
-					}
-
-					writer.Flush()
+					params := buffer.RequestParameters().ParameterList()
+					outputParams(writer, 3, params)
 				}
 
 				if buffer.Parameters() != nil {
 					fmt.Fprintf(writer, "\t\t%s\n", chalk.Header("Config Options:"))
 
-					for _, param := range buffer.Parameters().ParameterList() {
-						outputParam(writer, 3, param)
-					}
+					params := buffer.Parameters().ParameterList()
+					outputParams(writer, 3, params)
 
-					writer.Flush()
 				}
 			}
 		}
 
+		fmt.Fprintln(writer, "")
 		writer.Flush()
-		fmt.Println("")
+	}
+}
+
+func outputParams(writer *tabwriter.Writer, level int, list param.List) {
+	for _, param := range list {
+		outputParam(writer, level, param)
 	}
 }
 
@@ -124,12 +121,26 @@ func outputParam(writer *tabwriter.Writer, level int, p param.ParamInterface) {
 	fmt.Fprintf(writer, "%s%s", tabs, chalk.Italic(p.Name()))
 
 	var typeStr string
-	var minStr string
-	var maxStr string
+	var valuesStr string
 
 	switch v := p.(type) {
+	case param.Bool:
+		{
+			typeStr = "bool"
+			valuesStr = fmt.Sprintf("%strue,false", tabs)
+		}
+
+	case param.Str:
+		{
+			typeStr = "string"
+			valuesStr = fmt.Sprintf("%s%s", tabs, strings.Join(v.ValidValues(), ","))
+		}
+
 	case param.Int:
 		{
+			var minStr string
+			var maxStr string
+
 			typeStr = "int"
 			if v.Min() != nil {
 				minStr = strconv.Itoa(*v.Min())
@@ -137,9 +148,15 @@ func outputParam(writer *tabwriter.Writer, level int, p param.ParamInterface) {
 			if v.Max() != nil {
 				maxStr = strconv.Itoa(*v.Max())
 			}
+
+			valuesStr = fmt.Sprintf("%s%s-%s", tabs, minStr, maxStr)
 		}
+
 	case param.Float:
 		{
+			var minStr string
+			var maxStr string
+
 			typeStr = "float"
 			if v.Min() != nil {
 				minStr = strconv.FormatFloat(*v.Min(), 'f', 2, 64)
@@ -147,11 +164,13 @@ func outputParam(writer *tabwriter.Writer, level int, p param.ParamInterface) {
 			if v.Max() != nil {
 				maxStr = strconv.FormatFloat(*v.Max(), 'f', 2, 64)
 			}
+
+			valuesStr = fmt.Sprintf("%s%s-%s", tabs, minStr, maxStr)
 		}
 	}
 
 	fmt.Fprintf(writer, "%s%s", tabs, typeStr)
-	fmt.Fprintf(writer, "%s%s-%s", tabs, minStr, maxStr)
+	fmt.Fprint(writer, valuesStr)
 	fmt.Fprintf(writer, "%s%s", tabs, p.Description())
 
 	fmt.Fprintln(writer, "")
