@@ -560,19 +560,12 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 					State:  match.BufferState.State,
 				}
 
-				// if we have a buffer state match already, add this module state match there
-				matched := false
-				for _, match := range prod.Matches {
-					if (match.ModuleState != nil) &&
-						(match.ModuleState.Buffer.Name() == name) {
-						match.BufferState = actrMatch
+				// if we have a module state match already, add this buffer state match there
+				match := findModuleStateMatch(&prod, name)
 
-						matched = true
-						break
-					}
-				}
-
-				if !matched {
+				if match != nil {
+					match.BufferState = actrMatch
+				} else {
 					prod.Matches = append(prod.Matches, &actr.Match{
 						BufferState: actrMatch,
 					})
@@ -594,18 +587,11 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 				}
 
 				// if we have a buffer state match already, add this module state match there
-				matched := false
-				for _, match := range prod.Matches {
-					if (match.BufferState != nil) &&
-						(match.BufferState.Buffer.Name() == buffer.Name()) {
-						match.ModuleState = actrMatch
+				match := findBufferStateMatch(&prod, buffer.Name())
 
-						matched = true
-						break
-					}
-				}
-
-				if !matched {
+				if match != nil {
+					match.ModuleState = actrMatch
+				} else {
 					prod.Matches = append(prod.Matches, &actr.Match{
 						ModuleState: actrMatch,
 					})
@@ -626,6 +612,34 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 
 		model.Productions = append(model.Productions, &prod)
 	}
+}
+
+func findBufferStateMatch(prod *actr.Production, bufferName string) *actr.Match {
+	for _, match := range prod.Matches {
+		if match.BufferState == nil {
+			continue
+		}
+
+		if match.BufferState.Buffer.Name() == bufferName {
+			return match
+		}
+	}
+
+	return nil
+}
+
+func findModuleStateMatch(prod *actr.Production, bufferName string) *actr.Match {
+	for _, match := range prod.Matches {
+		if match.ModuleState == nil {
+			continue
+		}
+
+		if match.ModuleState.Buffer.Name() == bufferName {
+			return match
+		}
+	}
+
+	return nil
 }
 
 func argToKeyValue(key string, a *arg) *keyvalue.KeyValue {

@@ -244,6 +244,9 @@ func validateMatch(match *match, model *actr.Model, log *issueLog, production *a
 		return
 	}
 
+	bufferStateSeen := []string{} // track buffer names (by buffer) to look for duplicates
+	moduleStateSeen := []string{} // track buffer names (by module) to look for duplicates
+
 	for _, item := range match.Items {
 		switch {
 		case item.BufferPattern != nil:
@@ -251,9 +254,39 @@ func validateMatch(match *match, model *actr.Model, log *issueLog, production *a
 
 		case item.BufferState != nil:
 			err = validateBufferStateMatch(item.BufferState, model, log, production)
+			if err != nil {
+				continue
+			}
+
+			name := item.BufferState.BufferName
+
+			if slices.Contains(bufferStateSeen, name) {
+				log.errorT(item.Tokens,
+					"duplicate buffer state check for '%s' in production '%s'",
+					name, production.Name)
+				err = ErrCompile
+			} else {
+				bufferStateSeen = append(bufferStateSeen, name)
+			}
 
 		case item.ModuleState != nil:
 			err = validateModuleStateMatch(item.ModuleState, model, log, production)
+			if err != nil {
+				continue
+			}
+
+			name := item.ModuleState.ModuleName
+			module := model.LookupModule(name)
+			buffer := module.Buffers().At(0)
+
+			if slices.Contains(moduleStateSeen, buffer.Name()) {
+				log.errorT(item.Tokens,
+					"duplicate module state check for '%s' in production '%s'",
+					name, production.Name)
+				err = ErrCompile
+			} else {
+				moduleStateSeen = append(moduleStateSeen, buffer.Name())
+			}
 		}
 	}
 

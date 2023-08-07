@@ -865,7 +865,7 @@ func Example_productionPrintStatementWildcard() {
 	// ERROR: unexpected token "*" (expected "}") (line 9, col 13)
 }
 
-func Example_productionMatchBufferStatus() {
+func Example_productionMatchBufferState() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -880,7 +880,7 @@ func Example_productionMatchBufferStatus() {
 	// Output:
 }
 
-func Example_productionMatchBufferStatusInvalidBuffer() {
+func Example_productionMatchBufferStateInvalidBuffer() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -896,7 +896,7 @@ func Example_productionMatchBufferStatusInvalidBuffer() {
 	// ERROR: buffer 'foo' not found in production 'start' (line 8, col 10)
 }
 
-func Example_productionMatchBufferStatusInvalidStatus() {
+func Example_productionMatchBufferStateInvalidStatus() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -912,7 +912,7 @@ func Example_productionMatchBufferStatusInvalidStatus() {
 	// ERROR: invalid state check 'foo' for buffer 'retrieval' in production 'start' (should be one of: empty, full) (line 8, col 10)
 }
 
-func Example_productionMatchBufferStatusInvalidString() {
+func Example_productionMatchBufferStateInvalidString() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -928,7 +928,7 @@ func Example_productionMatchBufferStatusInvalidString() {
 	// ERROR: unexpected token "empty" (expected <ident>) (line 8, col 28)
 }
 
-func Example_productionMatchBufferStatusInvalidNumber() {
+func Example_productionMatchBufferStateInvalidNumber() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -942,6 +942,25 @@ func Example_productionMatchBufferStatusInvalidNumber() {
 
 	// Output:
 	// ERROR: unexpected token "42" (expected <ident>) (line 8, col 28)
+}
+
+func Example_productionMatchBufferStateDuplicate() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match {
+			buffer_state retrieval full
+			buffer_state retrieval empty
+		}
+		do { print 42 }
+	}`)
+
+	// Output:
+	// ERROR: duplicate buffer state check for 'retrieval' in production 'start' (line 10, col 3)
 }
 
 func Example_productionMatchModuleState() {
@@ -1005,4 +1024,23 @@ func Example_productionMatchModuleStateInvalidState2() {
 
 	// Output:
 	// ERROR: invalid module state check 'bar' for module 'memory' in production 'start' (should be one of: busy, error, free) (line 8, col 10)
+}
+
+func Example_productionMatchModuleStateDuplicate() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { 
+			module_state memory error
+			module_state memory busy
+		}
+		do { print 42 }
+	}`)
+
+	// Output:
+	// ERROR: duplicate module state check for 'memory' in production 'start' (line 10, col 3)
 }
