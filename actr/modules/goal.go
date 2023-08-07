@@ -15,7 +15,7 @@ func (g Goal) Buffer() buffer.Interface {
 
 // NewGoal creates and returns a new Goal module
 func NewGoal() *Goal {
-	goalBuff := buffer.NewBuffer("goal", 0.0, nil)
+	goalBuff := buffer.NewBuffer("goal", buffer.BuiltIn, 0.0, nil)
 
 	return &Goal{
 		Module: Module{

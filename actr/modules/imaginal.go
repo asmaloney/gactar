@@ -30,7 +30,7 @@ func NewImaginal() *Imaginal {
 		delay,
 	})
 
-	imaginalBuffer := buffer.NewBuffer("imaginal", 1.0, nil)
+	imaginalBuffer := buffer.NewBuffer("imaginal", buffer.BuiltIn, 1.0, nil)
 
 	return &Imaginal{
 		Module: Module{

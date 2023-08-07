@@ -175,7 +175,7 @@ func NewDeclarativeMemory() *DeclarativeMemory {
 		rpRecentlyReceived,
 	})
 
-	retrievalBuff := buffer.NewBuffer("retrieval", 0.0, rpParameters)
+	retrievalBuff := buffer.NewBuffer("retrieval", buffer.BuiltIn, 0.0, rpParameters)
 
 	return &DeclarativeMemory{
 		Module: Module{
