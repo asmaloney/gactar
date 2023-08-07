@@ -256,6 +256,42 @@ func addModules(model *actr.Model, log *issueLog, modules []*module) {
 	}
 }
 
+func setBufferParams(moduleName string, buffer buffer.Interface, log *issueLog, field *field) {
+	if field == nil {
+		return
+	}
+
+	bufferName := buffer.Name()
+
+	for _, f := range field.Value.Fields {
+		value := field.Value
+
+		kv := fieldToKeyValue(f)
+		err := buffer.SetParam(kv)
+
+		if err != nil {
+			switch {
+			// field errors
+			case errors.As(err, &param.ErrUnrecognizedOption{}):
+				log.errorTR(field.Tokens, 0, 1, "%v in %s (%s) config", err, moduleName, bufferName)
+				continue
+
+			// value errors
+			case errors.As(err, &keyvalue.ErrInvalidType{}) ||
+				errors.As(err, &param.ErrInvalidType{}) ||
+				errors.As(err, &param.ErrInvalidValue{}) ||
+				errors.As(err, &param.ErrValueOutOfRange{}):
+				log.errorTR(value.Tokens, 1, 1, "%s %q %v", moduleName, kv.Key, err)
+				continue
+
+			default:
+				log.errorT(field.Tokens, "INTERNAL: unhandled error (%v) in %s (%s) config: %q", err, moduleName, bufferName, kv.Key)
+				continue
+			}
+		}
+	}
+}
+
 func setModuleParams(module modules.Interface, log *issueLog, fields []*field) {
 	if len(fields) == 0 {
 		return
@@ -267,25 +303,33 @@ func setModuleParams(module modules.Interface, log *issueLog, fields []*field) {
 		value := field.Value
 
 		kv := fieldToKeyValue(field)
-		err := module.SetParam(kv)
-		if err != nil {
-			switch {
-			// field errors
-			case errors.As(err, &param.ErrUnrecognizedOption{}):
-				log.errorTR(field.Tokens, 0, 1, "%v in %s config", err, moduleName)
-				continue
 
-			// value errors
-			case errors.As(err, &keyvalue.ErrInvalidType{}) ||
-				errors.As(err, &param.ErrInvalidType{}) ||
-				errors.As(err, &param.ErrInvalidValue{}) ||
-				errors.As(err, &param.ErrValueOutOfRange{}):
-				log.errorTR(value.Tokens, 1, 1, "%s %q %v", moduleName, field.Key, err)
-				continue
+		// if the key is a buffer name, init the buffer
+		buffer := module.Buffers().Lookup(kv.Key)
+		if buffer != nil {
+			setBufferParams(moduleName, buffer, log, field)
+		} else {
+			err := module.SetParam(kv)
 
-			default:
-				log.errorT(field.Tokens, "INTERNAL: unhandled error (%v) in %s config: %q", err, moduleName, field.Key)
-				continue
+			if err != nil {
+				switch {
+				// field errors
+				case errors.As(err, &param.ErrUnrecognizedOption{}):
+					log.errorTR(field.Tokens, 0, 1, "%v in %s config", err, moduleName)
+					continue
+
+				// value errors
+				case errors.As(err, &keyvalue.ErrInvalidType{}) ||
+					errors.As(err, &param.ErrInvalidType{}) ||
+					errors.As(err, &param.ErrInvalidValue{}) ||
+					errors.As(err, &param.ErrValueOutOfRange{}):
+					log.errorTR(value.Tokens, 1, 1, "%s %q %v", moduleName, field.Key, err)
+					continue
+
+				default:
+					log.errorT(field.Tokens, "INTERNAL: unhandled error (%v) in %s config: %q", err, moduleName, field.Key)
+					continue
+				}
 			}
 		}
 	}
@@ -591,15 +635,17 @@ func fieldToKeyValue(f *field) *keyvalue.KeyValue {
 	value := f.Value
 
 	if f.Value.OpenBrace != nil {
-		var kv *keyvalue.KeyValue
 
-		if value.Field != nil {
-			kv = fieldToKeyValue(value.Field)
+		fields := make([]keyvalue.KeyValue, len(value.Fields))
+
+		for i, field := range value.Fields {
+			kv := fieldToKeyValue(field)
+			fields[i] = *kv
 		}
 
 		return &keyvalue.KeyValue{
 			Key:   f.Key,
-			Value: keyvalue.Value{Field: kv},
+			Value: keyvalue.Value{Fields: &fields},
 		}
 	}
 

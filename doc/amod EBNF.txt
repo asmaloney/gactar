@@ -21,7 +21,7 @@ Field    ::= ident FieldValue
 
 FieldValue
          ::= ':' ( ident | string | number )
-           | '{' Field? '}'
+           | '{' Field* '}'
 
 Module   ::= ident '{' Field* '}'
 

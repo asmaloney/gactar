@@ -230,9 +230,9 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 	if memory.MaxSpreadStrength != nil {
 		v.Writeln("\t:mas %s", numbers.Float64Str(*memory.MaxSpreadStrength))
 
-		goalActivation := v.model.Goal.SpreadingActivation
-		if goalActivation != nil {
-			v.Writeln("\t:ga %s", numbers.Float64Str(*goalActivation))
+		goalActivation := v.model.Goal.Buffer().SpreadingActivation()
+		if goalActivation != 0.0 {
+			v.Writeln("\t:ga %s", numbers.Float64Str(goalActivation))
 		}
 	}
 

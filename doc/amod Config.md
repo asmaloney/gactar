@@ -23,6 +23,16 @@ gactar {
 
 gactar supports a handful of modules and configuration options which are set in the `modules` section.
 
+A module's buffer is configured using its name like this:
+
+```
+modules {
+    memory {
+        retrieval { spreading_activation: 0.5 }
+    }
+}
+```
+
 For a list of a specific module's configuration options, run `gactar module info [module name]`.
 
 For a list of _all_ modules and their configuration options, run `gactar module info all`.
@@ -37,7 +47,7 @@ modules {
     }
 
     goal {
-        spreading_activation: 1.0
+        goal{ spreading_activation: 1.0 }
     }
 
     extra_buffers {
@@ -46,6 +56,39 @@ modules {
     }
 }
 ```
+
+### Buffers
+
+All buffers have one configuration option.
+
+| Config               | Type    | Description                                                         |
+| -------------------- | ------- | ------------------------------------------------------------------- |
+| spreading_activation | decimal | see "Spreading Activation" in "ACT-R 7.26 Reference Manual" pg. 290 |
+
+Mapping defaults is a little messy since they are handled differently in each of the frameworks.
+
+- **ccm** (DMSpreading.weight): defaults to 1.0, however this is incorrect, so we explicitly set it to 0.0
+- **pyactr**: if not set explicitly, defaults to 0.0
+- **vanilla**: (_see below_)
+
+Here are vanilla's parameters and defaults:
+
+| buffer                 | ACT-R param                 | default |
+| ---------------------- | --------------------------- | ------- |
+| Aural buffer           | :aural-activation           | 0.0     |
+| Aural-location buffer  | :aural-location-activation  | 0.0     |
+| Goal buffer            | :ga                         | 0.0     |
+| Imaginal buffer        | :imaginal-activation        | 1.0     |
+| Imaginal-action buffer | :imaginal-action-activation | 0.0     |
+| Manual buffer          | :manual-activation          | 0.0     |
+| Production buffer      | :production-activation      | 0.0     |
+| Retrieval buffer       | :retrieval-activation       | 0.0     |
+| Temporal buffer        | :temporal-activation        | 0.0     |
+| Visual buffer          | :visual-activation          | 0.0     |
+| Visual-location buffer | :visual-location-activation | 0.0     |
+| Vocal buffer           | :vocal-activation           | 0.0     |
+
+Right now, we allow setting the spreading activation on any buffer, however we only generate code for the `goal` buffer.
 
 ### Declarative Memory
 
@@ -75,9 +118,7 @@ Module Name: **goal**
 
 Buffer Name: **goal**
 
-| Config               | Type    | Description                                                         | Mapping                                                                                          |
-| -------------------- | ------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| spreading_activation | decimal | see "Spreading Activation" in "ACT-R 7.26 Reference Manual" pg. 290 | ccm (DMSpreading.weight): 1.0<br>pyactr (buffer_spreading_activation): _no default_<br>vanilla (:ga): 0.0 |
+It does not have any additional configuration options.
 
 ### Imaginal
 
@@ -111,6 +152,6 @@ Module Name: **extra_buffers**
 
 Buffer Names: _specified in configuration_
 
-| Config           | Description                                                                                            |
-| ---------------- | ------------------------------------------------------------------------------------------------------ |
-| _buffer name_ {} | the name of the new buffer (with "{}" to allow the possibility of buffer config options in the future) |
+| Config           | Description                                                               |
+| ---------------- | ------------------------------------------------------------------------- |
+| _buffer name_ {} | the name of the new buffer (with "{}" to allow any buffer config options) |

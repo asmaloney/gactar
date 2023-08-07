@@ -240,14 +240,9 @@ func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code 
 		c.Writeln("    spread = DMSpreading(%s, goal)", memory.ModuleName())
 		c.Writeln("    spread.strength = %s", numbers.Float64Str(*memory.MaxSpreadStrength))
 
-		goalActivation := c.model.Goal.SpreadingActivation
-		if goalActivation == nil {
-			// if it isn't set, then it should default to 0.0
-			// ACR-T Manual pg. 275
-			c.Writeln("    spread.weight[%s] = 0.0", "goal")
-		} else {
-			c.Writeln("    spread.weight[%s] = %s", "goal", numbers.Float64Str(*goalActivation))
-		}
+		goalActivation := c.model.Goal.Buffer().SpreadingActivation()
+
+		c.Writeln("    spread.weight[%s] = %s", "goal", numbers.Float64Str(goalActivation))
 
 		c.Writeln("")
 	}

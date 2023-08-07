@@ -64,7 +64,7 @@ func Example_gactarFieldNotANestedValue() {
 	~~ productions ~~`)
 
 	// Output:
-	// ERROR: 'log_level' invalid type (found <none>; expected string) (line 5, col 21)
+	// ERROR: 'log_level' invalid type (found field; expected string) (line 5, col 21)
 }
 
 func Example_gactarSpaceSeparator() {
@@ -170,6 +170,22 @@ func Example_modulesMultipleBuffers() {
 			buffer1 {}
 			buffer2 {}
 		} 
+	}
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+}
+
+func Example_modulesInitBuffer() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	modules {
+		memory {
+			retrieval { spreading_activation: 0.5 }
+		}
 	}
 	~~ init ~~
 	~~ productions ~~`)

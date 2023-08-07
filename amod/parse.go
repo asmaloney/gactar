@@ -87,8 +87,9 @@ type fieldValue struct {
 	Number *float64 `parser:"| @Number )"`
 
 	// We can't capture an empty field "{}", so capture the open brace to tell us it's a nested field
-	OpenBrace *string `parser:"| @('{')"`
-	Field     *field  `parser:"@@? '}' )"`
+	OpenBrace  *string  `parser:"| @('{')"`
+	Fields     []*field `parser:"@@*"`
+	CloseBrace *string  `parser:"'}')"`
 
 	Tokens []lexer.Token
 }
