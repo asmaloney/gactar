@@ -128,7 +128,7 @@ type gactarConfig struct {
 
 type module struct {
 	ModuleName string   `parser:"@Ident"`
-	InitFields []*field `parser:"'{' @@* '}'"`
+	Fields     []*field `parser:"'{' @@* '}'"`
 
 	Tokens []lexer.Token
 }

@@ -1,7 +1,10 @@
 package amod
 
 import (
+	"golang.org/x/exp/slices"
+
 	"github.com/alecthomas/participle/v2/lexer"
+
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/modules"
@@ -14,6 +17,22 @@ import (
 type varAndIndex struct {
 	text  string
 	index int
+}
+
+func validateFieldList(log *issueLog, fields []*field) (err error) {
+	// check for duplicates
+	keysSeen := []string{}
+
+	for _, field := range fields {
+		if slices.Contains(keysSeen, field.Key) {
+			log.errorTR(field.Tokens, 0, 1, "duplicate option %q", field.Key)
+			err = ErrCompile
+			continue
+		}
+
+		keysSeen = append(keysSeen, field.Key)
+	}
+	return
 }
 
 // validateChunk checks the chunk name to ensure uniqueness and that it isn't using

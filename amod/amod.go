@@ -249,17 +249,19 @@ func addModules(model *actr.Model, log *issueLog, config *moduleConfig) {
 	}
 
 	for _, module := range modules {
+		_ = validateFieldList(log, module.Fields)
+
 		switch module.ModuleName {
 		case "extra_buffers":
-			addExtraBuffers(model, log, module.InitFields)
+			addExtraBuffers(model, log, module.Fields)
 		case "goal":
-			addGoal(model, log, module.InitFields)
+			addGoal(model, log, module.Fields)
 		case "imaginal":
-			addImaginal(model, log, module.InitFields)
+			addImaginal(model, log, module.Fields)
 		case "memory":
-			addMemory(model, log, module.InitFields)
+			addMemory(model, log, module.Fields)
 		case "procedural":
-			addProcedural(model, log, module.InitFields)
+			addProcedural(model, log, module.Fields)
 		default:
 			log.errorT(module.Tokens, "unrecognized module in config: '%s'", module.ModuleName)
 		}
@@ -274,6 +276,8 @@ func setBufferParams(moduleName string, buffer buffer.Interface, log *issueLog, 
 	}
 
 	bufferName := buffer.Name()
+
+	_ = validateFieldList(log, field.Value.Fields)
 
 	for _, f := range field.Value.Fields {
 		value := field.Value
