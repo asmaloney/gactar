@@ -15,7 +15,10 @@ PatternSlot
            | wildcard
 
 ConfigSection
-         ::= ( 'gactar' '{' Field* '}' )? ( 'modules' '{' Module* '}' )? ( 'chunks' '{' ChunkDecl* '}' )?
+         ::= GactarConfig? ModuleConfig? ChunkConfig?
+
+GactarConfig
+         ::= 'gactar' '{' Field* '}'
 
 Field    ::= ident FieldValue
 
@@ -23,7 +26,13 @@ FieldValue
          ::= ':' ( ident | string | number )
            | '{' Field* '}'
 
+ModuleConfig
+         ::= 'modules' '{' Module* '}'
+
 Module   ::= ident '{' Field* '}'
+
+ChunkConfig
+         ::= 'chunks' '{' ChunkDecl* '}'
 
 ChunkDecl
          ::= '[' ident ':' ident+ ']'

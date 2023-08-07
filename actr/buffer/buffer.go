@@ -23,8 +23,9 @@ type buffer struct {
 	name string
 
 	// "spreading_activation": see "Spreading Activation" in "ACT-R 7.26 Reference Manual" pg. 290
-	// The default is set when creating the buffer and may be overridden in the config.
 	spreadingActivation float64
+	// The defaultSpreadingActivation is set when creating the buffer and may be overridden in the config.
+	defaultSpreadingActivation float64
 
 	// Any parameters this buffer has
 	parameters param.ParametersInterface
@@ -36,7 +37,7 @@ type buffer struct {
 type Interface interface {
 	Name() string
 
-	SetSpreadingActivation(activation float64)
+	DefaultSpreadingActivation() float64
 	SpreadingActivation() float64
 
 	Parameters() param.ParametersInterface
@@ -70,9 +71,10 @@ func NewBuffer(name string, spreadingActivation float64, requestParameters param
 	})
 
 	newBuffer := &buffer{
-		name:              name,
-		parameters:        parameters,
-		requestParameters: requestParameters,
+		name:                       name,
+		defaultSpreadingActivation: spreadingActivation,
+		parameters:                 parameters,
+		requestParameters:          requestParameters,
 	}
 
 	err := newBuffer.SetParam(&keyvalue.KeyValue{
@@ -91,19 +93,10 @@ func NewBuffer(name string, spreadingActivation float64, requestParameters param
 	return newBuffer
 }
 
-func (b buffer) Name() string {
-	return b.name
-}
-
-func (b *buffer) SetSpreadingActivation(activation float64) { b.spreadingActivation = activation }
-
-func (b buffer) SpreadingActivation() float64 {
-	return b.spreadingActivation
-}
-
-func (b buffer) Parameters() param.ParametersInterface {
-	return b.parameters
-}
+func (b buffer) Name() string                          { return b.name }
+func (b buffer) SpreadingActivation() float64          { return b.spreadingActivation }
+func (b buffer) DefaultSpreadingActivation() float64   { return b.defaultSpreadingActivation }
+func (b buffer) Parameters() param.ParametersInterface { return b.parameters }
 
 func (b *buffer) SetParam(param *keyvalue.KeyValue) (err error) {
 	err = b.Parameters().ValidateParam(param)
@@ -120,9 +113,7 @@ func (b *buffer) SetParam(param *keyvalue.KeyValue) (err error) {
 	return
 }
 
-func (b buffer) RequestParameters() param.ParametersInterface {
-	return b.requestParameters
-}
+func (b buffer) RequestParameters() param.ParametersInterface { return b.requestParameters }
 
 func (b buffer) SetRequestParam(param *keyvalue.KeyValue) (err error) {
 	err = b.RequestParameters().ValidateParam(param)

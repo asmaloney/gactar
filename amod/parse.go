@@ -120,11 +120,8 @@ type field struct {
 	Tokens []lexer.Token
 }
 
-type chunkDecl struct {
-	StartBracket string   `parser:"'['"` // not used - must be set for parse
-	TypeName     string   `parser:"@Ident ':'"`
-	Slots        []string `parser:"@Ident+"`
-	EndBracket   string   `parser:"']'"` // not used - must be set for parse
+type gactarConfig struct {
+	GactarFields []*field `parser:"'gactar' '{' @@* '}'"`
 
 	Tokens []lexer.Token
 }
@@ -136,10 +133,31 @@ type module struct {
 	Tokens []lexer.Token
 }
 
+type moduleConfig struct {
+	Modules []*module `parser:"'modules' '{' @@* '}'"`
+
+	Tokens []lexer.Token
+}
+
+type chunkDecl struct {
+	StartBracket string   `parser:"'['"` // not used - must be set for parse
+	TypeName     string   `parser:"@Ident ':'"`
+	Slots        []string `parser:"@Ident+"`
+	EndBracket   string   `parser:"']'"` // not used - must be set for parse
+
+	Tokens []lexer.Token
+}
+
+type chunkConfig struct {
+	ChunkDecls []*chunkDecl `parser:"'chunks' '{' @@* '}'"`
+
+	Tokens []lexer.Token
+}
+
 type configSection struct {
-	GACTAR     []*field     `parser:"('gactar' '{' @@* '}')?"`
-	Modules    []*module    `parser:"('modules' '{' @@* '}')?"`
-	ChunkDecls []*chunkDecl `parser:"('chunks' '{' @@* '}')?"`
+	GactarConfig *gactarConfig `parser:"@@?"`
+	ModuleConfig *moduleConfig `parser:"@@?"`
+	ChunkConfig  *chunkConfig  `parser:"@@?"`
 
 	Tokens []lexer.Token
 }
