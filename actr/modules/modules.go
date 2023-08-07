@@ -8,6 +8,7 @@ import (
 
 	"github.com/asmaloney/gactar/actr/buffer"
 	"github.com/asmaloney/gactar/actr/param"
+
 	"github.com/asmaloney/gactar/util/keyvalue"
 )
 
@@ -71,7 +72,16 @@ func (m Module) Parameters() param.ParametersInterface {
 	return m.ParametersInterface
 }
 
-func (m Module) SetParam(param *keyvalue.KeyValue) error { return nil }
+func (m Module) SetParam(kv *keyvalue.KeyValue) error {
+	if m.Parameters() != nil {
+		err := m.Parameters().ValidateParam(kv)
+		if err == nil {
+			return nil
+		}
+	}
+
+	return param.ErrUnrecognizedOption{Option: kv.Key}
+}
 
 // AllowsMultipleInit returns whether this module allows more than one initialization.
 // e.g. goal would only allow one, whereas declarative memory would allow multiple.

@@ -160,7 +160,7 @@ func Example_modules() {
 	// Output:
 }
 
-func Example_modulesMultipleBuffers() {
+func Example_modulesExtraBuffers() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -175,6 +175,24 @@ func Example_modulesMultipleBuffers() {
 	~~ productions ~~`)
 
 	// Output:
+}
+
+func Example_modulesExtraBuffersDuplicate() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	modules { 
+		extra_buffers {
+			buffer1 {}
+			buffer1 {}
+		} 
+	}
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+	// ERROR: duplicate option "buffer1" (line 8, col 3)
 }
 
 func Example_modulesInitBuffer() {
@@ -211,7 +229,28 @@ func Example_modulesInitBufferNoMaxSpread() {
 	// ERROR: spreading_activation set on buffer "imaginal", but max_spread_strength not set on memory module (line 5, col 1)
 }
 
-func Example_modulesUnrecognized() {
+func Example_modulesInitBufferDuplicate() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	modules {
+		memory {
+			max_spread_strength: 0.9
+			retrieval { 
+				spreading_activation: 0.5
+				spreading_activation: 0.5
+			}
+		}
+	}
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+	// ERROR: duplicate option "spreading_activation" (line 10, col 4)
+}
+
+func Example_modulesUnrecognizedModule() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -224,6 +263,39 @@ func Example_modulesUnrecognized() {
 
 	// Output:
 	// ERROR: unrecognized module in config: 'foo' (line 6, col 2)
+}
+
+func Example_modulesUnrecognizedModuleOption() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	modules {
+		goal { foo: 0.2 }
+	}
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+	// ERROR: unrecognized option "foo" in goal config (line 6, col 9)
+}
+
+func Example_modulesUnrecognizedModuleDuplicateOption() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	modules {
+		imaginal { 
+			imaginal {}
+			imaginal {}
+		 }
+	}
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+	// ERROR: duplicate option "imaginal" (line 8, col 3)
 }
 
 func Example_modulesAll() {
