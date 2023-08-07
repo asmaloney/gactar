@@ -236,16 +236,7 @@ func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code 
 	}
 
 	// Turn on DMSpreading if we have set "max_spread_strength"
-	if memory.MaxSpreadStrength != nil {
-		c.Writeln("    spread = DMSpreading(%s, goal)", memory.ModuleName())
-		c.Writeln("    spread.strength = %s", numbers.Float64Str(*memory.MaxSpreadStrength))
-
-		goalActivation := c.model.Goal.Buffer().SpreadingActivation()
-
-		c.Writeln("    spread.weight[%s] = %s", "goal", numbers.Float64Str(goalActivation))
-
-		c.Writeln("")
-	}
+	c.writeSpreadingActivation()
 
 	// Turn on DMNoise if we have set "instantaneous_noise"
 	if memory.InstantaneousNoise != nil {
@@ -385,6 +376,26 @@ func (c CCMPyACTR) writeImports() {
 		c.Writeln("")
 		c.Writeln(fmt.Sprintf("from %s import ActivateTrace", gactarActivateTraceFileName))
 	}
+}
+
+// If spreading activation is on, write its parameters
+func (c CCMPyACTR) writeSpreadingActivation() {
+	memory := c.model.Memory
+
+	if memory.MaxSpreadStrength == nil {
+		return
+	}
+
+	c.Writeln("    spread = DMSpreading(%s, %s)", memory.ModuleName(), strings.Join(c.model.BufferNames(), ", "))
+	c.Writeln("    spread.strength = %s", numbers.Float64Str(*memory.MaxSpreadStrength))
+
+	for _, buffer := range c.model.Buffers() {
+		bufferName := buffer.Name()
+
+		c.Writeln("    spread.weight[%s] = %s", bufferName, numbers.Float64Str(buffer.SpreadingActivation()))
+	}
+
+	c.Writeln("")
 }
 
 func (c CCMPyACTR) writeInitializers(goal *actr.Pattern) {

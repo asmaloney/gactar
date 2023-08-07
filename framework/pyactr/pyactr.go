@@ -230,14 +230,7 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 		p.Writeln("    decay=%s,", numbers.Float64Str(*memory.Decay))
 	}
 
-	if memory.MaxSpreadStrength != nil {
-		p.Writeln("    strength_of_association=%s,", numbers.Float64Str(*memory.MaxSpreadStrength))
-
-		goalActivation := p.model.Goal.Buffer().SpreadingActivation()
-		if goalActivation != 0.0 {
-			p.Writeln("    buffer_spreading_activation={'g': %s},", numbers.Float64Str(goalActivation))
-		}
-	}
+	p.writeSpreadingActivation()
 
 	if memory.InstantaneousNoise != nil {
 		p.Writeln("    instantaneous_noise=%s,", numbers.Float64Str(*memory.InstantaneousNoise))
@@ -295,15 +288,7 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 		p.Writeln(")")
 	}
 
-	// add any extra buffers
-	extraBuffers := p.model.LookupModule("extra_buffers")
-	if extraBuffers != nil {
-		p.Writeln("")
-		p.Writeln("# define a goal-style buffer for each extra buffer")
-		for _, buff := range extraBuffers.Buffers().Names() {
-			p.Writeln("%[1]s = %[2]s.set_goal('%[1]s')", buff, p.className)
-		}
-	}
+	p.writeExtraBufferInit()
 
 	p.Writeln("")
 
@@ -389,6 +374,52 @@ func (p PyACTR) writeImports() {
 	if p.model.HasPrintStatement() {
 		// Import gactar's print handling
 		p.Writeln("import pyactr_print")
+	}
+}
+
+// If we have any extra buffers, define them in code
+func (p PyACTR) writeExtraBufferInit() {
+	extraBuffers := p.model.LookupModule("extra_buffers")
+	if extraBuffers != nil {
+		p.Writeln("")
+		p.Writeln("# define a goal-style buffer for each extra buffer")
+		for _, buff := range extraBuffers.Buffers().Names() {
+			p.Writeln("%[1]s = %[2]s.set_goal('%[1]s')", buff, p.className)
+		}
+	}
+}
+
+// If spreading activation is on, write its parameters
+func (p PyACTR) writeSpreadingActivation() {
+	memory := p.model.Memory
+
+	if memory.MaxSpreadStrength == nil {
+		return
+	}
+
+	p.Writeln("    strength_of_association=%s,", numbers.Float64Str(*memory.MaxSpreadStrength))
+
+	activations := []string{}
+
+	for _, buffer := range p.model.Buffers() {
+		bufferName := buffer.Name()
+
+		if buffer.SpreadingActivation() != 0.0 {
+			// the default pyactr parameter for any buffer is the buffer name
+			paramName := bufferName
+
+			// "goal" is an exception
+			if bufferName == "goal" {
+				paramName = "g"
+			}
+
+			param := fmt.Sprintf("'%s': %s", paramName, numbers.Float64Str(buffer.SpreadingActivation()))
+			activations = append(activations, param)
+		}
+	}
+
+	if len(activations) > 0 {
+		p.Writeln("    buffer_spreading_activation={%s},", strings.Join(activations, ", "))
 	}
 }
 
