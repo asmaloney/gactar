@@ -177,23 +177,7 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 
 	v.Writeln("")
 
-	// add any extra buffers
-	extraBuffers := v.model.LookupModule("extra_buffers")
-	if extraBuffers != nil {
-		v.Writeln(`(require-compiled "GOAL-STYLE-MODULE")`)
-		v.Writeln("")
-		v.Writeln(";; define a goal-style module for each extra buffer")
-		for _, buff := range extraBuffers.Buffers().Names() {
-			v.Writeln(
-				`(define-module %[1]s (%[1]s) nil
-	:version "1.0"
-	:documentation "Extra buffer: %[1]s"
-	:query goal-style-query
-	:request goal-style-request
-	:buffer-mod goal-style-mod-request)
-	`, buff)
-		}
-	}
+	v.writeExtraBufferInit()
 
 	v.Writeln("(define-model %s\n", v.modelName)
 
@@ -227,14 +211,7 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 		v.Writeln("\t:bll %s", numbers.Float64Str(*memory.Decay))
 	}
 
-	if memory.MaxSpreadStrength != nil {
-		v.Writeln("\t:mas %s", numbers.Float64Str(*memory.MaxSpreadStrength))
-
-		goalActivation := v.model.Goal.Buffer().SpreadingActivation()
-		if goalActivation != 0.0 {
-			v.Writeln("\t:ga %s", numbers.Float64Str(goalActivation))
-		}
-	}
+	v.writeSpreadingActivation()
 
 	if memory.InstantaneousNoise != nil {
 		v.Writeln("\t:ans %s", numbers.Float64Str(*memory.InstantaneousNoise))
@@ -332,6 +309,53 @@ func (v VanillaACTR) writeAuthors() {
 	}
 
 	v.Writeln("")
+}
+
+// If we have any extra buffers, define them in code
+func (v VanillaACTR) writeExtraBufferInit() {
+	extraBuffers := v.model.LookupModule("extra_buffers")
+	if extraBuffers != nil {
+		v.Writeln(`(require-compiled "GOAL-STYLE-MODULE")`)
+		v.Writeln("")
+		v.Writeln(";; define a goal-style module for each extra buffer")
+		for _, buff := range extraBuffers.Buffers().Names() {
+			v.Writeln(
+				`(define-module %[1]s (%[1]s) nil
+	:version "1.0"
+	:documentation "Extra buffer: %[1]s"
+	:query goal-style-query
+	:request goal-style-request
+	:buffer-mod goal-style-mod-request)
+	`, buff)
+		}
+	}
+}
+
+// If spreading activation is on, write its parameters
+func (v VanillaACTR) writeSpreadingActivation() {
+	memory := v.model.Memory
+
+	if memory.MaxSpreadStrength == nil {
+		return
+	}
+
+	v.Writeln("\t:mas %s", numbers.Float64Str(*memory.MaxSpreadStrength))
+
+	for _, buffer := range v.model.Buffers() {
+		bufferName := buffer.Name()
+
+		if buffer.SpreadingActivation() != 0.0 {
+			// the default ACT-R parameter for any buffer is ":<buffer>-activation"
+			paramName := fmt.Sprintf(":%s-activation", bufferName)
+
+			// "goal" is an exception
+			if bufferName == "goal" {
+				paramName = ":ga"
+			}
+
+			v.Writeln("\t%s %s", paramName, numbers.Float64Str(buffer.SpreadingActivation()))
+		}
+	}
 }
 
 func (v VanillaACTR) writeImplicitChunks() {
