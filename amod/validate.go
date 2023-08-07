@@ -100,6 +100,24 @@ func validateModuleInitialization(model *actr.Model, log *issueLog, init *module
 	return
 }
 
+// validateInterModuleInitDependencies checks for inconsistent options set between modules
+func validateInterModuleInitDependencies(model *actr.Model, log *issueLog, config *moduleConfig) (err error) {
+	// when max_spread_strength is not set on memory, check for spreading_activation set on any buffer
+	if model.Memory.MaxSpreadStrength == nil {
+		bufferNames := model.BufferNames()
+
+		for _, name := range bufferNames {
+			buffer := model.LookupBuffer(name)
+			if buffer.SpreadingActivation() != buffer.DefaultSpreadingActivation() {
+				log.errorTR(config.Tokens, 0, 1, "spreading_activation set on buffer %q, but max_spread_strength not set on memory module", name)
+				err = ErrCompile
+			}
+		}
+	}
+
+	return
+}
+
 // validatePattern ensures that the pattern's chunk exists and that its number of slots match.
 func validatePattern(model *actr.Model, log *issueLog, pattern *pattern) (err error) {
 	chunkName := pattern.ChunkName

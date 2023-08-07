@@ -176,9 +176,9 @@ func addConfig(model *actr.Model, log *issueLog, config *configSection) {
 		return
 	}
 
-	addGACTAR(model, log, config.GACTAR)
-	addModules(model, log, config.Modules)
-	addChunks(model, log, config.ChunkDecls)
+	addGACTAR(model, log, config.GactarConfig)
+	addModules(model, log, config.ModuleConfig)
+	addChunks(model, log, config.ChunkConfig)
 }
 
 func addExamples(model *actr.Model, log *issueLog, examples []*pattern) {
@@ -201,8 +201,13 @@ func addExamples(model *actr.Model, log *issueLog, examples []*pattern) {
 	}
 }
 
-func addGACTAR(model *actr.Model, log *issueLog, list []*field) {
-	if list == nil {
+func addGACTAR(model *actr.Model, log *issueLog, config *gactarConfig) {
+	if config == nil {
+		return
+	}
+
+	list := config.GactarFields
+	if len(list) == 0 {
 		return
 	}
 
@@ -233,8 +238,13 @@ func addGACTAR(model *actr.Model, log *issueLog, list []*field) {
 	}
 }
 
-func addModules(model *actr.Model, log *issueLog, modules []*module) {
-	if modules == nil {
+func addModules(model *actr.Model, log *issueLog, config *moduleConfig) {
+	if config == nil {
+		return
+	}
+
+	modules := config.Modules
+	if len(modules) == 0 {
 		return
 	}
 
@@ -254,6 +264,8 @@ func addModules(model *actr.Model, log *issueLog, modules []*module) {
 			log.errorT(module.Tokens, "unrecognized module in config: '%s'", module.ModuleName)
 		}
 	}
+
+	_ = validateInterModuleInitDependencies(model, log, config)
 }
 
 func setBufferParams(moduleName string, buffer buffer.Interface, log *issueLog, field *field) {
@@ -359,8 +371,13 @@ func addProcedural(model *actr.Model, log *issueLog, fields []*field) {
 	setModuleParams(model.Procedural, log, fields)
 }
 
-func addChunks(model *actr.Model, log *issueLog, chunks []*chunkDecl) {
-	if chunks == nil {
+func addChunks(model *actr.Model, log *issueLog, config *chunkConfig) {
+	if config == nil {
+		return
+	}
+
+	chunks := config.ChunkDecls
+	if len(chunks) == 0 {
 		return
 	}
 

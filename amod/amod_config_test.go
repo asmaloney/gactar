@@ -184,6 +184,7 @@ func Example_modulesInitBuffer() {
 	~~ config ~~
 	modules {
 		memory {
+			max_spread_strength: 0.9
 			retrieval { spreading_activation: 0.5 }
 		}
 	}
@@ -191,6 +192,23 @@ func Example_modulesInitBuffer() {
 	~~ productions ~~`)
 
 	// Output:
+}
+
+func Example_modulesInitBufferNoMaxSpread() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	modules {
+		imaginal {
+			imaginal { spreading_activation: 0.5 }
+		}
+	}
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+	// ERROR: spreading_activation set on buffer "imaginal", but max_spread_strength not set on memory module (line 5, col 1)
 }
 
 func Example_modulesUnrecognized() {
@@ -214,7 +232,12 @@ func Example_modulesAll() {
 	name: Test
 	~~ config ~~
 	modules {
-		imaginal { delay: 0.2 }
+		imaginal {
+			delay: 0.2
+			imaginal {
+				spreading_activation: 0.5
+			} 
+		}
 		memory {
 			latency_factor: 0.5
 			latency_exponent: 0.75
@@ -225,9 +248,15 @@ func Example_modulesAll() {
 			max_spread_strength: 0.9
 			instantaneous_noise: 0.5
 			mismatch_penalty: 1.0
+			retrieval {
+				spreading_activation: 0.5
+			} 
 		}
 		procedural {
 			default_action_time: 0.06
+		}
+		goal{
+			goal { spreading_activation: 0.5 }
 		}
 	}
 	~~ init ~~
