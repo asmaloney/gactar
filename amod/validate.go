@@ -123,12 +123,12 @@ func validateModuleInitialization(model *actr.Model, log *issueLog, init *module
 func validateInterModuleInitDependencies(model *actr.Model, log *issueLog, config *moduleConfig) (err error) {
 	// when max_spread_strength is not set on memory, check for spreading_activation set on any buffer
 	if model.Memory.MaxSpreadStrength == nil {
-		bufferNames := model.BufferNames()
-
-		for _, name := range bufferNames {
-			buffer := model.LookupBuffer(name)
+		for _, buffer := range model.Buffers() {
 			if buffer.SpreadingActivation() != buffer.DefaultSpreadingActivation() {
-				log.errorTR(config.Tokens, 0, 1, "spreading_activation set on buffer %q, but max_spread_strength not set on memory module", name)
+				log.errorTR(config.Tokens, 0, 1,
+					"spreading_activation set on buffer %q, but max_spread_strength not set on memory module",
+					buffer.Name(),
+				)
 				err = ErrCompile
 			}
 		}

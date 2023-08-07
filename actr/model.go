@@ -257,7 +257,19 @@ func (model Model) LookupModule(moduleName string) modules.Interface {
 	return nil
 }
 
-// BufferNames returns a slice of valid buffers.
+// Buffers returns a slice of all valid buffers.
+func (model Model) Buffers() (list buffer.List) {
+	for _, module := range model.Modules {
+		buffers := module.Buffers()
+		if len(buffers) > 0 {
+			list = append(list, buffers...)
+		}
+	}
+
+	return
+}
+
+// BufferNames returns a slice of valid buffer names.
 func (model Model) BufferNames() (list []string) {
 	for _, module := range model.Modules {
 		names := module.Buffers().Names()
