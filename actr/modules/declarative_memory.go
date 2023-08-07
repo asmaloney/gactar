@@ -95,6 +95,9 @@ type DeclarativeMemory struct {
 	MismatchPenalty *float64
 }
 
+// t: only match chunks which have a finst set for them at the time of the request
+// nil: only match to chunks which do not have a finst set for them at the time of the request
+// reset: all of the declarative finsts are removed before the request is processed
 var validRecentlyRetrievedOptions = []string{"t", "nil", "reset"}
 
 // NewDeclarativeMemory creates and returns a new DeclarativeMemory module
@@ -167,7 +170,7 @@ func NewDeclarativeMemory() *DeclarativeMemory {
 
 	rpRecentlyReceived := param.NewStr(
 		"recently_retrieved",
-		"Query the retrieval buffer. If 't', then only match chunks which have a finst set for them at the time of the request. If 'nil', then only match to chunks which do not have a finst set for them at the time of the request. If 'reset', then all of the declarative finsts are removed before the request is processed.",
+		"query the retrieval buffer about chunks using finst",
 		validRecentlyRetrievedOptions,
 	)
 
