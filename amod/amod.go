@@ -325,6 +325,9 @@ func setModuleParams(module modules.Interface, log *issueLog, fields []*field) {
 		if buffer != nil {
 			setBufferParams(moduleName, buffer, log, field)
 		} else {
+			// save our current buffers so we can determine if any have been created in SetParam
+			saveBufferList := module.Buffers()
+
 			err := module.SetParam(kv)
 
 			if err != nil {
@@ -345,6 +348,16 @@ func setModuleParams(module modules.Interface, log *issueLog, fields []*field) {
 				default:
 					log.errorT(field.Tokens, "INTERNAL: unhandled error (%v) in %s config: %q", err, moduleName, field.Key)
 					continue
+				}
+			}
+
+			// check if we created any buffers through the params (e.g. extra_buffers) and set their params
+			newBufferList := module.Buffers()
+
+			if len(saveBufferList) != len(newBufferList) {
+				newBuffers := newBufferList[len(saveBufferList):]
+				for _, buffer := range newBuffers {
+					setBufferParams(moduleName, buffer, log, field)
 				}
 			}
 		}
