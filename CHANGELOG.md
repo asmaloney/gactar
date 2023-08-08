@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
+- Handle the `recently_retrieved` request parameter on the retrieval buffer. ([#347](https://github.com/asmaloney/gactar/pull/347))
+
+  - Specified using `with` in a production like this:
+
+    ```
+    recall [item: * ?group] with (recently_retrieved nil)
+    ```
+
+  - Valid values are `t`, `nil`, and `reset`.
+  - Only the vanilla framework supports all values. pyactr only supports `nil`, while python_actr doesn't support request parameters at all.
+
 - {web} Now allows selection of logging level & toggling of trace activations in the UI. ([#343](https://github.com/asmaloney/gactar/pull/343))
 - New command-line command `module` outputs information about modules. ([#329](https://github.com/asmaloney/gactar/pull/329), [#332](https://github.com/asmaloney/gactar/pull/332)) Currently includes two subcommands:
   - `info [name]` outputs detailed info about a module - name, version, description, any buffers, and any parameters. `name` can be a space-separated list of modules or `all`.
@@ -13,6 +24,21 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Changed
 
+- Spreading activation is now allowed on any buffer and is specified in the module init section. ([#355](https://github.com/asmaloney/gactar/pull/355), [#360](https://github.com/asmaloney/gactar/pull/360), [#368](https://github.com/asmaloney/gactar/pull/368))
+
+  - `spreading_activation` was removed from the `goal` module in favour of declaring it on the `goal` buffer.
+  - Buffer options are specified in a module's config like this:
+
+    ```
+    modules {
+      memory {
+        max_spread_strength: 0.9
+        retrieval { spreading_activation: 0.5 }
+      }
+    }
+    ```
+
+- {pyactr} If logging is `min`, turn off simulation trace. ([#349](https://github.com/asmaloney/gactar/pull/349))
 - Replace the magic internal `_status` chunk with proper support in the language. ([#337](https://github.com/asmaloney/gactar/pull/337), [#338](https://github.com/asmaloney/gactar/pull/338), [#350](https://github.com/asmaloney/gactar/pull/250))
 
   - Buffer state matches now take the form `buffer_state <buffer> <state>`:
@@ -21,7 +47,7 @@ All notable changes to this project will be documented in this file. The format 
     buffer_state retrieval empty
     ```
 
-  - Valid buffer states are `empty` & `full`.
+  - Valid buffer states are `empty`, `full` & `free`.
   - Module state matches now take the form `module_state <module> <state>`:
 
     ```
@@ -30,7 +56,7 @@ All notable changes to this project will be documented in this file. The format 
 
   - Valid module states are `busy` & `error`.
 
-- ACT-R (vanilla) was updated to version 7.27.7. ([#308](https://github.com/asmaloney/gactar/pull/308))
+- {vanilla} ACT-R was updated to version 7.27.7. ([#308](https://github.com/asmaloney/gactar/pull/308))
 
 ### Fixed
 
