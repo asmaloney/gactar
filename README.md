@@ -696,8 +696,8 @@ buffer_state retrieval full
 
 Valid buffer states are:
 
-- `empty` - the buffer does not contain a chunk
-- `full` - the buffer contains a chunk
+- `empty` - the buffer does not contain a chunk and the failure flag is clear
+- `full` - there is currently a chunk in the buffer
 
 Checking the module state takes the form `module_state <module> <state>`. For example, to check if the memory module is in the error state:
 
@@ -707,8 +707,9 @@ module_state memory error
 
 Valid module states are:
 
-- `busy` - the buffer is in the process of being filled
-- `error` - the last retrieval failed
+- `busy` - the module is currently handling a request
+- `error` - the last request resulted in some sort of error
+- `free` - the module is ready for new requests
 
 Matching buffer patterns reply on the chunks previously declared in the _config_ section and are parsed to ensure their format is consistent.
 

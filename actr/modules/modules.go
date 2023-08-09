@@ -15,9 +15,9 @@ import (
 const BuiltIn = "built-in"
 
 var validStates = []string{
-	"busy",
-	"error",
-	"free",
+	"busy",  // the module is currently handling a request
+	"error", // the last request resulted in some sort of error
+	"free",  // the module is ready for new requests
 }
 
 // Module is an ACT-R module

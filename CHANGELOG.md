@@ -47,14 +47,14 @@ All notable changes to this project will be documented in this file. The format 
     buffer_state retrieval empty
     ```
 
-  - Valid buffer states are `empty`, `full` & `free`.
+  - Valid buffer states are `empty` & `full`.
   - Module state matches now take the form `module_state <module> <state>`:
 
     ```
     module_state memory error
     ```
 
-  - Valid module states are `busy` & `error`.
+  - Valid module states are `busy`, `error`,  & `free`.
 
 - {vanilla} ACT-R was updated to version 7.27.7. ([#308](https://github.com/asmaloney/gactar/pull/308))
 

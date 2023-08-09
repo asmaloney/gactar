@@ -15,8 +15,8 @@ import (
 // TODO: needs review and correction
 // See: https://github.com/asmaloney/gactar/discussions/221
 var validStates = []string{
-	"empty",
-	"full",
+	"empty", // the buffer does not contain a chunk and the failure flag is clear
+	"full",  // there is currently a chunk in the buffer
 }
 
 const (
