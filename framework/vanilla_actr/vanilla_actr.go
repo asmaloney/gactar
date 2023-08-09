@@ -5,6 +5,7 @@ package vanilla_actr
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"strings"
@@ -716,8 +717,9 @@ func (v VanillaACTR) createRunFile(modelFile string) (outputFile string, err err
 		return
 	}
 
-	v.Writeln(`(load "%s/actr/load-single-threaded-act-r.lisp")`, v.envPath)
-	v.Writeln(`(load "%s")`, modelFile)
+	path := filepath.Join(v.envPath, "actr", "load-single-threaded-act-r.lisp")
+	v.Writeln(`(load "%s")`, filepath.ToSlash(path))
+	v.Writeln(`(load "%s")`, filepath.ToSlash(modelFile))
 
 	// TODO: We should be able to set this somewhere.
 	// 10.0 is an arbitrary length of time.
@@ -725,7 +727,7 @@ func (v VanillaACTR) createRunFile(modelFile string) (outputFile string, err err
 
 	outputFile = fmt.Sprintf("%s_run.lisp", v.modelName)
 	if v.tmpPath != "" {
-		outputFile = fmt.Sprintf("%s/%s", v.tmpPath, outputFile)
+		outputFile = filepath.Join(v.tmpPath, outputFile)
 	}
 
 	err = v.WriteFile(outputFile)

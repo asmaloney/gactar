@@ -23,8 +23,7 @@ const (
 	ACTR_VERSION = "7.27.7"
 
 	// Clozure Common Lisp release version from https://github.com/Clozure/ccl
-	CCL_VERSION     = "1.12.1"
-	CCL_VERSION_WIN = "1.12" // CCL version 1.12.1 is not compressed properly, so try an older version
+	CCL_VERSION = "1.12.2"
 )
 
 var (
@@ -204,7 +203,6 @@ func setupLisp() (err error) {
 
 	if system == "windows" {
 		extension = "zip"
-		version = CCL_VERSION_WIN
 	}
 
 	dirName := fmt.Sprintf("ccl-%s-%sx86", version, system)
