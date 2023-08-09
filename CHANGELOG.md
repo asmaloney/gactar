@@ -60,6 +60,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- {vanilla} The Clozure Common Lisp compiler was fixed and now downloads and runs on Windows. ([#369](https://github.com/asmaloney/gactar/pull/369), [#371](https://github.com/asmaloney/gactar/pull/371)) 
 - {web} The UI wasn't properly saving/restoring the list of selected frameworks. ([#343](https://github.com/asmaloney/gactar/pull/343))
 - {web} If the user ran with a framework selected and selected the code or result tab for it,
   then turned off that framework and ran again, the tabs would be in a strange state.

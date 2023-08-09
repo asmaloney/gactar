@@ -58,7 +58,7 @@ Currently, `gactar` will take an [_amod_ file](#gactar-models) and generate code
 
 Given that gactar in its early stages, the amod syntax may change dramatically based on use and feedback.
 
-**Note for Windows users:** I have only done limited building/testing on Windows. If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues). I am aware that the **[Lisp compiler does not install itself properly](https://github.com/asmaloney/gactar/issues/275)** (see issue for workaround).
+**Note for Windows users:** I have only done limited building/testing on Windows. If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues).
 
 **Note about python_actr & python 3.11:** Unfortunately [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr) does not work with **python 3.11** (see [this issue](https://github.com/asmaloney/gactar/issues/310)). If you can, try to use python 3.10. Once they have fixed it and published a new pip package, I can adjust the version gactar uses.
 
