@@ -16,6 +16,7 @@ import (
 	"github.com/asmaloney/gactar/actr/modules"
 	"github.com/asmaloney/gactar/actr/param"
 
+	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/keyvalue"
 )
@@ -39,6 +40,8 @@ func (e ErrParseChunk) Error() string {
 // SetDebug turns debugging on and off. This will output the tokens as they are generated.
 func SetDebug(debug bool) {
 	debugging = debug
+
+	executil.SetDebug(debug)
 }
 
 // OutputEBNF outputs the extended Backus–Naur form (EBNF) of the amod grammar to stdout.
