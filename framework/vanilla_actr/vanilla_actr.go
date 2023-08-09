@@ -725,6 +725,8 @@ func (v VanillaACTR) createRunFile(modelFile string) (outputFile string, err err
 	// 10.0 is an arbitrary length of time.
 	v.Writeln(`(run 10.0)`)
 
+	v.Writeln(`(quit)`)
+
 	outputFile = fmt.Sprintf("%s_run.lisp", v.modelName)
 	if v.tmpPath != "" {
 		outputFile = filepath.Join(v.tmpPath, outputFile)
