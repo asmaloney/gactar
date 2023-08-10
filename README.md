@@ -49,7 +49,7 @@ You can read the tech note **gactar: A Tool For Exploring ACT-R Modelling** [her
 Currently, `gactar` will take an [_amod_ file](#gactar-models) and generate code to run it on three different ACT-R implementations:
 
 - [pyactr](https://github.com/jakdot/pyactr) (Python)
-- [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr) (Python) - a.k.a. **_ccm_**
+- [python_actr](https://github.com/asmaloney/python_actr) (Python) - a.k.a. **_ccm_**
 - [ACT-R](https://github.com/asmaloney/ACT-R) (Lisp) - a.k.a. **_vanilla_**
 
 **Naming note:** When gactar was written, the `python_actr` implementation came from [CCMSuite3](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) and was referred to throughout gactar as `ccm`. Instead of changing everything to refer to `python_actr` I've decided to leave it as `ccm`. This helps avoid confusion between `python_actr` and `pyactr`.
@@ -60,7 +60,7 @@ Given that gactar in its early stages, the amod syntax may change dramatically b
 
 **Note for Windows users:** I have only done limited building/testing on Windows. If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues).
 
-**Note about python_actr & python 3.11:** Unfortunately [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr) does not work with **python 3.11** (see [this issue](https://github.com/asmaloney/gactar/issues/310)). If you can, try to use python 3.10. Once they have fixed it and published a new pip package, I can adjust the version gactar uses.
+**Note about python_actr:** The version of `python_actr` used here is a [fork](https://github.com/asmaloney/python_actr) of the [original](https://github.com/CarletonCognitiveModelingLab/python_actr). The original wasn't being updated, so I created a new pip packaged called [actr](https://pypi.org/project/actr/) which still uses `python_actr` as its package name.
 
 ### What isn't implemented?
 
@@ -192,7 +192,7 @@ For basic setup, run `./gactar env setup`
 This will do several things to set up your environment:
 
 - create a [virtual environment](https://docs.python.org/3/library/venv.html) for the project in a directory called `env`
-- install [pyactr](https://github.com/jakdot/pyactr) and [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr) using pip
+- install [pyactr](https://github.com/jakdot/pyactr) and [python_actr](https://github.com/asmaloney/python_actr) using pip
 - download the _vanilla_ [ACT-R](https://github.com/asmaloney/ACT-R) Lisp code
 - download the [Clozure Common Lisp compiler](https://ccl.clozure.com/) (ccl) compiler
 
