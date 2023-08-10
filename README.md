@@ -60,7 +60,7 @@ Given that gactar in its early stages, the amod syntax may change dramatically b
 
 **Note for Windows users:** I have only done limited building/testing on Windows. If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues).
 
-**Note about python_actr:** The version of `python_actr` used here is a [fork](https://github.com/asmaloney/python_actr) of the [original](https://github.com/CarletonCognitiveModelingLab/python_actr). The original wasn't being updated, so I created a new pip packaged called [actr](https://pypi.org/project/actr/) which still uses `python_actr` as its package name.
+**Note about python_actr:** The version of `python_actr` used here is a [fork](https://github.com/asmaloney/python_actr) of the [original](https://github.com/CarletonCognitiveModelingLab/python_actr). The original wasn't being updated, so I created a new pip package called [actr](https://pypi.org/project/actr/) which still uses `python_actr` as its Python package name.
 
 ### What isn't implemented?
 

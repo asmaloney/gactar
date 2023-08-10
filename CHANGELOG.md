@@ -24,6 +24,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Changed
 
+- {ccm} Change the underlying package to a [fork](https://github.com/asmaloney/python_actr) of [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr). The original wasn't being updated, so I created a new pip package called [actr](https://pypi.org/project/actr/) which still uses `python_actr` as its Python package name. ([#372](https://github.com/asmaloney/gactar/pull/372))
+
 - Spreading activation is now allowed on any buffer and is specified in the module init section. ([#355](https://github.com/asmaloney/gactar/pull/355), [#360](https://github.com/asmaloney/gactar/pull/360), [#368](https://github.com/asmaloney/gactar/pull/368))
 
   - `spreading_activation` was removed from the `goal` module in favour of declaring it on the `goal` buffer.
@@ -54,13 +56,13 @@ All notable changes to this project will be documented in this file. The format 
     module_state memory error
     ```
 
-  - Valid module states are `busy`, `error`,  & `free`.
+  - Valid module states are `busy`, `error`, & `free`.
 
 - {vanilla} ACT-R was updated to version 7.27.7. ([#308](https://github.com/asmaloney/gactar/pull/308))
 
 ### Fixed
 
-- {vanilla} The Clozure Common Lisp compiler was fixed and now downloads and runs on Windows. ([#369](https://github.com/asmaloney/gactar/pull/369), [#371](https://github.com/asmaloney/gactar/pull/371)) 
+- {vanilla} The Clozure Common Lisp compiler was fixed and now downloads and runs on Windows. ([#369](https://github.com/asmaloney/gactar/pull/369), [#371](https://github.com/asmaloney/gactar/pull/371))
 - {web} The UI wasn't properly saving/restoring the list of selected frameworks. ([#343](https://github.com/asmaloney/gactar/pull/343))
 - {web} If the user ran with a framework selected and selected the code or result tab for it,
   then turned off that framework and ran again, the tabs would be in a strange state.
