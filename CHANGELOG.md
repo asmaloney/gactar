@@ -24,6 +24,14 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Changed
 
+- The debug flag is now a list of debug options rather than just a boolean. ([#373](https://github.com/asmaloney/gactar/pull/373))
+
+  Valid options are:
+
+  - `exec`: output the exec commands which run the frameworks
+  - `lex`: output the lexical tokens for the amod file
+  - `parse`: output the parse tree for the amod file
+
 - {ccm} Change the underlying package to a [fork](https://github.com/asmaloney/python_actr) of [python_actr](https://github.com/CarletonCognitiveModelingLab/python_actr). The original wasn't being updated, so I created a new pip package called [actr](https://pypi.org/project/actr/) which still uses `python_actr` as its Python package name. ([#372](https://github.com/asmaloney/gactar/pull/372))
 
 - Spreading activation is now allowed on any buffer and is specified in the module init section. ([#355](https://github.com/asmaloney/gactar/pull/355), [#360](https://github.com/asmaloney/gactar/pull/360), [#368](https://github.com/asmaloney/gactar/pull/368))
