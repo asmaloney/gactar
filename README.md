@@ -256,7 +256,7 @@ Available Commands:
   web         Start a web server to run in a browser
 
 Flags:
-  -d, --debug               turn on debugging output
+  -d, --debug strings       turn on debugging - valid options: lex, parse, exec
       --env string          directory where ACT-R, pyactr, and other necessary files are installed (default "./env")
   -f, --framework strings   add framework - valid frameworks: all, ccm, pyactr, vanilla (default [all])
   -h, --help                help for gactar

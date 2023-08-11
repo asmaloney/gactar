@@ -232,7 +232,7 @@ func (l *lexer_amod) Next() (tok lexer.Token, err error) {
 		return
 	}
 
-	if debugging {
+	if debugLex {
 		fmt.Printf("TOK (%d, %d-%d):\t%+v (%s)\n", pos.Line, pos.Column, pos.Column+len(tok.Value), tok, next.typ.String())
 	}
 	return

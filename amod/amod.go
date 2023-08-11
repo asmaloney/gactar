@@ -4,6 +4,7 @@ package amod
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -16,13 +17,14 @@ import (
 	"github.com/asmaloney/gactar/actr/modules"
 	"github.com/asmaloney/gactar/actr/param"
 
-	"github.com/asmaloney/gactar/util/executil"
+	"github.com/asmaloney/gactar/util/chalk"
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/keyvalue"
 )
 
 var (
-	debugging bool = false
+	debugLex   bool = false
+	debugParse bool = false
 
 	ErrParse               = errors.New("failed to parse amod file")
 	ErrCompile             = errors.New("failed to compile amod file")
@@ -38,10 +40,9 @@ func (e ErrParseChunk) Error() string {
 }
 
 // SetDebug turns debugging on and off. This will output the tokens as they are generated.
-func SetDebug(debug bool) {
-	debugging = debug
-
-	executil.SetDebug(debug)
+func SetDebug(options []string) {
+	debugLex = slices.Contains(options, "lex")
+	debugParse = slices.Contains(options, "parse")
 }
 
 // OutputEBNF outputs the extended Backus–Naur form (EBNF) of the amod grammar to stdout.
@@ -158,6 +159,10 @@ func generateModel(amod *amodFile, log *issueLog) (model *actr.Model, err error)
 		Name:        amod.Model.Name,
 		Description: amod.Model.Description,
 		Authors:     amod.Model.Authors,
+	}
+
+	if debugParse {
+		dumpParseTree(0, amod)
 	}
 
 	model.Initialize()
@@ -956,4 +961,85 @@ func convertArgs(args []*arg) *[]*actr.Value {
 	}
 
 	return &actrValues
+}
+
+// Dumps the parse tree recursively.
+// "level" is the indent level and "node" is the thing to output.
+func dumpParseTree(level int, node any) {
+	typeOfS := reflect.TypeOf(node)
+	value := reflect.ValueOf(node)
+
+	if !value.IsValid() {
+		return
+	}
+
+	// Janky stuff to print something useful
+	if typeOfS.Kind() == reflect.Ptr {
+		if value.IsNil() {
+			return
+		}
+	} else if typeOfS.Kind() != reflect.Slice {
+		spaces := strings.Repeat("  ", level)
+
+		fmt.Printf("%s%s", spaces, chalk.Header(typeOfS.Name()))
+
+		switch typeOfS.Kind() {
+		case reflect.String:
+			if value.String() == "" {
+				fmt.Print(chalk.Italic(" <keyword/symbol>"))
+			} else {
+				fmt.Printf(" %#v", value)
+			}
+
+		case reflect.Bool:
+			fmt.Printf(" %#v", value)
+
+		case reflect.Int:
+			fmt.Printf(" %#v", value)
+
+		case reflect.Float64:
+			fmt.Printf(" %#v", value)
+
+		default:
+			// Uncomment the following to output extra details. Unfortunately this includes the
+			// Tokens fields which makes it too noisy and I don't know how to remove them for output.
+			// fmt.Printf(" %#v\n", value)
+		}
+
+		fmt.Println("")
+
+		level++
+	}
+
+	// Recurse depending on type
+	switch typeOfS.Kind() {
+	case reflect.Ptr:
+		dumpParseTree(level, value.Elem().Interface())
+
+	case reflect.Struct:
+		for i := 0; i < value.NumField(); i++ {
+			field := value.Field(i)
+
+			// Skip our Tokens fields
+			if field.Type().String() == "[]lexer.Token" {
+				continue
+			}
+
+			dumpParseTree(level, field.Interface())
+		}
+
+	case reflect.Slice:
+		for i := 0; i < value.Len(); i++ {
+			element := value.Index(i)
+			dumpParseTree(level, element.Interface())
+		}
+
+	case reflect.Bool:
+	case reflect.Int:
+	case reflect.Float64:
+	case reflect.String:
+
+	default:
+		fmt.Printf("(unhandled: %s)\n", typeOfS.Kind())
+	}
 }
