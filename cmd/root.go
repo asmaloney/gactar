@@ -19,6 +19,7 @@ import (
 	"github.com/asmaloney/gactar/modes/defaultmode"
 	"github.com/asmaloney/gactar/util/chalk"
 	"github.com/asmaloney/gactar/util/cli"
+	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/frameworkutil"
 	"github.com/asmaloney/gactar/util/version"
@@ -31,10 +32,12 @@ var (
 
 	errNoFrameworks = errors.New("no frameworks specified on command line")
 
+	validDebugOptions = []string{"lex", "parse", "exec"}
+
 	flagEnv        = "./env"
 	flagTemp       = ""
 	flagFrameworks = []string{"all"}
-	flagDebug      = false
+	flagDebug      = []string{}
 	flagNoColour   = false
 
 	flagRun     = false
@@ -76,9 +79,10 @@ var rootCmd = &cobra.Command{
 			gchalk.SetLevel(gchalk.LevelNone)
 		}
 
-		if flagDebug {
-			amod.SetDebug(true)
-		}
+		amod.SetDebug(flagDebug)
+
+		debugExec := slices.Contains(flagDebug, "exec")
+		executil.SetDebug(debugExec)
 	},
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		if flagVersion {
@@ -137,7 +141,8 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&flagTemp, "temp", flagTemp, "directory for generated files (it will be created if it does not exist - defaults to <env>/gactar-temp)")
 	rootCmd.PersistentFlags().StringSliceVarP(&flagFrameworks, "framework", "f", flagFrameworks,
 		fmt.Sprintf("add framework - valid frameworks: %s", strings.Join(framework.ValidFrameworks, ", ")))
-	rootCmd.PersistentFlags().BoolVarP(&flagDebug, "debug", "d", false, "turn on debugging output")
+	rootCmd.PersistentFlags().StringSliceVarP(&flagDebug, "debug", "d", flagDebug,
+		fmt.Sprintf("turn on debugging - valid options: %s", strings.Join(validDebugOptions, ", ")))
 	rootCmd.PersistentFlags().BoolVar(&flagNoColour, "no-colour", false, "do not use colour output on command line")
 
 	// Local flags - only run when this action is called directly.
@@ -160,7 +165,6 @@ func setupForRun(cmd *cobra.Command) (settings *cli.Settings, err error) {
 
 	settings = &cli.Settings{
 		Version: fmt.Sprintf("gactar %s %s", "version", version.BuildVersion),
-		Debug:   flagDebug,
 	}
 
 	envPath, err := setupVirtualEnvironment(cmd.Flags())

@@ -24,7 +24,6 @@ type Settings struct {
 	Frameworks framework.List // active frameworks
 
 	Version string // the version string for output to command line
-	Debug   bool   // is debug enabled?
 }
 type settingsKey string
 
