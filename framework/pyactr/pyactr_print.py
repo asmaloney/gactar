@@ -41,10 +41,8 @@ def get_buffer(self, buffer_name: str) -> Buffer:
     """
     Gets a buffer from a name and returns it.
     """
-    if buffer_name == 'goal':
-        return self._ACTRModel__buffers['goal']
-    if buffer_name == 'retrieval':
-        return self._ACTRModel__buffers['retrieval']
+    if buffer_name in self._ACTRModel__buffers:
+        return self._ACTRModel__buffers[buffer_name]
 
     print('ERROR: Buffer \'' + buffer_name + '\' not found')
     raise KeyError
