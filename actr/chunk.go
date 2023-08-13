@@ -1,7 +1,7 @@
 package actr
 
 import (
-	"golang.org/x/exp/slices"
+	"slices"
 
 	"github.com/asmaloney/gactar/util/container"
 )

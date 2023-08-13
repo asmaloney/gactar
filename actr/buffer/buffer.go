@@ -3,9 +3,8 @@ package buffer
 
 import (
 	"fmt"
+	"slices"
 	"strings"
-
-	"golang.org/x/exp/slices"
 
 	"github.com/asmaloney/gactar/actr/param"
 	"github.com/asmaloney/gactar/util/keyvalue"

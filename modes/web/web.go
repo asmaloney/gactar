@@ -9,12 +9,11 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
-
-	"golang.org/x/exp/slices"
 
 	"github.com/jwalton/gchalk"
 	"github.com/vearutop/statigz"

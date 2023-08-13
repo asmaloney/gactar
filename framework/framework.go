@@ -2,9 +2,8 @@
 package framework
 
 import (
+	"slices"
 	"time"
-
-	"golang.org/x/exp/slices"
 
 	"github.com/asmaloney/gactar/actr"
 
