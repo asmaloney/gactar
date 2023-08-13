@@ -1,7 +1,7 @@
 package amod
 
 import (
-	"golang.org/x/exp/slices"
+	"slices"
 
 	"github.com/alecthomas/participle/v2/lexer"
 

@@ -2,12 +2,12 @@ package param
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
 	"golang.org/x/exp/constraints"
 	"golang.org/x/exp/maps"
-	"golang.org/x/exp/slices"
 
 	"github.com/asmaloney/gactar/util/keyvalue"
 	"github.com/asmaloney/gactar/util/numbers"
@@ -186,7 +186,11 @@ func NewParameters(params List) ParametersInterface {
 func (p parameters) ParameterList() List {
 	params := maps.Values(p.params)
 
-	slices.SortFunc[ParamInterface](params, func(a, b ParamInterface) bool { return a.Name() < b.Name() })
+	compareParamInterface := func(a, b ParamInterface) int {
+		return strings.Compare(a.Name(), b.Name())
+	}
+
+	slices.SortFunc(params, compareParamInterface)
 
 	return params
 }

@@ -1,6 +1,6 @@
 package actr
 
-import "golang.org/x/exp/slices"
+import "slices"
 
 type ACTRLogLevel string
 

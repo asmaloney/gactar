@@ -3,9 +3,8 @@ package keyvalue
 
 import (
 	"fmt"
+	"slices"
 	"strings"
-
-	"golang.org/x/exp/slices"
 )
 
 var BooleanValues = []string{

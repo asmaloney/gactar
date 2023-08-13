@@ -6,9 +6,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
-
-	"golang.org/x/exp/slices"
 
 	"github.com/jwalton/gchalk"
 	"github.com/spf13/cobra"
