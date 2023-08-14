@@ -197,6 +197,16 @@ func (d DeclarativeMemory) BufferName() string {
 	return d.Buffers().At(0).Name()
 }
 
+// IsUsingSpreadingActivation returns whether spreading activation is active or not.
+func (d DeclarativeMemory) IsUsingSpreadingActivation() bool {
+	return d.MaxSpreadStrength != nil
+}
+
+// IsUsingBaseLevelLearning returns whether base-level learning is active or not.
+func (d DeclarativeMemory) IsUsingBaseLevelLearning() bool {
+	return d.IsUsingSpreadingActivation() && d.Decay != nil
+}
+
 // SetParam is called to set our module's parameter from the parameter in the code ("param")
 func (d *DeclarativeMemory) SetParam(param *keyvalue.KeyValue) (err error) {
 	err = d.ValidateParam(param)

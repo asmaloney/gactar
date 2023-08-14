@@ -229,13 +229,12 @@ func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code 
 
 	c.Writeln("")
 
-	// Turn on DMBaseLevel if we have set "decay"
-	if memory.Decay != nil {
+	if memory.IsUsingBaseLevelLearning() {
 		c.Writeln("    DMBaseLevel(%s, decay=%s)", memory.ModuleName(), numbers.Float64Str(*memory.Decay))
 		c.Writeln("")
 	}
 
-	// Turn on DMSpreading if we have set "max_spread_strength"
+	// Turn on DMSpreading if we are using spreading activation
 	c.writeSpreadingActivation()
 
 	// Turn on DMNoise if we have set "instantaneous_noise"
@@ -348,11 +347,11 @@ func (c CCMPyACTR) writeImports() {
 
 	additionalImports := []string{}
 
-	if memory.Decay != nil {
+	if memory.IsUsingBaseLevelLearning() {
 		additionalImports = append(additionalImports, "DMBaseLevel")
 	}
 
-	if memory.MaxSpreadStrength != nil {
+	if memory.IsUsingSpreadingActivation() {
 		additionalImports = append(additionalImports, "DMSpreading")
 	}
 
@@ -382,7 +381,7 @@ func (c CCMPyACTR) writeImports() {
 func (c CCMPyACTR) writeSpreadingActivation() {
 	memory := c.model.Memory
 
-	if memory.MaxSpreadStrength == nil {
+	if !memory.IsUsingSpreadingActivation() {
 		return
 	}
 
