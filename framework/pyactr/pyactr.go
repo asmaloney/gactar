@@ -226,7 +226,7 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 		p.Writeln("    retrieval_threshold=%s,", numbers.Float64Str(*memory.RetrievalThreshold))
 	}
 
-	if memory.Decay != nil {
+	if memory.IsUsingBaseLevelLearning() {
 		p.Writeln("    decay=%s,", numbers.Float64Str(*memory.Decay))
 	}
 
@@ -393,7 +393,7 @@ func (p PyACTR) writeExtraBufferInit() {
 func (p PyACTR) writeSpreadingActivation() {
 	memory := p.model.Memory
 
-	if memory.MaxSpreadStrength == nil {
+	if !memory.IsUsingSpreadingActivation() {
 		return
 	}
 

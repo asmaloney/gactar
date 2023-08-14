@@ -121,8 +121,8 @@ func validateModuleInitialization(model *actr.Model, log *issueLog, init *module
 
 // validateInterModuleInitDependencies checks for inconsistent options set between modules
 func validateInterModuleInitDependencies(model *actr.Model, log *issueLog, config *moduleConfig) (err error) {
-	// when max_spread_strength is not set on memory, check for spreading_activation set on any buffer
-	if model.Memory.MaxSpreadStrength == nil {
+	// when not using spreading activation, check for spreading_activation option set on any buffer
+	if !model.Memory.IsUsingSpreadingActivation() {
 		for _, buffer := range model.Buffers() {
 			if buffer.SpreadingActivation() != buffer.DefaultSpreadingActivation() {
 				log.errorTR(config.Tokens, 0, 1,

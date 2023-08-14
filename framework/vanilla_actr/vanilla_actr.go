@@ -208,7 +208,7 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 		v.Writeln("\t:declarative-finst-span %s", numbers.Float64Str(*memory.FinstTime))
 	}
 
-	if memory.Decay != nil {
+	if memory.IsUsingBaseLevelLearning() {
 		v.Writeln("\t:bll %s", numbers.Float64Str(*memory.Decay))
 	}
 
@@ -336,7 +336,7 @@ func (v VanillaACTR) writeExtraBufferInit() {
 func (v VanillaACTR) writeSpreadingActivation() {
 	memory := v.model.Memory
 
-	if memory.MaxSpreadStrength == nil {
+	if !memory.IsUsingSpreadingActivation() {
 		return
 	}
 
