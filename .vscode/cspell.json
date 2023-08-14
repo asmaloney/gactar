@@ -33,6 +33,7 @@
     "gosec",
     "Infof",
     "Infoln",
+    "itemlist",
     "keyvalue",
     "Naur",
     "productionstring",

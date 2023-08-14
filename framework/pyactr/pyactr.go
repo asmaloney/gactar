@@ -254,7 +254,7 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 	if p.model.HasPrintStatement() {
 		p.Writeln("")
 		p.Writeln("# pyactr doesn't handle general printing, so use gactar to add this capability")
-		p.Writeln("pyactr_print.set_model(%s)", p.className)
+		p.Writeln("pyactr_print.PrintBuffer(%s)", p.className)
 	}
 
 	p.Write("\n")
@@ -698,7 +698,7 @@ func (p PyACTR) outputStatement(production *actr.Production, s *actr.Statement) 
 	case s.Print != nil:
 		// Using "goal" here is arbitrary because of the way we monkey patch the python code.
 		// Our "print_text" statement handles its own formatting and lookup.
-		p.Writeln("     !goal>")
+		p.Writeln("     !print>")
 
 		str := make([]string, len(*s.Print.Values))
 
@@ -716,7 +716,7 @@ func (p PyACTR) outputStatement(production *actr.Production, s *actr.Statement) 
 			}
 		}
 
-		p.Writeln("          print_text \"%s\"", strings.Join(str, ", "))
+		p.Writeln("          text \"%s\"", strings.Join(str, ", "))
 
 	case s.Clear != nil:
 		for _, name := range s.Clear.BufferNames {
