@@ -274,7 +274,12 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 	p.Writeln("%s = %s.decmem", memory.ModuleName(), p.className)
 
 	if memory.FinstSize != nil {
-		p.Writeln("%s.finst = %d", memory.ModuleName(), *memory.FinstSize)
+		p.Writeln("%s.retrieval.finst = %d", p.className, *memory.FinstSize)
+	} else {
+		p.Writeln("")
+		p.Writeln("# finst defaults to 0 in pyactr, so set it to 4 which is the default in ACT-R")
+		p.Writeln("%s.retrieval.finst = 4", p.className)
+		p.Writeln("")
 	}
 
 	p.Writeln("goal = %s.set_goal('goal')", p.className)
