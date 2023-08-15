@@ -2,6 +2,7 @@ package amod
 
 import (
 	"slices"
+	"strconv"
 
 	"github.com/alecthomas/participle/v2/lexer"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/asmaloney/gactar/actr/modules"
 
 	"github.com/asmaloney/gactar/util/issues"
+	"github.com/asmaloney/gactar/util/keyvalue"
 )
 
 // varAndIndex is used to match var text to slot indices.
@@ -189,8 +191,8 @@ func validateBufferPatternMatch(item *matchBufferPatternItem, model *actr.Model,
 			}
 
 			// Check that we aren't comparing to ourselves
-			if expr.RHS.Var != nil && expr.LHS == *expr.RHS.Var {
-				log.errorT(expr.RHS.Tokens, "cannot compare a variable to itself '%s'", expr.LHS)
+			if expr.RHS.hasVar() && expr.LHS == *expr.RHS.Arg.Var {
+				log.errorT(expr.RHS.Arg.Tokens, "cannot compare a variable to itself '%s'", expr.LHS)
 			}
 		}
 	}
@@ -319,38 +321,23 @@ func validateDo(log *issueLog, production *production) {
 // validateSetStatement checks a "set" statement to verify the buffer name & field indexing is correct.
 // The production's matches have been constructed, so that's what we check against.
 func validateSetStatement(set *setStatement, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
-	bufferName := set.BufferName
-	buffer := model.LookupBuffer(bufferName)
-	if buffer == nil {
-		log.errorTR(set.Tokens, 1, 2, "buffer '%s' not found", bufferName)
-		err = ErrCompile
-	}
+	err = validateBufferReference(&set.BufferRef, model, log, production)
+	// don't check err - allow other checks to run for more info
 
-	if set.Slot != nil {
+	bufferName := set.BufferRef.BufferName
+
+	if set.BufferRef.SlotName != nil {
 		// we have the form "set <buffer>.<slot name> to <value>"
-		slotName := *set.Slot
+		slotName := *set.BufferRef.SlotName
 		if set.Pattern != nil {
 			log.errorTR(set.Tokens, 1, 3, "cannot set a slot ('%s.%s') to a pattern in production '%s'", bufferName, slotName, production.Name)
 			err = ErrCompile
 			return
 		}
 
-		match := production.LookupMatchByBuffer(bufferName)
-		if match == nil {
-			log.errorTR(set.Tokens, 1, 2, "match buffer '%s' not found in production '%s'", bufferName, production.Name)
-			err = ErrCompile
-			return
-		}
-
-		chunk := match.Pattern.Chunk
-		if !chunk.HasSlot(slotName) {
-			log.errorTR(set.Tokens, 3, 4, "slot '%s' does not exist in chunk type '%s' for match buffer '%s' in production '%s'", slotName, chunk.TypeName, bufferName, production.Name)
-			err = ErrCompile
-		}
-
-		if set.Value.Var != nil {
-			// Check set.Value.Var to ensure it exists
-			varItem := *set.Value.Var
+		// If we have a var, check if it exists
+		if set.Value.hasVar() {
+			varItem := *set.Value.Arg.Var
 			match := production.LookupMatchByVariable(varItem)
 			if match == nil {
 				log.errorT(set.Value.Tokens, "set statement variable '%s' not found in matches for production '%s'", varItem, production.Name)
@@ -418,13 +405,13 @@ func validateRecallStatement(recall *recallStatement, model *actr.Model, log *is
 			for _, param := range *recall.With.Expressions {
 				key := param.Param
 
-				if param.Value.Var != nil {
+				if param.Value.hasVar() {
 					log.errorT(param.Tokens, "recall 'with': parameter '%s'. Unexpected variable", key)
 					err = ErrCompile
 					continue
 				}
 
-				kv := argToKeyValue(key, param.Value)
+				kv := withArgToKeyValue(key, param.Value)
 				paramErr := buffer.RequestParameters().ValidateParam(kv)
 				if paramErr != nil {
 					log.errorT(param.Tokens,
@@ -463,15 +450,8 @@ func validateClearStatement(clear *clearStatement, model *actr.Model, log *issue
 func validatePrintStatement(print *printStatement, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
 	if print.Args != nil {
 		for _, arg := range print.Args {
-			switch {
-			case arg.Nil != nil:
-				log.errorT(arg.Tokens, "cannot use nil in print statement")
-
-			case arg.ID != nil:
-				log.errorT(arg.Tokens, "cannot use ID '%s' in print statement", *arg.ID)
-
-			case arg.Var != nil:
-				varItem := *arg.Var
+			if arg.hasVar() {
+				varItem := *arg.Arg.Var
 				match := production.LookupMatchByVariable(varItem)
 				if match == nil {
 					if varItem == "*" {
@@ -481,7 +461,41 @@ func validatePrintStatement(print *printStatement, model *actr.Model, log *issue
 					}
 					err = ErrCompile
 				}
+			} else if arg.BufferRef != nil {
+				// we have a buffer reference, so make sure it exists
+				ref := arg.BufferRef
+				err = validateBufferReference(ref, model, log, production)
 			}
+		}
+	}
+
+	return
+}
+
+// validateBufferReference checks a buffer of the form <buffer> or <buffer>.<slot> for a valid buffer and slot
+func validateBufferReference(ref *bufferRef, model *actr.Model, log *issueLog, production *actr.Production) (err error) {
+	bufferName := ref.BufferName
+	buffer := model.LookupBuffer(bufferName)
+	if buffer == nil {
+		log.errorT(ref.Tokens, "buffer %q not found in model", bufferName)
+		return ErrCompile
+	}
+
+	// Check for slot names in the matched buffers
+	if ref.SlotName != nil {
+		slotName := *ref.SlotName
+
+		match := production.LookupMatchByBuffer(bufferName)
+		if match == nil {
+			log.errorTR(ref.Tokens, 0, 0, "match buffer '%s' not found in production '%s'", bufferName, production.Name)
+			err = ErrCompile
+			return
+		}
+
+		chunk := match.Pattern.Chunk
+		if !chunk.HasSlot(slotName) {
+			log.errorTR(ref.Tokens, 2, 2, "slot '%s' does not exist in chunk type '%s' for match buffer '%s' in production '%s'", slotName, chunk.TypeName, bufferName, production.Name)
+			err = ErrCompile
 		}
 	}
 
@@ -521,11 +535,12 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 			return
 		}
 
-		if w.RHS.Var != nil {
-			if r, ok := varRefCount[*w.RHS.Var]; ok {
+		if w.RHS.hasVar() {
+			rhsVar := *w.RHS.Arg.Var
+			if r, ok := varRefCount[rhsVar]; ok {
 				r.count++
 			} else {
-				log.errorT(w.RHS.Tokens, "unknown variable %s in where clause", *w.RHS.Var)
+				log.errorT(w.RHS.Arg.Tokens, "unknown variable %s in where clause", rhsVar)
 				return
 			}
 		}
@@ -556,9 +571,10 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 		for _, statement := range *do.Statements {
 			switch {
 			case statement.Set != nil:
-				if statement.Set.Value != nil {
-					if statement.Set.Value.Var != nil {
-						varItem := *statement.Set.Value.Var
+				arg := statement.Set.Value
+				if arg != nil {
+					if arg.hasVar() {
+						varItem := *arg.Arg.Var
 						if r, ok := varRefCount[varItem]; ok {
 							r.count++
 						}
@@ -572,8 +588,8 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 
 			case statement.Print != nil:
 				for _, arg := range statement.Print.Args {
-					if arg.Var != nil {
-						varItem := *arg.Var
+					if arg.hasVar() {
+						varItem := *arg.Arg.Var
 						if r, ok := varRefCount[varItem]; ok {
 							r.count++
 						}
@@ -603,4 +619,33 @@ func varsFromPattern(pattern *pattern) (vars []varAndIndex) {
 	}
 
 	return
+}
+
+func withArgToKeyValue(key string, a *withArg) *keyvalue.KeyValue {
+	value := keyvalue.Value{}
+
+	switch {
+	case a.Nil != nil:
+		nilStr := "nil"
+		value.Str = &nilStr
+	case a.ID != nil:
+		value.Str = a.ID
+
+	case a.Arg != nil:
+		argValue := a.Arg
+		switch {
+		case argValue.Var != nil:
+			value.Str = argValue.Var
+		case argValue.Str != nil:
+			value.Str = argValue.Str
+		case argValue.Number != nil:
+			num, _ := strconv.ParseFloat(*argValue.Number, 64)
+			value.Number = &num
+		}
+	}
+
+	return &keyvalue.KeyValue{
+		Key:   key,
+		Value: value,
+	}
 }

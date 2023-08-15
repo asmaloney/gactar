@@ -77,6 +77,28 @@ func Example_productionWhenClauseCompareNil() {
 	// Output:
 }
 
+func Example_productionWhenClauseCompareID() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match {
+			goal [foo: ?blat] when ( ?blat == bar )
+		}
+		do {
+			print ?blat
+			stop
+		}
+	}`)
+
+	// Output:
+	// ERROR: unexpected token "bar" (expected WhenArg ")") (line 10, col 37)
+}
+
 func Example_productionWhenClauseNegatedAndConstrained() {
 	generateToStdout(`
 	~~ model ~~
@@ -398,8 +420,7 @@ func Example_productionSetStatementNonBuffer() {
 	}`)
 
 	// Output:
-	// ERROR: buffer 'foo' not found (line 10, col 11)
-	// ERROR: match buffer 'foo' not found in production 'start' (line 10, col 11)
+	// ERROR: buffer "foo" not found in model (line 10, col 11)
 }
 
 func Example_productionSetStatementNonBuffer2() {
@@ -801,7 +822,38 @@ func Example_productionPrintStatement3() {
 	// Output:
 }
 
-func Example_productionPrintStatementInvalidID() {
+func Example_productionPrintStatementBuffer() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { buffer_state retrieval empty }
+		do { print goal }
+	}`)
+
+	// Output:
+}
+
+func Example_productionPrintStatementBufferSlot() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing1 thing2] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [foo: * *] }
+		do { print goal.thing1 }
+	}`)
+
+	// Output:
+}
+
+func Example_productionPrintStatementInvalidBuffer() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -814,7 +866,24 @@ func Example_productionPrintStatementInvalidID() {
 	}`)
 
 	// Output:
-	// ERROR: cannot use ID 'fooID' in print statement (line 9, col 13)
+	// ERROR: buffer "fooID" not found in model (line 9, col 13)
+}
+
+func Example_productionPrintStatementInvalidBufferSlot() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [foo: thing1 thing2] }
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { goal [foo: * *] }
+		do { print goal.blat }
+	}`)
+
+	// Output:
+	// ERROR: slot 'blat' does not exist in chunk type 'foo' for match buffer 'goal' in production 'start' (line 10, col 18)
 }
 
 func Example_productionPrintStatementInvalidNil() {
@@ -830,7 +899,7 @@ func Example_productionPrintStatementInvalidNil() {
 	}`)
 
 	// Output:
-	// ERROR: cannot use nil in print statement (line 9, col 13)
+	// ERROR: unexpected token "nil" (expected "}") (line 9, col 13)
 }
 
 func Example_productionPrintStatementInvalidVar() {
