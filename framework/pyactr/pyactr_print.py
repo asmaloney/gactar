@@ -6,21 +6,24 @@ pyactr is limited in what it can print using "show" to one named slot of the buf
     !goal>
         show start
 
-pyactr_print adds the ability to print strings, numbers, and slots (by name) from
-multiple buffers by patching Buffer. It uses a new buffer called "print" with a 
-command "text" which takes a string:
+pyactr_print adds the ability to print strings, numbers, buffer contents, and slots (by name)
+from multiple buffers. It uses a new buffer called "print" with commands "text" and "buffer":
 
 	!print>
 	    text "'Start is ', goal.start, ' and second is ', 'retrieval.second'"
+        buffer goal
+        buffer retrieval.word
+
+This works by using fields from ACTRModel (reads & modifies "__buffers") and
+Buffer (reads "_data") directly since there are no accessors for them.
 
 Unfortunately due to the way pyactr is implemented, we are currently limited to
-one print command per production. It does, however, allow multiple "text"s in 
+one print command per production. It does, however, allow multiple "text"s in
 one command:
 
 	!print>
 	    text "'a string'"
 	    text "42"
-
 
 To use this new buffer, construct it passing in the model like this:
 
@@ -39,27 +42,6 @@ import pyactr as actr
 from pyactr.buffers import Buffer
 
 
-def get_slot_contents(self, buffer_name: str, slot_name: str) -> str:
-    """
-    Gets the contents of a slot.
-    """
-    if self._data:
-        chunk = self._data.copy().pop()
-    else:
-        chunk = None
-
-    try:
-        return str(getattr(chunk, slot_name))
-    except AttributeError:
-        print('ERROR: no slot named \'' + slot_name +
-              '\' in buffer \'' + buffer_name + '\'')
-        raise
-
-
-# Monkey patch Buffer to add a new method.
-Buffer.get_slot_contents = get_slot_contents
-
-
 class PrintBuffer(actr.buffers.Buffer):
     def __init__(self, model: actr.ACTRModel):
         actr.buffers.Buffer.__init__(self, None, None)
@@ -68,7 +50,15 @@ class PrintBuffer(actr.buffers.Buffer):
 
     def text(self, *args):
         """
-        Prints the args - including strings, numbers, and slots (by name).
+        Provides the "text" command.
+        Prints the args - including strings, numbers, buffer contents, and slots (by name).
+
+        Examples:
+            !print>
+                text "'Start is ', goal.start, ' and second is ', 'retrieval.second'"
+                text "'retrieval contents: ', retrieval"
+                text "'a string'"
+                text "42"
         """
         text = ''.join(args[1:]).strip('"')
         output = ''  # build up our output in this buffer
@@ -86,17 +76,73 @@ class PrintBuffer(actr.buffers.Buffer):
                         float(item)
                         output += item
                     except ValueError:
-                        # If we are here, we should have a buffer.slotname
-                        ids = item.split('.')
-                        if len(ids) != 2:
-                            print(
-                                'ERROR: expected <buffer>.<slot_name>, found \'' +
-                                item + '\'')
-                        else:
-                            buffer = self.get_buffer(ids[0])
-                            output += buffer.get_slot_contents(ids[0], ids[1])
+                        # If we are here, we should have a buffer or a buffer.slotname
+                        output += self.get_buffer_data(item)
 
         print(output)
+
+    def buffer(self, *args):
+        """
+        Provides the "buffer" command.
+        Prints the contents of a buffer or a buffer's slot.
+
+        Examples:
+            !print>
+                buffer retrieval
+                buffer retrieval.word
+        """
+        name = ''.join(args)
+        contents = self.get_buffer_data(name)
+        print(f"{name}: {contents}")
+
+    def get_buffer_data(self, item: str) -> str:
+        """
+        Given an "item" which is either a <buffer name> or a <buffer name>.<slot name>, 
+        return the contents.
+        """
+        ids = item.split('.')
+        match len(ids):
+            case 1:
+                contents = self.get_buffer_contents(item)
+            case 2:
+                contents = self.get_slot_contents(
+                    ids[0], ids[1])
+            case _:
+                print(
+                    'ERROR: expected <buffer> or <buffer>.<slot_name>, found \'' +
+                    item + '\'')
+                raise KeyError
+        return contents
+
+    def get_buffer_contents(self, buffer_name: str) -> str:
+        """
+        Gets all the contents of a buffer.
+        """
+        buffer = self.get_buffer(buffer_name)
+        data = buffer._data
+
+        if data:
+            return str(data.copy().pop())
+        else:
+            return "<empty>"
+
+    def get_slot_contents(self, buffer_name: str, slot_name: str) -> str:
+        """
+        Gets the contents of a specific buffer slot.
+        """
+        buffer = self.get_buffer(buffer_name)
+
+        if buffer._data:
+            chunk = buffer._data.copy().pop()
+        else:
+            chunk = None
+
+        try:
+            return str(getattr(chunk, slot_name))
+        except AttributeError:
+            print('ERROR: no slot named \'' + slot_name +
+                  '\' in buffer \'' + buffer_name + '\'')
+            raise
 
     def get_buffer(self, buffer_name: str) -> Buffer:
         """
