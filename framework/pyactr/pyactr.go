@@ -428,23 +428,7 @@ func (p PyACTR) writeSpreadingActivation() {
 	}
 }
 
-func (p PyACTR) writeImplicitChunks() {
-	if !p.model.HasImplicitChunks() {
-		return
-	}
-
-	p.Writeln("# declare implicit chunks to avoid warnings")
-	p.Writeln("actr.chunktype('chunk', 'value')")
-	for _, chunkName := range p.model.ImplicitChunks {
-		p.Writeln("actr.makechunk(nameofchunk='%[1]s', typename='chunk', value='%[1]s')", chunkName)
-	}
-
-	p.Writeln("")
-}
-
 func (p PyACTR) writeInitializers(goal *actr.Pattern) {
-	p.writeImplicitChunks()
-
 	for _, init := range p.model.Initializers {
 		module := init.Module
 
@@ -522,9 +506,12 @@ func (p PyACTR) writeMain() {
 	p.Writeln("    sim = %s.simulation( %s )", p.className, strings.Join(options, ", "))
 	p.Writeln("    sim.run()")
 
-	// TODO: Add some intelligent output when logging level is info or detail
-	p.Writeln("    if goal.test_buffer('full') is True:")
-	p.Writeln("        print('final goal: ' + str(goal.pop()))")
+	if p.model.LogLevel != "min" {
+		p.Writeln("    if goal.test_buffer('full'):")
+		p.Writeln("        print('chunk left in goal: ' + str(goal.pop()))")
+		p.Writeln("    if %s.retrieval.test_buffer('full'):", p.className)
+		p.Writeln("        print('chunk left in retrieval: ' + str(%s.retrieval.pop()))", p.className)
+	}
 }
 
 func (p PyACTR) outputPattern(pattern *actr.Pattern, tabs int) {
