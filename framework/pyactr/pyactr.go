@@ -69,10 +69,11 @@ func (PyACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
 
 	for _, production := range model.Productions {
 		numPrintStatements := 0
+		warnedPrintStatements := false
 
 		if production.DoStatements != nil {
 			for _, statement := range production.DoStatements {
-				if statement.Print != nil {
+				if !warnedPrintStatements && statement.Print != nil {
 					numPrintStatements++
 					if numPrintStatements > 1 {
 						location := issues.Location{
@@ -81,6 +82,7 @@ func (PyACTR) ValidateModel(model *actr.Model) (log *issues.Log) {
 							ColumnEnd:   0,
 						}
 						log.Warning(&location, "pyactr only supports one print statement per production (in %q)", production.Name)
+						warnedPrintStatements = true
 					}
 				}
 
