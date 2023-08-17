@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"reflect"
 	"slices"
-	"strconv"
 	"strings"
 
 	"github.com/alecthomas/participle/v2"
@@ -559,7 +558,7 @@ func addProductions(model *actr.Model, log *issueLog, productions *productionSec
 						actrConstraint := actr.Constraint{
 							LHS:        &expr.LHS,
 							Comparison: comparison,
-							RHS:        convertArg(expr.RHS),
+							RHS:        convertWhenArg(expr.RHS),
 						}
 
 						// Add the constraint on the pattern var
@@ -660,30 +659,6 @@ func findModuleStateMatch(prod *actr.Production, bufferName string) *actr.Match 
 	}
 
 	return nil
-}
-
-func argToKeyValue(key string, a *arg) *keyvalue.KeyValue {
-	value := keyvalue.Value{}
-
-	switch {
-	case a.Nil != nil:
-		nilStr := "nil"
-		value.Str = &nilStr
-	case a.Var != nil:
-		value.Str = a.Var
-	case a.ID != nil:
-		value.Str = a.ID
-	case a.Str != nil:
-		value.Str = a.Str
-	case a.Number != nil:
-		num, _ := strconv.ParseFloat(*a.Number, 64)
-		value.Number = &num
-	}
-
-	return &keyvalue.KeyValue{
-		Key:   key,
-		Value: value,
-	}
 }
 
 func fieldToKeyValue(f *field) *keyvalue.KeyValue {
@@ -794,20 +769,21 @@ func createSetStatement(model *actr.Model, log *issueLog, set *setStatement, pro
 		return nil, err
 	}
 
-	buffer := model.LookupBuffer(set.BufferName)
+	bufferName := set.BufferRef.BufferName
+	buffer := model.LookupBuffer(bufferName)
 
 	s := actr.Statement{Set: &actr.SetStatement{
 		Buffer: buffer,
 	}}
 	createNewStatement := true
-	setStatement := production.LookupSetStatementByBuffer(set.BufferName)
+	setStatement := production.LookupSetStatementByBuffer(bufferName)
 	if setStatement != nil {
 		// If we found one, use its set statement
 		createNewStatement = false
 		s.Set = setStatement
 	}
 
-	if set.Slot != nil {
+	if set.BufferRef.SlotName != nil {
 		bufferName := buffer.Name()
 
 		// find slot index in chunk
@@ -815,31 +791,35 @@ func createSetStatement(model *actr.Model, log *issueLog, set *setStatement, pro
 
 		s.Set.Chunk = match.Pattern.Chunk
 
-		slotName := *set.Slot
+		slotName := *set.BufferRef.SlotName
 		index := match.Pattern.Chunk.SlotIndex(slotName)
 		value := &actr.Value{}
 
 		switch {
+		case set.Value.Arg != nil:
+			valueArg := set.Value.Arg
+			switch {
+			case valueArg.Var != nil:
+				varName := strings.TrimPrefix(*valueArg.Var, "?")
+				value.Var = &varName
+
+			case valueArg.Number != nil:
+				value.Number = valueArg.Number
+
+			case valueArg.Str != nil:
+				value.Str = valueArg.Str
+			}
+
 		case set.Value.Nil != nil:
 			value.Nil = set.Value.Nil
-
-		case set.Value.Var != nil:
-			varName := strings.TrimPrefix(*set.Value.Var, "?")
-			value.Var = &varName
 
 		case set.Value.ID != nil:
 			value.ID = set.Value.ID
 
-		case set.Value.Number != nil:
-			value.Number = set.Value.Number
-
-		case set.Value.Str != nil:
-			value.Str = set.Value.Str
-
 		}
 
 		newSlot := &actr.SetSlot{
-			Name:      *set.Slot,
+			Name:      slotName,
 			SlotIndex: index,
 			Value:     value,
 		}
@@ -876,7 +856,7 @@ func createRecallStatement(model *actr.Model, log *issueLog, recall *recallState
 
 	if recall.With != nil {
 		for _, param := range *recall.With.Expressions {
-			value := convertArg(param.Value)
+			value := convertWithArg(param.Value)
 			requestParameters[param.Param] = value.String()
 		}
 	}
@@ -915,7 +895,7 @@ func createPrintStatement(model *actr.Model, log *issueLog, print *printStatemen
 
 	p := actr.PrintStatement{}
 	if print.Args != nil {
-		p.Values = convertArgs(print.Args)
+		p.Values = convertPrintArgs(print.Args)
 	}
 
 	s := actr.Statement{Print: &p}
@@ -931,14 +911,8 @@ func convertArg(v *arg) (actrValue *actr.Value) {
 	actrValue = &actr.Value{}
 
 	switch {
-	case v.Nil != nil:
-		actrValue.Nil = v.Nil
-
 	case v.Var != nil:
 		actrValue.Var = v.Var
-
-	case v.ID != nil:
-		actrValue.ID = v.ID
 
 	case v.Str != nil:
 		actrValue.Str = v.Str
@@ -950,13 +924,40 @@ func convertArg(v *arg) (actrValue *actr.Value) {
 	return
 }
 
-func convertArgs(args []*arg) *[]*actr.Value {
+func convertWhenArg(w *whenArg) *actr.Value {
+	if w.Nil != nil {
+		return &actr.Value{Nil: w.Nil}
+	}
+
+	return convertArg(w.Arg)
+}
+
+func convertWithArg(w *withArg) *actr.Value {
+	if w.Nil != nil {
+		return &actr.Value{Nil: w.Nil}
+	} else if w.ID != nil {
+		return &actr.Value{ID: w.ID}
+	}
+
+	return convertArg(w.Arg)
+}
+
+func convertPrintArg(p *printArg) *actr.Value {
+	if p.Arg == nil {
+		return nil
+	}
+
+	return convertArg(p.Arg)
+}
+
+func convertPrintArgs(args []*printArg) *[]*actr.Value {
 	actrValues := []*actr.Value{}
 
 	for _, v := range args {
-		newValue := convertArg(v)
-
-		actrValues = append(actrValues, newValue)
+		newValue := convertPrintArg(v)
+		if newValue != nil {
+			actrValues = append(actrValues, newValue)
+		}
 	}
 
 	return &actrValues
