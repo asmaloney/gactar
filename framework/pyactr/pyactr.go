@@ -5,7 +5,6 @@ package pyactr
 import (
 	_ "embed"
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 
@@ -23,6 +22,8 @@ import (
 
 //go:embed pyactr_print.py
 var pyactrPrintPython string
+
+const pyactrPrintFileName = "pyactr_print.py"
 
 var Info framework.Info = framework.Info{
 	Name:           "pyactr",
@@ -156,7 +157,7 @@ func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (result *framework
 func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
 	// If our model has a print statement, then write out our support file
 	if p.model.HasPrintStatement() {
-		err = writePrintSupportFile(path, "pyactr_print.py")
+		err = framework.WriteSupportFile(path, pyactrPrintFileName, pyactrPrintPython)
 		if err != nil {
 			return
 		}
@@ -319,26 +320,6 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 	p.writeMain()
 
 	code = p.GetContents()
-	return
-}
-
-// writePrintSupportFile will write out a Python file to add extra print support to pyactr.
-func writePrintSupportFile(path, supportFileName string) (err error) {
-	if path != "" {
-		supportFileName = fmt.Sprintf("%s/%s", path, supportFileName)
-	}
-
-	file, err := os.OpenFile(supportFileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0660)
-	if err != nil {
-		return
-	}
-	defer file.Close()
-
-	_, err = file.WriteString(pyactrPrintPython)
-	if err != nil {
-		return
-	}
-
 	return
 }
 
@@ -685,27 +666,33 @@ func (p PyACTR) outputStatement(production *actr.Production, s *actr.Statement) 
 		p.outputPattern(s.Recall.Pattern, 2)
 
 	case s.Print != nil:
-		// Using "goal" here is arbitrary because of the way we monkey patch the python code.
-		// Our "print_text" statement handles its own formatting and lookup.
+		// Using "print" here will use our automatically-included PrintBuffer class.
+		// The "buffer" and "text" statements handle their own formatting and lookup
+		// using PrintBuffer.
 		p.Writeln("     !print>")
 
-		str := make([]string, len(*s.Print.Values))
+		if s.Print.IsBufferOutput() {
+			id := (*s.Print.Values)[0].ID
+			p.Writeln("          buffer %s", *id)
+		} else {
+			str := make([]string, len(*s.Print.Values))
 
-		for index, val := range *s.Print.Values {
-			switch {
-			case val.Var != nil:
-				varIndex := production.VarIndexMap[*val.Var]
-				str[index] = fmt.Sprintf("%s.%s", varIndex.Buffer.Name(), varIndex.SlotName)
+			for index, val := range *s.Print.Values {
+				switch {
+				case val.Var != nil:
+					varIndex := production.VarIndexMap[*val.Var]
+					str[index] = fmt.Sprintf("%s.%s", varIndex.Buffer.Name(), varIndex.SlotName)
 
-			case val.Str != nil:
-				str[index] = fmt.Sprintf("'%s'", *val.Str)
+				case val.Str != nil:
+					str[index] = fmt.Sprintf("'%s'", *val.Str)
 
-			case val.Number != nil:
-				str[index] = *val.Number
+				case val.Number != nil:
+					str[index] = *val.Number
+				}
 			}
-		}
 
-		p.Writeln("          text \"%s\"", strings.Join(str, ", "))
+			p.Writeln("          text %q", strings.Join(str, ", "))
+		}
 
 	case s.Clear != nil:
 		for _, name := range s.Clear.BufferNames {

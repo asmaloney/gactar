@@ -133,6 +133,11 @@ type PrintStatement struct {
 	Values *[]*Value
 }
 
+// IsBufferOutput returns whether or not we have an argument list consisting of one ID.
+func (p PrintStatement) IsBufferOutput() bool {
+	return len(*p.Values) == 1 && (*p.Values)[0].ID != nil
+}
+
 // RecallStatement is used to pull information from memory.
 type RecallStatement struct {
 	Pattern           *Pattern

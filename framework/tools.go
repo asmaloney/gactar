@@ -113,3 +113,23 @@ func identifyYourself(frameworkName, exeName string) (err error) {
 
 	return
 }
+
+// WriteSupportFile will write out a file to add extra support for a framework.
+func WriteSupportFile(path, supportFileName, contents string) (err error) {
+	if path != "" {
+		supportFileName = fmt.Sprintf("%s/%s", path, supportFileName)
+	}
+
+	file, err := os.OpenFile(supportFileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0660)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(contents)
+	if err != nil {
+		return
+	}
+
+	return
+}

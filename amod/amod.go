@@ -943,11 +943,13 @@ func convertWithArg(w *withArg) *actr.Value {
 }
 
 func convertPrintArg(p *printArg) *actr.Value {
-	if p.Arg == nil {
-		return nil
+	if p.Arg != nil {
+		return convertArg(p.Arg)
 	}
 
-	return convertArg(p.Arg)
+	bufferRef := p.BufferRef.String()
+
+	return &actr.Value{ID: &bufferRef}
 }
 
 func convertPrintArgs(args []*printArg) *[]*actr.Value {
