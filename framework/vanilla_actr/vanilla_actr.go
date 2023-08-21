@@ -55,6 +55,8 @@ type VanillaACTR struct {
 	modelName string
 	tmpPath   string
 	envPath   string
+
+	printStatementCount int
 }
 
 // New simply creates a new VanillaACTR instance and sets some paths from the context.
@@ -616,7 +618,7 @@ func (p VanillaACTR) outputRequestParameters(params map[string]string, tabs int)
 	p.TabWrite(tabs, tabbedItems)
 }
 
-func (v VanillaACTR) outputStatement(s *actr.Statement) {
+func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 	switch {
 	case s.Set != nil:
 		buffer := s.Set.Buffer
@@ -658,8 +660,23 @@ func (v VanillaACTR) outputStatement(s *actr.Statement) {
 		v.outputRequestParameters(s.Recall.RequestParameters, 2)
 
 	case s.Print != nil:
-		outputArgs := createOutputArgs(s.Print.Values)
-		v.Write("\t!output!\t(%s)\n", outputArgs)
+		if s.Print.IsBufferOutput() {
+			id := *((*s.Print.Values)[0].ID)
+			ids := strings.Split(id, ".")
+
+			if len(ids) == 1 {
+				v.Write("\t!bind!\t=value%d (printed-buffer-chunk '%s)\n", v.printStatementCount, id)
+				v.Write("\t!output!\t(%q =value%d)\n", fmt.Sprintf("%s: ~a", id), v.printStatementCount)
+			} else {
+				v.Write("\t!bind!\t=value%d (buffer-slot-value '%s '%s)\n", v.printStatementCount, ids[0], ids[1])
+				v.Write("\t!output!\t(%q =value%d)\n", fmt.Sprintf("%s: ~a", id), v.printStatementCount)
+			}
+
+			v.printStatementCount++
+		} else {
+			outputArgs := createOutputArgs(s.Print.Values)
+			v.Write("\t!output!\t(%s)\n", outputArgs)
+		}
 
 	case s.Clear != nil:
 		for _, name := range s.Clear.BufferNames {
@@ -674,7 +691,7 @@ func (v VanillaACTR) outputStatement(s *actr.Statement) {
 // createOutputArgs creates a string suitable for use in an !output! statement
 // !output! is explained in:
 //
-//	ACT-R 7.21+ Reference Manual pg. 235
+//	ACT-R 7.26+ Reference Manual pg. 240
 func createOutputArgs(values *[]*actr.Value) string {
 	formatStr := `"`
 	args := []string{}

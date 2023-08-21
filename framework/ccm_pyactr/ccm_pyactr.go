@@ -5,7 +5,6 @@ package ccm_pyactr
 import (
 	_ "embed"
 	"fmt"
-	"os"
 	"strings"
 
 	"golang.org/x/exp/maps"
@@ -20,10 +19,18 @@ import (
 	"github.com/asmaloney/gactar/util/numbers"
 )
 
+//go:embed ccm_print.py
+var ccmPrintPython string
+
 //go:embed gactar_ccm_activate_trace.py
 var gactarActivateTraceFile string
 
-const gactarActivateTraceFileName = "gactar_ccm_activate_trace"
+const (
+	ccmPrintFileName              = "ccm_print.py"
+	ccmPrintImportName            = "ccm_print"
+	gactarActivateTraceFileName   = "gactar_ccm_activate_trace.py"
+	gactarActivateTraceImportName = "gactar_ccm_activate_trace"
+)
 
 var Info framework.Info = framework.Info{
 	Name:           "ccm",
@@ -132,9 +139,17 @@ func (c *CCMPyACTR) Run(initialBuffers framework.InitialBuffers) (result *framew
 
 // WriteModel converts the internal actr.Model to Python and writes it to a file.
 func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
+	// If our model has a print statement, then write out our support file
+	if c.model.HasPrintStatement() {
+		err = framework.WriteSupportFile(path, ccmPrintFileName, ccmPrintPython)
+		if err != nil {
+			return
+		}
+	}
+
 	// If our model is tracing activations, then write out our support file
 	if c.model.TraceActivations {
-		err = writeTraceSupportFile(path)
+		err = framework.WriteSupportFile(path, gactarActivateTraceFileName, gactarActivateTraceFile)
 		if err != nil {
 			return
 		}
@@ -256,6 +271,22 @@ func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code 
 		c.Writeln("")
 	}
 
+	if c.model.HasPrintStatement() {
+		c.Writeln("    # create a printer helper and register chunks with their slots for lookup")
+		c.Writeln("    printer = CCMPrint()")
+
+		for _, chunk := range c.model.Chunks {
+			quotedSlotNames := []string{}
+
+			for _, slot := range chunk.SlotNames {
+				quotedSlotNames = append(quotedSlotNames, fmt.Sprintf("%q", slot))
+			}
+			c.Writeln("    printer.register_chunk(%q, [%s])", chunk.TypeName, strings.Join(quotedSlotNames, ", "))
+		}
+
+		c.Writeln("")
+	}
+
 	if c.model.LogLevel == "info" {
 		// this turns on some logging at the high level
 		c.Writeln("    def __init__(self):")
@@ -281,27 +312,6 @@ func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code 
 	c.writeMain()
 
 	code = c.GetContents()
-	return
-}
-
-// writeTraceSupportFile will write out a Python file to add minimal activation trace support.
-func writeTraceSupportFile(path string) (err error) {
-	supportFileName := fmt.Sprintf("%s.py", gactarActivateTraceFileName)
-	if path != "" {
-		supportFileName = fmt.Sprintf("%s/%s", path, supportFileName)
-	}
-
-	file, err := os.OpenFile(supportFileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0660)
-	if err != nil {
-		return
-	}
-	defer file.Close()
-
-	_, err = file.WriteString(gactarActivateTraceFile)
-	if err != nil {
-		return
-	}
-
 	return
 }
 
@@ -371,9 +381,14 @@ func (c CCMPyACTR) writeImports() {
 		c.Writeln("from python_actr import log, log_everything")
 	}
 
+	if c.model.HasPrintStatement() {
+		c.Writeln("")
+		c.Writeln(fmt.Sprintf("from %s import *", ccmPrintImportName))
+	}
+
 	if c.model.TraceActivations {
 		c.Writeln("")
-		c.Writeln(fmt.Sprintf("from %s import ActivateTrace", gactarActivateTraceFileName))
+		c.Writeln(fmt.Sprintf("from %s import ActivateTrace", gactarActivateTraceImportName))
 	}
 }
 
@@ -590,8 +605,19 @@ func (c CCMPyACTR) outputStatement(s *actr.Statement) {
 		}
 
 	case s.Print != nil:
-		values := pythonValuesToStrings(s.Print.Values, true)
-		c.Writeln("        print(%s, sep='')", strings.Join(values, ", "))
+		if s.Print.IsBufferOutput() {
+			id := *((*s.Print.Values)[0].ID)
+			ids := strings.Split(id, ".")
+
+			if len(ids) == 1 {
+				c.Writeln("        printer.print_chunk(%s, %q)", id, id)
+			} else {
+				c.Writeln("        printer.print_chunk_slot(%s, %q, %q)", ids[0], ids[0], ids[1])
+			}
+		} else {
+			values := pythonValuesToStrings(s.Print.Values, true)
+			c.Writeln("        print(%s, sep='')", strings.Join(values, ", "))
+		}
 
 	case s.Stop != nil:
 		c.Writeln("        self.stop()")
