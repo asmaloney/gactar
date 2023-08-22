@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
+- Add ability to print buffers and buffer slots. ([#385](https://github.com/asmaloney/gactar/pull/385))
+
+  Examples:
+
+  ```
+  print retrieval
+  print retrieval.word
+  ```
+
 - Handle the `recently_retrieved` request parameter on the retrieval buffer. ([#347](https://github.com/asmaloney/gactar/pull/347))
 
   - Specified using `with` in a production like this:
@@ -70,6 +79,9 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- {pyactr} Remove redundant warnings about print statements. ([#384](https://github.com/asmaloney/gactar/pull/384))
+- {pyactr} Fix setting of finst size. It is set on the retrieval buffer, not on the memory module. ([#379](https://github.com/asmaloney/gactar/pull/379))
+  - Defaults to 0 in pyactr, but 4 in ACT-R, so change it to match ACT-R if it is not set.
 - {vanilla} The Clozure Common Lisp compiler was fixed and now downloads and runs on Windows. ([#369](https://github.com/asmaloney/gactar/pull/369), [#371](https://github.com/asmaloney/gactar/pull/371))
 - {web} The UI wasn't properly saving/restoring the list of selected frameworks. ([#343](https://github.com/asmaloney/gactar/pull/343))
 - {web} If the user ran with a framework selected and selected the code or result tab for it,

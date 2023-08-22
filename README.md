@@ -745,14 +745,15 @@ This matches the `goal` buffer if it contains an `add` chunk, the first slot is 
 
 The _do_ section in the productions tells the system what actions to take if the buffers match. It uses a small language which currently understands the following commands:
 
-| command                                                                  | example                                 |
-| ------------------------------------------------------------------------ | --------------------------------------- |
-| **clear** _(buffer name)+_                                               | **clear** goal, retrieval               |
-| **print** _(string or var or number)+_                                   | **print** 'text', ?var, 42              |
-| **recall** _(pattern)_                                                   | **recall** [car: ?colour]               |
-| **set** _(buffer name)_._(slot name)_ **to** _(string or var or number)_ | **set** goal.wall_colour **to** ?colour |
-| **set** _(buffer name)_ **to** _(pattern)_                               | **set** goal **to** [start: 6 nil]      |
-| **stop**                                                                 | **stop**                                |
+| command                                                                | example                                 |
+| ---------------------------------------------------------------------- | --------------------------------------- |
+| **clear** _(buffer name)+_                                             | **clear** goal, retrieval               |
+| **print** _(string or var or number)+_                                 | **print** 'text', ?var, 42              |
+| **print** _(buffer name) or (buffer name).(slot name)_                 | **print** retrieval.name                |
+| **recall** _(pattern)_                                                 | **recall** [car: ?colour]               |
+| **set** _(buffer name).(slot name)_ **to** _(string or var or number)_ | **set** goal.wall_colour **to** ?colour |
+| **set** _(buffer name)_ **to** _(pattern)_                             | **set** goal **to** [start: 6 nil]      |
+| **stop**                                                               | **stop**                                |
 
 ### Example Production #1
 
