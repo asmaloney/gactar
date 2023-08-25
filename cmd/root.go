@@ -253,20 +253,30 @@ func createTempDirFromFlag(flags *pflag.FlagSet) (path string, err error) {
 	return
 }
 
-// setupVirtualEnvironment will check that the environment exists and set our paths.
-func setupVirtualEnvironment(flags *pflag.FlagSet) (path string, err error) {
-	envPath, err := expandPathFlag(flags, "env")
+// getVirtualEnvironmentPath gets the environment path from the flags and checks if it exists.
+func getVirtualEnvironmentPath(flags *pflag.FlagSet) (envPath string, err error) {
+	envPath, err = expandPathFlag(flags, "env")
 	if err != nil {
-		return
+		return "", err
 	}
 
 	if !filesystem.DirExists(envPath) {
 		err = &errVirtualEnvDoesNotExist{path: envPath}
-		return
+		return "", err
 	}
 
 	fmt.Print(chalk.Header("Using virtual environment: "))
 	fmt.Printf("%q\n", envPath)
+
+	return
+}
+
+// setupVirtualEnvironment will check that the environment path exists and set our PATH with it.
+func setupVirtualEnvironment(flags *pflag.FlagSet) (path string, err error) {
+	envPath, err := getVirtualEnvironmentPath(flags)
+	if err != nil {
+		return
+	}
 
 	err = cli.SetupPaths(envPath)
 	if err != nil {
