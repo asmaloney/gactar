@@ -30,6 +30,12 @@ var (
 	errPathExists = errors.New("path already exists")
 
 	flagSetupDev = false
+
+	flagUpdateAll = false
+
+	flagUpdatePython         = false
+	flagUpdatePythonPackages = false
+	flagUpdateDev            = false
 )
 
 var envCmd = &cobra.Command{
@@ -45,13 +51,38 @@ var setupCmd = &cobra.Command{
 	Use:   "setup",
 	Short: "Setup an environment",
 	Run: func(cmd *cobra.Command, args []string) {
-		envPath, err := expandPathFlag(cmd.Flags(), "path")
+		envPath, err := getVirtualEnvironmentPath(cmd.Flags())
 		if err != nil {
 			chalk.PrintErr(err)
 			return
 		}
 
 		err = runSetup(envPath, flagSetupDev)
+		if err != nil {
+			chalk.PrintErr(err)
+			return
+		}
+	},
+}
+
+var updateCmd = &cobra.Command{
+	Use:   "update",
+	Short: "Update an environment",
+	PreRun: func(cmd *cobra.Command, args []string) {
+		devSet, _ := cmd.Flags().GetBool("dev")
+		allSet, _ := cmd.Flags().GetBool("all")
+		if devSet && !allSet {
+			cmd.MarkFlagRequired("pip")
+		}
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		envPath, err := getVirtualEnvironmentPath(cmd.Flags())
+		if err != nil {
+			chalk.PrintErr(err)
+			return
+		}
+
+		err = runUpdate(envPath)
 		if err != nil {
 			chalk.PrintErr(err)
 			return
@@ -68,10 +99,16 @@ func (e errCCLSystem) Error() string {
 }
 
 func init() {
-	setupCmd.Flags().StringP("path", "p", "./env", "directory for env files (it will be created if it does not exist)")
 	setupCmd.Flags().BoolVar(&flagSetupDev, "dev", false, "install dev packages")
 
 	envCmd.AddCommand(setupCmd)
+
+	updateCmd.Flags().BoolVar(&flagUpdateAll, "all", false, "update all tools & packages")
+	updateCmd.Flags().BoolVar(&flagUpdatePython, "python", false, "update python version")
+	updateCmd.Flags().BoolVar(&flagUpdatePythonPackages, "pip", false, "update python packages")
+	updateCmd.Flags().BoolVar(&flagUpdateDev, "dev", false, "update dev packages")
+
+	envCmd.AddCommand(updateCmd)
 
 	rootCmd.AddCommand(envCmd)
 }
@@ -241,6 +278,70 @@ func downloadGitHubRelease(name, repo, version, archiveFile, target string) (err
 	if err != nil {
 		return
 	}
+
+	return
+}
+
+func runUpdate(envPath string) (err error) {
+	fmt.Println("gactar Environment Update\n---")
+	fmt.Printf("Updating environment: %q\n", envPath)
+
+	if flagUpdateAll || flagUpdatePython {
+		err = updatePython(envPath)
+		if err != nil {
+			return
+		}
+	}
+
+	if flagUpdateAll || flagUpdatePythonPackages {
+		err = updatePipPackages(envPath)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+func updatePython(envPath string) (err error) {
+	fmt.Println()
+	fmt.Println("Updating Python\n---")
+
+	path, err := python.FindPython3(true)
+	if err != nil {
+		return
+	}
+
+	output, err := executil.ExecCommand(path, "-m", "venv", "--upgrade", envPath)
+	if err != nil {
+		return
+	}
+
+	fmt.Print(output)
+
+	return
+}
+
+func updatePipPackages(envPath string) (err error) {
+	fmt.Println()
+	fmt.Println("Updating Python pip packages\n---")
+
+	err = cli.SetupPaths(envPath)
+	if err != nil {
+		return
+	}
+
+	file := "install/requirements.txt"
+	if flagUpdateDev {
+		file = "install/requirements-dev.txt"
+	}
+
+	output, err := executil.ExecCommand("pip", "install", "-U", "-r", file)
+	if err != nil {
+		return
+	}
+
+	fmt.Print(output)
 
 	return
 }
