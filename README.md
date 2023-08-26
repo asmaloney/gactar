@@ -20,7 +20,8 @@ You can read the tech note **gactar: A Tool For Exploring ACT-R Modelling** [her
 - [Installation](#installation)
   - [Download gactar Release](#download-gactar-release)
   - [Setup](#setup)
-- [Checking Your Setup For Errors](#checking-your-setup-for-errors)
+- [Updating Your Environment](#updating-your-environment)
+- [Checking Your Environment For Errors](#checking-your-environment-for-errors)
 - [Running gactar](#running-gactar)
   - [Run With Visual Studio Code](#1-run-with-visual-studio-code)
   - [Run As Web Server](#2-run-as-web-server)
@@ -183,8 +184,8 @@ USAGE:
    gactar env setup [command options] [arguments...]
 
 OPTIONS:
-   --dev                   install any dev packages (default: false)
-   --path value, -p value  directory for env files (it will be created if it does not exist) (default: "./env")
+   --dev                 install any dev packages (default: false)
+   --env string          directory where ACT-R, pyactr, and other necessary files are installed (default "./env")
 ```
 
 For basic setup, run `./gactar env setup`
@@ -202,15 +203,35 @@ Use the `--dev` flag to also install optional developer packages for linting & f
 $ ./gactar env setup --dev
 ```
 
-If you want to change the default environment (`env`), the directory can be specified using the `-path` option:
+If you want to change the default environment (`env`), the directory can be specified using the `--env` option:
 
 ```
-./gactar env setup -path foo
+./gactar env setup --env foo
 ```
 
-**Note:** If you change the path, you will need to specify `-env foo` each time you run gactar.
+**Note:** If you change the default environment, you will need to specify `--env foo` each time you run gactar.
 
-## Checking Your Setup For Errors
+## Updating Your Environment
+
+To update the Python version in your environment to the current Python on your system:
+
+```
+./gactar env update --python
+```
+
+To update the Python pip packages (python-actr, pyactr, and support packages) to the versions in install/requirements.txt (add `--dev` to include development packages):
+
+```
+./gactar env update --pip
+```
+
+To update both Python & its packages (add `--dev` to include development packages):
+
+```
+./gactar env update --all
+```
+
+## Checking Your Environment For Errors
 
 To run a health check on your virtual environment, run:
 
@@ -218,10 +239,10 @@ To run a health check on your virtual environment, run:
 ./gactar env doctor
 ```
 
-To check a specific virtual environment, you can pass its path:
+To check a specific virtual environment, you can pass its path using the `--env` option:
 
 ```
-./gactar env doctor -path foo
+./gactar env doctor --env foo
 ```
 
 This command will run several checks on your environment and report any warnings or errors.
