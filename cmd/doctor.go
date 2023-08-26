@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/asmaloney/gactar/util/chalk"
-	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/lisp"
@@ -25,12 +24,7 @@ var doctorCmd = &cobra.Command{
 	Use:   "doctor",
 	Short: "Check an environment for problems",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		envPath, err := expandPathFlag(cmd.Flags(), "path")
-		if err != nil {
-			return
-		}
-
-		err = cli.SetupPaths(envPath)
+		envPath, err := setupVirtualEnvironment(cmd.Flags())
 		if err != nil {
 			return
 		}
@@ -50,8 +44,6 @@ var doctorCmd = &cobra.Command{
 
 func init() {
 	envCmd.AddCommand(doctorCmd)
-
-	doctorCmd.Flags().StringP("path", "p", "./env", "environment to check")
 }
 
 func outputSectionHeader(text string) {
