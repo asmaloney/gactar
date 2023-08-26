@@ -236,6 +236,9 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 
 	if memory.IsUsingBaseLevelLearning() {
 		p.Writeln("    decay=%s,", numbers.Float64Str(*memory.Decay))
+	} else {
+		p.Writeln("    # baselevel_learning defaults to true in pyactr, so set it to false which is the default in ACT-R")
+		p.Writeln("    baselevel_learning=False,")
 	}
 
 	p.writeSpreadingActivation()
