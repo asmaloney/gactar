@@ -3,6 +3,7 @@
 package vanilla_actr
 
 import (
+	_ "embed"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -22,6 +23,11 @@ import (
 	"github.com/asmaloney/gactar/util/lisp"
 	"github.com/asmaloney/gactar/util/numbers"
 )
+
+//go:embed vanilla_print.lisp
+var vanillaPrint string
+
+const vanillaPrintFileName = "vanilla_print.lisp"
 
 func init() {
 	// We only support 64-bit. Nobody still uses 32-bit, right?
@@ -137,6 +143,14 @@ func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (result *fram
 
 // WriteModel converts the internal actr.Model to Lisp and writes it to a file.
 func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
+	// If our model has a print statement, then write out our support file
+	if v.model.HasPrintStatement() {
+		err = framework.WriteSupportFile(path, vanillaPrintFileName, vanillaPrint)
+		if err != nil {
+			return
+		}
+	}
+
 	outputFileName = fmt.Sprintf("%s.lisp", v.modelName)
 	if path != "" {
 		outputFileName = fmt.Sprintf("%s/%s", path, outputFileName)
@@ -665,7 +679,7 @@ func (v *VanillaACTR) outputStatement(s *actr.Statement) {
 			ids := strings.Split(id, ".")
 
 			if len(ids) == 1 {
-				v.Write("\t!bind!\t=value%d (printed-buffer-chunk '%s)\n", v.printStatementCount, id)
+				v.Write("\t!bind!\t=value%d (vanilla-print-buffer '%s)\n", v.printStatementCount, id)
 				v.Write("\t!output!\t(%q =value%d)\n", fmt.Sprintf("%s: ~a", id), v.printStatementCount)
 			} else {
 				v.Write("\t!bind!\t=value%d (buffer-slot-value '%s '%s)\n", v.printStatementCount, ids[0], ids[1])
@@ -736,6 +750,13 @@ func (v VanillaACTR) createRunFile(modelFile string) (outputFile string, err err
 
 	path := filepath.Join(v.envPath, "actr", "load-single-threaded-act-r.lisp")
 	v.Writeln(`(load "%s")`, filepath.ToSlash(path))
+
+	if v.model.HasPrintStatement() {
+		path = filepath.Join(v.tmpPath, vanillaPrintFileName)
+
+		v.Writeln(`(load "%s")`, path)
+	}
+
 	v.Writeln(`(load "%s")`, filepath.ToSlash(modelFile))
 
 	// TODO: We should be able to set this somewhere.
