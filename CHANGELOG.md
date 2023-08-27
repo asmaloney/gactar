@@ -2,9 +2,21 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 0.12.0 - (in progress)
+## [0.12.0](https://github.com/asmaloney/gactar/releases/tag/v0.12.0) - 2023-08-27
 
 ### Added
+
+- Add new `env update` command to the gactar tool ([#388](https://github.com/asmaloney/gactar/pull/388))
+
+  This has options to update the Python version in the venv as well as the pip packages from the requirements.txt files. Use `--dev` to include development packages.
+
+  Examples:
+
+  ```
+  $ ./gactar env update --python
+  $ ./gactar env update --pip
+  $ ./gactar env update --all --dev
+  ```
 
 - Add ability to print buffers and buffer slots. ([#385](https://github.com/asmaloney/gactar/pull/385))
 
