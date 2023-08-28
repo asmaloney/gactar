@@ -37,6 +37,15 @@ func (e ErrExeNotFound) Error() string {
 	return fmt.Sprintf("cannot find %q in your path:\n%q", e.ExeName, e.Path)
 }
 
+type ErrHTTP struct {
+	URL        *url.URL
+	StatusCode int
+}
+
+func (e ErrHTTP) Error() string {
+	return fmt.Sprintf("server returned status code %d fetching %q", e.StatusCode, e.URL.String())
+}
+
 // DirExists returns true if the given path exists and is a directory.
 func DirExists(path string) bool {
 	stat, err := os.Stat(path)
@@ -55,11 +64,19 @@ func CreateDir(path string) (err error) {
 
 // DownloadFile downloads a file from a URL.
 func DownloadFile(url *url.URL, filePath string) (err error) {
-	resp, err := http.Get(url.String())
+	response, err := http.Get(url.String())
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		err = ErrHTTP{
+			URL:        url,
+			StatusCode: response.StatusCode,
+		}
+		return
+	}
 
 	out, err := os.Create(filePath)
 	if err != nil {
@@ -67,7 +84,7 @@ func DownloadFile(url *url.URL, filePath string) (err error) {
 	}
 	defer out.Close()
 
-	_, err = io.Copy(out, resp.Body)
+	_, err = io.Copy(out, response.Body)
 
 	return
 }
