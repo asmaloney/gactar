@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 
 	"github.com/spf13/cobra"
 
@@ -19,10 +21,19 @@ import (
 )
 
 const (
-	// ACT-R release version from https://github.com/asmaloney/ACT-R
+	// JSON file used to override our defaults
+	SUPPORT_TOOLS_FILE = "install/support-tools.json"
+
+	// Default ACT-R repo
+	ACTR_REPO = "github.com/asmaloney/ACT-R"
+
+	// Default ACT-R release version
 	ACTR_VERSION = "7.27.7"
 
-	// Clozure Common Lisp release version from https://github.com/Clozure/ccl
+	// Default Clozure Common Lisp repo
+	CCL_REPO = "github.com/Clozure/ccl"
+
+	// Default Clozure Common Lisp release version
 	CCL_VERSION = "1.12.2"
 )
 
@@ -36,6 +47,11 @@ var (
 	flagUpdatePython         = false
 	flagUpdatePythonPackages = false
 	flagUpdateDev            = false
+
+	// names we allow in the support-tools file
+	validTools = []string{"ACT-R", "CCL"}
+
+	defaultToolInfo = make(toolInfoMap, len(validTools))
 )
 
 var envCmd = &cobra.Command{
@@ -51,7 +67,7 @@ var setupCmd = &cobra.Command{
 	Use:   "setup",
 	Short: "Setup an environment",
 	Run: func(cmd *cobra.Command, args []string) {
-		envPath, err := getVirtualEnvironmentPath(cmd.Flags())
+		envPath, err := expandPathFlag(cmd.Flags(), "path")
 		if err != nil {
 			chalk.PrintErr(err)
 			return
@@ -98,8 +114,26 @@ func (e errCCLSystem) Error() string {
 	return fmt.Sprintf("no CCL compiler available for system %q", e.OSName)
 }
 
+// toolInfoList is used to read tool version info from a file
+type toolInfoList struct {
+	List []toolInfo `json:"tool-info"`
+}
+
+// toolInfoMap maps a tool name to its info
+type toolInfoMap map[string]toolInfo
+
+// toolInfo stores version info about a tool
+type toolInfo struct {
+	Name    string `json:"name"`
+	RepoURL string `json:"repo-url"`
+	Version string `json:"version"`
+}
+
 func init() {
+	setDefaultToolInfo()
+
 	setupCmd.Flags().BoolVar(&flagSetupDev, "dev", false, "install dev packages")
+	setupCmd.Flags().StringP("path", "p", "./env", "directory for env files (it will be created if it does not exist)")
 
 	envCmd.AddCommand(setupCmd)
 
@@ -113,6 +147,57 @@ func init() {
 	rootCmd.AddCommand(envCmd)
 }
 
+// setDefaultToolInfo fills in the default tool versions as a fallback in case the external
+// file doesn't exist or fails to parse.
+func setDefaultToolInfo() {
+	defaultToolInfo["ACT-R"] = toolInfo{
+		Name:    "ACT-R",
+		RepoURL: ACTR_REPO,
+		Version: ACTR_VERSION,
+	}
+
+	defaultToolInfo["CCL"] = toolInfo{
+		Name:    "CCL",
+		RepoURL: CCL_REPO,
+		Version: CCL_VERSION,
+	}
+}
+
+func readToolInfo() (toolInfo toolInfoMap, err error) {
+	file, err := os.ReadFile(SUPPORT_TOOLS_FILE)
+	if err != nil {
+		return
+	}
+
+	data := toolInfoList{}
+
+	err = json.Unmarshal(file, &data)
+	if err != nil {
+		return
+	}
+
+	if len(data.List) == 0 {
+		chalk.PrintWarningStr(fmt.Sprintf("failed to find version information in %q; using defaults", SUPPORT_TOOLS_FILE))
+		return defaultToolInfo, err
+	}
+
+	toolInfo = defaultToolInfo
+
+	// Get our version from the support-tools file
+	for _, info := range data.List {
+		if !slices.Contains(validTools, info.Name) {
+			chalk.PrintWarningStr(fmt.Sprintf("invalid tool name found in support-tools file: %q", info.Name))
+			continue
+		}
+
+		tool := toolInfo[info.Name]
+		tool.Version = info.Version
+		toolInfo[info.Name] = tool
+	}
+
+	return
+}
+
 func runSetup(envPath string, dev bool) (err error) {
 	fmt.Println("gactar Environment Setup\n---")
 	fmt.Printf("Setting up an environment: %q\n", envPath)
@@ -121,8 +206,11 @@ func runSetup(envPath string, dev bool) (err error) {
 	if filesystem.DirExists(envPath) {
 		err = fmt.Errorf("cannot set environment path to %q: %w", envPath, errPathExists)
 		return
-	} else {
-		err = nil
+	}
+
+	tools, err := readToolInfo()
+	if err != nil {
+		return err
 	}
 
 	// Create the virtual environment directory
@@ -138,15 +226,13 @@ func runSetup(envPath string, dev bool) (err error) {
 
 	err = setupPython(envPath, dev)
 	if err != nil {
-		fmt.Println(err.Error())
-		err = nil
+		chalk.PrintErr(err)
 		// Don't return - we can still try to set up the Lisp compiler
 	}
 
-	err = setupLisp()
+	err = setupLisp(tools)
 	if err != nil {
-		fmt.Println(err.Error())
-		err = nil
+		return err
 	}
 
 	return
@@ -214,38 +300,35 @@ func setupPython(envPath string, dev bool) (err error) {
 	return
 }
 
-func setupLisp() (err error) {
+func setupLisp(tools toolInfoMap) (err error) {
 	fmt.Println()
 	fmt.Println("Setting up Lisp\n---")
 
 	// Download vanilla ACT-R
-	repo := "github.com/asmaloney/ACT-R"
-	extension := "zip"
-	archiveFile := fmt.Sprintf("actr-super-slim-v%s.%s", ACTR_VERSION, extension)
+	actrInfo := tools["ACT-R"]
+	archiveFile := fmt.Sprintf("actr-super-slim-v%s.zip", actrInfo.Version)
 
-	err = downloadGitHubRelease("ACT-R", repo, ACTR_VERSION, archiveFile, "actr")
+	err = downloadGitHubRelease("ACT-R", actrInfo.RepoURL, actrInfo.Version, archiveFile, "actr")
 	if err != nil {
 		return
 	}
 
 	// Download Clozure Common Lisp compiler (CCL)
+	cclInfo := tools["CCL"]
 	system := runtime.GOOS
 	if system != "darwin" && system != "linux" && system != "windows" {
 		return &errCCLSystem{OSName: system}
 	}
 
-	repo = "github.com/Clozure/ccl"
-	extension = "tar.gz"
-	version := CCL_VERSION
-
+	extension := "tar.gz"
 	if system == "windows" {
 		extension = "zip"
 	}
 
-	dirName := fmt.Sprintf("ccl-%s-%sx86", version, system)
+	dirName := fmt.Sprintf("ccl-%s-%sx86", cclInfo.Version, system)
 	archiveFile = fmt.Sprintf("%s.%s", dirName, extension)
 
-	err = downloadGitHubRelease("Clozure Common Lisp (ccl)", repo, version, archiveFile, "")
+	err = downloadGitHubRelease("Clozure Common Lisp (ccl)", cclInfo.RepoURL, cclInfo.Version, archiveFile, "")
 	if err != nil {
 		return
 	}
