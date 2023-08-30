@@ -185,7 +185,7 @@ USAGE:
 
 OPTIONS:
    --dev                 install any dev packages (default: false)
-   --env string          directory where ACT-R, pyactr, and other necessary files are installed (default "./env")
+   --path value, -p value  directory for env files (it will be created if it does not exist) (default: "./env")
 ```
 
 For basic setup, run `./gactar env setup`
@@ -203,10 +203,10 @@ Use the `--dev` flag to also install optional developer packages for linting & f
 $ ./gactar env setup --dev
 ```
 
-If you want to change the default environment (`env`), the directory can be specified using the `--env` option:
+If you want to change the default environment (`env`), the directory can be specified using the `-path` option:
 
 ```
-./gactar env setup --env foo
+./gactar env setup -path foo
 ```
 
 **Note:** If you change the default environment, you will need to specify `--env foo` each time you run gactar.

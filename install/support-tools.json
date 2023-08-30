@@ -1,0 +1,12 @@
+{
+  "tool-info": [
+    {
+      "name": "ACT-R",
+      "version": "7.27.7"
+    },
+    {
+      "name": "CCL",
+      "version": "1.12.2"
+    }
+  ]
+}
