@@ -124,6 +124,7 @@ const (
 
 var keywords []string = []string{
 	"and",
+	"any",
 	"authors",
 	"buffer_state",
 	"chunks",
@@ -494,31 +495,18 @@ func lexIdentifier(l *lexer_amod) stateFn {
 		l.next()
 	}
 
-	if !l.inPattern {
-		// Perhaps not the best way to do this.
-		// I'm sure there's a char-by-char way we could implement which would be faster.
-		isKeyword := l.lookupKeyword(l.input[l.start:l.pos])
-		switch {
-		case isKeyword:
-			l.emit(lexemeKeyword)
+	// Perhaps not the best way to do this.
+	// I'm sure there's a char-by-char way we could implement which would be faster.
+	isKeyword := l.lookupKeyword(l.input[l.start:l.pos])
+	switch {
+	case isKeyword:
+		l.emit(lexemeKeyword)
 
-		case l.input[l.start] == '?':
-			l.emit(lexemePatternVar)
+	case l.input[l.start] == '?':
+		l.emit(lexemePatternVar)
 
-		default:
-			l.emit(lexemeIdentifier)
-		}
-	} else {
-		if l.input[l.start] == '?' {
-			l.emit(lexemePatternVar)
-		} else {
-			// hack(ish) since we only allow 'nil' keyword
-			if l.input[l.start:l.pos] == "nil" {
-				l.emit(lexemeKeyword)
-			} else {
-				l.emit(lexemeIdentifier)
-			}
-		}
+	default:
+		l.emit(lexemeIdentifier)
 	}
 
 	return lexStart

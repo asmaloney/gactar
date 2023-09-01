@@ -23,7 +23,12 @@ import (
 //go:embed pyactr_print.py
 var pyactrPrintPython string
 
-const pyactrPrintFileName = "pyactr_print.py"
+const (
+	pyactrPrintFileName = "pyactr_print.py"
+
+	// When a pattern's AnyChunk is true, we use ANY_CHUNK_TYPE for the chunk type
+	ANY_CHUNK_TYPE = "any_chunk"
+)
 
 var Info framework.Info = framework.Info{
 	Name:           "pyactr",
@@ -260,7 +265,14 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 		p.Writeln("pyactr_print.PrintBuffer(%s)", p.className)
 	}
 
-	p.Write("\n")
+	p.Writeln("")
+
+	// additional chunk types
+	if p.model.HasAnyBufferMatch() {
+		p.Writeln("# Declare a chunk type so we can match 'any' chunks")
+		p.Writeln("actr.chunktype('%s', '')", ANY_CHUNK_TYPE)
+		p.Writeln("")
+	}
 
 	// chunks
 	for _, chunk := range p.model.Chunks {
@@ -529,7 +541,13 @@ func (p PyACTR) outputMatch(match *actr.Match) {
 		bufferName := match.BufferPattern.Buffer.Name()
 
 		p.Writeln("     =%s>", bufferName)
-		p.outputPattern(match.BufferPattern.Pattern, 2)
+
+		if match.BufferPattern.Pattern.AnyChunk {
+			tabbedItems.Add("isa", ANY_CHUNK_TYPE)
+			p.TabWrite(2, tabbedItems)
+		} else {
+			p.outputPattern(match.BufferPattern.Pattern, 2)
+		}
 
 	case match.BufferState != nil:
 		bufferName := match.BufferState.Buffer.Name()

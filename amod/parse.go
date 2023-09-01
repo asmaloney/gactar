@@ -272,11 +272,20 @@ type patternSlot struct {
 	Tokens []lexer.Token
 }
 
+type chunkPattern struct {
+	Name  string         `parser:"@Ident ':'"`
+	Slots []*patternSlot `parser:"@@+"`
+
+	Tokens []lexer.Token
+}
+
 type pattern struct {
-	StartBracket string         `parser:"'['"` // not used - must be set for parse
-	ChunkName    string         `parser:"@Ident ':'"`
-	Slots        []*patternSlot `parser:"@@+"`
-	EndBracket   string         `parser:"']'"` // not used - must be set for parse
+	StartBracket string `parser:"'['"` // not used - must be set for parse
+
+	AnyChunk *string       `parser:"( @('any':Keyword)"`
+	Chunk    *chunkPattern `parser:"| @@ )"`
+
+	EndBracket string `parser:"']'"` // not used - must be set for parse
 
 	Tokens []lexer.Token
 }
