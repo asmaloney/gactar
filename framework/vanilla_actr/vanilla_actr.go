@@ -535,7 +535,9 @@ func (v VanillaACTR) outputMatch(match *actr.Match) {
 		bufferName := match.BufferPattern.Buffer.Name()
 
 		v.Writeln("\t=%s>", bufferName)
-		v.outputPattern(match.BufferPattern.Pattern, 2)
+		if !match.BufferPattern.Pattern.AnyChunk {
+			v.outputPattern(match.BufferPattern.Pattern, 2)
+		}
 
 	case match.BufferState != nil:
 		bufferName := match.BufferState.Buffer.Name()

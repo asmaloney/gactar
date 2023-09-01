@@ -201,6 +201,21 @@ func (model *Model) FinalizeImplicitChunks() {
 	model.ImplicitChunks = list
 }
 
+// HasAnyBufferMatch checks if this model uses an "any" match.
+// In this case a framework may need to declare a new chunk type for "any_chunk".
+func (model Model) HasAnyBufferMatch() bool {
+	for _, production := range model.Productions {
+		for _, match := range production.Matches {
+			if (match.BufferPattern != nil) &&
+				match.BufferPattern.Pattern.AnyChunk {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 // HasPrintStatement checks if this model uses the print statement.
 // This is used to include extra code to handle printing in some frameworks.
 func (model Model) HasPrintStatement() bool {

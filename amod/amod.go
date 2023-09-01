@@ -690,9 +690,17 @@ func fieldToKeyValue(f *field) *keyvalue.KeyValue {
 }
 
 func createChunkPattern(model *actr.Model, log *issueLog, cp *pattern) (*actr.Pattern, error) {
-	chunk := model.LookupChunk(cp.ChunkName)
+	if cp.AnyChunk != nil {
+		pattern := actr.Pattern{
+			AnyChunk: true,
+		}
+
+		return &pattern, nil
+	}
+
+	chunk := model.LookupChunk(cp.Chunk.Name)
 	if chunk == nil {
-		log.errorTR(cp.Tokens, 1, 2, "could not find chunk named '%s'", cp.ChunkName)
+		log.errorTR(cp.Tokens, 1, 2, "could not find chunk named '%s'", cp.Chunk.Name)
 		return nil, ErrCompile
 	}
 
@@ -700,7 +708,7 @@ func createChunkPattern(model *actr.Model, log *issueLog, cp *pattern) (*actr.Pa
 		Chunk: chunk,
 	}
 
-	for _, slot := range cp.Slots {
+	for _, slot := range cp.Chunk.Slots {
 		actrSlot := actr.PatternSlot{
 			Negated: slot.Not,
 		}

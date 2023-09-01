@@ -521,7 +521,11 @@ func (c CCMPyACTR) outputMatch(match *actr.Match) {
 		bufferName := match.BufferPattern.Buffer.Name()
 
 		c.Write("%s=", bufferName)
-		c.outputPattern(match.BufferPattern.Pattern)
+		if match.BufferPattern.Pattern.AnyChunk {
+			c.Write("'?'")
+		} else {
+			c.outputPattern(match.BufferPattern.Pattern)
+		}
 
 	case match.BufferState != nil:
 		bufferName := match.BufferState.Buffer.Name()

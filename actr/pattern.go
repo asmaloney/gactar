@@ -3,6 +3,8 @@ package actr
 import "fmt"
 
 type Pattern struct {
+	AnyChunk bool
+
 	Chunk *Chunk
 	Slots []*PatternSlot
 }

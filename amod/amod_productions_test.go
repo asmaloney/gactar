@@ -290,6 +290,21 @@ func Example_productionPrintStatementWildcard() {
 	// ERROR: unexpected token "*" (expected "}") (line 9, col 13)
 }
 
+func Example_productionMatchBufferAny() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	~~ init ~~
+	~~ productions ~~
+	start {
+		match { retrieval [any] }
+		do { print 42 }
+	}`)
+
+	// Output:
+}
+
 func Example_productionMatchBufferState() {
 	generateToStdout(`
 	~~ model ~~

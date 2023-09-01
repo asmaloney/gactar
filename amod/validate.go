@@ -139,16 +139,21 @@ func validateInterModuleInitDependencies(model *actr.Model, log *issueLog, confi
 	return
 }
 
-// validatePattern ensures that the pattern's chunk exists and that its number of slots match.
+// validatePattern ensures that the pattern is "any" OR
+// its chunk exists and its number of slots match.
 func validatePattern(model *actr.Model, log *issueLog, pattern *pattern) (err error) {
-	chunkName := pattern.ChunkName
+	if pattern.AnyChunk != nil {
+		return
+	}
+
+	chunkName := pattern.Chunk.Name
 	chunk := model.LookupChunk(chunkName)
 	if chunk == nil {
 		log.errorTR(pattern.Tokens, 1, 2, "could not find chunk named '%s'", chunkName)
 		return ErrCompile
 	}
 
-	if len(pattern.Slots) != chunk.NumSlots {
+	if len(pattern.Chunk.Slots) != chunk.NumSlots {
 		s := "slots"
 		if chunk.NumSlots == 1 {
 			s = "slot"
@@ -181,7 +186,7 @@ func validateBufferPatternMatch(item *matchBufferPatternItem, model *actr.Model,
 	if item.When != nil {
 		for _, expr := range *item.When.Expressions {
 			// Check that we haven't negated it in the pattern and then tried to constrain it further
-			for _, slot := range pattern.Slots {
+			for _, slot := range pattern.Chunk.Slots {
 				if slot.Not && slot.Var != nil {
 					if expr.LHS == *slot.Var {
 						log.errorTR(expr.Tokens, 1, 2, "cannot further constrain a negated variable '%s'", expr.LHS)
@@ -352,10 +357,10 @@ func validateSetStatement(set *setStatement, model *actr.Model, log *issueLog, p
 			return
 		}
 
-		chunkName := set.Pattern.ChunkName
+		chunkName := set.Pattern.Chunk.Name
 		chunk := model.LookupChunk(chunkName)
 
-		for slotIndex, slot := range set.Pattern.Slots {
+		for slotIndex, slot := range set.Pattern.Chunk.Slots {
 			if slot.Var == nil {
 				continue
 			}
@@ -390,7 +395,7 @@ func validateRecallStatement(recall *recallStatement, model *actr.Model, log *is
 	for _, v := range vars {
 		match := production.LookupMatchByVariable(v.text)
 		if match == nil {
-			log.errorT(recall.Pattern.Slots[v.index].Tokens, "recall statement variable '%s' not found in matches for production '%s'", v.text, production.Name)
+			log.errorT(recall.Pattern.Chunk.Slots[v.index].Tokens, "recall statement variable '%s' not found in matches for production '%s'", v.text, production.Name)
 			err = ErrCompile
 		}
 	}
@@ -512,13 +517,17 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 
 	// Walks a pattern to add all vars within
 	addPatternRefs := func(p *pattern, insertIfNotFound bool) {
+		if p.AnyChunk != nil {
+			return
+		}
+
 		vars := varsFromPattern(p)
 
 		for _, v := range vars {
 			if r, ok := varRefCount[v.text]; ok {
 				r.count++
 			} else if insertIfNotFound {
-				tokens := p.Slots[v.index].Tokens
+				tokens := p.Chunk.Slots[v.index].Tokens
 				varRefCount[v.text] = &ref{
 					location: tokensToLocation(tokens),
 					count:    1,
@@ -612,7 +621,7 @@ func validateVariableUsage(log *issueLog, match *match, do *do) {
 
 // Get a slice of all the vars referenced in a pattern
 func varsFromPattern(pattern *pattern) (vars []varAndIndex) {
-	for i, slot := range pattern.Slots {
+	for i, slot := range pattern.Chunk.Slots {
 		if slot.Var != nil {
 			vars = append(vars, varAndIndex{text: *slot.Var, index: i})
 		}
