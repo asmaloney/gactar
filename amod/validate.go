@@ -59,7 +59,7 @@ func validateChunk(model *actr.Model, log *issueLog, chunk *chunkDecl) (err erro
 	return nil
 }
 
-func validateBufferInitialization(model *actr.Model, log *issueLog, moduleName string, buffer buffer.Interface, initializers []*namedInitializer) (err error) {
+func validateBufferInitPatterns(model *actr.Model, log *issueLog, initializers []*namedInitializer) (err error) {
 	for _, init := range initializers {
 		pattern_err := validatePattern(model, log, init.Pattern)
 		if pattern_err != nil {
@@ -99,7 +99,7 @@ func validateModuleInitialization(model *actr.Model, log *issueLog, init *module
 			return ErrCompile
 		}
 
-		err = validateBufferInitialization(model, log, moduleName, buffer, init.InitPatterns)
+		err = validateBufferInitPatterns(model, log, init.InitPatterns)
 		if err != nil {
 			err = ErrCompile
 		}
@@ -111,7 +111,7 @@ func validateModuleInitialization(model *actr.Model, log *issueLog, init *module
 				return ErrCompile
 			}
 
-			err = validateBufferInitialization(model, log, moduleName, buff, bufferInit.InitPatterns)
+			err = validateBufferInitPatterns(model, log, bufferInit.InitPatterns)
 			if err != nil {
 				err = ErrCompile
 			}
