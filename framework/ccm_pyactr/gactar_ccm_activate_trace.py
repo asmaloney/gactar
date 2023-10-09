@@ -24,5 +24,5 @@ class ActivateTrace(MemorySubModule):
     # We don't have any real info at this point, but we can output
     # the chunk which was activated.
     def activation(self, chunk: Chunk):
-        print(f'trace: activated chunk ({chunk})')
+        print(f"trace: activated chunk ({chunk})")
         return 0
