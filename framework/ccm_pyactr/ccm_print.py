@@ -7,7 +7,7 @@ from typing import Dict, List
 from python_actr import Buffer
 
 
-class CCMPrint():
+class CCMPrint:
     def __init__(self):
         self.chunk_map: Dict[str, List[str]] = {}
 
@@ -17,7 +17,11 @@ class CCMPrint():
         """
         self.chunk_map[chunk_name] = slot_names
 
-    def print_chunk(self,  buffer: Buffer, buffer_name: str, ):
+    def print_chunk(
+        self,
+        buffer: Buffer,
+        buffer_name: str,
+    ):
         """
         Prints the contents of the buffer.
 

@@ -60,15 +60,15 @@ class PrintBuffer(actr.buffers.Buffer):
                 text "'a string'"
                 text "42"
         """
-        text = ''.join(args[1:]).strip('"')
-        output = ''  # build up our output in this buffer
+        text = "".join(args[1:]).strip('"')
+        output = ""  # build up our output in this buffer
 
         for itemlist in csv.reader([text]):
             for item in itemlist:
-                item = item.strip(' ')
+                item = item.strip(" ")
 
                 # Handle string
-                if item[0] == '\'' or item[0] == '"':
+                if item[0] == "'" or item[0] == '"':
                     output += item[1:-1]
                 else:
                     # Handle number
@@ -91,26 +91,27 @@ class PrintBuffer(actr.buffers.Buffer):
                 buffer retrieval
                 buffer retrieval.word
         """
-        name = ''.join(args)
+        name = "".join(args)
         contents = self.get_buffer_data(name)
         print(f"{name}: {contents}")
 
     def get_buffer_data(self, item: str) -> str:
         """
-        Given an "item" which is either a <buffer name> or a <buffer name>.<slot name>, 
+        Given an "item" which is either a <buffer name> or a <buffer name>.<slot name>,
         return the contents.
         """
-        ids = item.split('.')
+        ids = item.split(".")
         match len(ids):
             case 1:
                 contents = self.get_buffer_contents(item)
             case 2:
-                contents = self.get_slot_contents(
-                    ids[0], ids[1])
+                contents = self.get_slot_contents(ids[0], ids[1])
             case _:
                 print(
-                    'ERROR: expected <buffer> or <buffer>.<slot_name>, found \'' +
-                    item + '\'')
+                    "ERROR: expected <buffer> or <buffer>.<slot_name>, found '"
+                    + item
+                    + "'"
+                )
                 raise KeyError
         return contents
 
@@ -140,8 +141,13 @@ class PrintBuffer(actr.buffers.Buffer):
         try:
             return str(getattr(chunk, slot_name))
         except AttributeError:
-            print('ERROR: no slot named \'' + slot_name +
-                  '\' in buffer \'' + buffer_name + '\'')
+            print(
+                "ERROR: no slot named '"
+                + slot_name
+                + "' in buffer '"
+                + buffer_name
+                + "'"
+            )
             raise
 
     def get_buffer(self, buffer_name: str) -> Buffer:
@@ -151,25 +157,28 @@ class PrintBuffer(actr.buffers.Buffer):
         if buffer_name in self.ACTR_MODEL._ACTRModel__buffers:
             return self.ACTR_MODEL._ACTRModel__buffers[buffer_name]
 
-        print('ERROR: Buffer \'' + buffer_name + '\' not found')
+        print("ERROR: Buffer '" + buffer_name + "' not found")
         raise KeyError
 
     def add(self, *args):
         raise AttributeError(
-            "Attempt to add an element to the print buffer. This is not allowed.")
+            "Attempt to add an element to the print buffer. This is not allowed."
+        )
 
     def clear(self, *args):
-        raise AttributeError(
-            "Attempt to clear the print buffer. This is not allowed.")
+        raise AttributeError("Attempt to clear the print buffer. This is not allowed.")
 
     def create(self, *args):
         raise AttributeError(
-            "Attempt to add an element to the print buffer. This is not allowed.")
+            "Attempt to add an element to the print buffer. This is not allowed."
+        )
 
     def retrieve(self, *args):
         raise AttributeError(
-            "Attempt to retrieve from the print buffer. This is not allowed.")
+            "Attempt to retrieve from the print buffer. This is not allowed."
+        )
 
     def test(self, *args):
         raise AttributeError(
-            "Attempt to test the print buffer state. This is not allowed.")
+            "Attempt to test the print buffer state. This is not allowed."
+        )
