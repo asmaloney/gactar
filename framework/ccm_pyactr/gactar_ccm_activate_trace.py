@@ -18,6 +18,10 @@ from python_actr import Chunk, Memory, MemorySubModule
 
 
 class ActivateTrace(MemorySubModule):
+    """
+    ActivateTrace provides a method to print a chunk when it is activated.
+    """
+
     def __init__(self, memory: Memory):
         MemorySubModule.__init__(self, memory)
 
