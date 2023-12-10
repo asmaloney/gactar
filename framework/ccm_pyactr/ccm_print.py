@@ -1,5 +1,14 @@
 """
 ccm_print adds some extra print capabilities to ccm productions.
+
+To use it, create an instance and regsiter each chunk with it:
+
+    printer = CCMPrint()
+    printer.register_chunk("add", ["num1", "num2", "count", "sum"])
+    printer.register_chunk("count", ["number", "next"])
+
+Then in the productions:
+    printer.print_chunk_slot(goal, "goal", "sum")
 """
 
 from typing import Dict, List
@@ -8,6 +17,11 @@ from python_actr import Buffer
 
 
 class CCMPrint:
+    """
+    CCMPrint provides methods to print the contents of a buffer or the contents
+    of one slot of a buffer.
+    """
+
     def __init__(self):
         self.chunk_map: Dict[str, List[str]] = {}
 
@@ -42,6 +56,6 @@ class CCMPrint:
         slot_index = slot_list.index(slot)
 
         # +1 because the first item is the chunk type
-        item = buffer.__getitem__(slot_index + 1)
+        item = buffer[slot_index + 1]
 
         print(f"{buffer_name}.{slot}: {item}")
