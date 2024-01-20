@@ -4,19 +4,18 @@
 
 `gactar` is a tool for creating and running [ACT-R](https://en.wikipedia.org/wiki/ACT-R) models using a declarative file format called _amod_.
 
-You can read the tech note **gactar: A Tool For Exploring ACT-R Modelling** [here](https://dx.doi.org/10.13140/RG.2.2.25387.36642).
+The initial writeup as a tech note: **[gactar: A Tool For Exploring ACT-R Modelling](https://dx.doi.org/10.13140/RG.2.2.25387.36642)**
 
 ## Table of Contents
 
-- [Proof\-of\-Concept](#proof-of-concept)
-  - [What isn't implemented?](#what-isnt-implemented)
+- [Overview](#overview)
+  - [Why gactar?](#why-gactar)
+  - [Design Goals](#design-goals)
+  - [What Is Not Implemented?](#what-is-not-implemented)
 - [Quickstart](#quickstart)
   - [Requirements](#requirements)
   - [Install](#install)
   - [Run](#run)
-- [Why gactar?](#why-gactar)
-- [Design Goals](#design-goals)
-- [Contributing](#contributing)
 - [Installation](#installation)
   - [Download gactar Release](#download-gactar-release)
   - [Setup](#setup)
@@ -40,34 +39,49 @@ You can read the tech note **gactar: A Tool For Exploring ACT-R Modelling** [her
   - [Example Production \#2](#example-production-2)
 - [amod Processing](#amod-processing)
 - [Reference](#reference)
+- [Contributing](#contributing)
 
 ---
 
-## Proof-of-Concept
+## Overview
 
-**This is a proof-of-concept.**
-
-Currently, `gactar` will take an [_amod_ file](#gactar-models) and generate code to run it on three different ACT-R implementations:
+`gactar` takes an [_amod_ file](#gactar-models) and generates code to run it on three different ACT-R implementations:
 
 - [pyactr](https://github.com/jakdot/pyactr) (Python)
 - [python_actr](https://github.com/asmaloney/python_actr) (Python) - a.k.a. **_ccm_**
 - [ACT-R](https://github.com/asmaloney/ACT-R) (Lisp) - a.k.a. **_vanilla_**
 
-**Naming note:** When gactar was written, the `python_actr` implementation came from [CCMSuite3](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) and was referred to throughout gactar as `ccm`. Instead of changing everything to refer to `python_actr` I've decided to leave it as `ccm`. This helps avoid confusion between `python_actr` and `pyactr`.
-
 `gactar` will work with the tutorial models included in the _examples_ directory. It doesn't handle a lot beyond what's in there - it only works with memory modules, not perceptual-motor ones, and does not yet work with environments - so _it's limited at the moment_.
 
-Given that gactar in its early stages, the amod syntax may change dramatically based on use and feedback.
+Given that gactar is in its early stages, the amod syntax may change dramatically based on use and feedback.
 
-**Note for Windows users:** I have only done limited building/testing on Windows. If you try it and have problems, please open [an issue](https://github.com/asmaloney/gactar/issues).
+**Naming note:** When gactar was written, the `python_actr` implementation came from [CCMSuite3](https://github.com/CarletonCognitiveModelingLab/CCMSuite3) and was referred to throughout gactar as `ccm`. Instead of changing everything to refer to `python_actr` I've decided to leave it as `ccm`. This helps avoid confusion between `python_actr` and `pyactr`.
 
 **Note about python_actr:** The version of `python_actr` used here is a [fork](https://github.com/asmaloney/python_actr) of the [original](https://github.com/CarletonCognitiveModelingLab/python_actr). The original wasn't being updated, so I created a new pip package called [actr](https://pypi.org/project/actr/) which still uses `python_actr` as its Python package name.
 
-### What isn't implemented?
+### Why gactar?
 
-A lot! The big, obvious one is environments (and therefore the visual & motor modules). That's a big challenge and probably not worth tackling if there isn't sufficient interest in this initial proof of concept. Environments may even prove impossible given the way they are implemented in the three frameworks, but I haven't yet explored this too deeply.
+1. Provides a human-readable, easy-to-understand, standard format to define basic ACT-R models.
+1. Abstracts away the "programming" to focus on writing & understanding models.
+1. Restricts the model to a small language to prevent programming "outside the model" (no sneaking in extra calculations or control-flow!).
+1. Runs the same model on multiple ACT-R implementation frameworks so the output may be compared.
+1. Generates human-readable code with comments linking back to the amod file which is useful for learning the implementations and comparing them.
+1. Provides a very simple setup for teaching environments - gactar is self-contained in one executable and downloads the implementation frameworks itself.
+1. Allows the easy exchange of models with other researchers
+1. Opens up the possibility of a library of models which will run on multiple implementation frameworks.
 
-If there is sufficient interest in this project, my strategy going forward would be to continue implementing examples included with the three implementations, adding capabilities as necessary and, when the implementations differ, raising issues for discussion. Once all the non-environment capabilities are implemented, then I would turn to the environment issue.
+### Design Goals
+
+1. amod syntax & semantics should be designed for humans to read & understand (i.e. it should not require a programming background to grok).
+1. amod should only provide one way to perform each action - this helps when reading someone else's code and keeps the parser as simple as possible.
+1. amod should only include functionality which is available on all implementation frameworks.
+1. gactar should be as simple as possible to set up, use, and understand.
+
+### What Is Not Implemented?
+
+The big, obvious one is environments (and therefore the visual & motor modules). That's a big challenge and probably not worth tackling if there isn't sufficient interest in this initial implementation. Environments may even prove impossible given the way they are implemented in the three frameworks, but I haven't yet explored this too deeply.
+
+If there is sufficient interest in this project, my strategy going forward would be to continue implementing examples included with the three implementations, adding capabilities as necessary and, when the implementations differ, raising issues for discussion. Once all the non-environment capabilities are implemented I would turn to the environment issue.
 
 ## Quickstart
 
@@ -117,28 +131,6 @@ For more details, [see below](#installation).
 2. Open your browser to the URL it outputs (e.g. http://localhost:8181)
 
 For more details and other options for running gactar, [see below](#running-gactar).
-
-## Why gactar?
-
-1. Provides a human-readable, easy-to-understand, standard format to define basic ACT-R models.
-1. Abstracts away the "programming" to focus on writing & understanding models.
-1. Restricts the model to a small language to prevent programming "outside the model" (no sneaking in extra calculations or control-flow!).
-1. Runs the same model on multiple ACT-R implementation frameworks so the output may be compared.
-1. Generates human-readable code with comments linking back to the amod file which is useful for learning the implementations and comparing them.
-1. Provides a very simple setup for teaching environments - gactar is self-contained in one executable and downloads the implementation frameworks itself.
-1. Allows the easy exchange of models with other researchers
-1. Opens up the possibility of a library of models which will run on multiple implementation frameworks.
-
-## Design Goals
-
-1. amod syntax & semantics should be designed for humans to read & understand (i.e. it should not require a programming background to grok).
-1. amod should only provide one way to perform each action - this helps when reading someone else's code and keeps the parser as simple as possible.
-1. amod should only include functionality which is available on all implementation frameworks.
-1. gactar should be as simple as possible to set up, use, and understand.
-
-## Contributing
-
-For information on how to contribute (code, bug reports, ideas, or other resources), please see the [CONTRIBUTING](CONTRIBUTING.md) doc.
 
 ## Installation
 
@@ -825,3 +817,7 @@ If you need to reference this project, I wrote up a technical note which may be 
 **Title:** gactar: A Tool For Exploring ACT-R Modelling
 
 **DOI:** [10.13140/RG.2.2.25387.36642](https://dx.doi.org/10.13140/RG.2.2.25387.36642)
+
+## Contributing
+
+For information on how to contribute (code, bug reports, ideas, or other resources), please see the [CONTRIBUTING](CONTRIBUTING.md) doc.
