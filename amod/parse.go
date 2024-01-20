@@ -25,26 +25,26 @@ import (
 //		paste in the generated EBNF above, click "Convert" and then click "View Diagram"
 
 type amodFile struct {
-	ModelHeader string        `parser:"'~~':SectionDelim 'model' '~~':SectionDelim"`
+	ModelHeader string        `parser:"'~~':SectionDelim 'model':Keyword '~~':SectionDelim"`
 	Model       *modelSection `parser:"@@"`
 
-	ConfigHeader string         `parser:"'~~':SectionDelim 'config' '~~':SectionDelim"`
+	ConfigHeader string         `parser:"'~~':SectionDelim 'config':Keyword '~~':SectionDelim"`
 	Config       *configSection `parser:"(@@)?"`
 
-	InitHeader string       `parser:"'~~':SectionDelim 'init' '~~':SectionDelim"`
+	InitHeader string       `parser:"'~~':SectionDelim 'init':Keyword '~~':SectionDelim"`
 	Init       *initSection `parser:"(@@)?"`
 
-	ProductionsHeader string             `parser:"'~~':SectionDelim 'productions' '~~':SectionDelim"`
+	ProductionsHeader string             `parser:"'~~':SectionDelim 'productions':Keyword '~~':SectionDelim"`
 	Productions       *productionSection `parser:"(@@)?"`
 
 	Tokens []lexer.Token
 }
 
 type modelSection struct {
-	Name        string     `parser:"'name' ':' (@String|@Ident)"`
-	Description string     `parser:"('description' ':' @String)?"`
-	Authors     []string   `parser:"('authors' '{' @String* '}')?"`
-	Examples    []*pattern `parser:"('examples' '{' @@* '}')?"`
+	Name        string     `parser:"'name':Keyword ':' (@String|@Ident)"`
+	Description string     `parser:"('description':Keyword ':' @String)?"`
+	Authors     []string   `parser:"('authors':Keyword '{' @String* '}')?"`
+	Examples    []*pattern `parser:"('examples':Keyword '{' @@* '}')?"`
 
 	Tokens []lexer.Token
 }
@@ -165,7 +165,7 @@ type field struct {
 }
 
 type gactarConfig struct {
-	GactarFields []*field `parser:"'gactar' '{' @@* '}'"`
+	GactarFields []*field `parser:"'gactar':Keyword '{' @@* '}'"`
 
 	Tokens []lexer.Token
 }
@@ -178,7 +178,7 @@ type module struct {
 }
 
 type moduleConfig struct {
-	Modules []*module `parser:"'modules' '{' @@* '}'"`
+	Modules []*module `parser:"'modules':Keyword '{' @@* '}'"`
 
 	Tokens []lexer.Token
 }
@@ -193,7 +193,7 @@ type chunkDecl struct {
 }
 
 type chunkConfig struct {
-	ChunkDecls []*chunkDecl `parser:"'chunks' '{' @@* '}'"`
+	ChunkDecls []*chunkDecl `parser:"'chunks':Keyword '{' @@* '}'"`
 
 	Tokens []lexer.Token
 }
@@ -347,19 +347,19 @@ type matchItem struct {
 }
 
 type match struct {
-	Items []*matchItem `parser:"'match' '{' @@+ '}'"`
+	Items []*matchItem `parser:"'match':Keyword '{' @@+ '}'"`
 
 	Tokens []lexer.Token
 }
 
 type clearStatement struct {
-	BufferNames []string `parser:"'clear' ( @Ident ','? )+"`
+	BufferNames []string `parser:"'clear':Keyword ( @Ident ','? )+"`
 
 	Tokens []lexer.Token
 }
 
 type printStatement struct {
-	Args []*printArg `parser:"'print' ( @@ ','? )*"`
+	Args []*printArg `parser:"'print':Keyword ( @@ ','? )*"`
 
 	Tokens []lexer.Token
 }
@@ -381,17 +381,17 @@ type withClause struct {
 }
 
 type recallStatement struct {
-	Pattern *pattern    `parser:"'recall' @@"`
+	Pattern *pattern    `parser:"'recall':Keyword @@"`
 	With    *withClause `parser:"@@?"`
 
 	Tokens []lexer.Token
 }
 
 type setStatement struct {
-	Set       string    `parser:"'set'"` // not used, but must be visible for parse to work
+	Set       string    `parser:"'set':Keyword"` // not used, but must be visible for parse to work
 	BufferRef bufferRef `parser:"@@"`
 
-	To      string   `parser:"'to'"` // not used, but must be visible for parse to work
+	To      string   `parser:"'to':Keyword"` // not used, but must be visible for parse to work
 	Value   *setArg  `parser:"( @@"`
 	Pattern *pattern `parser:"| @@)"`
 
@@ -415,7 +415,7 @@ type statement struct {
 }
 
 type do struct {
-	Do         string        `parser:"'do'"` // not used, but must be visible for parse to work
+	Do         string        `parser:"'do':Keyword"` // not used, but must be visible for parse to work
 	Statements *[]*statement `parser:"'{' @@+ '}'"`
 
 	Tokens []lexer.Token
@@ -423,7 +423,7 @@ type do struct {
 
 type production struct {
 	Name        string  `parser:"@Ident '{'"`
-	Description *string `parser:"('description' ':' @String)?"`
+	Description *string `parser:"('description':Keyword ':' @String)?"`
 	Match       *match  `parser:"@@"`
 	Do          *do     `parser:"@@"`
 	End         string  `parser:"'}'"` // not used, but must be visible for parse to work
