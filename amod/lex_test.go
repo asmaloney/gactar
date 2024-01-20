@@ -45,6 +45,15 @@ func TestInvalidSection(t *testing.T) {
 	if token.Type != lexer.TokenType(lexemeSectionDelim) {
 		t.Errorf("expected to lex '%s' as section delimiter (%d) - got type %d", token.Value, lexemeSectionDelim, token.Type)
 	}
+
+	expected := "ERROR on line 1 at position 9: unrecognized section"
+
+	token, err = l.Next()
+	if err == nil {
+		t.Errorf("expected error: %q", expected)
+	} else if err.Error() != expected {
+		t.Errorf("expected error: %q but got %q", expected, err.Error())
+	}
 }
 
 func TestUnterminatedQuote(t *testing.T) {

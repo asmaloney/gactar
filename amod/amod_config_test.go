@@ -457,3 +457,16 @@ func Example_proceduralFieldUnrecognized() {
 	// Output:
 	// ERROR: unrecognized option "foo" in procedural config (line 6, col 15)
 }
+
+// Tests that we can use a keyword from one section as an id in another
+func Example_keywordInDifferentSection() {
+	generateToStdout(`
+	~~ model ~~
+	name: Test
+	~~ config ~~
+	chunks { [name: first last] }
+	~~ init ~~
+	~~ productions ~~`)
+
+	// Output:
+}

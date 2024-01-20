@@ -8,6 +8,7 @@ package amod
 import (
 	"fmt"
 	"io"
+	"slices"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -99,18 +100,31 @@ type lexeme struct {
 	pos   int // position within the line
 }
 
+// sectionType is used to keep track of what section we are lexing
+// We use this to limit the scope of keywords.
+type sectionType int
+
+const (
+	sectionModel sectionType = iota
+	sectionConfig
+	sectionInit
+	sectionProduction
+)
+
 // lexer_amod tracks our lexing and provides a channel to emit lexemes
 type lexer_amod struct {
 	name           string // used only for error reports
 	input          string // the string being scanned.
 	line           int    // the line number
 	lastNewlinePos int
-	start          int             // start position of this lexeme (offset from beginning of file)
-	pos            int             // current position in the input  (offset from beginning of file)
-	width          int             // width of last rune read from input
-	lexemes        chan lexeme     // channel of scanned lexemes
-	keywords       map[string]bool // used to lookup identifier to see if they are keywords
-	inPattern      bool            // state: a pattern - delimited by [] is lexed specially
+	start          int         // start position of this lexeme (offset from beginning of file)
+	pos            int         // current position in the input  (offset from beginning of file)
+	width          int         // width of last rune read from input
+	lexemes        chan lexeme // channel of scanned lexemes
+
+	inSectionHeader bool        // state: switch currentSection based on ~~ section headers
+	currentSection  sectionType // which section are we lexing? used to switch out keywords
+	inPattern       bool        // state: a pattern - delimited by [] is lexed specially
 }
 
 // stateFn is used to move through the lexing states
@@ -122,26 +136,40 @@ const (
 	commentDelim = "//"
 )
 
-var keywords []string = []string{
+// keywordsModel are only keywords for the model section
+var keywordsModel []string = []string{
+	"authors",
+	"description",
+	"examples",
+	"name",
+}
+
+// keywordsModel are only keywords for the config section
+var keywordsConfig []string = []string{
+	"chunks",
+	"gactar",
+	"modules",
+}
+
+// keywordsModel are only keywords for the init section
+var keywordsInit []string = []string{
+	"similar",
+}
+
+// keywordsModel are only keywords for the productions section
+var keywordsProductions []string = []string{
 	"and",
 	"any",
-	"authors",
 	"buffer_state",
-	"chunks",
 	"clear",
 	"description",
 	"do",
-	"examples",
-	"gactar",
 	"match",
 	"module_state",
-	"modules",
-	"name",
 	"nil",
 	"print",
 	"recall",
 	"set",
-	"similar",
 	"stop",
 	"to",
 	"when",
@@ -185,17 +213,14 @@ func lex(filename string, data string) *lexer_amod {
 	cleanData(&data)
 
 	l := &lexer_amod{
-		name:           filename,
-		input:          data,
-		line:           1,
-		lastNewlinePos: 1, // start @ 1 so first line gets 0 (see emit())
-		lexemes:        make(chan lexeme),
-		keywords:       make(map[string]bool),
-		inPattern:      false,
-	}
-
-	for _, v := range keywords {
-		l.keywords[v] = true
+		name:            filename,
+		input:           data,
+		line:            1,
+		lastNewlinePos:  1, // start @ 1 so first line gets 0 (see emit())
+		lexemes:         make(chan lexeme),
+		currentSection:  sectionModel,
+		inSectionHeader: false,
+		inPattern:       false,
 	}
 
 	go l.run()
@@ -252,9 +277,20 @@ func (l *lexer_amod) next() rune {
 	return r
 }
 
+// lookupKeyword looks up "id" to see if it is a keyword based on which section we are lexing
 func (l *lexer_amod) lookupKeyword(id string) bool {
-	v, ok := l.keywords[id]
-	return v && ok
+	switch l.currentSection {
+	case sectionModel:
+		return slices.Contains(keywordsModel, id)
+	case sectionConfig:
+		return slices.Contains(keywordsConfig, id)
+	case sectionInit:
+		return slices.Contains(keywordsInit, id)
+	case sectionProduction:
+		return slices.Contains(keywordsProductions, id)
+	}
+
+	return false
 }
 
 // skip over the pending input before this point
@@ -428,6 +464,7 @@ func lexStart(l *lexer_amod) stateFn {
 		if l.nextIs('~') {
 			l.next()
 			l.emit(lexemeSectionDelim)
+			l.inSectionHeader = !l.inSectionHeader
 		} else {
 			l.emit(lexemeChar)
 		}
@@ -495,9 +532,32 @@ func lexIdentifier(l *lexer_amod) stateFn {
 		l.next()
 	}
 
+	id := l.input[l.start:l.pos]
+	isKeyword := false
+
+	// If we are in a section header, then change our current section
+	if l.inSectionHeader {
+		switch id {
+		case "model":
+			l.currentSection = sectionModel
+		case "config":
+			l.currentSection = sectionConfig
+		case "init":
+			l.currentSection = sectionInit
+		case "productions":
+			l.currentSection = sectionProduction
+		default:
+			return l.errorf("unrecognized section")
+		}
+
+		// these are keywords in this context
+		isKeyword = true
+	} else {
+		isKeyword = l.lookupKeyword(id)
+	}
+
 	// Perhaps not the best way to do this.
 	// I'm sure there's a char-by-char way we could implement which would be faster.
-	isKeyword := l.lookupKeyword(l.input[l.start:l.pos])
 	switch {
 	case isKeyword:
 		l.emit(lexemeKeyword)
