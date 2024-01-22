@@ -4,6 +4,8 @@ package amod
 import (
 	"errors"
 	"fmt"
+	"io"
+	"os"
 	"reflect"
 	"slices"
 	"strings"
@@ -53,61 +55,18 @@ func OutputEBNF() {
 func GenerateModel(buffer string) (model *actr.Model, iLog *issues.Log, err error) {
 	r := strings.NewReader(buffer)
 
-	log := newLog()
-	iLog = &log.Log
-
-	amod, err := parseAMOD(r)
-	if err != nil {
-		pErr, ok := err.(participle.Error)
-		if ok {
-			location := issues.Location{
-				Line:        pErr.Position().Line,
-				ColumnStart: pErr.Position().Column,
-				ColumnEnd:   pErr.Position().Column,
-			}
-			log.Error(&location, pErr.Message())
-		} else {
-			log.Error(&issues.Location{}, err.Error())
-		}
-
-		err = ErrParse
-		return
-	}
-
-	model, err = generateModel(amod, log)
-	if err != nil {
-		return
-	}
-
-	model.FinalizeImplicitChunks()
-	return
+	return modelReader(r)
 }
 
 // GenerateModelFromFile generates a model from the file 'fileName'.
 func GenerateModelFromFile(fileName string) (model *actr.Model, iLog *issues.Log, err error) {
-	log := newLog()
-	iLog = &log.Log
-
-	amod, err := parseAMODFile(fileName)
+	file, err := os.Open(fileName)
 	if err != nil {
-		pErr, ok := err.(participle.Error)
-		if ok {
-			location := issues.Location{
-				Line:        pErr.Position().Line,
-				ColumnStart: pErr.Position().Column,
-				ColumnEnd:   pErr.Position().Column,
-			}
-			log.Error(&location, pErr.Message())
-		} else {
-			log.Error(&issues.Location{}, err.Error())
-		}
-
-		err = ErrParse
-		return
+		return nil, nil, err
 	}
+	defer file.Close()
 
-	model, err = generateModel(amod, log)
-	return
+	return modelReader(file)
 }
 
 // ParseChunk is used to parse goals when given as input from a user.
@@ -149,6 +108,38 @@ func ParseChunk(model *actr.Model, chunk string) (*actr.Pattern, error) {
 	}
 
 	return createChunkPattern(model, log, p)
+}
+
+// modelReader reads the model from a reader and generates the actr.Model
+func modelReader(r io.Reader) (model *actr.Model, iLog *issues.Log, err error) {
+	log := newLog()
+	iLog = &log.Log
+
+	amod, err := parseAMOD(r)
+	if err != nil {
+		pErr, ok := err.(participle.Error)
+		if ok {
+			location := issues.Location{
+				Line:        pErr.Position().Line,
+				ColumnStart: pErr.Position().Column,
+				ColumnEnd:   pErr.Position().Column,
+			}
+			log.Error(&location, pErr.Message())
+		} else {
+			log.Error(&issues.Location{}, err.Error())
+		}
+
+		err = ErrParse
+		return
+	}
+
+	model, err = generateModel(amod, log)
+	if err != nil {
+		return
+	}
+
+	model.FinalizeImplicitChunks()
+	return
 }
 
 // generateModel runs through the parsed structures and creates an actr.Model from them
