@@ -6,6 +6,8 @@ interface State {
   pending: string
   startPattern: boolean // used to get chunk name
   inPattern: boolean // used to check for variables and wildcards
+
+  currentKeywords: object // current list of keywords based on section
 }
 
 CodeMirror.defineMode('amod', function () {
@@ -13,30 +15,47 @@ CodeMirror.defineMode('amod', function () {
   const variable_regex = /[?][a-zA-Z0-9_]*/
 
   const keywords = {
-    and: true,
-    authors: true,
-    buffer_state: true,
-    chunks: true,
-    clear: true,
-    description: true,
-    do: true,
-    examples: true,
-    gactar: true,
-    match: true,
-    module_state: true,
-    modules: true,
-    name: true,
-    print: true,
-    recall: true,
-    set: true,
-    similar: true,
-    stop: true,
-    to: true,
-    when: true,
-    true: true,
-    false: true, // ;-)
-    nil: true,
-    '!nil': true,
+    model: {
+      authors: true,
+      description: true,
+      examples: true,
+      name: true,
+      nil: true,
+    },
+
+    config: {
+      chunks: true,
+      gactar: true,
+      modules: true,
+      nil: true,
+      true: true,
+      false: true, // ;-)
+    },
+
+    init: {
+      nil: true,
+      similar: true,
+    },
+
+    productions: {
+      and: true,
+      any: true,
+      buffer_state: true,
+      clear: true,
+      description: true,
+      do: true,
+      match: true,
+      module_state: true,
+      nil: true,
+      '!nil': true,
+      print: true,
+      recall: true,
+      set: true,
+      stop: true,
+      to: true,
+      when: true,
+      with: true,
+    },
   }
 
   const builtInGlobals = {
@@ -103,7 +122,10 @@ CodeMirror.defineMode('amod', function () {
     if (ch === '~') {
       stream.backUp(1)
 
-      if (stream.match(section_regex)) {
+      const matches = stream.match(section_regex)
+      if (matches) {
+        const dynamicKey = matches[1] as keyof object
+        state.currentKeywords = keywords[dynamicKey]
         return 'section'
       }
 
@@ -113,7 +135,8 @@ CodeMirror.defineMode('amod', function () {
     stream.eatWhile(/[\w-]/)
 
     const cur = stream.current()
-    if (cur in keywords) {
+
+    if (cur in state.currentKeywords) {
       return 'keyword'
     } else if (cur in builtInGlobals) {
       return 'global'
@@ -132,6 +155,7 @@ CodeMirror.defineMode('amod', function () {
         pending: '',
         startPattern: false,
         inPattern: false,
+        currentKeywords: {},
       }
     },
 
