@@ -120,6 +120,7 @@ func modelReader(r io.Reader) (model *actr.Model, iLog *issues.Log, err error) {
 		pErr, ok := err.(participle.Error)
 		if ok {
 			location := issues.Location{
+				SourceFile:  pErr.Position().Filename,
 				Line:        pErr.Position().Line,
 				ColumnStart: pErr.Position().Column,
 				ColumnEnd:   pErr.Position().Column,
