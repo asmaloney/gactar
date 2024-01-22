@@ -4,6 +4,7 @@ package issues
 import (
 	"fmt"
 	"io"
+	"path/filepath"
 	"strings"
 )
 
@@ -16,9 +17,10 @@ const (
 )
 
 type Location struct {
-	Line        int `json:"line"`
-	ColumnStart int `json:"columnStart"`
-	ColumnEnd   int `json:"columnEnd"`
+	SourceFile  string `json:"sourceFile"`
+	Line        int    `json:"line"`
+	ColumnStart int    `json:"columnStart"`
+	ColumnEnd   int    `json:"columnEnd"`
 }
 
 type Issue struct {
@@ -114,7 +116,12 @@ func (l Log) Write(w io.Writer) error {
 		str += entry.Text
 
 		if entry.Location != nil {
-			str += fmt.Sprintf(" (line %d, col %d)", entry.Line, entry.ColumnStart)
+			if entry.SourceFile == "" {
+				str += fmt.Sprintf(" (line %d, col %d)", entry.Line, entry.ColumnStart)
+			} else {
+				file := filepath.Base(entry.SourceFile)
+				str += fmt.Sprintf(" (%s, line %d, col %d)", file, entry.Line, entry.ColumnStart)
+			}
 		}
 
 		str += "\n"
