@@ -108,7 +108,7 @@ const (
 	sectionModel sectionType = iota
 	sectionConfig
 	sectionInit
-	sectionProduction
+	sectionProductions
 )
 
 // lexer_amod tracks our lexing and provides a channel to emit lexemes
@@ -289,7 +289,7 @@ func (l *lexer_amod) lookupKeyword(id string) bool {
 		return slices.Contains(keywordsConfig, id)
 	case sectionInit:
 		return slices.Contains(keywordsInit, id)
-	case sectionProduction:
+	case sectionProductions:
 		return slices.Contains(keywordsProductions, id)
 	}
 
@@ -548,7 +548,7 @@ func lexIdentifier(l *lexer_amod) stateFn {
 		case "init":
 			l.currentSection = sectionInit
 		case "productions":
-			l.currentSection = sectionProduction
+			l.currentSection = sectionProductions
 		default:
 			return l.errorf("unrecognized section")
 		}
