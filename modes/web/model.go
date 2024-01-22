@@ -17,8 +17,8 @@ type Model struct {
 
 type runOptions struct {
 	Frameworks       []string `json:"frameworks,omitempty"` // list of frameworks to run on (if empty, "all")
-	LogLevel         string   `json:"logLevel,omitempty"`
-	TraceActivations bool     `json:"traceActivations,omitempty"`
+	LogLevel         *string  `json:"logLevel,omitempty"`
+	TraceActivations *bool    `json:"traceActivations,omitempty"`
 	RandomSeed       *uint32  `json:"randomSeed,omitempty"`
 }
 
@@ -80,16 +80,28 @@ func (w *Web) loadModel(sessionID int, amodFile string) (model *Model, err error
 	return
 }
 
+// actrOptions converts runOptions into actr.Options
 func actrOptions(options *runOptions) *actr.Options {
 	if options == nil {
 		return nil
 	}
 
-	return &actr.Options{
-		LogLevel:         actr.ACTRLogLevel(options.LogLevel),
-		TraceActivations: options.TraceActivations,
+	// sets some defaults
+	opts := actr.Options{
+		LogLevel:         actr.ACTRLogLevel("info"),
+		TraceActivations: false,
 		RandomSeed:       options.RandomSeed,
 	}
+
+	if options.LogLevel != nil {
+		opts.LogLevel = actr.ACTRLogLevel(*options.LogLevel)
+	}
+
+	if options.TraceActivations != nil {
+		opts.TraceActivations = *options.TraceActivations
+	}
+
+	return &opts
 }
 
 func generateModel(amodFile string) (model *actr.Model, err error) {
