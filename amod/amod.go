@@ -56,7 +56,7 @@ func GenerateModel(buffer string) (model *actr.Model, iLog *issues.Log, err erro
 	log := newLog()
 	iLog = &log.Log
 
-	amod, err := parse(r)
+	amod, err := parseAMOD(r)
 	if err != nil {
 		pErr, ok := err.(participle.Error)
 		if ok {
@@ -88,7 +88,7 @@ func GenerateModelFromFile(fileName string) (model *actr.Model, iLog *issues.Log
 	log := newLog()
 	iLog = &log.Log
 
-	amod, err := parseFile(fileName)
+	amod, err := parseAMODFile(fileName)
 	if err != nil {
 		pErr, ok := err.(participle.Error)
 		if ok {

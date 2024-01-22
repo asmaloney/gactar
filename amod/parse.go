@@ -443,7 +443,7 @@ var amodParser = participle.MustBuild[amodFile](
 	participle.Unquote(),
 )
 
-func parse(r io.Reader) (amod *amodFile, err error) {
+func parseAMOD(r io.Reader) (amod *amodFile, err error) {
 	amod, err = amodParser.Parse("", r)
 	if err != nil {
 		return nil, err
@@ -452,12 +452,12 @@ func parse(r io.Reader) (amod *amodFile, err error) {
 	return
 }
 
-func parseFile(filename string) (*amodFile, error) {
+func parseAMODFile(filename string) (*amodFile, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	return parse(file)
+	return parseAMOD(file)
 }
