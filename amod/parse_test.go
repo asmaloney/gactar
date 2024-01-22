@@ -20,7 +20,7 @@ func TestMinimumModel(t *testing.T) {
 	~~ init ~~
 	~~ productions ~~`
 
-	_, err := parse(strings.NewReader(src))
+	_, err := parseAMOD(strings.NewReader(src))
 
 	if err != nil {
 		t.Errorf("Could not parse minimal src: %s", err.Error())
@@ -43,7 +43,7 @@ func FuzzExampleModels(f *testing.F) {
 	}
 
 	f.Fuzz(func(t *testing.T, orig string) {
-		_, err := parse(strings.NewReader(orig))
+		_, err := parseAMOD(strings.NewReader(orig))
 		if err != nil &&
 			!errors.As(err, new(*participle.ParseError)) &&
 			!errors.As(err, new(*participle.UnexpectedTokenError)) &&
