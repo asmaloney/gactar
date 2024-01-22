@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.13.0 (in progress)
+
+Mostly internal changes to set up for future features & to sync up [gactar-vscode](https://github.com/asmaloney/gactar-vscode).
+
+### Added
+
+- Add new keyword `any` to allow matching a buffer with any chunk type ([#396](https://github.com/asmaloney/gactar/pull/396))
+
+  Example:
+
+  ```
+  match { retrieval [any] }
+  ```
+
+- Allow ability to override ACT-R and CCL versions using an external file ([#395](https://github.com/asmaloney/gactar/pull/395))
+
+### Changed
+
+- Keywords are now lexed based on the current section. Keywords like `name` in the module section may now be used as a chunk name for example.
+
+- Cleaned up Python support files & generated code.
+
+- Format all Python code using the [black](https://github.com/psf/black) formatter.
+
 ## [0.12.0](https://github.com/asmaloney/gactar/releases/tag/v0.12.0) - 2023-08-27
 
 ### Added
