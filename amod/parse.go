@@ -3,7 +3,6 @@ package amod
 import (
 	"fmt"
 	"io"
-	"os"
 
 	"github.com/alecthomas/participle/v2"
 	"github.com/alecthomas/participle/v2/lexer"
@@ -450,14 +449,4 @@ func parseAMOD(r io.Reader) (amod *amodFile, err error) {
 	}
 
 	return
-}
-
-func parseAMODFile(filename string) (*amodFile, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	return parseAMOD(file)
 }
