@@ -142,6 +142,7 @@ var keywordsModel []string = []string{
 	"description",
 	"examples",
 	"name",
+	"nil",
 }
 
 // keywordsModel are only keywords for the config section
@@ -149,10 +150,12 @@ var keywordsConfig []string = []string{
 	"chunks",
 	"gactar",
 	"modules",
+	"nil",
 }
 
 // keywordsModel are only keywords for the init section
 var keywordsInit []string = []string{
+	"nil",
 	"similar",
 }
 
