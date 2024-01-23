@@ -2,9 +2,9 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 0.13.0 (in progress)
+## [0.13.0](https://github.com/asmaloney/gactar/releases/tag/v0.13.0) - 2024-01-23
 
-Mostly internal changes to set up for future features & to sync up [gactar-vscode](https://github.com/asmaloney/gactar-vscode).
+This release contains mostly internal changes to set up for future features & to sync up [gactar-vscode](https://github.com/asmaloney/gactar-vscode).
 
 ### Added
 
@@ -19,6 +19,8 @@ Mostly internal changes to set up for future features & to sync up [gactar-vscod
 - Allow ability to override ACT-R and CCL versions using an external file ([#395](https://github.com/asmaloney/gactar/pull/395))
 
 ### Changed
+
+- Updated all internal dependencies (go/web/Python).
 
 - Keywords are now lexed based on the current section. Keywords like `name` in the module section may now be used as a chunk name for example.
 
