@@ -16,7 +16,7 @@ func Example_productionClearStatement() {
 	// Output:
 }
 
-func Example_productionClearStatementInvalidBuffer() {
+func Example_productionErrorClearStatementInvalidBuffer() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -131,7 +131,7 @@ func Example_productionSetStatementNil() {
 	// Output:
 }
 
-func Example_productionSetStatementNonBuffer() {
+func Example_productionErrorSetStatementNonBuffer() {
 	// Check setting to non-existent buffer in set statement
 	generateToStdout(`
 	~~ model ~~
@@ -149,7 +149,7 @@ func Example_productionSetStatementNonBuffer() {
 	// ERROR: buffer "foo" not found in model (line 10, col 11)
 }
 
-func Example_productionSetStatementNonBuffer2() {
+func Example_productionErrorSetStatementNonBuffer2() {
 	// Check setting to buffer not used in the match
 	generateToStdout(`
 	~~ model ~~
@@ -168,7 +168,7 @@ func Example_productionSetStatementNonBuffer2() {
 	// ERROR: match buffer 'imaginal' not found in production 'start' (line 11, col 11)
 }
 
-func Example_productionSetStatementInvalidSlot() {
+func Example_productionErrorSetStatementInvalidSlot() {
 	// Check setting to buffer not used in the match
 	generateToStdout(`
 	~~ model ~~
@@ -186,7 +186,7 @@ func Example_productionSetStatementInvalidSlot() {
 	// ERROR: slot 'bar' does not exist in chunk type 'foo' for match buffer 'goal' in production 'start' (line 10, col 16)
 }
 
-func Example_productionSetStatementNonVar1() {
+func Example_productionErrorSetStatementNonVar1() {
 	// Check setting to non-existent var
 	generateToStdout(`
 	~~ model ~~
@@ -204,7 +204,7 @@ func Example_productionSetStatementNonVar1() {
 	// ERROR: set statement variable '?ding' not found in matches for production 'start' (line 10, col 25)
 }
 
-func Example_productionSetStatementNonVar2() {
+func Example_productionErrorSetStatementNonVar2() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -221,7 +221,7 @@ func Example_productionSetStatementNonVar2() {
 	// ERROR: set statement variable '?ding' not found in matches for production 'start' (line 10, col 25)
 }
 
-func Example_productionSetStatementAssignNonPattern() {
+func Example_productionErrorSetStatementAssignNonPattern() {
 	// Check setting buffer to non-pattern
 	// https://github.com/asmaloney/gactar/issues/28
 	generateToStdout(`
@@ -240,7 +240,7 @@ func Example_productionSetStatementAssignNonPattern() {
 	// ERROR: buffer 'goal' must be set to a pattern in production 'start' (line 10, col 19)
 }
 
-func Example_productionSetStatementAssignPattern() {
+func Example_productionErrorSetStatementAssignPattern() {
 	// Check assignment of pattern to slot
 	// https://github.com/asmaloney/gactar/issues/17
 	generateToStdout(`
@@ -275,7 +275,7 @@ func Example_productionRecallStatement() {
 	// Output:
 }
 
-func Example_productionRecallStatementMultiple() {
+func Example_productionErrorRecallStatementMultiple() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -295,7 +295,7 @@ func Example_productionRecallStatementMultiple() {
 	// ERROR: only one recall statement per production is allowed in production 'start' (line 12, col 3)
 }
 
-func Example_productionRecallStatementInvalidPattern() {
+func Example_productionErrorRecallStatementInvalidPattern() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -312,7 +312,7 @@ func Example_productionRecallStatementInvalidPattern() {
 	// ERROR: invalid chunk - 'foo' expects 2 slots (line 10, col 14)
 }
 
-func Example_productionRecallStatementVarNotFound() {
+func Example_productionErrorRecallStatementVarNotFound() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -361,7 +361,7 @@ func Example_productionRecallStatementWithMultipleWith() {
 	// Output:
 }
 
-func Example_productionRecallStatementWithInvalidParam() {
+func Example_productionErrorRecallStatementWithInvalidParam() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -410,7 +410,7 @@ func Example_productionRecallStatementWithID() {
 	// Output:
 }
 
-func Example_productionRecallStatementWithString() {
+func Example_productionErrorRecallStatementWithString() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -427,7 +427,7 @@ func Example_productionRecallStatementWithString() {
 	// ERROR: recall 'with': invalid value "bar" for option "recently_retrieved" (expected one of: t, nil, reset). (line 10, col 34)
 }
 
-func Example_productionRecallStatementWithVar() {
+func Example_productionErrorRecallStatementWithVar() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -444,7 +444,7 @@ func Example_productionRecallStatementWithVar() {
 	// ERROR: recall 'with': parameter 'recently_retrieved'. Unexpected variable (line 10, col 34)
 }
 
-func Example_productionRecallStatementWithIncorrectNumArgs() {
+func Example_productionErrorRecallStatementWithIncorrectNumArgs() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -479,7 +479,7 @@ func Example_productionMultipleStatement() {
 	// Output:
 }
 
-func Example_productionChunkNotFound() {
+func Example_productionErrorChunkNotFound() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -579,7 +579,7 @@ func Example_productionPrintStatementBufferSlot() {
 	// Output:
 }
 
-func Example_productionPrintStatementInvalidBuffer() {
+func Example_productionErrorPrintStatementInvalidBuffer() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -595,7 +595,7 @@ func Example_productionPrintStatementInvalidBuffer() {
 	// ERROR: buffer "fooID" not found in model (line 9, col 13)
 }
 
-func Example_productionPrintStatementInvalidBufferSlot() {
+func Example_productionErrorPrintStatementInvalidBufferSlot() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -612,7 +612,7 @@ func Example_productionPrintStatementInvalidBufferSlot() {
 	// ERROR: slot 'blat' does not exist in chunk type 'foo' for match buffer 'goal' in production 'start' (line 10, col 18)
 }
 
-func Example_productionPrintStatementInvalidNil() {
+func Example_productionErrorPrintStatementInvalidNil() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -628,7 +628,7 @@ func Example_productionPrintStatementInvalidNil() {
 	// ERROR: unexpected token "nil" (expected "}") (line 9, col 13)
 }
 
-func Example_productionPrintStatementInvalidVar() {
+func Example_productionErrorPrintStatementInvalidVar() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test

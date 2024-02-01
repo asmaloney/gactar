@@ -19,7 +19,7 @@ func Example_production() {
 	// Output:
 }
 
-func Example_productionNoDo() {
+func Example_productionErrorNoDo() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -77,7 +77,7 @@ func Example_productionWhenClauseCompareNil() {
 	// Output:
 }
 
-func Example_productionWhenClauseCompareID() {
+func Example_productionErrorWhenClauseCompareID() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -99,7 +99,7 @@ func Example_productionWhenClauseCompareID() {
 	// ERROR: unexpected token "bar" (expected WhenArg ")") (line 10, col 37)
 }
 
-func Example_productionWhenClauseNegatedAndConstrained() {
+func Example_productionErrorWhenClauseNegatedAndConstrained() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -122,7 +122,7 @@ func Example_productionWhenClauseNegatedAndConstrained() {
 	// ERROR: cannot further constrain a negated variable '?blat' (line 11, col 11)
 }
 
-func Example_productionWhenClauseComparisonToSelf() {
+func Example_productionErrorWhenClauseComparisonToSelf() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -144,7 +144,7 @@ func Example_productionWhenClauseComparisonToSelf() {
 	// ERROR: cannot compare a variable to itself '?blat' (line 10, col 37)
 }
 
-func Example_productionWhenClauseInvalidVarLHS() {
+func Example_productionErrorWhenClauseInvalidVarLHS() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -166,7 +166,7 @@ func Example_productionWhenClauseInvalidVarLHS() {
 	// ERROR: unknown variable ?ding in where clause (line 10, col 28)
 }
 
-func Example_productionWhenClauseInvalidVarRHS() {
+func Example_productionErrorWhenClauseInvalidVarRHS() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -204,7 +204,7 @@ func Example_productionWildcard() {
 	// Output:
 }
 
-func Example_productionNotWildcard() {
+func Example_productionErrorNotWildcard() {
 	// Odd error message.
 	// See: https://github.com/asmaloney/gactar/issues/124
 	generateToStdout(`
@@ -223,7 +223,7 @@ func Example_productionNotWildcard() {
 	// ERROR: unexpected token "!" (expected "]") (line 9, col 27)
 }
 
-func Example_productionUnusedVar1() {
+func Example_productionErrorUnusedVar1() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -258,7 +258,7 @@ func Example_productionUnusedVar2() {
 	// Output:
 }
 
-func Example_productionInvalidMemory() {
+func Example_productionErrorInvalidMemory() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -274,7 +274,7 @@ func Example_productionInvalidMemory() {
 	// ERROR: buffer 'another_goal' not found in production 'start' (line 8, col 10)
 }
 
-func Example_productionPrintStatementWildcard() {
+func Example_productionErrorPrintStatementWildcard() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -320,7 +320,7 @@ func Example_productionMatchBufferState() {
 	// Output:
 }
 
-func Example_productionMatchBufferStateInvalidBuffer() {
+func Example_productionErrorMatchBufferStateInvalidBuffer() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -336,7 +336,7 @@ func Example_productionMatchBufferStateInvalidBuffer() {
 	// ERROR: buffer 'foo' not found in production 'start' (line 8, col 10)
 }
 
-func Example_productionMatchBufferStateInvalidStatus() {
+func Example_productionErrorMatchBufferStateInvalidStatus() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -352,7 +352,7 @@ func Example_productionMatchBufferStateInvalidStatus() {
 	// ERROR: invalid state check 'foo' for buffer 'retrieval' in production 'start' (should be one of: empty, full) (line 8, col 10)
 }
 
-func Example_productionMatchBufferStateInvalidString() {
+func Example_productionErrorMatchBufferStateInvalidString() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -368,7 +368,7 @@ func Example_productionMatchBufferStateInvalidString() {
 	// ERROR: unexpected token "empty" (expected <ident>) (line 8, col 28)
 }
 
-func Example_productionMatchBufferStateInvalidNumber() {
+func Example_productionErrorMatchBufferStateInvalidNumber() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -384,7 +384,7 @@ func Example_productionMatchBufferStateInvalidNumber() {
 	// ERROR: unexpected token "42" (expected <ident>) (line 8, col 28)
 }
 
-func Example_productionMatchBufferStateDuplicate() {
+func Example_productionErrorMatchBufferStateDuplicate() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -418,7 +418,7 @@ func Example_productionMatchModuleState() {
 	// Output:
 }
 
-func Example_productionMatchModuleStateInvalidModule() {
+func Example_productionErrorMatchModuleStateInvalidModule() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -434,7 +434,7 @@ func Example_productionMatchModuleStateInvalidModule() {
 	// ERROR: module 'foo' not found in production 'start' (line 8, col 10)
 }
 
-func Example_productionMatchModuleStateInvalidState1() {
+func Example_productionErrorMatchModuleStateInvalidState1() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -450,7 +450,7 @@ func Example_productionMatchModuleStateInvalidState1() {
 	// ERROR: unexpected token "foo" (expected <ident>) (line 8, col 30)
 }
 
-func Example_productionMatchModuleStateInvalidState2() {
+func Example_productionErrorMatchModuleStateInvalidState2() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -466,7 +466,7 @@ func Example_productionMatchModuleStateInvalidState2() {
 	// ERROR: invalid module state check 'bar' for module 'memory' in production 'start' (should be one of: busy, error, free) (line 8, col 10)
 }
 
-func Example_productionMatchModuleStateDuplicate() {
+func Example_productionErrorMatchModuleStateDuplicate() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
