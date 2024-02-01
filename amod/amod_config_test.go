@@ -15,7 +15,7 @@ func Example_gactarAllOptions() {
 	// Output:
 }
 
-func Example_gactarUnrecognizedField() {
+func Example_gactarErrorUnrecognizedField() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -28,7 +28,7 @@ func Example_gactarUnrecognizedField() {
 	// ERROR: unrecognized option "foo" in gactar section (line 5, col 10)
 }
 
-func Example_gactarUnrecognizedLogLevel() {
+func Example_gactarErrorUnrecognizedLogLevel() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -41,7 +41,7 @@ func Example_gactarUnrecognizedLogLevel() {
 	// ERROR: 'log_level' invalid type (found id; expected string) (line 5, col 21)
 }
 
-func Example_gactarUnrecognizedNestedValue() {
+func Example_gactarErrorUnrecognizedNestedValue() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -54,7 +54,7 @@ func Example_gactarUnrecognizedNestedValue() {
 	// ERROR: unrecognized option "foo" in gactar section (line 5, col 10)
 }
 
-func Example_gactarFieldNotANestedValue() {
+func Example_gactarErrorFieldNotANestedValue() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -91,7 +91,7 @@ func Example_gactarTraceActivations() {
 	// Output:
 }
 
-func Example_gactarTraceActivationsNonBool() {
+func Example_gactarErrorTraceActivationsNonBool() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -104,7 +104,7 @@ func Example_gactarTraceActivationsNonBool() {
 	// ERROR: 'trace_activations' invalid type (found number; expected true or false) (line 5, col 29)
 }
 
-func Example_chunkInternalType() {
+func Example_chunkErrorInternalType() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -117,7 +117,7 @@ func Example_chunkInternalType() {
 	// ERROR: cannot use reserved chunk type "_internal" (chunks beginning with '_' are reserved) (line 5, col 11)
 }
 
-func Example_chunkReservedType() {
+func Example_chunkErrorReservedType() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -130,7 +130,7 @@ func Example_chunkReservedType() {
 	// ERROR: cannot use reserved chunk type "requested" (line 5, col 11)
 }
 
-func Example_chunkDuplicateType() {
+func Example_chunkErrorDuplicateType() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -177,7 +177,7 @@ func Example_modulesExtraBuffers() {
 	// Output:
 }
 
-func Example_modulesExtraBuffersDuplicate() {
+func Example_modulesErrorExtraBuffersDuplicate() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -212,7 +212,7 @@ func Example_modulesInitBuffer() {
 	// Output:
 }
 
-func Example_modulesInitBufferNoMaxSpread() {
+func Example_modulesErrorInitBufferNoMaxSpread() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -229,7 +229,7 @@ func Example_modulesInitBufferNoMaxSpread() {
 	// ERROR: spreading_activation set on buffer "imaginal", but max_spread_strength not set on memory module (line 5, col 1)
 }
 
-func Example_modulesInitBufferDuplicate() {
+func Example_modulesErrorInitBufferDuplicate() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -250,7 +250,7 @@ func Example_modulesInitBufferDuplicate() {
 	// ERROR: duplicate option "spreading_activation" (line 10, col 4)
 }
 
-func Example_modulesUnrecognizedModule() {
+func Example_modulesErrorUnrecognizedModule() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -265,7 +265,7 @@ func Example_modulesUnrecognizedModule() {
 	// ERROR: unrecognized module in config: 'foo' (line 6, col 2)
 }
 
-func Example_modulesUnrecognizedModuleOption() {
+func Example_modulesErrorUnrecognizedModuleOption() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -280,7 +280,7 @@ func Example_modulesUnrecognizedModuleOption() {
 	// ERROR: unrecognized option "foo" in goal config (line 6, col 9)
 }
 
-func Example_modulesUnrecognizedModuleDuplicateOption() {
+func Example_modulesErrorUnrecognizedModuleDuplicateOption() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -353,7 +353,7 @@ func Example_imaginalFields() {
 	// Output:
 }
 
-func Example_imaginalFieldType() {
+func Example_imaginalErrorFieldType() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -368,7 +368,7 @@ func Example_imaginalFieldType() {
 	// ERROR: imaginal "delay" invalid type (found string; expected number) (line 6, col 20)
 }
 
-func Example_imaginalFieldRange() {
+func Example_imaginalErrorFieldRange() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -383,7 +383,7 @@ func Example_imaginalFieldRange() {
 	// ERROR: imaginal "delay" is out of range (minimum 0) (line 6, col 20)
 }
 
-func Example_imaginalFieldUnrecognized() {
+func Example_imaginalErrorFieldUnrecognized() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -398,7 +398,7 @@ func Example_imaginalFieldUnrecognized() {
 	// ERROR: unrecognized option "foo" in imaginal config (line 6, col 13)
 }
 
-func Example_memoryFieldUnrecognized() {
+func Example_memoryErrorFieldUnrecognized() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -413,7 +413,7 @@ func Example_memoryFieldUnrecognized() {
 	// ERROR: unrecognized option "foo" in memory config (line 6, col 11)
 }
 
-func Example_memoryDecayOutOfRange() {
+func Example_memoryErrorDecayOutOfRange() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -428,7 +428,7 @@ func Example_memoryDecayOutOfRange() {
 	// ERROR: memory "decay" is out of range (0-1) (line 6, col 18)
 }
 
-func Example_memoryDecayOutOfRange2() {
+func Example_memoryErrorDecayOutOfRange2() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -443,7 +443,7 @@ func Example_memoryDecayOutOfRange2() {
 	// ERROR: memory "decay" is out of range (0-1) (line 6, col 18)
 }
 
-func Example_proceduralFieldUnrecognized() {
+func Example_proceduralErrorFieldUnrecognized() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test

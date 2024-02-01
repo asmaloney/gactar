@@ -28,7 +28,7 @@ func Example_modelExamples() {
 	// Output:
 }
 
-func Example_modelExampleBadChunk() {
+func Example_modelErrorExampleBadChunk() {
 	generateToStdout(`
 	~~ model~~
 	name: Test

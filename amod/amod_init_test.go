@@ -99,7 +99,7 @@ func Example_initializer6() {
 	// Output:
 }
 
-func Example_initializerInvalidSlots() {
+func Example_initializerErrorInvalidSlots() {
 	// Check invalid number of slots in init
 	generateToStdout(`
 	~~ model ~~
@@ -114,7 +114,7 @@ func Example_initializerInvalidSlots() {
 	// ERROR: invalid chunk - 'author' expects 3 slots (line 7, col 10)
 }
 
-func Example_initializerInvalidChunk1() {
+func Example_initializerErrorInvalidChunk1() {
 	// Check memory with invalid chunk
 	generateToStdout(`
 	~~ model ~~
@@ -128,7 +128,7 @@ func Example_initializerInvalidChunk1() {
 	// ERROR: could not find chunk named 'author' (line 6, col 11)
 }
 
-func Example_initializerInvalidChunk2() {
+func Example_initializerErrorInvalidChunk2() {
 	// Check buffer with invalid chunk
 	generateToStdout(`
 	~~ model ~~
@@ -142,7 +142,7 @@ func Example_initializerInvalidChunk2() {
 	// ERROR: could not find chunk named 'author' (line 6, col 7)
 }
 
-func Example_initializerUnknownBuffer() {
+func Example_initializerErrorUnknownBuffer() {
 	// Check unknown buffer
 	generateToStdout(`
 	~~ model ~~
@@ -157,7 +157,7 @@ func Example_initializerUnknownBuffer() {
 	// ERROR: module 'something' not found in initialization (line 7, col 1)
 }
 
-func Example_initializerMultipleInits() {
+func Example_initializerErrorMultipleInits() {
 	// Check buffer with multiple inits
 	generateToStdout(`
 	~~ model ~~
@@ -194,7 +194,7 @@ func Example_initializerMultipleBuffers() {
 	// Output:
 }
 
-func Example_initializerNoBuffers() {
+func Example_initializerErrorNoBuffers() {
 	generateToStdout(`
 	~~ model ~~
 	name: Test
@@ -212,7 +212,7 @@ func Example_initializerNoBuffers() {
 	// ERROR: module 'extra_buffers' does not have any buffers (line 8, col 1)
 }
 
-func Example_initializerDuplicateNames() {
+func Example_initializerErrorDuplicateNames() {
 	// memory with named chunks
 	generateToStdout(`
 	~~ model ~~
