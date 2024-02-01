@@ -1,3 +1,4 @@
+// Package defaultmode is used for running gactar models on the command line.
 package defaultmode
 
 import (

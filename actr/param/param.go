@@ -1,3 +1,4 @@
+// Package param provides tools to declare and validate parameters.
 package param
 
 import (
