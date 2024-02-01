@@ -27,42 +27,42 @@
  (swimming) (true)
 
  ;; amod line 36
- (fact_0
+ (property_0
 	isa			property
 	object		shark
 	attribute	dangerous
 	value		true
  )
  ;; amod line 37
- (fact_1
+ (property_1
 	isa			property
 	object		shark
 	attribute	locomotion
 	value		swimming
  )
  ;; amod line 38
- (fact_2
+ (property_2
 	isa			property
 	object		shark
 	attribute	category
 	value		fish
  )
  ;; amod line 39
- (fact_3
+ (property_3
 	isa			property
 	object		fish
 	attribute	category
 	value		animal
  )
  ;; amod line 40
- (fact_4
+ (property_4
 	isa			property
 	object		bird
 	attribute	category
 	value		animal
  )
  ;; amod line 41
- (fact_5
+ (property_5
 	isa			property
 	object		canary
 	attribute	category
@@ -143,7 +143,7 @@
 		isa			isMember
 		judgment	"pending"
 	?retrieval>
-		state error
+		state	error
 	==>
 	=goal>
 		isa			isMember

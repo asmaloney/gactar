@@ -23,7 +23,7 @@ gactar {
     trace_activations: false
 }
 
-// Declare chunks and their layouts
+// Declare chunk types and their layouts
 chunks {
     [isMember: object category judgment]
     [property: object attribute value]
@@ -55,7 +55,7 @@ initialRetrieval {
     match {
         goal [isMember: ?obj * nil]
     }
-    // Steps to execute
+    // Statements to execute
     do {
         set goal.judgment to 'pending'
         recall [property: ?obj category *]
@@ -88,7 +88,7 @@ chainCategory {
 fail {
     match {
         goal [isMember: * * 'pending']
-        retrieval module error
+        module_state memory error
     }
     do {
         set goal.judgment to 'no'
