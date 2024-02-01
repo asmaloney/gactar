@@ -50,6 +50,12 @@ func SetupPaths(envPath string) (err error) {
 		return
 	}
 
+	// Skip if we have already set up with this env
+	currentVirtEnv := os.Getenv("VIRTUAL_ENV")
+	if currentVirtEnv == envPath {
+		return nil
+	}
+
 	pythonVENVPath := "bin"
 
 	// Python on Windows puts itself in a different place, so adjust our path accordingly
