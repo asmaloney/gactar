@@ -45,6 +45,11 @@ func FromContext(ctx context.Context) (*Settings, error) {
 
 // SetupPaths will set PATH and VIRTUAL_ENV environment variables to our environment path.
 func SetupPaths(envPath string) (err error) {
+	envPath, err = filepath.Abs(envPath)
+	if err != nil {
+		return
+	}
+
 	pythonVENVPath := "bin"
 
 	// Python on Windows puts itself in a different place, so adjust our path accordingly
