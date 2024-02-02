@@ -10,7 +10,7 @@ build:
 	go build -ldflags "-X github.com/asmaloney/gactar/util/version.BuildVersion=${GIT_COMMIT}"
 
 clean:
-	rm ./gactar
+	go clean
 
 test:
 	go test ./...
