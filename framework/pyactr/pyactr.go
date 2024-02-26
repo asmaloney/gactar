@@ -5,7 +5,6 @@ package pyactr
 import (
 	_ "embed"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"golang.org/x/exp/maps"
@@ -147,7 +146,6 @@ func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (result *framework
 
 	// run it!
 	output, err := executil.ExecCommand(Info.ExecutableName, runFile)
-	output = removeWarning(output)
 	if err != nil {
 		err = &executil.ErrExecuteCommand{Output: output}
 		return
@@ -727,15 +725,4 @@ func (p PyACTR) outputStatement(production *actr.Production, s *actr.Statement) 
 		// to stop in pyactr, clear the goal buffer
 		p.Writeln("     ~goal>")
 	}
-}
-
-// removeWarning will remove the long warning whenever pyactr is run without tkinter.
-func removeWarning(text string) string {
-	r := regexp.MustCompile(`(?s).+warnings.warn\("Simulation GUI is set to False."\)(.+)`)
-	matches := r.FindAllStringSubmatch(text, -1)
-	if len(matches) == 1 {
-		text = strings.TrimSpace(matches[0][1])
-	}
-
-	return text
 }
