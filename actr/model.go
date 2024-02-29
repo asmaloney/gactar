@@ -9,20 +9,8 @@ import (
 
 	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/keyvalue"
+	"github.com/asmaloney/gactar/util/runoptions"
 )
-
-type Options struct {
-	// "log_level": one of 'min', 'info', or 'detail'
-	LogLevel ACTRLogLevel
-
-	// "trace_activations": output detailed info about activations
-	TraceActivations bool
-
-	// "random_seed": the seed to use for generating pseudo-random numbers (allows for reproducible runs)
-	// For all frameworks, if it is not set it uses current system time.
-	// Use a uint32 because pyactr uses numpy and that's what its random number seed uses.
-	RandomSeed *uint32
-}
 
 // Model represents a basic ACT-R model.
 // This is used as input to a Framework where it can be run or output to a file.
@@ -56,7 +44,7 @@ type Model struct {
 
 	Productions []*Production
 
-	Options
+	runoptions.Options
 
 	// Used to validate our parameters
 	parameters param.ParametersInterface
@@ -98,7 +86,7 @@ func (model *Model) Initialize() {
 	loggingParam := param.NewStr(
 		"log_level",
 		"Level of logging output",
-		ACTRLoggingLevels,
+		runoptions.ACTRLoggingLevels,
 	)
 
 	traceParam := param.NewBool(
@@ -121,7 +109,7 @@ func (model *Model) Initialize() {
 	model.parameters = parameters
 }
 
-func (m *Model) SetRunOptions(options *Options) {
+func (m *Model) SetRunOptions(options *runoptions.Options) {
 	if options == nil {
 		return
 	}
@@ -318,7 +306,7 @@ func (model *Model) SetParam(kv *keyvalue.KeyValue) (err error) {
 
 	switch kv.Key {
 	case "log_level":
-		model.LogLevel = ACTRLogLevel(*value.Str)
+		model.LogLevel = runoptions.ACTRLogLevel(*value.Str)
 
 	case "trace_activations":
 		boolVal, _ := value.AsBool() // already validated

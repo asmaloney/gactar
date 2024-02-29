@@ -148,7 +148,7 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		AMODFile string `json:"amod"` // text of an amod file
 		Goal     string `json:"goal"` // initial goal
 
-		Options *runOptions `json:"options,omitempty"`
+		Options *runOptionsJSON `json:"options,omitempty"`
 	}
 
 	var data request
