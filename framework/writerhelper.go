@@ -49,7 +49,7 @@ func (w *WriterHelper) WriteFile(outputFileName string) (err error) {
 	if closeErr != nil {
 		// If we also had an error on Close(), return both errors
 		if writeErr != nil {
-			err = fmt.Errorf("%s; %w", err.Error(), writeErr)
+			err = fmt.Errorf("%s; %w", closeErr.Error(), writeErr)
 		} else {
 			err = closeErr
 		}
