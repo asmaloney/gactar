@@ -2,7 +2,6 @@
 package framework
 
 import (
-	"slices"
 	"time"
 
 	"github.com/asmaloney/gactar/actr"
@@ -88,14 +87,4 @@ func (l List) Exists(framework string) bool {
 	}
 
 	return false
-}
-
-// IsValidFramework returns if the framework name is in our list of valid ones or not.
-func IsValidFramework(frameworkName string) bool {
-	return slices.Contains(ValidFrameworks, frameworkName)
-}
-
-// ValidNamedFrameworks returns the list of all valid framework names without "all".
-func ValidNamedFrameworks() []string {
-	return ValidFrameworks[1:]
 }
