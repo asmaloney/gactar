@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -24,7 +23,6 @@ import (
 	"github.com/asmaloney/gactar/framework"
 
 	"github.com/asmaloney/gactar/util/cli"
-	"github.com/asmaloney/gactar/util/container"
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/validate"
 	"github.com/asmaloney/gactar/util/version"
@@ -158,21 +156,19 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	data.Options.Frameworks = w.normalizeFrameworkList(data.Options.Frameworks)
-
-	err = w.verifyFrameworkList(data.Options.Frameworks)
-	if err != nil {
-		encodeErrorResponse(rw, err)
-		return
-	}
-
 	model, log, err := amod.GenerateModel(data.AMODFile)
 	if err != nil {
 		encodeIssueResponse(rw, log)
 		return
 	}
 
-	model.SetRunOptions(actrOptions(data.Options))
+	aoptions, err := w.actrOptionsFromJSON(data.Options)
+	if err != nil {
+		encodeErrorResponse(rw, err)
+		return
+	}
+
+	model.Options = aoptions
 
 	initialGoal := strings.TrimSpace(data.Goal)
 	initialBuffers := framework.InitialBuffers{
@@ -189,7 +185,7 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	resultMap := w.runModel(model, initialBuffers, data.Options.Frameworks)
+	resultMap := w.runModel(model, initialBuffers)
 
 	rr := runResult{
 		Issues:  log.AllIssues(),
@@ -205,45 +201,13 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 	encodeResponse(rw, json.RawMessage(string(results)))
 }
 
-// normalizeFrameworkList will look for "all" and replace it with all available
-// framework names. It will then return a unique and sorted list of framework names.
-func (w Web) normalizeFrameworkList(list []string) (normalized []string) {
-	normalized = list
-
-	if list == nil || slices.Contains(list, "all") {
-		normalized = w.settings.Frameworks.Names()
-	}
-
-	normalized = container.UniqueAndSorted(normalized)
-	return
-}
-
-// verifyFrameworkList will check that each name is of a valid framework and that
-// it is active on this server.
-func (w Web) verifyFrameworkList(list []string) (err error) {
-	for _, name := range list {
-		if !framework.IsValidFramework(name) {
-			err = &ErrInvalidFrameworkName{Name: name}
-			return
-		}
-
-		// we have a valid name, check if it is active
-		if _, ok := w.settings.Frameworks[name]; !ok {
-			err = &ErrFrameworkNotActive{Name: name}
-			return
-		}
-	}
-
-	return
-}
-
-func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers, frameworkNames []string) (resultMap frameworkRunResultMap) {
-	resultMap = make(frameworkRunResultMap, len(frameworkNames))
+func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers) (resultMap frameworkRunResultMap) {
+	resultMap = make(frameworkRunResultMap, len(model.Options.Frameworks))
 
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
 
-	for _, name := range frameworkNames {
+	for _, name := range model.Options.Frameworks {
 		f := w.settings.Frameworks[name]
 
 		wg.Add(1)

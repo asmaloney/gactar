@@ -109,19 +109,6 @@ func (model *Model) Initialize() {
 	model.parameters = parameters
 }
 
-func (m *Model) SetRunOptions(options *runoptions.Options) {
-	if options == nil {
-		return
-	}
-
-	m.LogLevel = options.LogLevel
-	m.TraceActivations = options.TraceActivations
-
-	if options.RandomSeed != nil {
-		m.RandomSeed = options.RandomSeed
-	}
-}
-
 func (model *Model) AddImplicitChunk(chunkName string) {
 	model.ImplicitChunks = append(model.ImplicitChunks, chunkName)
 }

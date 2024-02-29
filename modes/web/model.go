@@ -17,11 +17,12 @@ type Model struct {
 	actrModel *actr.Model
 }
 
+// runOptionsJSON is the JSON version of runoptions.Options
 type runOptionsJSON struct {
-	Frameworks       []string `json:"frameworks,omitempty"` // list of frameworks to run on (if empty, "all")
-	LogLevel         *string  `json:"logLevel,omitempty"`
-	TraceActivations *bool    `json:"traceActivations,omitempty"`
-	RandomSeed       *uint32  `json:"randomSeed,omitempty"`
+	Frameworks       runoptions.FrameworkNameList `json:"frameworks,omitempty"` // list of frameworks to run on (if empty, "all")
+	LogLevel         *string                      `json:"logLevel,omitempty"`
+	TraceActivations *bool                        `json:"traceActivations,omitempty"`
+	RandomSeed       *uint32                      `json:"randomSeed,omitempty"`
 }
 
 func initModels(w *Web) {
@@ -82,14 +83,24 @@ func (w *Web) loadModel(sessionID int, amodFile string) (model *Model, err error
 	return
 }
 
-// actrOptions converts runOptions into actr.Options
-func actrOptions(options *runOptionsJSON) *runoptions.Options {
+// actrOptionsFromJSON converts runOptionsJSON into actr.Options
+func (w Web) actrOptionsFromJSON(options *runOptionsJSON) (runoptions.Options, error) {
 	if options == nil {
-		return nil
+		return runoptions.Options{}, nil
+	}
+
+	activeFrameworkNames := w.settings.Frameworks.Names()
+
+	options.Frameworks.NormalizeFrameworkList(activeFrameworkNames)
+
+	err := options.Frameworks.VerifyFrameworkList(activeFrameworkNames)
+	if err != nil {
+		return runoptions.Options{}, err
 	}
 
 	opts := runoptions.New()
 
+	opts.Frameworks = options.Frameworks
 	opts.RandomSeed = options.RandomSeed
 
 	if options.LogLevel != nil {
@@ -100,7 +111,7 @@ func actrOptions(options *runOptionsJSON) *runoptions.Options {
 		opts.TraceActivations = *options.TraceActivations
 	}
 
-	return &opts
+	return opts, nil
 }
 
 func generateModel(amodFile string) (model *actr.Model, err error) {

@@ -10,6 +10,7 @@ import (
 
 	"github.com/asmaloney/gactar/util/chalk"
 	"github.com/asmaloney/gactar/util/cli"
+	"github.com/asmaloney/gactar/util/runoptions"
 )
 
 // CreateFrameworks takes a slice of framework names and some settings,
@@ -17,7 +18,7 @@ import (
 // If "names" is empty it will try to create all valid frameworks.
 func CreateFrameworks(settings *cli.Settings, names []string) (list framework.List) {
 	if len(names) == 0 {
-		names = framework.ValidNamedFrameworks()
+		names = runoptions.ValidNamedFrameworks()
 	}
 
 	list = framework.List{}
