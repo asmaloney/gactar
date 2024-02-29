@@ -6,6 +6,8 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
+
+	"github.com/asmaloney/gactar/util/runoptions"
 )
 
 var currentModelID = 1
@@ -15,7 +17,7 @@ type Model struct {
 	actrModel *actr.Model
 }
 
-type runOptions struct {
+type runOptionsJSON struct {
 	Frameworks       []string `json:"frameworks,omitempty"` // list of frameworks to run on (if empty, "all")
 	LogLevel         *string  `json:"logLevel,omitempty"`
 	TraceActivations *bool    `json:"traceActivations,omitempty"`
@@ -81,20 +83,17 @@ func (w *Web) loadModel(sessionID int, amodFile string) (model *Model, err error
 }
 
 // actrOptions converts runOptions into actr.Options
-func actrOptions(options *runOptions) *actr.Options {
+func actrOptions(options *runOptionsJSON) *runoptions.Options {
 	if options == nil {
 		return nil
 	}
 
-	// sets some defaults
-	opts := actr.Options{
-		LogLevel:         actr.ACTRLogLevel("info"),
-		TraceActivations: false,
-		RandomSeed:       options.RandomSeed,
-	}
+	opts := runoptions.New()
+
+	opts.RandomSeed = options.RandomSeed
 
 	if options.LogLevel != nil {
-		opts.LogLevel = actr.ACTRLogLevel(*options.LogLevel)
+		opts.LogLevel = runoptions.ACTRLogLevel(*options.LogLevel)
 	}
 
 	if options.TraceActivations != nil {

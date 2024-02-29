@@ -40,7 +40,7 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 		ModelID     int                      `json:"modelID"`
 		Buffers     framework.InitialBuffers `json:"buffers"`     // set the initial buffers
 		IncludeCode bool                     `json:"includeCode"` // include generated code in the result
-		Options     runOptions               `json:"options"`
+		Options     runOptionsJSON           `json:"options"`
 	}
 	type response struct {
 		Results json.RawMessage `json:"results"`
