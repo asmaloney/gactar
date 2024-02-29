@@ -13,6 +13,8 @@ import pyactr_print
 
 pyactr_semantic = actr.ACTRModel(
     subsymbolic=True,
+    # baselevel_learning defaults to true in pyactr, so set it to false which is the default in ACT-R
+    baselevel_learning=False,
 )
 
 # pyactr doesn't handle general printing, so use gactar to add this capability

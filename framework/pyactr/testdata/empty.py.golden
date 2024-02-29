@@ -10,6 +10,8 @@ import pyactr as actr
 
 pyactr_Empty = actr.ACTRModel(
     subsymbolic=True,
+    # baselevel_learning defaults to true in pyactr, so set it to false which is the default in ACT-R
+    baselevel_learning=False,
 )
 
 
