@@ -28,13 +28,13 @@ func CreateFrameworks(settings *cli.Settings, names []string) (list framework.Li
 
 		switch f {
 		case "ccm":
-			fw, err = ccm_pyactr.New(settings)
+			fw, err = ccm_pyactr.New(settings.TempPath)
 
 		case "pyactr":
-			fw, err = pyactr.New(settings)
+			fw, err = pyactr.New(settings.TempPath)
 
 		case "vanilla":
-			fw, err = vanilla_actr.New(settings)
+			fw, err = vanilla_actr.New(settings.TempPath)
 
 		default:
 			chalk.PrintErrStr("unknown framework:", f)

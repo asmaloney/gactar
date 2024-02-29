@@ -31,7 +31,7 @@ func TestCodeGeneration(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fw, err := New(ctx)
+	fw, err := New(ctx.TempPath)
 	if fw == nil {
 		fmt.Println(err.Error())
 		t.Skip("vanilla framework not active")

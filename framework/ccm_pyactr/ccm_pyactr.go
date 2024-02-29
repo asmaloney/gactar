@@ -12,7 +12,6 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
 
-	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/issues"
@@ -51,9 +50,9 @@ type CCMPyACTR struct {
 	className string
 }
 
-// New simply creates a new CCMPyACTR instance and sets the tmp path.
-func New(settings *cli.Settings) (c *CCMPyACTR, err error) {
-	c = &CCMPyACTR{tmpPath: settings.TempPath}
+// New creates a new CCMPyACTR instance and sets the temp path.
+func New(tempPath string) (c *CCMPyACTR, err error) {
+	c = &CCMPyACTR{tmpPath: tempPath}
 
 	err = framework.Setup(&Info)
 	if err != nil {
