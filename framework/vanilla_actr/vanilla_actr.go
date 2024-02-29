@@ -16,7 +16,6 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
 
-	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/issues"
@@ -65,10 +64,10 @@ type VanillaACTR struct {
 	printStatementCount int
 }
 
-// New simply creates a new VanillaACTR instance and sets some paths from the context.
-func New(settings *cli.Settings) (v *VanillaACTR, err error) {
+// New creates a new VanillaACTR instance and sets some paths.
+func New(tempPath string) (v *VanillaACTR, err error) {
 	v = &VanillaACTR{
-		tmpPath: settings.TempPath,
+		tmpPath: tempPath,
 		envPath: os.Getenv("VIRTUAL_ENV"),
 	}
 

@@ -12,7 +12,6 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/framework"
 
-	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/issues"
@@ -48,9 +47,9 @@ type PyACTR struct {
 	className string
 }
 
-// New simply creates a new PyACTR instance and sets the tmp path from the context.
-func New(settings *cli.Settings) (p *PyACTR, err error) {
-	p = &PyACTR{tmpPath: settings.TempPath}
+// New  creates a new PyACTR instance and sets the temp path.
+func New(tempPath string) (p *PyACTR, err error) {
+	p = &PyACTR{tmpPath: tempPath}
 
 	err = framework.Setup(&Info)
 	if err != nil {
