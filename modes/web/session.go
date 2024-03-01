@@ -67,13 +67,11 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	aoptions, err := w.actrOptionsFromJSON(&data.Options)
+	aoptions, err := w.actrOptionsFromJSON(&model.actrModel.DefaultParams, &data.Options)
 	if err != nil {
 		encodeErrorResponse(rw, err)
 		return
 	}
-
-	model.actrModel.Options = aoptions
 
 	// ensure temp dir exists
 	// https://github.com/asmaloney/gactar/issues/103
@@ -83,7 +81,7 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	resultMap := w.runModel(model.actrModel, data.Buffers)
+	resultMap := w.runModel(model.actrModel, aoptions, data.Buffers)
 
 	for key := range resultMap {
 		result := resultMap[key]

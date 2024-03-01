@@ -83,10 +83,10 @@ func (w *Web) loadModel(sessionID int, amodFile string) (model *Model, err error
 	return
 }
 
-// actrOptionsFromJSON converts runOptionsJSON into actr.Options
-func (w Web) actrOptionsFromJSON(options *runOptionsJSON) (runoptions.Options, error) {
+// actrOptionsFromJSON converts runOptionsJSON into actr.Options. It defaults to the model's defaults.
+func (w Web) actrOptionsFromJSON(defaults *runoptions.Options, options *runOptionsJSON) (*runoptions.Options, error) {
 	if options == nil {
-		return runoptions.Options{}, nil
+		return nil, nil
 	}
 
 	activeFrameworkNames := w.settings.Frameworks.Names()
@@ -95,13 +95,12 @@ func (w Web) actrOptionsFromJSON(options *runOptionsJSON) (runoptions.Options, e
 
 	err := options.Frameworks.VerifyFrameworkList(activeFrameworkNames)
 	if err != nil {
-		return runoptions.Options{}, err
+		return nil, err
 	}
 
-	opts := runoptions.New()
+	opts := *defaults
 
 	opts.Frameworks = options.Frameworks
-	opts.RandomSeed = options.RandomSeed
 
 	if options.LogLevel != nil {
 		opts.LogLevel = runoptions.ACTRLogLevel(*options.LogLevel)
@@ -111,7 +110,9 @@ func (w Web) actrOptionsFromJSON(options *runOptionsJSON) (runoptions.Options, e
 		opts.TraceActivations = *options.TraceActivations
 	}
 
-	return opts, nil
+	opts.RandomSeed = options.RandomSeed
+
+	return &opts, nil
 }
 
 func generateModel(amodFile string) (model *actr.Model, err error) {

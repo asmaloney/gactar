@@ -7,6 +7,7 @@ import (
 	"github.com/asmaloney/gactar/actr"
 
 	"github.com/asmaloney/gactar/util/issues"
+	"github.com/asmaloney/gactar/util/runoptions"
 	"github.com/asmaloney/gactar/util/version"
 )
 
@@ -50,9 +51,9 @@ type Framework interface {
 	SetModel(model *actr.Model) (err error)
 	Model() (model *actr.Model)
 
-	Run(initialBuffers InitialBuffers) (result *RunResult, err error)
-	WriteModel(path string, initialBuffers InitialBuffers) (outputFileName string, err error)
-	GenerateCode(initialBuffers InitialBuffers) (code []byte, err error)
+	Run(options *runoptions.Options, initialBuffers InitialBuffers) (result *RunResult, err error)
+	WriteModel(path string, options *runoptions.Options, initialBuffers InitialBuffers) (outputFileName string, err error)
+	GenerateCode(options *runoptions.Options, initialBuffers InitialBuffers) (code []byte, err error)
 }
 
 type List map[string]Framework

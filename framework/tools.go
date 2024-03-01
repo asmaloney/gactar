@@ -43,7 +43,7 @@ func GenerateCodeFromFile(fw Framework, inputFile string, initialBuffers Initial
 		return
 	}
 
-	code, err = fw.GenerateCode(initialBuffers)
+	code, err = fw.GenerateCode(&model.DefaultParams, initialBuffers)
 	if err != nil {
 		return
 	}

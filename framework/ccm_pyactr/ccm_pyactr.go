@@ -16,6 +16,7 @@ import (
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/numbers"
+	"github.com/asmaloney/gactar/util/runoptions"
 )
 
 //go:embed ccm_print.py
@@ -115,8 +116,8 @@ func (c CCMPyACTR) Model() (model *actr.Model) {
 
 // Run generates the python code from the amod file, writes it to disk, creates a "run" file
 // to actually run the model, and returns the output (stdout and stderr combined).
-func (c *CCMPyACTR) Run(initialBuffers framework.InitialBuffers) (result *framework.RunResult, err error) {
-	runFile, err := c.WriteModel(c.tmpPath, initialBuffers)
+func (c *CCMPyACTR) Run(options *runoptions.Options, initialBuffers framework.InitialBuffers) (result *framework.RunResult, err error) {
+	runFile, err := c.WriteModel(c.tmpPath, options, initialBuffers)
 	if err != nil {
 		return
 	}
@@ -137,7 +138,7 @@ func (c *CCMPyACTR) Run(initialBuffers framework.InitialBuffers) (result *framew
 }
 
 // WriteModel converts the internal actr.Model to Python and writes it to a file.
-func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
+func (c *CCMPyACTR) WriteModel(path string, options *runoptions.Options, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
 	// If our model has a print statement, then write out our support file
 	if c.model.HasPrintStatement() {
 		err = framework.WriteSupportFile(path, ccmPrintFileName, ccmPrintPython)
@@ -147,7 +148,7 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 	}
 
 	// If our model is tracing activations, then write out our support file
-	if c.model.TraceActivations {
+	if options.TraceActivations {
 		err = framework.WriteSupportFile(path, gactarActivateTraceFileName, gactarActivateTraceFile)
 		if err != nil {
 			return
@@ -164,7 +165,7 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 		return "", err
 	}
 
-	_, err = c.GenerateCode(initialBuffers)
+	_, err = c.GenerateCode(options, initialBuffers)
 	if err != nil {
 		return
 	}
@@ -178,7 +179,7 @@ func (c *CCMPyACTR) WriteModel(path string, initialBuffers framework.InitialBuff
 }
 
 // GenerateCode converts the internal actr.Model to Python code.
-func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []byte, err error) {
+func (c *CCMPyACTR) GenerateCode(options *runoptions.Options, initialBuffers framework.InitialBuffers) (code []byte, err error) {
 	patterns, err := framework.ParseInitialBuffers(c.model, initialBuffers)
 	if err != nil {
 		return
@@ -195,13 +196,13 @@ func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code 
 
 	memory := c.model.Memory
 
-	c.writeImports()
+	c.writeImports(options)
 
 	c.Write("\n\n")
 
 	// random
-	if c.model.RandomSeed != nil {
-		c.Writeln("random.seed(%d)", *c.model.RandomSeed)
+	if options.RandomSeed != nil {
+		c.Writeln("random.seed(%d)", *options.RandomSeed)
 		c.Write("\n\n")
 	}
 
@@ -237,7 +238,7 @@ func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code 
 		c.Writeln("    %s = Memory(%s)", memory.ModuleName(), memory.BufferName())
 	}
 
-	if c.model.TraceActivations {
+	if options.TraceActivations {
 		c.Writeln("    trace = ActivateTrace(%s)", memory.ModuleName())
 	}
 
@@ -286,7 +287,7 @@ func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code 
 		c.Writeln("")
 	}
 
-	if c.model.LogLevel == "info" {
+	if options.LogLevel == "info" {
 		// this turns on some logging at the high level
 		c.Writeln("    def __init__(self):")
 		c.Writeln("        super().__init__(log=True)")
@@ -308,7 +309,7 @@ func (c *CCMPyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code 
 
 	c.Writeln("")
 
-	c.writeMain()
+	c.writeMain(options)
 
 	code = c.GetContents()
 	return
@@ -346,8 +347,8 @@ func (c CCMPyACTR) writeAuthors() {
 	c.Writeln("")
 }
 
-func (c CCMPyACTR) writeImports() {
-	if c.model.RandomSeed != nil {
+func (c CCMPyACTR) writeImports(runOptions *runoptions.Options) {
+	if runOptions.RandomSeed != nil {
 		c.Writeln("import random")
 	}
 
@@ -379,7 +380,7 @@ func (c CCMPyACTR) writeImports() {
 		c.Write("from python_actr import %s\n", strings.Join(additionalImports, ", "))
 	}
 
-	if c.model.LogLevel == "detail" {
+	if runOptions.LogLevel == "detail" {
 		c.Writeln("from python_actr import log, log_everything")
 	}
 
@@ -388,7 +389,7 @@ func (c CCMPyACTR) writeImports() {
 		c.Writeln(fmt.Sprintf("from %s import CCMPrint", ccmPrintImportName))
 	}
 
-	if c.model.TraceActivations {
+	if runOptions.TraceActivations {
 		c.Writeln("")
 		c.Writeln(fmt.Sprintf("from %s import ActivateTrace", gactarActivateTraceImportName))
 	}
@@ -489,11 +490,11 @@ func (c CCMPyACTR) writeProductions() {
 	}
 }
 
-func (c CCMPyACTR) writeMain() {
+func (c CCMPyACTR) writeMain(runOptions *runoptions.Options) {
 	c.Writeln("if __name__ == \"__main__\":")
 	c.Writeln(fmt.Sprintf("    model = %s()", c.className))
 
-	if c.model.LogLevel == "detail" {
+	if runOptions.LogLevel == "detail" {
 		c.Writeln("    log(summary=1)")
 		c.Writeln("    log_everything(model)")
 	}

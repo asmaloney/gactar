@@ -21,6 +21,7 @@ import (
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/lisp"
 	"github.com/asmaloney/gactar/util/numbers"
+	"github.com/asmaloney/gactar/util/runoptions"
 )
 
 //go:embed vanilla_print.lisp
@@ -105,8 +106,8 @@ func (c VanillaACTR) Model() (model *actr.Model) {
 	return c.model
 }
 
-func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (result *framework.RunResult, err error) {
-	modelFile, err := v.WriteModel(v.tmpPath, initialBuffers)
+func (v *VanillaACTR) Run(options *runoptions.Options, initialBuffers framework.InitialBuffers) (result *framework.RunResult, err error) {
+	modelFile, err := v.WriteModel(v.tmpPath, options, initialBuffers)
 	if err != nil {
 		return
 	}
@@ -141,7 +142,7 @@ func (v *VanillaACTR) Run(initialBuffers framework.InitialBuffers) (result *fram
 }
 
 // WriteModel converts the internal actr.Model to Lisp and writes it to a file.
-func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
+func (v *VanillaACTR) WriteModel(path string, options *runoptions.Options, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
 	// If our model has a print statement, then write out our support file
 	if v.model.HasPrintStatement() {
 		err = framework.WriteSupportFile(path, vanillaPrintFileName, vanillaPrint)
@@ -160,7 +161,7 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 		return "", err
 	}
 
-	_, err = v.GenerateCode(initialBuffers)
+	_, err = v.GenerateCode(options, initialBuffers)
 	if err != nil {
 		return
 	}
@@ -174,7 +175,7 @@ func (v *VanillaACTR) WriteModel(path string, initialBuffers framework.InitialBu
 }
 
 // GenerateCode converts the internal actr.Model to Lisp code.
-func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []byte, err error) {
+func (v *VanillaACTR) GenerateCode(options *runoptions.Options, initialBuffers framework.InitialBuffers) (code []byte, err error) {
 	patterns, err := framework.ParseInitialBuffers(v.model, initialBuffers)
 	if err != nil {
 		return
@@ -242,7 +243,7 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 		v.Writeln("\t:dat %s", numbers.Float64Str(*procedural.DefaultActionTime))
 	}
 
-	switch v.model.LogLevel {
+	switch options.LogLevel {
 	case "min":
 		v.Writeln("\t:trace-detail low")
 	case "info":
@@ -251,7 +252,7 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 		v.Writeln("\t:trace-detail high")
 	}
 
-	if v.model.TraceActivations {
+	if options.TraceActivations {
 		v.Writeln("\t:act t")
 	}
 
@@ -265,8 +266,8 @@ func (v *VanillaACTR) GenerateCode(initialBuffers framework.InitialBuffers) (cod
 	v.Writeln(")\n")
 
 	// random
-	if v.model.RandomSeed != nil {
-		v.Writeln("(sgp :seed (%d 0))\n", *v.model.RandomSeed)
+	if options.RandomSeed != nil {
+		v.Writeln("(sgp :seed (%d 0))\n", *options.RandomSeed)
 	}
 
 	// chunks
