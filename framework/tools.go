@@ -12,13 +12,14 @@ import (
 	"github.com/asmaloney/gactar/util/chalk"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/python"
+	"github.com/asmaloney/gactar/util/runoptions"
 )
 
 // Some tools for working with our frameworks
 
 // Reads a file, generates a model, validates it, and generates code from it for a given framework.
 // This is useful for testing.
-func GenerateCodeFromFile(fw Framework, inputFile string, initialBuffers InitialBuffers) (code []byte, err error) {
+func GenerateCodeFromFile(fw Framework, inputFile string, initialBuffers runoptions.InitialBuffers) (code []byte, err error) {
 	amodCode, err := os.ReadFile(inputFile)
 	if err != nil {
 		return
@@ -43,7 +44,10 @@ func GenerateCodeFromFile(fw Framework, inputFile string, initialBuffers Initial
 		return
 	}
 
-	code, err = fw.GenerateCode(&model.DefaultParams, initialBuffers)
+	options := model.DefaultParams
+	options.InitialBuffers = initialBuffers
+
+	code, err = fw.GenerateCode(&options)
 	if err != nil {
 		return
 	}
@@ -73,7 +77,7 @@ func Setup(info *Info) (err error) {
 	return
 }
 
-func ParseInitialBuffers(model *actr.Model, initialBuffers InitialBuffers) (parsed ParsedInitialBuffers, err error) {
+func ParseInitialBuffers(model *actr.Model, initialBuffers runoptions.InitialBuffers) (parsed ParsedInitialBuffers, err error) {
 	parsed = ParsedInitialBuffers{}
 
 	for bufferName, bufferInit := range initialBuffers {

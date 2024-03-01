@@ -133,8 +133,8 @@ func (p PyACTR) Model() (model *actr.Model) {
 	return p.model
 }
 
-func (p *PyACTR) Run(options *runoptions.Options, initialBuffers framework.InitialBuffers) (result *framework.RunResult, err error) {
-	runFile, err := p.WriteModel(p.tmpPath, options, initialBuffers)
+func (p *PyACTR) Run(options *runoptions.Options) (result *framework.RunResult, err error) {
+	runFile, err := p.WriteModel(p.tmpPath, options)
 	if err != nil {
 		return
 	}
@@ -157,7 +157,7 @@ func (p *PyACTR) Run(options *runoptions.Options, initialBuffers framework.Initi
 }
 
 // WriteModel converts the internal actr.Model to Python and writes it to a file.
-func (p *PyACTR) WriteModel(path string, options *runoptions.Options, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
+func (p *PyACTR) WriteModel(path string, options *runoptions.Options) (outputFileName string, err error) {
 	// If our model has a print statement, then write out our support file
 	if p.model.HasPrintStatement() {
 		err = framework.WriteSupportFile(path, pyactrPrintFileName, pyactrPrintPython)
@@ -176,7 +176,7 @@ func (p *PyACTR) WriteModel(path string, options *runoptions.Options, initialBuf
 		return "", err
 	}
 
-	_, err = p.GenerateCode(options, initialBuffers)
+	_, err = p.GenerateCode(options)
 	if err != nil {
 		return
 	}
@@ -190,8 +190,8 @@ func (p *PyACTR) WriteModel(path string, options *runoptions.Options, initialBuf
 }
 
 // GenerateCode converts the internal actr.Model to Python code.
-func (p *PyACTR) GenerateCode(options *runoptions.Options, initialBuffers framework.InitialBuffers) (code []byte, err error) {
-	patterns, err := framework.ParseInitialBuffers(p.model, initialBuffers)
+func (p *PyACTR) GenerateCode(options *runoptions.Options) (code []byte, err error) {
+	patterns, err := framework.ParseInitialBuffers(p.model, options.InitialBuffers)
 	if err != nil {
 		return
 	}

@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/asmaloney/gactar/framework"
-
 	"github.com/asmaloney/gactar/util/cli"
+	"github.com/asmaloney/gactar/util/runoptions"
 )
 
 type Session struct {
@@ -36,11 +35,11 @@ func (w *Web) beginSessionHandler(rw http.ResponseWriter, req *http.Request) {
 
 func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) {
 	type request struct {
-		SessionID   int                      `json:"sessionID"`
-		ModelID     int                      `json:"modelID"`
-		Buffers     framework.InitialBuffers `json:"buffers"`     // set the initial buffers
-		IncludeCode bool                     `json:"includeCode"` // include generated code in the result
-		Options     runOptionsJSON           `json:"options"`
+		SessionID   int                       `json:"sessionID"`
+		ModelID     int                       `json:"modelID"`
+		Buffers     runoptions.InitialBuffers `json:"buffers"`     // set the initial buffers
+		IncludeCode bool                      `json:"includeCode"` // include generated code in the result
+		Options     runOptionsJSON            `json:"options"`
 	}
 	type response struct {
 		Results json.RawMessage `json:"results"`
@@ -67,11 +66,13 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	aoptions, err := w.actrOptionsFromJSON(&model.actrModel.DefaultParams, &data.Options)
+	options, err := w.actrOptionsFromJSON(&model.actrModel.DefaultParams, &data.Options)
 	if err != nil {
 		encodeErrorResponse(rw, err)
 		return
 	}
+
+	options.InitialBuffers = data.Buffers
 
 	// ensure temp dir exists
 	// https://github.com/asmaloney/gactar/issues/103
@@ -81,7 +82,7 @@ func (w *Web) runModelSessionHandler(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	resultMap := w.runModel(model.actrModel, aoptions, data.Buffers)
+	resultMap := w.runModel(model.actrModel, options)
 
 	for key := range resultMap {
 		result := resultMap[key]

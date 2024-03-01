@@ -9,6 +9,7 @@ import (
 	"github.com/asmaloney/gactar/actr"
 	"github.com/asmaloney/gactar/amod"
 	"github.com/asmaloney/gactar/framework"
+
 	"github.com/asmaloney/gactar/util/chalk"
 	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/filesystem"
@@ -113,7 +114,7 @@ func generateCode(frameworks framework.List, files []string, outputDir string) (
 				continue
 			}
 
-			fileName, err := f.WriteModel(outputDir, &model.DefaultParams, framework.InitialBuffers{})
+			fileName, err := f.WriteModel(outputDir, &model.DefaultParams)
 			if err != nil {
 				fmt.Println(err.Error())
 				continue
@@ -128,7 +129,7 @@ func generateCode(frameworks framework.List, files []string, outputDir string) (
 func runCode(frameworks framework.List) {
 	for _, f := range frameworks {
 		model := f.Model()
-		result, err := f.Run(&model.DefaultParams, framework.InitialBuffers{})
+		result, err := f.Run(&model.DefaultParams)
 		if err != nil {
 			fmt.Println(err.Error())
 			continue

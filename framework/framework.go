@@ -51,16 +51,12 @@ type Framework interface {
 	SetModel(model *actr.Model) (err error)
 	Model() (model *actr.Model)
 
-	Run(options *runoptions.Options, initialBuffers InitialBuffers) (result *RunResult, err error)
-	WriteModel(path string, options *runoptions.Options, initialBuffers InitialBuffers) (outputFileName string, err error)
-	GenerateCode(options *runoptions.Options, initialBuffers InitialBuffers) (code []byte, err error)
+	Run(options *runoptions.Options) (result *RunResult, err error)
+	WriteModel(path string, options *runoptions.Options) (outputFileName string, err error)
+	GenerateCode(options *runoptions.Options) (code []byte, err error)
 }
 
 type List map[string]Framework
-
-// InitialBuffers is a map of buffer names to initial contents of the buffer.
-// This is used when passing in user-defined initial contents e.g. through a web API.
-type InitialBuffers map[string]string
 
 // ParsedInitialBuffers is a map of buffer name to a parsed version of the initial contents.
 // This is used when passing in user-defined initial contents e.g. through a web API.
