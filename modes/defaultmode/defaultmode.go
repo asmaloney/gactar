@@ -113,7 +113,7 @@ func generateCode(frameworks framework.List, files []string, outputDir string) (
 				continue
 			}
 
-			fileName, err := f.WriteModel(outputDir, framework.InitialBuffers{})
+			fileName, err := f.WriteModel(outputDir, &model.DefaultParams, framework.InitialBuffers{})
 			if err != nil {
 				fmt.Println(err.Error())
 				continue
@@ -127,7 +127,8 @@ func generateCode(frameworks framework.List, files []string, outputDir string) (
 
 func runCode(frameworks framework.List) {
 	for _, f := range frameworks {
-		result, err := f.Run(framework.InitialBuffers{})
+		model := f.Model()
+		result, err := f.Run(&model.DefaultParams, framework.InitialBuffers{})
 		if err != nil {
 			fmt.Println(err.Error())
 			continue

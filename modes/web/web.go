@@ -24,6 +24,7 @@ import (
 
 	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/issues"
+	"github.com/asmaloney/gactar/util/runoptions"
 	"github.com/asmaloney/gactar/util/validate"
 	"github.com/asmaloney/gactar/util/version"
 )
@@ -162,13 +163,11 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	aoptions, err := w.actrOptionsFromJSON(data.Options)
+	aoptions, err := w.actrOptionsFromJSON(&model.DefaultParams, data.Options)
 	if err != nil {
 		encodeErrorResponse(rw, err)
 		return
 	}
-
-	model.Options = aoptions
 
 	initialGoal := strings.TrimSpace(data.Goal)
 	initialBuffers := framework.InitialBuffers{
@@ -185,7 +184,7 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	resultMap := w.runModel(model, initialBuffers)
+	resultMap := w.runModel(model, aoptions, initialBuffers)
 
 	rr := runResult{
 		Issues:  log.AllIssues(),
@@ -201,13 +200,13 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 	encodeResponse(rw, json.RawMessage(string(results)))
 }
 
-func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers) (resultMap frameworkRunResultMap) {
-	resultMap = make(frameworkRunResultMap, len(model.Options.Frameworks))
+func (w Web) runModel(model *actr.Model, options *runoptions.Options, initialBuffers framework.InitialBuffers) (resultMap frameworkRunResultMap) {
+	resultMap = make(frameworkRunResultMap, len(options.Frameworks))
 
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
 
-	for _, name := range model.Options.Frameworks {
+	for _, name := range options.Frameworks {
 		f := w.settings.Frameworks[name]
 
 		wg.Add(1)
@@ -219,7 +218,7 @@ func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers
 
 			log := f.ValidateModel(model)
 			if !log.HasError() {
-				r, err := runModelOnFramework(model, initialBuffers, f)
+				r, err := runModelOnFramework(model, options, initialBuffers, f)
 				if err != nil {
 					log.Error(nil, err.Error())
 				}
@@ -264,7 +263,7 @@ func (w Web) runModel(model *actr.Model, initialBuffers framework.InitialBuffers
 	return
 }
 
-func runModelOnFramework(model *actr.Model, initialBuffers framework.InitialBuffers, f framework.Framework) (result *framework.RunResult, err error) {
+func runModelOnFramework(model *actr.Model, options *runoptions.Options, initialBuffers framework.InitialBuffers, f framework.Framework) (result *framework.RunResult, err error) {
 	if model == nil {
 		err = ErrNoModel
 		return
@@ -275,7 +274,7 @@ func runModelOnFramework(model *actr.Model, initialBuffers framework.InitialBuff
 		return
 	}
 
-	result, err = f.Run(initialBuffers)
+	result, err = f.Run(options, initialBuffers)
 	if err != nil {
 		return
 	}

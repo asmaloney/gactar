@@ -44,7 +44,9 @@ type Model struct {
 
 	Productions []*Production
 
-	runoptions.Options
+	// These defaults come from the amod file and may be overridden on the command line
+	// or by web requests.
+	DefaultParams runoptions.Options
 
 	// Used to validate our parameters
 	parameters param.ParametersInterface
@@ -80,7 +82,7 @@ func (model *Model) Initialize() {
 	model.Procedural = modules.NewProcedural()
 	model.Modules = append(model.Modules, model.Procedural)
 
-	model.LogLevel = "info"
+	model.DefaultParams = runoptions.New()
 
 	// Declare our parameters
 	loggingParam := param.NewStr(
@@ -293,16 +295,16 @@ func (model *Model) SetParam(kv *keyvalue.KeyValue) (err error) {
 
 	switch kv.Key {
 	case "log_level":
-		model.LogLevel = runoptions.ACTRLogLevel(*value.Str)
+		model.DefaultParams.LogLevel = runoptions.ACTRLogLevel(*value.Str)
 
 	case "trace_activations":
 		boolVal, _ := value.AsBool() // already validated
-		model.TraceActivations = boolVal
+		model.DefaultParams.TraceActivations = boolVal
 
 	case "random_seed":
 		seed := uint32(*value.Number)
 
-		model.RandomSeed = &seed
+		model.DefaultParams.RandomSeed = &seed
 
 	default:
 		return param.ErrUnrecognizedOption{Option: kv.Key}

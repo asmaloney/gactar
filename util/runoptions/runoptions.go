@@ -37,7 +37,7 @@ type Options struct {
 	// One of 'min', 'info', or 'detail'
 	LogLevel ACTRLogLevel
 
-	// Output detailed info about activations
+	// If true, output detailed info about activations
 	TraceActivations bool
 
 	// The seed to use for generating pseudo-random numbers (allows for reproducible runs)

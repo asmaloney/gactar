@@ -264,7 +264,7 @@ func (s *Shell) cmdRun(initialGoal string) (err error) {
 			"goal": strings.TrimSpace(initialGoal),
 		}
 
-		result, err := f.Run(initialBuffers)
+		result, err := f.Run(&s.currentModel.DefaultParams, initialBuffers)
 		if err != nil {
 			return err
 		}

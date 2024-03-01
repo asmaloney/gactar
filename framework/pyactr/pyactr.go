@@ -16,6 +16,7 @@ import (
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/issues"
 	"github.com/asmaloney/gactar/util/numbers"
+	"github.com/asmaloney/gactar/util/runoptions"
 )
 
 //go:embed pyactr_print.py
@@ -132,8 +133,8 @@ func (p PyACTR) Model() (model *actr.Model) {
 	return p.model
 }
 
-func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (result *framework.RunResult, err error) {
-	runFile, err := p.WriteModel(p.tmpPath, initialBuffers)
+func (p *PyACTR) Run(options *runoptions.Options, initialBuffers framework.InitialBuffers) (result *framework.RunResult, err error) {
+	runFile, err := p.WriteModel(p.tmpPath, options, initialBuffers)
 	if err != nil {
 		return
 	}
@@ -156,7 +157,7 @@ func (p *PyACTR) Run(initialBuffers framework.InitialBuffers) (result *framework
 }
 
 // WriteModel converts the internal actr.Model to Python and writes it to a file.
-func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
+func (p *PyACTR) WriteModel(path string, options *runoptions.Options, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
 	// If our model has a print statement, then write out our support file
 	if p.model.HasPrintStatement() {
 		err = framework.WriteSupportFile(path, pyactrPrintFileName, pyactrPrintPython)
@@ -175,7 +176,7 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 		return "", err
 	}
 
-	_, err = p.GenerateCode(initialBuffers)
+	_, err = p.GenerateCode(options, initialBuffers)
 	if err != nil {
 		return
 	}
@@ -189,7 +190,7 @@ func (p *PyACTR) WriteModel(path string, initialBuffers framework.InitialBuffers
 }
 
 // GenerateCode converts the internal actr.Model to Python code.
-func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []byte, err error) {
+func (p *PyACTR) GenerateCode(options *runoptions.Options, initialBuffers framework.InitialBuffers) (code []byte, err error) {
 	patterns, err := framework.ParseInitialBuffers(p.model, initialBuffers)
 	if err != nil {
 		return
@@ -204,13 +205,13 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 
 	p.writeHeader()
 
-	p.writeImports()
+	p.writeImports(options)
 
 	p.Writeln("")
 
 	// random
-	if p.model.RandomSeed != nil {
-		p.Writeln("numpy.random.seed(%d)\n", *p.model.RandomSeed)
+	if options.RandomSeed != nil {
+		p.Writeln("numpy.random.seed(%d)\n", *options.RandomSeed)
 	}
 
 	memory := p.model.Memory
@@ -253,7 +254,7 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 		p.Writeln("    rule_firing=%s,", numbers.Float64Str(*procedural.DefaultActionTime))
 	}
 
-	if p.model.TraceActivations {
+	if options.TraceActivations {
 		p.Writeln("    activation_trace=True,")
 	}
 
@@ -329,7 +330,7 @@ func (p *PyACTR) GenerateCode(initialBuffers framework.InitialBuffers) (code []b
 	p.Writeln("")
 
 	// ...add our code to run
-	p.writeMain()
+	p.writeMain(options)
 
 	code = p.GetContents()
 	return
@@ -367,8 +368,8 @@ func (p PyACTR) writeAuthors() {
 	p.Writeln("")
 }
 
-func (p PyACTR) writeImports() {
-	if p.model.RandomSeed != nil {
+func (p PyACTR) writeImports(runOptions *runoptions.Options) {
+	if runOptions.RandomSeed != nil {
 		p.Writeln("import numpy")
 	}
 
@@ -491,20 +492,20 @@ func (p PyACTR) writeProductions() {
 	}
 }
 
-func (p PyACTR) writeMain() {
+func (p PyACTR) writeMain(runOptions *runoptions.Options) {
 	p.Writeln("# Main")
 	p.Writeln("if __name__ == '__main__':")
 
 	options := []string{"gui=False"}
 
-	if p.model.LogLevel == "min" {
+	if runOptions.LogLevel == "min" {
 		options = append(options, "trace=False")
 	}
 
 	p.Writeln("    sim = %s.simulation( %s )", p.className, strings.Join(options, ", "))
 	p.Writeln("    sim.run()")
 
-	if p.model.LogLevel != "min" {
+	if runOptions.LogLevel != "min" {
 		p.Writeln("    if goal.test_buffer('full'):")
 		p.Writeln("        print('chunk left in goal: ' + str(goal.pop()))")
 		p.Writeln("    if %s.retrieval.test_buffer('full'):", p.className)
