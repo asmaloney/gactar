@@ -106,8 +106,8 @@ func (c VanillaACTR) Model() (model *actr.Model) {
 	return c.model
 }
 
-func (v *VanillaACTR) Run(options *runoptions.Options, initialBuffers framework.InitialBuffers) (result *framework.RunResult, err error) {
-	modelFile, err := v.WriteModel(v.tmpPath, options, initialBuffers)
+func (v *VanillaACTR) Run(options *runoptions.Options) (result *framework.RunResult, err error) {
+	modelFile, err := v.WriteModel(v.tmpPath, options)
 	if err != nil {
 		return
 	}
@@ -142,7 +142,7 @@ func (v *VanillaACTR) Run(options *runoptions.Options, initialBuffers framework.
 }
 
 // WriteModel converts the internal actr.Model to Lisp and writes it to a file.
-func (v *VanillaACTR) WriteModel(path string, options *runoptions.Options, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
+func (v *VanillaACTR) WriteModel(path string, options *runoptions.Options) (outputFileName string, err error) {
 	// If our model has a print statement, then write out our support file
 	if v.model.HasPrintStatement() {
 		err = framework.WriteSupportFile(path, vanillaPrintFileName, vanillaPrint)
@@ -161,7 +161,7 @@ func (v *VanillaACTR) WriteModel(path string, options *runoptions.Options, initi
 		return "", err
 	}
 
-	_, err = v.GenerateCode(options, initialBuffers)
+	_, err = v.GenerateCode(options)
 	if err != nil {
 		return
 	}
@@ -175,8 +175,8 @@ func (v *VanillaACTR) WriteModel(path string, options *runoptions.Options, initi
 }
 
 // GenerateCode converts the internal actr.Model to Lisp code.
-func (v *VanillaACTR) GenerateCode(options *runoptions.Options, initialBuffers framework.InitialBuffers) (code []byte, err error) {
-	patterns, err := framework.ParseInitialBuffers(v.model, initialBuffers)
+func (v *VanillaACTR) GenerateCode(options *runoptions.Options) (code []byte, err error) {
+	patterns, err := framework.ParseInitialBuffers(v.model, options.InitialBuffers)
 	if err != nil {
 		return
 	}

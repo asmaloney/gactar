@@ -11,7 +11,9 @@ import (
 	"github.com/kylelemons/godebug/diff"
 
 	"github.com/asmaloney/gactar/framework"
+
 	"github.com/asmaloney/gactar/util/cli"
+	"github.com/asmaloney/gactar/util/runoptions"
 )
 
 func init() {
@@ -56,7 +58,7 @@ func TestCodeGeneration(t *testing.T) {
 }
 
 func runCodeGenerationTest(t *testing.T, fw framework.Framework, input, output string) { //nolint to avoid Helper info since it doesn't apply
-	code, err := framework.GenerateCodeFromFile(fw, input, framework.InitialBuffers{})
+	code, err := framework.GenerateCodeFromFile(fw, input, runoptions.InitialBuffers{})
 	if err != nil {
 		t.Error(err)
 		return

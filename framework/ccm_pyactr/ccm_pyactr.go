@@ -116,8 +116,8 @@ func (c CCMPyACTR) Model() (model *actr.Model) {
 
 // Run generates the python code from the amod file, writes it to disk, creates a "run" file
 // to actually run the model, and returns the output (stdout and stderr combined).
-func (c *CCMPyACTR) Run(options *runoptions.Options, initialBuffers framework.InitialBuffers) (result *framework.RunResult, err error) {
-	runFile, err := c.WriteModel(c.tmpPath, options, initialBuffers)
+func (c *CCMPyACTR) Run(options *runoptions.Options) (result *framework.RunResult, err error) {
+	runFile, err := c.WriteModel(c.tmpPath, options)
 	if err != nil {
 		return
 	}
@@ -138,7 +138,7 @@ func (c *CCMPyACTR) Run(options *runoptions.Options, initialBuffers framework.In
 }
 
 // WriteModel converts the internal actr.Model to Python and writes it to a file.
-func (c *CCMPyACTR) WriteModel(path string, options *runoptions.Options, initialBuffers framework.InitialBuffers) (outputFileName string, err error) {
+func (c *CCMPyACTR) WriteModel(path string, options *runoptions.Options) (outputFileName string, err error) {
 	// If our model has a print statement, then write out our support file
 	if c.model.HasPrintStatement() {
 		err = framework.WriteSupportFile(path, ccmPrintFileName, ccmPrintPython)
@@ -165,7 +165,7 @@ func (c *CCMPyACTR) WriteModel(path string, options *runoptions.Options, initial
 		return "", err
 	}
 
-	_, err = c.GenerateCode(options, initialBuffers)
+	_, err = c.GenerateCode(options)
 	if err != nil {
 		return
 	}
@@ -179,8 +179,8 @@ func (c *CCMPyACTR) WriteModel(path string, options *runoptions.Options, initial
 }
 
 // GenerateCode converts the internal actr.Model to Python code.
-func (c *CCMPyACTR) GenerateCode(options *runoptions.Options, initialBuffers framework.InitialBuffers) (code []byte, err error) {
-	patterns, err := framework.ParseInitialBuffers(c.model, initialBuffers)
+func (c *CCMPyACTR) GenerateCode(options *runoptions.Options) (code []byte, err error) {
+	patterns, err := framework.ParseInitialBuffers(c.model, options.InitialBuffers)
 	if err != nil {
 		return
 	}

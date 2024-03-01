@@ -29,10 +29,17 @@ func ValidLogLevel(e string) bool {
 // FrameworkNameList is a list of framework names used in the run options.
 type FrameworkNameList []string
 
+// InitialBuffers is a map of buffer names to initial contents of the buffer.
+// This is used when passing in user-defined initial contents e.g. through a web API.
+type InitialBuffers map[string]string
+
 // Options are options used when running a model.
 type Options struct {
 	// List of frameworks to run on (if empty, "all")
 	Frameworks FrameworkNameList
+
+	// Stores the initial contents of any buffers
+	InitialBuffers InitialBuffers
 
 	// One of 'min', 'info', or 'detail'
 	LogLevel ACTRLogLevel

@@ -163,14 +163,15 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	aoptions, err := w.actrOptionsFromJSON(&model.DefaultParams, data.Options)
+	options, err := w.actrOptionsFromJSON(&model.DefaultParams, data.Options)
 	if err != nil {
 		encodeErrorResponse(rw, err)
 		return
 	}
 
 	initialGoal := strings.TrimSpace(data.Goal)
-	initialBuffers := framework.InitialBuffers{
+
+	options.InitialBuffers = runoptions.InitialBuffers{
 		"goal": initialGoal,
 	}
 
@@ -184,7 +185,7 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	resultMap := w.runModel(model, aoptions, initialBuffers)
+	resultMap := w.runModel(model, options)
 
 	rr := runResult{
 		Issues:  log.AllIssues(),
@@ -200,7 +201,7 @@ func (w Web) runModelHandler(rw http.ResponseWriter, req *http.Request) {
 	encodeResponse(rw, json.RawMessage(string(results)))
 }
 
-func (w Web) runModel(model *actr.Model, options *runoptions.Options, initialBuffers framework.InitialBuffers) (resultMap frameworkRunResultMap) {
+func (w Web) runModel(model *actr.Model, options *runoptions.Options) (resultMap frameworkRunResultMap) {
 	resultMap = make(frameworkRunResultMap, len(options.Frameworks))
 
 	var wg sync.WaitGroup
@@ -218,7 +219,7 @@ func (w Web) runModel(model *actr.Model, options *runoptions.Options, initialBuf
 
 			log := f.ValidateModel(model)
 			if !log.HasError() {
-				r, err := runModelOnFramework(model, options, initialBuffers, f)
+				r, err := runModelOnFramework(model, options, f)
 				if err != nil {
 					log.Error(nil, err.Error())
 				}
@@ -263,7 +264,7 @@ func (w Web) runModel(model *actr.Model, options *runoptions.Options, initialBuf
 	return
 }
 
-func runModelOnFramework(model *actr.Model, options *runoptions.Options, initialBuffers framework.InitialBuffers, f framework.Framework) (result *framework.RunResult, err error) {
+func runModelOnFramework(model *actr.Model, options *runoptions.Options, f framework.Framework) (result *framework.RunResult, err error) {
 	if model == nil {
 		err = ErrNoModel
 		return
@@ -274,7 +275,7 @@ func runModelOnFramework(model *actr.Model, options *runoptions.Options, initial
 		return
 	}
 
-	result, err = f.Run(options, initialBuffers)
+	result, err = f.Run(options)
 	if err != nil {
 		return
 	}

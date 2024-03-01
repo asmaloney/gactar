@@ -18,6 +18,7 @@ import (
 	"github.com/asmaloney/gactar/util/chalk"
 	"github.com/asmaloney/gactar/util/cli"
 	"github.com/asmaloney/gactar/util/issues"
+	"github.com/asmaloney/gactar/util/runoptions"
 	"github.com/asmaloney/gactar/util/validate"
 )
 
@@ -260,11 +261,12 @@ func (s *Shell) cmdRun(initialGoal string) (err error) {
 			return err
 		}
 
-		initialBuffers := framework.InitialBuffers{
+		options := s.currentModel.DefaultParams
+		options.InitialBuffers = runoptions.InitialBuffers{
 			"goal": strings.TrimSpace(initialGoal),
 		}
 
-		result, err := f.Run(&s.currentModel.DefaultParams, initialBuffers)
+		result, err := f.Run(&options)
 		if err != nil {
 			return err
 		}
