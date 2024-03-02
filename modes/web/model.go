@@ -89,7 +89,7 @@ func (w Web) actrOptionsFromJSON(defaults *runoptions.Options, options *runOptio
 		return nil, nil
 	}
 
-	activeFrameworkNames := w.settings.Frameworks.Names()
+	activeFrameworkNames := w.settings.ActiveFrameworks.Names()
 
 	options.Frameworks.NormalizeFrameworkList(activeFrameworkNames)
 

@@ -65,7 +65,7 @@ func Initialize(settings *cli.Settings) (s *Shell, err error) {
 
 	s.preamble()
 
-	for name := range settings.Frameworks {
+	for name := range settings.ActiveFrameworks {
 		s.activeFrameworks[name] = true
 	}
 
@@ -158,16 +158,16 @@ func (s *Shell) cmdFramework(fNames string) (err error) {
 	sort.Strings(names)
 
 	if names[0] == "all" {
-		names = s.settings.Frameworks.Names()
+		names = s.settings.ActiveFrameworks.Names()
 		sort.Strings(names)
 	}
 
 	s.activeFrameworks = map[string]bool{}
 
 	for _, name := range names {
-		if !s.settings.Frameworks.Exists(name) {
+		if !s.settings.ActiveFrameworks.Exists(name) {
 			err = &ErrInvalidFramework{Name: name}
-			err = fmt.Errorf("%w. Valid values: %v", err, s.settings.Frameworks.Names())
+			err = fmt.Errorf("%w. Valid values: %v", err, s.settings.ActiveFrameworks.Names())
 			return
 		}
 
@@ -216,7 +216,7 @@ func (s *Shell) cmdLoad(fileName string) (err error) {
 		}
 	}
 
-	for name, f := range s.settings.Frameworks {
+	for name, f := range s.settings.ActiveFrameworks {
 		if !s.activeFrameworks[name] {
 			continue
 		}
@@ -249,7 +249,7 @@ func (s *Shell) cmdRun(initialGoal string) (err error) {
 	validate.Goal(s.currentModel, initialGoal, log)
 	fmt.Print(log)
 
-	for name, f := range s.settings.Frameworks {
+	for name, f := range s.settings.ActiveFrameworks {
 		if !s.activeFrameworks[name] {
 			continue
 		}

@@ -128,7 +128,7 @@ func (w Web) getFrameworksHandler(rw http.ResponseWriter, req *http.Request) {
 
 	frameworks := framework.InfoList{}
 
-	for _, framework := range w.settings.Frameworks {
+	for _, framework := range w.settings.ActiveFrameworks {
 		frameworks = append(frameworks, *framework.Info())
 	}
 
@@ -208,7 +208,7 @@ func (w Web) runModel(model *actr.Model, options *runoptions.Options) (resultMap
 	var mutex = &sync.Mutex{}
 
 	for _, name := range options.Frameworks {
-		f := w.settings.Frameworks[name]
+		f := w.settings.ActiveFrameworks[name]
 
 		wg.Add(1)
 

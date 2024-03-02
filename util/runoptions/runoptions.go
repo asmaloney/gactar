@@ -35,7 +35,10 @@ type InitialBuffers map[string]string
 
 // Options are options used when running a model.
 type Options struct {
-	// List of frameworks to run on (if empty, "all")
+	// List of frameworks to run on (if empty, "all" which means all active frameworks)
+	// This is used in web mode to let the user select which frameworks to run on.
+	// With the CLI options, this will be always be "all" since they specify the
+	// frameworks on the command line.
 	Frameworks FrameworkNameList
 
 	// Stores the initial contents of any buffers

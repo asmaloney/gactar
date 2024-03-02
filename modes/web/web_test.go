@@ -15,7 +15,7 @@ func TestMain(m *testing.M) {
 
 	frameworks := frameworkutil.CreateFrameworks(settings, nil)
 
-	settings.Frameworks = frameworks
+	settings.ActiveFrameworks = frameworks
 
 	webTest, _ = Initialize(settings, 8181, nil)
 

@@ -63,13 +63,13 @@ func Initialize(settings *cli.Settings, files []string, runAfterGenerate bool) (
 func (d *DefaultMode) Start() (err error) {
 	fmt.Printf("Intermediate file path: %q\n", d.settings.TempPath)
 
-	err = generateCode(d.settings.Frameworks, d.fileList, d.settings.TempPath)
+	err = generateCode(d.settings.ActiveFrameworks, d.fileList, d.settings.TempPath)
 	if err != nil {
 		return err
 	}
 
 	if d.runAfterGenerate {
-		runCode(d.settings.Frameworks)
+		runCode(d.settings.ActiveFrameworks)
 	}
 	return
 }

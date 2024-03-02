@@ -21,7 +21,7 @@ type Settings struct {
 	EnvPath  string // full path to the environment directory
 	TempPath string // full path to the temp directory
 
-	Frameworks framework.List // active frameworks
+	ActiveFrameworks framework.List // active frameworks (set from the command line)
 
 	Version string // the version string for output to command line
 }
