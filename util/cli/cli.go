@@ -2,7 +2,6 @@
 package cli
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -10,6 +9,7 @@ import (
 	"runtime"
 
 	"github.com/asmaloney/gactar/framework"
+
 	"github.com/asmaloney/gactar/util/filesystem"
 )
 
@@ -24,23 +24,6 @@ type Settings struct {
 	ActiveFrameworks framework.List // active frameworks (set from the command line)
 
 	Version string // the version string for output to command line
-}
-type settingsKey string
-
-var contextKey settingsKey = "cli"
-
-func NewContext(ctx context.Context, u *Settings) context.Context {
-	return context.WithValue(ctx, contextKey, u)
-}
-
-func FromContext(ctx context.Context) (*Settings, error) {
-	u, ok := ctx.Value(contextKey).(*Settings)
-
-	if !ok {
-		return nil, ErrInvalidContext
-	}
-
-	return u, nil
 }
 
 // SetupPaths will set PATH and VIRTUAL_ENV environment variables to our environment path.

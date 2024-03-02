@@ -189,10 +189,6 @@ func setupForRun(cmd *cobra.Command) (settings *cli.Settings, err error) {
 
 	settings.ActiveFrameworks = frameworks
 
-	context := cli.NewContext(cmd.Context(), settings)
-
-	cmd.SetContext(context)
-
 	return
 }
 
