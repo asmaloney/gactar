@@ -39,8 +39,11 @@ var (
 	flagDebug      = []string{}
 	flagNoColour   = false
 
-	flagRun     = false
+	// special option just for outputting version
 	flagVersion = false
+
+	// options for the default command line mode
+	defaultModeOptions defaultmode.Options
 )
 
 type errRequiresSubcommand struct {
@@ -94,7 +97,9 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		s, err := defaultmode.Initialize(settings, args, flagRun)
+		defaultModeOptions.FileList = args
+
+		s, err := defaultmode.Initialize(settings, defaultModeOptions)
 		if err != nil {
 			return err
 		}
@@ -145,8 +150,9 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&flagNoColour, "no-colour", false, "do not use colour output on command line")
 
 	// Local flags - only run when this action is called directly.
-	rootCmd.Flags().BoolVarP(&flagRun, "run", "r", false, "run the models after generating the code")
 	rootCmd.Flags().BoolVarP(&flagVersion, "version", "v", false, "output the version and quit")
+	// Run options for default command line mode.
+	rootCmd.Flags().BoolVarP(&defaultModeOptions.RunAfterGeneration, "run", "r", false, "run the models after generating the code")
 
 	rootCmd.MarkFlagsMutuallyExclusive("run", "version")
 	rootCmd.SetGlobalNormalizationFunc(normalizeAliasFlagsFunc)

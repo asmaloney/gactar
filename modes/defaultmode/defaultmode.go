@@ -22,26 +22,26 @@ var (
 	ErrNoValidModels    = errors.New("no valid models to run")
 )
 
+type Options struct {
+	FileList           []string
+	RunAfterGeneration bool
+}
+
 type DefaultMode struct {
 	settings *cli.Settings
 
-	runAfterGenerate bool
-	fileList         []string
+	runOptions Options
 }
 
-func Initialize(settings *cli.Settings, files []string, runAfterGenerate bool) (d *DefaultMode, err error) {
-	d = &DefaultMode{
-		settings:         settings,
-		runAfterGenerate: runAfterGenerate,
-	}
-
+func Initialize(settings *cli.Settings, options Options) (d *DefaultMode, err error) {
 	// Check if files exist first
-	if len(files) == 0 {
+	if len(options.FileList) == 0 {
 		return nil, ErrNoInputFiles
 	}
 
-	existingFiles := files[:0]
-	for _, file := range files {
+	existingFiles := make([]string, len(options.FileList))
+
+	for _, file := range options.FileList {
 		if _, fileErr := os.Stat(file); errors.Is(fileErr, os.ErrNotExist) {
 			fileErr = &filesystem.ErrFileDoesNotExist{FileName: file}
 			chalk.PrintErr(fileErr)
@@ -56,19 +56,25 @@ func Initialize(settings *cli.Settings, files []string, runAfterGenerate bool) (
 		return nil, ErrNoFilesToProcess
 	}
 
-	d.fileList = existingFiles
+	d = &DefaultMode{
+		settings:   settings,
+		runOptions: options,
+	}
+
+	d.runOptions.FileList = existingFiles
+
 	return
 }
 
 func (d *DefaultMode) Start() (err error) {
 	fmt.Printf("Intermediate file path: %q\n", d.settings.TempPath)
 
-	err = generateCode(d.settings.ActiveFrameworks, d.fileList, d.settings.TempPath)
+	err = generateCode(d.settings.ActiveFrameworks, d.runOptions.FileList, d.settings.TempPath)
 	if err != nil {
 		return err
 	}
 
-	if d.runAfterGenerate {
+	if d.runOptions.RunAfterGeneration {
 		runCode(d.settings.ActiveFrameworks)
 	}
 	return
