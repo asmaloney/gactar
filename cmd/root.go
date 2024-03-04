@@ -114,10 +114,10 @@ var rootCmd = &cobra.Command{
 		if cmd.Flags().Changed("logging") {
 			if !runoptions.ValidLogLevel(defaultModeLogLevel) {
 				return runoptions.ErrInvalidLogLevel{Level: defaultModeLogLevel}
-			} else {
-				logLevel := runoptions.ACTRLogLevel(defaultModeLogLevel)
-				options.LogLevel = &logLevel
 			}
+
+			logLevel := runoptions.ACTRLogLevel(defaultModeLogLevel)
+			options.LogLevel = &logLevel
 		}
 
 		if cmd.Flags().Changed("rand") {
