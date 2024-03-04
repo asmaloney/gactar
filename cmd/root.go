@@ -21,6 +21,7 @@ import (
 	"github.com/asmaloney/gactar/util/executil"
 	"github.com/asmaloney/gactar/util/filesystem"
 	"github.com/asmaloney/gactar/util/frameworkutil"
+	"github.com/asmaloney/gactar/util/runoptions"
 	"github.com/asmaloney/gactar/util/version"
 )
 
@@ -43,7 +44,10 @@ var (
 	flagVersion = false
 
 	// options for the default command line mode
-	defaultModeOptions defaultmode.Options
+	defaultModeRunAfterGeneration bool
+	defaultModeLogLevel           string
+	defaultModeTraceActivations   bool
+	defaultModeRandomSeed         uint32
 )
 
 type errRequiresSubcommand struct {
@@ -97,9 +101,30 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		defaultModeOptions.FileList = args
+		options := defaultmode.CommandLineOptions{
+			FileList:           args,
+			RunAfterGeneration: defaultModeRunAfterGeneration,
+		}
 
-		s, err := defaultmode.Initialize(settings, defaultModeOptions)
+		// validate & override options
+		if cmd.Flags().Changed("trace") {
+			options.TraceActivations = &defaultModeTraceActivations
+		}
+
+		if cmd.Flags().Changed("logging") {
+			if !runoptions.ValidLogLevel(defaultModeLogLevel) {
+				return runoptions.ErrInvalidLogLevel{Level: defaultModeLogLevel}
+			}
+
+			logLevel := runoptions.ACTRLogLevel(defaultModeLogLevel)
+			options.LogLevel = &logLevel
+		}
+
+		if cmd.Flags().Changed("rand") {
+			options.RandomSeed = &defaultModeRandomSeed
+		}
+
+		s, err := defaultmode.Initialize(settings, options)
 		if err != nil {
 			return err
 		}
@@ -152,7 +177,10 @@ func init() {
 	// Local flags - only run when this action is called directly.
 	rootCmd.Flags().BoolVarP(&flagVersion, "version", "v", false, "output the version and quit")
 	// Run options for default command line mode.
-	rootCmd.Flags().BoolVarP(&defaultModeOptions.RunAfterGeneration, "run", "r", false, "run the models after generating the code")
+	rootCmd.Flags().BoolVarP(&defaultModeRunAfterGeneration, "run", "r", false, "run the models after generating the code")
+	rootCmd.Flags().StringVarP(&defaultModeLogLevel, "logging", "l", defaultModeLogLevel, fmt.Sprintf("logging level - valid options: %s", strings.Join(runoptions.ACTRLoggingLevels, ", ")))
+	rootCmd.Flags().BoolVarP(&defaultModeTraceActivations, "trace", "t", false, "output trace activations")
+	rootCmd.Flags().Uint32VarP(&defaultModeRandomSeed, "seed", "s", 0, "set the random number seed")
 
 	rootCmd.MarkFlagsMutuallyExclusive("run", "version")
 	rootCmd.SetGlobalNormalizationFunc(normalizeAliasFlagsFunc)
