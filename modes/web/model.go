@@ -103,16 +103,23 @@ func (w Web) actrOptionsFromJSON(defaults *runoptions.Options, options *runOptio
 	opts.Frameworks = options.Frameworks
 
 	if options.LogLevel != nil {
-		opts.LogLevel = runoptions.ACTRLogLevel(*options.LogLevel)
+		if !runoptions.ValidLogLevel(*options.LogLevel) {
+			err = runoptions.ErrInvalidLogLevel{Level: *options.LogLevel}
+		} else {
+			logLevel := runoptions.ACTRLogLevel(*options.LogLevel)
+			opts.LogLevel = &logLevel
+		}
 	}
 
 	if options.TraceActivations != nil {
-		opts.TraceActivations = *options.TraceActivations
+		opts.TraceActivations = options.TraceActivations
 	}
 
-	opts.RandomSeed = options.RandomSeed
+	if options.RandomSeed != nil {
+		opts.RandomSeed = options.RandomSeed
+	}
 
-	return &opts, nil
+	return &opts, err
 }
 
 func generateModel(amodFile string) (model *actr.Model, err error) {

@@ -148,7 +148,7 @@ func (c *CCMPyACTR) WriteModel(path string, options *runoptions.Options) (output
 	}
 
 	// If our model is tracing activations, then write out our support file
-	if options.TraceActivations {
+	if *options.TraceActivations {
 		err = framework.WriteSupportFile(path, gactarActivateTraceFileName, gactarActivateTraceFile)
 		if err != nil {
 			return
@@ -238,7 +238,7 @@ func (c *CCMPyACTR) GenerateCode(options *runoptions.Options) (code []byte, err 
 		c.Writeln("    %s = Memory(%s)", memory.ModuleName(), memory.BufferName())
 	}
 
-	if options.TraceActivations {
+	if *options.TraceActivations {
 		c.Writeln("    trace = ActivateTrace(%s)", memory.ModuleName())
 	}
 
@@ -287,7 +287,7 @@ func (c *CCMPyACTR) GenerateCode(options *runoptions.Options) (code []byte, err 
 		c.Writeln("")
 	}
 
-	if options.LogLevel == "info" {
+	if *options.LogLevel == "info" {
 		// this turns on some logging at the high level
 		c.Writeln("    def __init__(self):")
 		c.Writeln("        super().__init__(log=True)")
@@ -380,7 +380,7 @@ func (c CCMPyACTR) writeImports(runOptions *runoptions.Options) {
 		c.Write("from python_actr import %s\n", strings.Join(additionalImports, ", "))
 	}
 
-	if runOptions.LogLevel == "detail" {
+	if *runOptions.LogLevel == "detail" {
 		c.Writeln("from python_actr import log, log_everything")
 	}
 
@@ -389,7 +389,7 @@ func (c CCMPyACTR) writeImports(runOptions *runoptions.Options) {
 		c.Writeln(fmt.Sprintf("from %s import CCMPrint", ccmPrintImportName))
 	}
 
-	if runOptions.TraceActivations {
+	if *runOptions.TraceActivations {
 		c.Writeln("")
 		c.Writeln(fmt.Sprintf("from %s import ActivateTrace", gactarActivateTraceImportName))
 	}
@@ -494,7 +494,7 @@ func (c CCMPyACTR) writeMain(runOptions *runoptions.Options) {
 	c.Writeln("if __name__ == \"__main__\":")
 	c.Writeln(fmt.Sprintf("    model = %s()", c.className))
 
-	if runOptions.LogLevel == "detail" {
+	if *runOptions.LogLevel == "detail" {
 		c.Writeln("    log(summary=1)")
 		c.Writeln("    log_everything(model)")
 	}

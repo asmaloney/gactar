@@ -45,10 +45,10 @@ type Options struct {
 	InitialBuffers InitialBuffers
 
 	// One of 'min', 'info', or 'detail'
-	LogLevel ACTRLogLevel
+	LogLevel *ACTRLogLevel
 
 	// If true, output detailed info about activations
-	TraceActivations bool
+	TraceActivations *bool
 
 	// The seed to use for generating pseudo-random numbers (allows for reproducible runs)
 	// For all frameworks, if it is not set it uses current system time.
@@ -58,10 +58,13 @@ type Options struct {
 
 // New returns a default-initialized Options struct.
 func New() Options {
+	logLevel := ACTRLogLevel("info")
+	activations := false
+
 	return Options{
 		Frameworks:       FrameworkNameList{"all"},
-		LogLevel:         ACTRLogLevel("info"),
-		TraceActivations: false,
+		LogLevel:         &logLevel,
+		TraceActivations: &activations,
 		RandomSeed:       nil,
 	}
 }

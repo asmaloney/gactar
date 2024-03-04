@@ -1,6 +1,9 @@
 package runoptions
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type ErrFrameworkNotActive struct {
 	Name string
@@ -15,5 +18,13 @@ type ErrInvalidFrameworkName struct {
 }
 
 func (e ErrInvalidFrameworkName) Error() string {
-	return fmt.Sprintf("invalid framework name: %q", e.Name)
+	return fmt.Sprintf("invalid framework name: %q; expected one of %q", e.Name, strings.Join(ValidFrameworks, ", "))
+}
+
+type ErrInvalidLogLevel struct {
+	Level string
+}
+
+func (e ErrInvalidLogLevel) Error() string {
+	return fmt.Sprintf("invalid log level: %q; expected one of %q", e.Level, strings.Join(ACTRLoggingLevels, ", "))
 }

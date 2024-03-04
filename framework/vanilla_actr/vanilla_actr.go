@@ -243,7 +243,7 @@ func (v *VanillaACTR) GenerateCode(options *runoptions.Options) (code []byte, er
 		v.Writeln("\t:dat %s", numbers.Float64Str(*procedural.DefaultActionTime))
 	}
 
-	switch options.LogLevel {
+	switch *options.LogLevel {
 	case "min":
 		v.Writeln("\t:trace-detail low")
 	case "info":
@@ -252,7 +252,7 @@ func (v *VanillaACTR) GenerateCode(options *runoptions.Options) (code []byte, er
 		v.Writeln("\t:trace-detail high")
 	}
 
-	if options.TraceActivations {
+	if *options.TraceActivations {
 		v.Writeln("\t:act t")
 	}
 

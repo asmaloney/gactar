@@ -295,15 +295,15 @@ func (model *Model) SetParam(kv *keyvalue.KeyValue) (err error) {
 
 	switch kv.Key {
 	case "log_level":
-		model.DefaultParams.LogLevel = runoptions.ACTRLogLevel(*value.Str)
+		logLevel := runoptions.ACTRLogLevel(*value.Str) // already validated
+		model.DefaultParams.LogLevel = &logLevel
 
 	case "trace_activations":
 		boolVal, _ := value.AsBool() // already validated
-		model.DefaultParams.TraceActivations = boolVal
+		model.DefaultParams.TraceActivations = &boolVal
 
 	case "random_seed":
 		seed := uint32(*value.Number)
-
 		model.DefaultParams.RandomSeed = &seed
 
 	default:
