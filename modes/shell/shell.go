@@ -162,7 +162,7 @@ func (s Shell) printActiveFrameworks() {
 }
 
 func (s *Shell) cmdFramework(fNames string) (err error) {
-	// If no frameworks were specified, then return list of ative frameworks
+	// If no frameworks were specified, then return list of active frameworks
 	if len(fNames) == 0 {
 		s.printActiveFrameworks()
 		return
