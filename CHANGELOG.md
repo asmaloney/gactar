@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.14.0 - (in progress)
+
+### Added
+
+- {cli} Allow setting log level, tracing, and random seed on command line ([#426](https://github.com/asmaloney/gactar/pull/426))
+  ```
+  -l, --logging string      logging level - valid options: min, info, detail
+  -s, --seed uint32         set the random number seed
+  -t, --trace               output trace activations
+  ```
+
+### Changed
+
+- {pyactr} Update to pyactr 0.3.2.
+- {pyactr} Turn off base-level learning by default to match ACT-R ([#391](https://github.com/asmaloney/gactar/pull/391))
+
 ## [0.13.0](https://github.com/asmaloney/gactar/releases/tag/v0.13.0) - 2024-01-23
 
 This release contains mostly internal changes to set up for future features & to sync up [gactar-vscode](https://github.com/asmaloney/gactar-vscode).
