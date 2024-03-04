@@ -94,13 +94,16 @@ func (f *FrameworkNameList) NormalizeFrameworkList(activeFrameworks FrameworkNam
 func (f FrameworkNameList) VerifyFrameworkList(activeFrameworks FrameworkNameList) (err error) {
 	for _, name := range f {
 		if !IsValidFramework(name) {
-			err = &ErrInvalidFrameworkName{Name: name}
+			err = ErrInvalidFrameworkName{
+				Name:            name,
+				ValidFrameworks: activeFrameworks,
+			}
 			return
 		}
 
 		// we have a valid name, check if it is active
 		if !slices.Contains(activeFrameworks, name) {
-			err = &ErrFrameworkNotActive{Name: name}
+			err = ErrFrameworkNotActive{Name: name}
 			return
 		}
 	}
