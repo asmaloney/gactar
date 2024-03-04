@@ -254,7 +254,7 @@ func (p *PyACTR) GenerateCode(options *runoptions.Options) (code []byte, err err
 		p.Writeln("    rule_firing=%s,", numbers.Float64Str(*procedural.DefaultActionTime))
 	}
 
-	if options.TraceActivations {
+	if *options.TraceActivations {
 		p.Writeln("    activation_trace=True,")
 	}
 
@@ -498,14 +498,14 @@ func (p PyACTR) writeMain(runOptions *runoptions.Options) {
 
 	options := []string{"gui=False"}
 
-	if runOptions.LogLevel == "min" {
+	if *runOptions.LogLevel == "min" {
 		options = append(options, "trace=False")
 	}
 
 	p.Writeln("    sim = %s.simulation( %s )", p.className, strings.Join(options, ", "))
 	p.Writeln("    sim.run()")
 
-	if runOptions.LogLevel != "min" {
+	if *runOptions.LogLevel != "min" {
 		p.Writeln("    if goal.test_buffer('full'):")
 		p.Writeln("        print('chunk left in goal: ' + str(goal.pop()))")
 		p.Writeln("    if %s.retrieval.test_buffer('full'):", p.className)
