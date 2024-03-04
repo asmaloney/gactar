@@ -23,18 +23,9 @@ import (
 )
 
 var (
-	ErrLoadRequiresName    = errors.New("'load' requires a file name")
-	ErrNoFrameworkSelected = errors.New("no frameworks selected")
-	ErrNoModel             = errors.New("no model loaded")
+	ErrLoadRequiresName = errors.New("'load' requires a file name")
+	ErrNoModel          = errors.New("no model loaded")
 )
-
-type ErrInvalidFramework struct {
-	Name string
-}
-
-func (e ErrInvalidFramework) Error() string {
-	return fmt.Sprintf("%q is not a valid framework", e.Name)
-}
 
 type ErrUnrecognizedCommand struct {
 	Command string
@@ -42,6 +33,15 @@ type ErrUnrecognizedCommand struct {
 
 func (e ErrUnrecognizedCommand) Error() string {
 	return fmt.Sprintf("unrecognized command: %q", e.Command)
+}
+
+type ErrNoFrameworkSelected struct {
+	ValidFrameworks []string
+}
+
+func (e ErrNoFrameworkSelected) Error() string {
+	valid := strings.Join(e.ValidFrameworks, ", ")
+	return fmt.Sprintf("no framework selected; expected one of %q or \"all\"", valid)
 }
 
 type command struct {
@@ -153,7 +153,21 @@ func (s *Shell) runCommand(c string) (err error) {
 	return &ErrUnrecognizedCommand{Command: cmd}
 }
 
+func (s Shell) printActiveFrameworks() {
+	fmt.Print("active frameworks: ")
+	for name := range s.activeFrameworks {
+		fmt.Printf("%s ", name)
+	}
+	fmt.Println()
+}
+
 func (s *Shell) cmdFramework(fNames string) (err error) {
+	// If no frameworks were specified, then return list of ative frameworks
+	if len(fNames) == 0 {
+		s.printActiveFrameworks()
+		return
+	}
+
 	names := strings.Split(fNames, " ")
 	sort.Strings(names)
 
@@ -166,24 +180,23 @@ func (s *Shell) cmdFramework(fNames string) (err error) {
 
 	for _, name := range names {
 		if !s.settings.ActiveFrameworks.Exists(name) {
-			err = &ErrInvalidFramework{Name: name}
-			err = fmt.Errorf("%w. Valid values: %v", err, s.settings.ActiveFrameworks.Names())
+			err = runoptions.ErrInvalidFrameworkName{
+				Name:            name,
+				ValidFrameworks: s.settings.ActiveFrameworks.Names(),
+			}
 			return
 		}
 
 		s.activeFrameworks[name] = true
 	}
 
+	// Should not be possible..
 	if len(s.activeFrameworks) == 0 {
-		err = fmt.Errorf("%w. Valid values: %v", ErrNoFrameworkSelected, framework.ValidFrameworks)
+		err = ErrNoFrameworkSelected{ValidFrameworks: framework.ValidFrameworks}
 		return
 	}
 
-	fmt.Print("active frameworks: ")
-	for name := range s.activeFrameworks {
-		fmt.Printf("%s ", name)
-	}
-	fmt.Println()
+	s.printActiveFrameworks()
 
 	return
 }

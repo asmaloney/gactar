@@ -14,11 +14,16 @@ func (e ErrFrameworkNotActive) Error() string {
 }
 
 type ErrInvalidFrameworkName struct {
-	Name string
+	Name            string
+	ValidFrameworks []string
 }
 
 func (e ErrInvalidFrameworkName) Error() string {
-	return fmt.Sprintf("invalid framework name: %q; expected one of %q", e.Name, strings.Join(ValidFrameworks, ", "))
+	valid := strings.Join(e.ValidFrameworks, ", ")
+	if len(valid) == 0 {
+		valid = strings.Join(ValidNamedFrameworks(), ", ")
+	}
+	return fmt.Sprintf("invalid framework name: %q; expected one of %q or \"all\"", e.Name, valid)
 }
 
 type ErrInvalidLogLevel struct {

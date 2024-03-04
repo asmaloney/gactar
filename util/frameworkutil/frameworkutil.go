@@ -38,7 +38,8 @@ func CreateFrameworks(settings *cli.Settings, names []string) (list framework.Li
 			fw, err = vanilla_actr.New(settings.TempPath)
 
 		default:
-			chalk.PrintErrStr("unknown framework:", f)
+			err = runoptions.ErrInvalidFrameworkName{Name: f}
+			chalk.PrintErr(err)
 			continue
 		}
 
