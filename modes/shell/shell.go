@@ -77,7 +77,7 @@ func Initialize(settings *cli.Settings) (s *Shell, err error) {
 		"run":        {"runs the current model: run [INITIAL STATE]", s.cmdRun},
 		"version":    {"outputs version info", s.cmdVersion},
 
-		"help": {"exits the program", s.cmdHelp},
+		"help": {"outputs information about all available commands", s.cmdHelp},
 		"exit": {"exits the program", s.cmdExit},
 		"quit": {"exits the program", s.cmdExit},
 	}
