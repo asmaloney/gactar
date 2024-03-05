@@ -125,7 +125,7 @@ func (d *DefaultMode) generateCode() (err error) {
 				continue
 			}
 
-			options := overrideRunOptions(&model.DefaultParams, &d.commandLineOptions.Options)
+			options := model.DefaultParams.Override(&d.commandLineOptions.Options)
 
 			fileName, err := f.WriteModel(d.settings.TempPath, options)
 			if err != nil {
@@ -143,7 +143,7 @@ func (d *DefaultMode) runCode(frameworks framework.List) {
 	for _, f := range frameworks {
 		model := f.Model()
 
-		options := overrideRunOptions(&model.DefaultParams, &d.commandLineOptions.Options)
+		options := model.DefaultParams.Override(&d.commandLineOptions.Options)
 
 		result, err := f.Run(options)
 		if err != nil {
@@ -155,23 +155,4 @@ func (d *DefaultMode) runCode(frameworks framework.List) {
 		fmt.Println(string(result.Output))
 		fmt.Println()
 	}
-}
-
-// overrideRunOptions overrides options set in the model with any set on the command line.
-func overrideRunOptions(modelOptions, cliOptions *runoptions.Options) *runoptions.Options {
-	options := *modelOptions
-
-	if cliOptions.LogLevel != nil {
-		options.LogLevel = cliOptions.LogLevel
-	}
-
-	if cliOptions.TraceActivations != nil {
-		options.TraceActivations = cliOptions.TraceActivations
-	}
-
-	if cliOptions.RandomSeed != nil {
-		options.RandomSeed = cliOptions.RandomSeed
-	}
-
-	return &options
 }

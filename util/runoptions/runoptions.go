@@ -69,6 +69,25 @@ func New() Options {
 	}
 }
 
+// Override applies any overrides set in another Options struct. It returns a new struct.
+func (o Options) Override(cliOptions *Options) *Options {
+	options := o
+
+	if cliOptions.LogLevel != nil {
+		options.LogLevel = cliOptions.LogLevel
+	}
+
+	if cliOptions.TraceActivations != nil {
+		options.TraceActivations = cliOptions.TraceActivations
+	}
+
+	if cliOptions.RandomSeed != nil {
+		options.RandomSeed = cliOptions.RandomSeed
+	}
+
+	return &options
+}
+
 // IsValidFramework returns if the framework name is in our list of valid ones or not.
 func IsValidFramework(frameworkName string) bool {
 	return slices.Contains(ValidFrameworks, frameworkName)
