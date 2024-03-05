@@ -70,7 +70,7 @@ func Initialize(settings *cli.Settings) (s *Shell, err error) {
 	}
 
 	s.commands = map[string]command{
-		"frameworks": {`choose frameworks to run (e.g. "ccm pyactr", "all")`, s.cmdFramework},
+		"frameworks": {`choose frameworks to run (e.g. "ccm pyactr", "all") - called without arguments, it will list active frameworks`, s.cmdFramework},
 		"history":    {"outputs your command history", s.cmdHistory},
 		"load":       {"loads a model: load [FILENAME]", s.cmdLoad},
 		"reset":      {"resets the current model", s.cmdReset},
