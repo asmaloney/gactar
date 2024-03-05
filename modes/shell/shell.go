@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 
@@ -35,6 +37,33 @@ func (e ErrUnrecognizedCommand) Error() string {
 	return fmt.Sprintf("unrecognized command: %q", e.Command)
 }
 
+type ErrInvalidSetCommand struct {
+	Command string
+}
+
+func (e ErrInvalidSetCommand) Error() string {
+	return fmt.Sprintf("invalid set command: %q; expected form `set <option> <value>`", e.Command)
+}
+
+type ErrUnrecognizedSetOption struct {
+	Option string
+}
+
+func (e ErrUnrecognizedSetOption) Error() string {
+	return fmt.Sprintf("unrecognized option: %q; run `set` to see list of valid options", e.Option)
+}
+
+type ErrInvalidSetValue struct {
+	OptionName string
+	Value      string
+
+	Expected string
+}
+
+func (e ErrInvalidSetValue) Error() string {
+	return fmt.Sprintf("invalid value for %q: %q; expected %s", e.OptionName, e.Value, e.Expected)
+}
+
 type ErrNoFrameworkSelected struct {
 	ValidFrameworks []string
 }
@@ -50,7 +79,9 @@ type command struct {
 }
 
 type Shell struct {
-	settings         *cli.Settings
+	settings   *cli.Settings
+	runOptions runoptions.Options
+
 	history          []string
 	currentModel     *actr.Model
 	activeFrameworks map[string]bool
@@ -75,6 +106,7 @@ func Initialize(settings *cli.Settings) (s *Shell, err error) {
 		"load":       {"loads a model: load [FILENAME]", s.cmdLoad},
 		"reset":      {"resets the current model", s.cmdReset},
 		"run":        {"runs the current model: run [INITIAL STATE]", s.cmdRun},
+		"set":        {"set options: set [OPTION] [VALUE] - without arguments, lists options", s.cmdSet},
 		"version":    {"outputs version info", s.cmdVersion},
 
 		"help": {"outputs information about all available commands", s.cmdHelp},
@@ -274,12 +306,12 @@ func (s *Shell) cmdRun(initialGoal string) (err error) {
 			return err
 		}
 
-		options := s.currentModel.DefaultParams
+		options := s.currentModel.DefaultParams.Override(&s.runOptions)
 		options.InitialBuffers = runoptions.InitialBuffers{
 			"goal": strings.TrimSpace(initialGoal),
 		}
 
-		result, err := f.Run(&options)
+		result, err := f.Run(options)
 		if err != nil {
 			return err
 		}
@@ -289,6 +321,95 @@ func (s *Shell) cmdRun(initialGoal string) (err error) {
 		if result.Output[len(result.Output)-1] != '\n' {
 			fmt.Println()
 		}
+	}
+
+	return
+}
+
+func (s Shell) printActiveRunOptions() {
+	notSet := chalk.Italic("<not set>")
+
+	// logging
+	option := notSet
+	if s.runOptions.LogLevel != nil {
+		option = string(*s.runOptions.LogLevel)
+	}
+	fmt.Printf("  %s %s (valid values are: %v)\n", chalk.Bold("logging"), option, strings.Join(runoptions.ACTRLoggingLevels, ", "))
+
+	// trace
+	option = notSet
+	if s.runOptions.TraceActivations != nil {
+		option = "off"
+		if *s.runOptions.TraceActivations {
+			option = "on"
+		}
+	}
+	fmt.Printf("  %s %s (valid values are: on, off)\n", chalk.Bold("trace"), option)
+
+	// random seed
+	option = notSet
+	if s.runOptions.RandomSeed != nil {
+		option = fmt.Sprintf("%v", *s.runOptions.RandomSeed)
+	}
+	fmt.Printf("  %s %s\n", chalk.Bold("seed"), option)
+}
+
+func (s *Shell) cmdSet(args string) (err error) {
+	if len(args) == 0 {
+		s.printActiveRunOptions()
+		return
+	}
+
+	options := strings.Split(args, " ")
+
+	// we have at least one option
+	optionName := options[0]
+
+	if len(options) != 2 {
+		return ErrInvalidSetCommand{
+			Command: optionName,
+		}
+	}
+
+	arg := options[1]
+
+	switch optionName {
+	case "logging":
+		if !runoptions.ValidLogLevel(arg) {
+			return runoptions.ErrInvalidLogLevel{Level: arg}
+		}
+
+		level := runoptions.ACTRLogLevel(arg)
+		s.runOptions.LogLevel = &level
+
+	case "trace":
+		valid := []string{"on", "off"}
+		if !slices.Contains(valid, arg) {
+			return ErrInvalidSetValue{
+				OptionName: optionName,
+				Value:      arg,
+				Expected:   fmt.Sprintf("one of %q", strings.Join(valid, ", ")),
+			}
+		}
+
+		value := arg == "on"
+		s.runOptions.TraceActivations = &value
+
+	case "seed":
+		value, err := strconv.ParseUint(arg, 10, 32)
+		if err != nil {
+			return ErrInvalidSetValue{
+				OptionName: optionName,
+				Value:      arg,
+				Expected:   "a positive number",
+			}
+		}
+
+		value32 := uint32(value)
+		s.runOptions.RandomSeed = &value32
+
+	default:
+		return ErrUnrecognizedSetOption{Option: optionName}
 	}
 
 	return
