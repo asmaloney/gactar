@@ -12,10 +12,33 @@ All notable changes to this project will be documented in this file. The format 
   -s, --seed uint32         set the random number seed
   -t, --trace               output trace activations
   ```
+- {cli} Add "set" command to interactive mode ([#430](https://github.com/asmaloney/gactar/pull/430))
+
+  Allows setting of logging level, trace activation, and the random number seed using the form:
+
+  ```
+  set [OPTION] [VALUE]
+  ```
+
+  e.g.
+
+  ```
+  > set logging min
+  > set trace on
+  ```
+
+  Called without parameters, it will list the options:
+
+  ```
+  > set
+  logging <not set> (valid values are: min, info, detail)
+  trace <not set> (valid values are: on, off)
+  seed <not set>
+  ```
 
 ### Changed
 
-- {pyactr} Update to pyactr 0.3.2.
+- {pyactr} Update to [pyactr 0.3.2](https://github.com/jakdot/pyactr/tree/v0.3.2).
 - {pyactr} Turn off base-level learning by default to match ACT-R ([#391](https://github.com/asmaloney/gactar/pull/391))
 
 ## [0.13.0](https://github.com/asmaloney/gactar/releases/tag/v0.13.0) - 2024-01-23
